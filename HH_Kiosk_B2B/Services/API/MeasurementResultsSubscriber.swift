@@ -14,6 +14,8 @@
 
 import Foundation
 import Starscream
+import UIKit
+
 
 // MeasurementResultsSubscriber creates a WebSocket connection to DeepAffex API
 // to subscribe to results.

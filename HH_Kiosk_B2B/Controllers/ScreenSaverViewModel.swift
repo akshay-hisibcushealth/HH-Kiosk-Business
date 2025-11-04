@@ -1,3 +1,11 @@
+//
+//  ScreenSaverViewModel.swift
+//  HH_Kiosk_B2B
+//
+//  Created by Applite Solutions on 29/10/25.
+//
+
+
 import Foundation
 
 class ScreenSaverViewModel: ObservableObject {

@@ -25,7 +25,7 @@ class MeasurementDelegate : AnuraMeasurementDelegate {
     var measurementResultsSubscriber : MeasurementResultsSubscriber!
     
     weak var measurementController : AnuraMeasurementViewController?
-    weak var resultsController : ExampleResultsViewController?
+    weak var resultsController : ResultsViewController?
     
     var measurementID : String = ""
     var measurementQueue : OperationQueue?
@@ -113,7 +113,7 @@ class MeasurementDelegate : AnuraMeasurementDelegate {
         
         // Blood Flow Extraction is complete - Present results view controller
         
-        let resultsController = ExampleResultsViewController()
+        let resultsController = ResultsViewController()
         resultsController.dismissBlock = resetMeasurementID
         let navigationController = UINavigationController(rootViewController: resultsController)
         navigationController.modalPresentationStyle = .fullScreen

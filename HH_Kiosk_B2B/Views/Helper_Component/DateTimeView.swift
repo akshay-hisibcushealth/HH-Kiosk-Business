@@ -7,30 +7,29 @@ struct DateTimeView: View {
     var body: some View {
         VStack(alignment: .trailing) {
             // First row: icon + time
-            HStack(spacing: 8) {
+            HStack(spacing: 8.w) {
                 Image(systemName: isDayTime ? "sun.max.fill" : "moon.fill")
-                    .font(.system(size: 32))
+                    .font(.system(size: 32.sp))
                     .foregroundColor(Color(AppColors.secondary))
 
                 Text(timeString)
                     .foregroundColor(Color(AppColors.secondary))
-                    .font(.system(size: 40, weight: .bold))
+                    .font(.system(size: 40.sp, weight: .bold))
             }
 
             // Second row: day + date
-            HStack(spacing: 8) {
+            HStack(spacing: 8.w) {
                 Text("\(dayName.uppercased()),")
-                    .font(.system(size: 20, weight: .medium))
+                    .font(.system(size: 20.sp, weight: .medium))
 
                 Text(dateString.uppercased())
-                    .font(.system(size: 20, weight: .medium))
+                    .font(.system(size: 20.sp, weight: .medium))
             }
             .foregroundColor(.white)
-            .font(.subheadline)
         }
-        .padding(.trailing, 16)
-        .padding(.top, 8)
-        .padding(.bottom, 8)
+        .padding(.trailing, 16.w)
+        .padding(.top, 8.h)
+        .padding(.bottom, 8.h)
         .onAppear {
             updateTime()
             startSyncedTimer()

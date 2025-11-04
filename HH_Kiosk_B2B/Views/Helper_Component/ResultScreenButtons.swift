@@ -1,20 +1,22 @@
 import SwiftUI
+import AnuraCore
 
 struct ResultScreenButtons: View {
+    @StateObject private var appState = AppState()
     let result: [String: MeasurementResults.SignalResult]
     @State private var showEmailPopUp = false
     var body: some View {
         HStack(alignment: .top,spacing: 20) {
             Button(action: {
-                navigateToHome()
+                navigateToHome(appState: appState)
             }) {
-                Text("Exit")
+                Text("Close result")
                     .font(.system(size: 22))
                     .fontWeight(.semibold)
                     .foregroundColor(.black)
                     .frame(maxWidth: .infinity)   // Expand the tap area
                     .padding()
-                    .background(Color(hex: "#FFA094"))
+                    .background(Color(hex: "#C4C4C4"))
                     .cornerRadius(10)
             }
             
@@ -61,13 +63,13 @@ struct ResultScreenButtons: View {
     }
 }
 
-func navigateToHome() {
+func navigateToHome(appState: AppState) {
     guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
           let window = windowScene.windows.first else {
         return
     }
 
-    let homeView = HomeScreen()
+    let homeView = HomeScreen().environmentObject(appState)
     let hostingController = UIHostingController(rootView: homeView)
 
     window.rootViewController = hostingController

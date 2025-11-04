@@ -1,0 +1,18 @@
+framework module AnuraCore {
+    umbrella header "AnuraCore.h"
+
+    private header "VideoFrame.h"
+    private header "Region.h"
+    private header "ExposureEngine.h"
+    private header "FacePointsAdapter.h"
+    private header "FaceTrackingClient.h"
+    private header "MotionTracker.h"
+
+    export *
+    module * { export * }
+}
+
+module AnuraCore.Swift {
+  header "AnuraCore-Swift.h"
+  requires objc
+}

@@ -9,5 +9,6 @@ struct AppColors {
     static let background = UIColor(white: 0.95, alpha: 1.0) // Light gray
     static let accent = UIColor.systemOrange
     static let error = UIColor.systemRed
+    static let white = UIColor.white
 }
 

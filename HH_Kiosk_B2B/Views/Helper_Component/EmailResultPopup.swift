@@ -1,7 +1,9 @@
 import SwiftUI
 import Foundation
+import AnuraCore
 
 struct EmailResultPopup: View {
+    @StateObject private var appState = AppState()
     let results: [String: MeasurementResults.SignalResult]
     @Environment(\.dismiss) var dismiss
     @State private var email: String = ""
@@ -90,7 +92,7 @@ struct EmailResultPopup: View {
             .padding(.bottom, 12)
 
         Button(action: {
-            navigateToHome()
+            navigateToHome(appState: appState)
             dismiss()
         }) {
             Text("Return to Home Screen")
@@ -153,7 +155,7 @@ struct EmailResultPopup: View {
                     .accentColor(.clear)
                     .padding()
                     .background(RoundedRectangle(cornerRadius: 10).stroke(Color.gray.opacity(0.3)))
-                    .onChange(of: pin) { newValue in
+                    .onChange(of: pin) { _,newValue in
                         pin = String(newValue.prefix(4).filter { $0.isNumber })
                     }
             }
@@ -266,4 +268,5 @@ struct EmailResultPopup: View {
         }
     }
 }
+
 

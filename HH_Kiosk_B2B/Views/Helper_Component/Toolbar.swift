@@ -1,4 +1,5 @@
 import SwiftUI
+
 struct Toolbar: View {
     // For updating time in the toolbar
     @State private var currentTime: String = HomeScreen.getCurrentTime()
@@ -8,15 +9,27 @@ struct Toolbar: View {
             Image("logo")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 200, height: 140)
-                .padding([.top, .bottom], 16)
+                .frame(width: 200.w, height: 140.h)
+                .padding([.vertical], 16.h)
             
             Spacer()
-
+            // White bordered box with text
+            Text("PUT YOUR COMPANY\nLOGO HERE")
+                .font(.system(size: 24.sp, weight: .semibold))
+                .foregroundColor(.white)
+                .multilineTextAlignment(.center)
+                .padding(.all, 24.w)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 0)
+                        .stroke(Color.white, lineWidth: 5.w)
+                )
+            
+            Spacer()
+            
             DateTimeView()
         }
-        .padding(.horizontal)
-        .padding(.vertical, 10)
+        .padding(.horizontal,24.w)
+        .padding(.vertical, 10.h)
         .background(Color(AppColors.primary))
         .onReceive(timer) { _ in
             currentTime = HomeScreen.getCurrentTime()
@@ -24,3 +37,5 @@ struct Toolbar: View {
         
     }
 }
+
+

@@ -49,7 +49,7 @@ struct ProfileWeightSection: View {
 
                     ScrollView {
                         LazyVStack(spacing: 0) {
-                            ForEach(66...660, id: \.self) { lbs in
+                            ForEach(75...400, id: \.self) { lbs in
                                 Text("\(lbs) lbs")
                                     .font(.body)
                                     .foregroundColor(.primary)

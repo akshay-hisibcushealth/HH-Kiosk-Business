@@ -17,7 +17,7 @@ class WeatherViewModel: ObservableObject {
     @Published var isLoading: Bool = true
     @Published var errorMessage: String? = nil
     @Published var iconCode: String = ""
-    @Published var cityName: String = ""     // Added city name property
+    @Published var cityName: String = ""
 
     private let apiKey = AppConfig.openweatherApiKey
     
@@ -106,7 +106,9 @@ class WeatherViewModel: ObservableObject {
                let list = json["list"] as? [[String: Any]] {
 
                 var forecasts: [ForecastItem] = []
+                var temps: [Double] = []
 
+                // Take next 8 entries (~24 hours)
                 for item in list.prefix(6) {
                     if let dt = item["dt"] as? TimeInterval,
                        let main = item["main"] as? [String: Any],
@@ -118,11 +120,18 @@ class WeatherViewModel: ObservableObject {
                         let hour = self.hourFormatter.string(from: date)
 
                         forecasts.append(ForecastItem(hour: hour, temperature: Int(temp), condition: condition))
+                        temps.append(temp)
                     }
                 }
 
+                // Compute high / low from forecast temps
+                let maxTemp = temps.max() ?? 0
+                let minTemp = temps.min() ?? 0
+
                 DispatchQueue.main.async {
                     self.hourly = forecasts
+                    self.high = Int(maxTemp)
+                    self.low = Int(minTemp)
                 }
             } else {
                 DispatchQueue.main.async {
@@ -131,4 +140,5 @@ class WeatherViewModel: ObservableObject {
             }
         }.resume()
     }
+
 }

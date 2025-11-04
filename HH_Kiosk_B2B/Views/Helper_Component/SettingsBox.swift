@@ -1,5 +1,5 @@
 import SwiftUI
-
+import AnuraCore
 
 struct SettingsView: View {
     @Binding var showSettings: Bool
@@ -38,7 +38,7 @@ struct SettingsView: View {
                     .foregroundColor(.gray)
                     .fixedSize(horizontal: false, vertical: true)
             }
-            .navigationTitle("Settings")
+            .navigationTitle("Camera Settings")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {

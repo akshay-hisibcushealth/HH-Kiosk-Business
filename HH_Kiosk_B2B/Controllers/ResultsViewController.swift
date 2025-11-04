@@ -139,9 +139,11 @@ class ResultsViewController: UIViewController, UICollectionViewDataSource, UICol
             exitButton.widthAnchor.constraint(equalToConstant: 200),
             exitButton.heightAnchor.constraint(equalToConstant: 50)
         ])
-        
         // Start with loading state
         updateUI(for: .loading)
+        
+        //load mock data for testing
+       loadMockData()
     }
     
     // MARK: - UI State Handling
@@ -236,6 +238,20 @@ class ResultsViewController: UIViewController, UICollectionViewDataSource, UICol
         addResult("HDLTC_RISK_PROB", title: "Hypercholesterolemia Risk", minValue: 0, maxValue: 100, icon: UIImage(systemName: "bolt.heart.fill"), unit: "%")
         addResult("TG_RISK_PROB", title: "Hypertriglyceridemia Risk", minValue: 0, maxValue: 100, icon: UIImage(systemName: "flame.fill"), unit: "%")
         addResult("HR_BPM", title: "Heart Rate", minValue: 0, maxValue: 140, icon: UIImage(systemName: "heart.fill"), unit: "bpm")
+    }
+    
+    private func loadMockData() {
+        let jsonString = """
+        { "ABSI" : { "notes" : [ ], "value" : 7.7581 }, "AGE" : { "notes" : [ ], "value" : 37 }, "BMI_CALC" : { "notes" : [ ], "value" : 27.6816 }, "BP_CVD" : { "notes" : [ "NOTE_DEGRADED_ACCURACY", "NOTE_MISSING_MEDICAL_INFO" ], "value" : 0.2024 }, "BP_DIASTOLIC" : { "notes" : [ "NOTE_DEGRADED_ACCURACY", "NOTE_MISSING_MEDICAL_INFO" ], "value" : 83.7584 }, "BP_HEART_ATTACK" : { "notes" : [ "NOTE_DEGRADED_ACCURACY", "NOTE_MISSING_MEDICAL_INFO" ], "value" : 0.0155 }, "BP_RPP" : { "notes" : [ "NOTE_DEGRADED_ACCURACY", "NOTE_MISSING_MEDICAL_INFO" ], "value" : 3.8988 }, "BP_STROKE" : { "notes" : [ "NOTE_DEGRADED_ACCURACY", "NOTE_MISSING_MEDICAL_INFO" ], "value" : 0.1882 }, "BP_SYSTOLIC" : { "notes" : [ "NOTE_DEGRADED_ACCURACY", "NOTE_MISSING_MEDICAL_INFO" ], "value" : 112.4425 }, "BP_TAU" : { "notes" : [ "NOTE_DEGRADED_ACCURACY", "NOTE_MISSING_MEDICAL_INFO" ], "value" : 1.966 }, "BR_BPM" : { "notes" : [ ], "value" : 12 }, "DBT_RISK_PROB" : { "notes" : [ ], "value" : 4.6369 }, "FLD_RISK_PROB" : { "notes" : [ ], "value" : 22.5801 }, "GENDER" : { "notes" : [ ], "value" : 1 }, "HBA1C_RISK_PROB" : { "notes" : [ ], "value" : 26.295 }, "HDLTC_RISK_PROB" : { "notes" : [ ], "value" : 54.1508 }, "HEALTH_SCORE" : { "notes" : [ "NOTE_DEGRADED_ACCURACY", "NOTE_MISSING_MEDICAL_INFO" ], "value" : 72.5714 }, "HEIGHT" : { "notes" : [ ], "value" : 170.9476 }, "HPT_RISK_PROB" : { "notes" : [ ], "value" : 2.3682 }, "HRV_SDNN" : { "notes" : [ ], "value" : 30.3802 }, "HR_BPM" : { "notes" : [ ], "value" : 70.4494 }, "IHB_COUNT" : { "notes" : [ ], "value" : 4 }, "MENTAL_SCORE" : { "notes" : [ ], "value" : 3 }, "MFBG_RISK_PROB" : { "notes" : [ ], "value" : 33.5665 }, "MSI" : { "notes" : [ ], "value" : 3.2648 }, "OVERALL_METABOLIC_RISK_PROB" : { "notes" : [ ], "value" : 26.1821 }, "PHYSICAL_SCORE" : { "notes" : [ ], "value" : 3 }, "PHYSIO_SCORE" : { "notes" : [ "NOTE_DEGRADED_ACCURACY", "NOTE_MISSING_MEDICAL_INFO" ], "value" : 3.5 }, "RISKS_SCORE" : { "notes" : [ "NOTE_DEGRADED_ACCURACY", "NOTE_MISSING_MEDICAL_INFO" ], "value" : 4.1428 }, "SNR" : { "notes" : [ ], "value" : 3.2639 }, "TG_RISK_PROB" : { "notes" : [ ], "value" : 47.1745 }, "VITAL_SCORE" : { "notes" : [ "NOTE_DEGRADED_ACCURACY", "NOTE_MISSING_MEDICAL_INFO" ], "value" : 4.5 }, "WAIST_CIRCUM" : { "notes" : [ ], "value" : 92.5643 }, "WAIST_TO_HEIGHT" : { "notes" : [ ], "value" : 54.4496 }, "WEIGHT" : { "notes" : [ ], "value" : 81.8899 } }
+ """
+        guard let jsonData = jsonString.data(using: .utf8) else { return }
+        do {
+            let decoded = try JSONDecoder().decode([String: MeasurementResults.SignalResult].self, from: jsonData)
+            self.results = decoded
+        }
+        catch {
+            print("Failed to decode mock data: \(error)")
+        }
     }
 }
 

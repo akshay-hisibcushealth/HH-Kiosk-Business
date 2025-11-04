@@ -1,3 +1,5 @@
+import SwiftUI
+
 enum ResultType {
     case risk, bloodPressure, heartRate
 }

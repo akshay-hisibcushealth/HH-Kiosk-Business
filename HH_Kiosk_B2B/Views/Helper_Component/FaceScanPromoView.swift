@@ -9,13 +9,10 @@ struct FaceScanPromoView: View {
             VStack(alignment: .leading) {
                 Text("Curious About Your Health?")
                     .foregroundColor(.white)
-                    .font(.title)
-                    .fontWeight(.regular)
+                    .font(.system(size: 32.sp, weight: .semibold))
+                buildSemiBoldText("Start with a 30 seconds Face Scan",36.sp,color: .white)
 
-                Text("Start with a 30s Face Scan")
-                    .foregroundColor(.white)
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
+
             }
             .padding()
 
@@ -28,8 +25,8 @@ struct FaceScanPromoView: View {
                     Image("scan_button")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 280, height: 80)
-                        .padding(.top, 16)
+                        .frame(width: 280.w, height: 80.h)
+                        .padding(.top, 16.h)
                 }
 
                 Button(action: {
@@ -39,7 +36,8 @@ struct FaceScanPromoView: View {
                         Image(systemName: "play.circle.fill")
                             .foregroundColor(.white)
                             .font(.title3)
-                        Text("Watch quick Demo")
+                        Text("Watch Quick Demo")
+                            .font(.system(size: 25.sp, weight: .semibold))
                             .foregroundColor(.white)
                             .underline()
                     }
@@ -48,7 +46,9 @@ struct FaceScanPromoView: View {
             .padding()
         }
         .padding()
-        .background(Color(red: 1, green: 69/255, blue: 0))
+        .frame(height: 240.h)
+        .background(Color(hex: "#EE4B0E"))
+        .clipShape(RoundedRectangle(cornerRadius: 24.r))
         .sheet(isPresented: $showWebView) {
                    WebViewSheetView(url: URL(string: "https://drive.google.com/file/d/1dPJs1A6aptEh3yTCVxR5BUlRfyLWa3rL/view?usp=sharing")!)
                }

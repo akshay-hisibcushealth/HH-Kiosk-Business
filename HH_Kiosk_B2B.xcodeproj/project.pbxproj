@@ -6,43 +6,60 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXContainerItemProxy section */
-		96B73FA02EA0148A0004A505 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 96B73F872EA014890004A505 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 96B73F8E2EA014890004A505;
-			remoteInfo = HH_Kiosk_B2B;
+/* Begin PBXBuildFile section */
+		96B73FD62EA016F70004A505 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96B73FD52EA016F70004A505 /* Accelerate.framework */; };
+		96B73FD82EA017110004A505 /* AnuraCore.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96B73FD72EA017110004A505 /* AnuraCore.xcframework */; };
+		96B73FD92EA017110004A505 /* AnuraCore.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 96B73FD72EA017110004A505 /* AnuraCore.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		96B73FDC2EA0171F0004A505 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96B73FDB2EA0171F0004A505 /* AVFoundation.framework */; };
+		96B73FDF2EA017360004A505 /* FaceMesh.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96B73FDD2EA017360004A505 /* FaceMesh.xcframework */; };
+		96B73FE02EA017360004A505 /* FaceMesh.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 96B73FDD2EA017360004A505 /* FaceMesh.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		96B73FE12EA017360004A505 /* libdfx.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96B73FDE2EA017360004A505 /* libdfx.xcframework */; };
+		96B73FE22EA017360004A505 /* libdfx.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 96B73FDE2EA017360004A505 /* libdfx.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		96B740092EA01D510004A505 /* Starscream in Frameworks */ = {isa = PBXBuildFile; productRef = 96B740082EA01D510004A505 /* Starscream */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		96B73FDA2EA017110004A505 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				96B73FD92EA017110004A505 /* AnuraCore.xcframework in Embed Frameworks */,
+				96B73FE22EA017360004A505 /* libdfx.xcframework in Embed Frameworks */,
+				96B73FE02EA017360004A505 /* FaceMesh.xcframework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
 		};
-		96B73FAA2EA0148A0004A505 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 96B73F872EA014890004A505 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 96B73F8E2EA014890004A505;
-			remoteInfo = HH_Kiosk_B2B;
-		};
-/* End PBXContainerItemProxy section */
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		96B73F8F2EA014890004A505 /* HH_Kiosk_B2B.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HH_Kiosk_B2B.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		96B73F9F2EA0148A0004A505 /* HH_Kiosk_B2BTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HH_Kiosk_B2BTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		96B73FA92EA0148A0004A505 /* HH_Kiosk_B2BUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HH_Kiosk_B2BUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		96B73FD52EA016F70004A505 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
+		96B73FD72EA017110004A505 /* AnuraCore.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = AnuraCore.xcframework; path = Frameworks/AnuraCore.xcframework; sourceTree = "<group>"; };
+		96B73FDB2EA0171F0004A505 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		96B73FDD2EA017360004A505 /* FaceMesh.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = FaceMesh.xcframework; path = Frameworks/FaceMesh.xcframework; sourceTree = "<group>"; };
+		96B73FDE2EA017360004A505 /* libdfx.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = libdfx.xcframework; path = Frameworks/libdfx.xcframework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		9639FE472EB254CA00C42E96 /* Exceptions for "HH_Kiosk_B2B" folder in "HH_Kiosk_B2B" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Services/Networking/Untitled.swift,
+			);
+			target = 96B73F8E2EA014890004A505 /* HH_Kiosk_B2B */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		96B73F912EA014890004A505 /* HH_Kiosk_B2B */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				9639FE472EB254CA00C42E96 /* Exceptions for "HH_Kiosk_B2B" folder in "HH_Kiosk_B2B" target */,
+			);
 			path = HH_Kiosk_B2B;
-			sourceTree = "<group>";
-		};
-		96B73FA22EA0148A0004A505 /* HH_Kiosk_B2BTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = HH_Kiosk_B2BTests;
-			sourceTree = "<group>";
-		};
-		96B73FAC2EA0148A0004A505 /* HH_Kiosk_B2BUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = HH_Kiosk_B2BUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -52,20 +69,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		96B73F9C2EA0148A0004A505 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		96B73FA62EA0148A0004A505 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
+				96B73FD82EA017110004A505 /* AnuraCore.xcframework in Frameworks */,
+				96B73FE12EA017360004A505 /* libdfx.xcframework in Frameworks */,
+				96B73FD62EA016F70004A505 /* Accelerate.framework in Frameworks */,
+				96B73FDC2EA0171F0004A505 /* AVFoundation.framework in Frameworks */,
+				96B73FDF2EA017360004A505 /* FaceMesh.xcframework in Frameworks */,
+				96B740092EA01D510004A505 /* Starscream in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -76,8 +85,7 @@
 			isa = PBXGroup;
 			children = (
 				96B73F912EA014890004A505 /* HH_Kiosk_B2B */,
-				96B73FA22EA0148A0004A505 /* HH_Kiosk_B2BTests */,
-				96B73FAC2EA0148A0004A505 /* HH_Kiosk_B2BUITests */,
+				96B73FD42EA016F70004A505 /* Frameworks */,
 				96B73F902EA014890004A505 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -86,10 +94,20 @@
 			isa = PBXGroup;
 			children = (
 				96B73F8F2EA014890004A505 /* HH_Kiosk_B2B.app */,
-				96B73F9F2EA0148A0004A505 /* HH_Kiosk_B2BTests.xctest */,
-				96B73FA92EA0148A0004A505 /* HH_Kiosk_B2BUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		96B73FD42EA016F70004A505 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				96B73FDD2EA017360004A505 /* FaceMesh.xcframework */,
+				96B73FDE2EA017360004A505 /* libdfx.xcframework */,
+				96B73FDB2EA0171F0004A505 /* AVFoundation.framework */,
+				96B73FD72EA017110004A505 /* AnuraCore.xcframework */,
+				96B73FD52EA016F70004A505 /* Accelerate.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -102,6 +120,7 @@
 				96B73F8B2EA014890004A505 /* Sources */,
 				96B73F8C2EA014890004A505 /* Frameworks */,
 				96B73F8D2EA014890004A505 /* Resources */,
+				96B73FDA2EA017110004A505 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -112,56 +131,11 @@
 			);
 			name = HH_Kiosk_B2B;
 			packageProductDependencies = (
+				96B740082EA01D510004A505 /* Starscream */,
 			);
 			productName = HH_Kiosk_B2B;
 			productReference = 96B73F8F2EA014890004A505 /* HH_Kiosk_B2B.app */;
 			productType = "com.apple.product-type.application";
-		};
-		96B73F9E2EA0148A0004A505 /* HH_Kiosk_B2BTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 96B73FB62EA0148A0004A505 /* Build configuration list for PBXNativeTarget "HH_Kiosk_B2BTests" */;
-			buildPhases = (
-				96B73F9B2EA0148A0004A505 /* Sources */,
-				96B73F9C2EA0148A0004A505 /* Frameworks */,
-				96B73F9D2EA0148A0004A505 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				96B73FA12EA0148A0004A505 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				96B73FA22EA0148A0004A505 /* HH_Kiosk_B2BTests */,
-			);
-			name = HH_Kiosk_B2BTests;
-			packageProductDependencies = (
-			);
-			productName = HH_Kiosk_B2BTests;
-			productReference = 96B73F9F2EA0148A0004A505 /* HH_Kiosk_B2BTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
-		96B73FA82EA0148A0004A505 /* HH_Kiosk_B2BUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 96B73FB92EA0148A0004A505 /* Build configuration list for PBXNativeTarget "HH_Kiosk_B2BUITests" */;
-			buildPhases = (
-				96B73FA52EA0148A0004A505 /* Sources */,
-				96B73FA62EA0148A0004A505 /* Frameworks */,
-				96B73FA72EA0148A0004A505 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				96B73FAB2EA0148A0004A505 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				96B73FAC2EA0148A0004A505 /* HH_Kiosk_B2BUITests */,
-			);
-			name = HH_Kiosk_B2BUITests;
-			packageProductDependencies = (
-			);
-			productName = HH_Kiosk_B2BUITests;
-			productReference = 96B73FA92EA0148A0004A505 /* HH_Kiosk_B2BUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
 
@@ -176,14 +150,6 @@
 					96B73F8E2EA014890004A505 = {
 						CreatedOnToolsVersion = 16.0;
 					};
-					96B73F9E2EA0148A0004A505 = {
-						CreatedOnToolsVersion = 16.0;
-						TestTargetID = 96B73F8E2EA014890004A505;
-					};
-					96B73FA82EA0148A0004A505 = {
-						CreatedOnToolsVersion = 16.0;
-						TestTargetID = 96B73F8E2EA014890004A505;
-					};
 				};
 			};
 			buildConfigurationList = 96B73F8A2EA014890004A505 /* Build configuration list for PBXProject "HH_Kiosk_B2B" */;
@@ -195,34 +161,21 @@
 			);
 			mainGroup = 96B73F862EA014890004A505;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				96B740072EA01D510004A505 /* XCRemoteSwiftPackageReference "Starscream" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 96B73F902EA014890004A505 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				96B73F8E2EA014890004A505 /* HH_Kiosk_B2B */,
-				96B73F9E2EA0148A0004A505 /* HH_Kiosk_B2BTests */,
-				96B73FA82EA0148A0004A505 /* HH_Kiosk_B2BUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		96B73F8D2EA014890004A505 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		96B73F9D2EA0148A0004A505 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		96B73FA72EA0148A0004A505 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -239,34 +192,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		96B73F9B2EA0148A0004A505 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		96B73FA52EA0148A0004A505 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		96B73FA12EA0148A0004A505 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 96B73F8E2EA014890004A505 /* HH_Kiosk_B2B */;
-			targetProxy = 96B73FA02EA0148A0004A505 /* PBXContainerItemProxy */;
-		};
-		96B73FAB2EA0148A0004A505 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 96B73F8E2EA014890004A505 /* HH_Kiosk_B2B */;
-			targetProxy = 96B73FAA2EA0148A0004A505 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		96B73FB12EA0148A0004A505 /* Debug */ = {
@@ -395,14 +321,21 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"HH_Kiosk_B2B/Preview Content\"";
 				DEVELOPMENT_TEAM = 7P2GHHGYQX;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "HH-Kiosk-B2B-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "HH Kiosk";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
+				INFOPLIST_KEY_NSCameraUsageDescription = "The camera will be used to take your measurements.";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "This app needs your location to show current weather info..";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIRequiredDeviceCapabilities = armv7;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -424,14 +357,21 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"HH_Kiosk_B2B/Preview Content\"";
 				DEVELOPMENT_TEAM = 7P2GHHGYQX;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "HH-Kiosk-B2B-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "HH Kiosk";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
+				INFOPLIST_KEY_NSCameraUsageDescription = "The camera will be used to take your measurements.";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "This app needs your location to show current weather info..";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIRequiredDeviceCapabilities = armv7;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -443,78 +383,6 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
-		96B73FB72EA0148A0004A505 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 7P2GHHGYQX;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.nutritionApp.hibiscushealth.HH-Kiosk-B2BTests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/HH_Kiosk_B2B.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/HH_Kiosk_B2B";
-			};
-			name = Debug;
-		};
-		96B73FB82EA0148A0004A505 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 7P2GHHGYQX;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.nutritionApp.hibiscushealth.HH-Kiosk-B2BTests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/HH_Kiosk_B2B.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/HH_Kiosk_B2B";
-			};
-			name = Release;
-		};
-		96B73FBA2EA0148A0004A505 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 7P2GHHGYQX;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.nutritionApp.hibiscushealth.HH-Kiosk-B2BUITests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = HH_Kiosk_B2B;
-			};
-			name = Debug;
-		};
-		96B73FBB2EA0148A0004A505 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 7P2GHHGYQX;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.nutritionApp.hibiscushealth.HH-Kiosk-B2BUITests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = HH_Kiosk_B2B;
 			};
 			name = Release;
 		};
@@ -539,25 +407,26 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		96B73FB62EA0148A0004A505 /* Build configuration list for PBXNativeTarget "HH_Kiosk_B2BTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				96B73FB72EA0148A0004A505 /* Debug */,
-				96B73FB82EA0148A0004A505 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		96B73FB92EA0148A0004A505 /* Build configuration list for PBXNativeTarget "HH_Kiosk_B2BUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				96B73FBA2EA0148A0004A505 /* Debug */,
-				96B73FBB2EA0148A0004A505 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		96B740072EA01D510004A505 /* XCRemoteSwiftPackageReference "Starscream" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/daltoniam/Starscream.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.0.8;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		96B740082EA01D510004A505 /* Starscream */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 96B740072EA01D510004A505 /* XCRemoteSwiftPackageReference "Starscream" */;
+			productName = Starscream;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 96B73F872EA014890004A505 /* Project object */;
 }
