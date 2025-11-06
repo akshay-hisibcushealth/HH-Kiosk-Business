@@ -143,7 +143,7 @@ class ResultsViewController: UIViewController, UICollectionViewDataSource, UICol
         updateUI(for: .loading)
         
         //load mock data for testing
-        // loadMockData()
+         loadMockData()
     }
     
     // MARK: - UI State Handling

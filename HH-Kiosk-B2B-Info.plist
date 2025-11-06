@@ -12,6 +12,7 @@
 	<array>
 		<string>NewSpirit-Semibold.otf</string>
 		<string>NewSpirit-Bold.otf</string>
+		<string>NewSpirit-Medium.otf</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array/>

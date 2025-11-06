@@ -14,3 +14,10 @@ func buildBoldText(_ text: String,_ fontSize: CGFloat, color: Color = .black) ->
         .foregroundColor(color)
     
 }
+
+func buildMediumText(_ text: String,_ fontSize: CGFloat, color: Color = .black) -> some View {
+    Text(text)
+        .font(.custom("NewSpirit-Medium", size: fontSize))
+        .foregroundColor(color)
+    
+}
