@@ -60,7 +60,6 @@ public struct ResultScreen: View {
                     ResultsList(model: model)
                     BottomBar()
                     Footer()
-                        .padding(.bottom, 140.h)
                 }
                 .frame(maxWidth: .infinity)
                 .background(Color(.systemBackground))
@@ -160,11 +159,18 @@ private struct BottomBar: View {
                 .padding(.horizontal, 24.w)
                 .padding(.bottom,40.h)
             ZStack(alignment: .bottom){
+                Color(hex: "#142A6D")
+                    .frame(height: 100.h)
+                    .frame(maxWidth: .infinity)
+                    .ignoresSafeArea(edges: .bottom)
                 Image("result_screen_bottom_image")
                     .resizable()
                     .scaledToFill()
                     .frame(height: 600.h)
-                    .clipped()
+                    .clipShape(
+                        RoundedCorner(radius: 40.r, corners: [.topLeft, .topRight])
+                    )
+
                 
                 
                 VStack {
@@ -251,3 +257,16 @@ private struct Footer: View {
     }
 }
 
+struct RoundedCorner: Shape {
+    var radius: CGFloat = .infinity
+    var corners: UIRectCorner = .allCorners
+
+    func path(in rect: CGRect) -> Path {
+        let path = UIBezierPath(
+            roundedRect: rect,
+            byRoundingCorners: corners,
+            cornerRadii: CGSize(width: radius, height: radius)
+        )
+        return Path(path.cgPath)
+    }
+}

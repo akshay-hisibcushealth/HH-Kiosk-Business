@@ -39,6 +39,7 @@ class ResultsViewController: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        navigationController?.navigationBar.isHidden = true
         view.backgroundColor = .systemBackground
         setupSwiftUIScreen()
         setupBottomButtons()
