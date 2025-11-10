@@ -60,7 +60,7 @@ struct ResultToolbar: View {
                 .resizable()
                 .scaledToFit()
                 .frame(width: 220.w, height: 140.h)
-                .padding(.vertical, 16.h)
+                .padding(.vertical, 48.h)
                 .padding(.trailing, 32.h)
         }
         .padding(.horizontal, 24.w)

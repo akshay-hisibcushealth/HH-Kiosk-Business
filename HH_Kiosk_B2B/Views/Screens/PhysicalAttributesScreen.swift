@@ -147,7 +147,9 @@ struct PhysicalAttributesScreen: View {
                                 currentPreviewOrientation: previewOrientation,
                                 currentMirrorExternalCameraPreview: mirrorExternalCameraPreview,
                                 currentUseOnlyExternalCamera: useOnlyExternalCamera
-                            )
+                            ){
+                                isLoading = false
+                            }
                         }
                     }) {
                         if isLoading {

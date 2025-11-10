@@ -3,6 +3,9 @@ import SwiftUI
 
 @main
 struct MyApp: App {
+    @StateObject private var orientation = OrientationManager()
+
+
     var body: some Scene {
         WindowGroup {
             RootView()
@@ -11,9 +14,8 @@ struct MyApp: App {
 }
 
 
-import SwiftUI
-
 struct RootView: View {
+    @EnvironmentObject var orientation: OrientationManager
     @StateObject private var appState = AppState()
 
     var body: some View {
@@ -24,17 +26,17 @@ struct RootView: View {
                     .transition(.opacity)
                     .zIndex(1)
             } else {
-                ResultScreen()
+               ResultsViewWrapper()
 //                HomeScreen()
 //                    .environmentObject(appState)
                     .transition(.opacity)
                     .zIndex(0)
             }
         }
-        // Animate the view change
         .animation(.easeInOut(duration: 0.5), value: appState.showScreenSaver)
     }
 }
+
 
 
 struct ResultsViewWrapper: UIViewControllerRepresentable {

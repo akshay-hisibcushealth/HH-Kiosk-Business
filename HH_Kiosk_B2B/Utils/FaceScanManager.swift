@@ -53,7 +53,8 @@ class FaceScanManager: ObservableObject{
         currentCameraPreset: AnuraCore.CameraPreset,
         currentPreviewOrientation: AnuraCore.PreviewOrientation,
         currentMirrorExternalCameraPreview: Bool,
-        currentUseOnlyExternalCamera: Bool
+        currentUseOnlyExternalCamera: Bool,
+        onMeasurementStart: (() -> Void)? = nil
     ) {
         guard api != nil, measurementDelegate != nil else {
                print("❌ API or delegate not initialized. Call initMethods() first.")
@@ -75,6 +76,7 @@ class FaceScanManager: ObservableObject{
             switch sdkConfigResult {
             case .success(let sdkConfig):
                 self.requestCameraPermissionsAndDisplayAnuraViewController(with: sdkConfig)
+                onMeasurementStart?()
             case .failure(let error):
                 self.startupFlowError(error)
             }

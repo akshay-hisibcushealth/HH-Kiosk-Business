@@ -10,6 +10,7 @@ struct EmailResultPopup: View {
     @State private var pin: String = ""
     @State private var isLoading: Bool = false
     @State private var isEmailSent: Bool = false
+    @FocusState private var isPinFocused: Bool  
 
     // Email validation
     private var isEmailValid: Bool {
@@ -25,14 +26,13 @@ struct EmailResultPopup: View {
         return predicate.evaluate(with: pin)
     }
 
-
     var body: some View {
         ZStack(alignment: .topTrailing) {
             closeButton
-                .padding(.top, 16)
-                .padding(.trailing, 16)
+                .padding(.top, 16.h)
+                .padding(.trailing, 16.w)
 
-            VStack(spacing: 16) {
+            VStack(spacing: 16.h) {
                 if isLoading {
                     loadingView
                 } else if isEmailSent {
@@ -41,11 +41,10 @@ struct EmailResultPopup: View {
                     emailFormView
                 }
             }
-            .padding(.top, 40)
+            .padding(.top, 20.h)
         }
     }
 
-    
     @ViewBuilder
     private var closeButton: some View {
         Button(action: { dismiss() }) {
@@ -53,7 +52,7 @@ struct EmailResultPopup: View {
                 HStack {
                     Spacer()
                     Image(systemName: "xmark")
-                        .padding(.trailing, 32)
+                        .padding(.trailing, 32.w)
                         .foregroundColor(.black)
                 }
             }
@@ -79,7 +78,7 @@ struct EmailResultPopup: View {
             .resizable()
             .scaledToFit()
             .padding(.top)
-            .frame(width: 120, height: 120)
+            .frame(width: 120.w, height: 120.w)
 
         Text("Check your inbox!")
             .font(.title)
@@ -112,7 +111,7 @@ struct EmailResultPopup: View {
             .resizable()
             .scaledToFit()
             .padding(.top)
-            .frame(width: 50, height: 60)
+            .frame(width: 50.w, height: 60.h)
 
         Text("Send result to your mail")
             .font(.headline)
@@ -128,45 +127,56 @@ struct EmailResultPopup: View {
             TextField("Email", text: $email)
                 .keyboardType(.emailAddress)
                 .autocapitalization(.none)
-                .padding()
-                .background(RoundedRectangle(cornerRadius: 10).stroke(Color.gray.opacity(0.3)))
+                .padding(.vertical, 24.h)
+                .padding(.horizontal)
+                .background(RoundedRectangle(cornerRadius: 10.r).stroke(Color.gray.opacity(0.3)))
                 .padding(.horizontal)
         }
+        
 
         // PIN field
-        VStack(alignment: .leading) {
-            Text("Create a 4-digit secret key")
-                .font(.headline)
-                .padding(.horizontal)
-                .foregroundColor(.black)
+                    VStack(alignment: .leading) {
+                        Text("Create a 4-digit secret key")
+                            .font(.headline)
+                            .padding(.horizontal)
+                            .foregroundColor(.black)
 
-            ZStack(alignment: .leading) {
-                HStack {
-                    ForEach(0..<pin.count, id: \.self) { _ in
-                        Text("*")
+                        ZStack(alignment: .leading) {
+                            // Background display of asterisks
+                            HStack(spacing: 1.w) { // Set spacing to 0 if not already minimal
+                                ForEach(0..<pin.count, id: \.self) { _ in
+                                    Text("*")
+                                        .font(.system(size: 24.sp,weight: .bold))
+                                        .padding(.top,8.h)
+                                        .padding(.trailing,4.h)
+                                }
+                            }
+                            .padding()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+
+                            // The actual input field
+                            TextField("* * * *", text: $pin)
+                                .keyboardType(.numberPad)
+                                .foregroundColor(.clear)
+                                
+                                .padding()
+                                .background(RoundedRectangle(cornerRadius: 10).stroke(Color.gray.opacity(0.3)))
+                                .onChange(of: pin) { _,newValue in
+                                    pin = String(newValue.prefix(4).filter { $0.isNumber })
+                                }
+
+                        }
+                        .font(.custom("NewSpirit-SemiBold", size: 28.sp))
+                        // ========================================================================
+                        .padding(.horizontal)
+
+                        Text("This will be used to view your result ")
+                            .font(.caption)
+                            .italic()
+                            .padding(.horizontal)
+                            .foregroundColor(.blue)
                     }
-                }
-                .padding()
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-                TextField("* * * *", text: $pin)
-                    .keyboardType(.numberPad)
-                    .foregroundColor(.clear)
-                    .accentColor(.clear)
-                    .padding()
-                    .background(RoundedRectangle(cornerRadius: 10).stroke(Color.gray.opacity(0.3)))
-                    .onChange(of: pin) { _,newValue in
-                        pin = String(newValue.prefix(4).filter { $0.isNumber })
-                    }
-            }
-            .padding(.horizontal)
-
-            Text("This will be used to view your result ")
-                .font(.caption)
-                .italic()
-                .padding(.horizontal)
-                .foregroundColor(.blue)
-        }
+        
 
         // Send button
         Button(action: {
@@ -191,12 +201,12 @@ struct EmailResultPopup: View {
             .padding()
             .frame(maxWidth: .infinity)
             .background((isEmailValid && isPinValid) ? Color(hex: "#B8EB5E") : Color(hex: "#B8EB5E").opacity(0.5))
-            .cornerRadius(10)
+            .cornerRadius(10.r)
         }
         .disabled(!(isEmailValid && isPinValid))
         .padding(.horizontal)
 
-        HStack(spacing: 8) {
+        HStack(spacing: 8.w) {
             Image(systemName: "lock.shield")
                 .foregroundColor(.blue)
             Text("Secure and Private")
@@ -205,9 +215,7 @@ struct EmailResultPopup: View {
         }
     }
 
-    
-    
-
+    // ... rest of your functions unchanged (sendResultsToEmail, createEmailResultJSON, etc.)
     func sendResultsToEmail(to email: String,pin:String) async -> Bool {
         // Build JSON payload string
         guard let jsonString = createEmailResultJSON(email: email,pin:pin, results: results) else {
@@ -226,7 +234,7 @@ struct EmailResultPopup: View {
 
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
-            
+
             if let httpResponse = response as? HTTPURLResponse {
                 print("✅ Email request response code:", httpResponse.statusCode)
                 if (200..<300).contains(httpResponse.statusCode) {
@@ -243,10 +251,9 @@ struct EmailResultPopup: View {
             print("❌ Network error:", error.localizedDescription)
             return false
         }
-        
+
         return false
     }
-
 
     func createEmailResultJSON(email: String,pin:String, results: [String: MeasurementResults.SignalResult]) -> String? {
         var formattedData: [String: ResultEntry] = [:]
@@ -268,5 +275,3 @@ struct EmailResultPopup: View {
         }
     }
 }
-
-

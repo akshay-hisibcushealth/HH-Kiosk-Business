@@ -6,16 +6,15 @@ struct ResultScreenButtons: View {
     let result: [String: MeasurementResults.SignalResult]
     @State private var showEmailPopUp = false
     var body: some View {
-        HStack(alignment: .top,spacing: 20) {
+        HStack(alignment: .top) {
             Button(action: {
                 navigateToHome(appState: appState)
             }) {
                 Text("Close result")
-                    .font(.system(size: 22))
-                    .fontWeight(.semibold)
+                    .font(.system(size: 20.sp))
+                    .fontWeight(.medium)
                     .foregroundColor(.black)
-                    .frame(maxWidth: .infinity)   // Expand the tap area
-                    .padding()
+                    .frame(maxWidth: .infinity, minHeight: 60.h)
                     .background(Color(hex: "#C4C4C4"))
                     .cornerRadius(10)
             }
@@ -28,10 +27,10 @@ struct ResultScreenButtons: View {
                 HStack {
                     Image( "email")
                         .resizable()
-                        .frame(width: 32,height: 32)
+                        .frame(width: 24.w,height: 24.w)
                     Text("Email my results")
-                        .font(.system(size: 22))
-                        .fontWeight(.semibold)
+                        .font(.system(size: 20.sp))
+                        .fontWeight(.medium)
                         .foregroundColor(.black)
                         
                 }
@@ -40,20 +39,25 @@ struct ResultScreenButtons: View {
                 .background(Color.gray.opacity(0.2))
                 .cornerRadius(10)
             }
+            .frame(maxWidth: .infinity, minHeight: 60.h)
             .background(Color.init(hex: "#B8EB5E"))
             .cornerRadius(10)
                 HStack(spacing: 8) {
                               Image( "secure_email")
                         .resizable()
-                        .frame(width: 32,height: 32)
+                        .frame(width: 24.w,height: 24.sp)
                                   .foregroundColor(.blue)
                               Text("Secure and Private")
                                   .foregroundColor(.blue)
-                                  .font(.title3)
+                                  .font(.system(size: 18.sp))
                           }
                           .padding(.bottom)
                           .sheet(isPresented: $showEmailPopUp) {
                               EmailResultPopup(results: result)
+                                  .presentationDetents([.fraction(0.75)])
+
+
+
                           }
         }
 

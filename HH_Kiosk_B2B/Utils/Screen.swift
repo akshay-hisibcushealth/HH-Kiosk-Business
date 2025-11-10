@@ -1,36 +1,67 @@
 import SwiftUI
+import Combine
 
 struct Screen {
-    // Current screen size
-    static let width = UIScreen.main.bounds.width
-    static let height = UIScreen.main.bounds.height
-    
-    // Base dimensions (from Figma iPad design) - iPad Pro 12.9-inch (6th generation, 2022)
+    // Base Figma dimensions (same as before)
     fileprivate static let baseWidth: CGFloat = 1168.7279
     fileprivate static let baseHeight: CGFloat = 1673.2151
     
-    // Precomputed scale factors
-    private static let widthScaleFactor = width / baseWidth
-    private static let heightScaleFactor = height / baseHeight
+    // Cached values (auto-updated)
+    private static var currentBounds: CGRect = UIScreen.main.bounds
+    private static var orientationSubscriber: AnyCancellable?
     
-    // Public scaling helpers
+    // MARK: - Computed width & height (always latest)
+    static var width: CGFloat {
+        currentBounds.width
+    }
+    
+    static var height: CGFloat {
+        currentBounds.height
+    }
+    
+    // MARK: - Scale factors
+    private static var widthScaleFactor: CGFloat {
+        width / baseWidth
+    }
+    
+    private static var heightScaleFactor: CGFloat {
+        height / baseHeight
+    }
+    
+    // MARK: - Helpers
     static func setWidth(_ value: CGFloat) -> CGFloat {
-        return value * widthScaleFactor
+        value * widthScaleFactor
     }
     
     static func setHeight(_ value: CGFloat) -> CGFloat {
-        return value * heightScaleFactor
+        value * heightScaleFactor
     }
     
     static func setFont(_ value: CGFloat) -> CGFloat {
-        return value * widthScaleFactor
+        value * widthScaleFactor
     }
     
-    // 🧩 Radius (based on width for consistent proportions)
     static func setRadius(_ value: CGFloat) -> CGFloat {
-        return value * widthScaleFactor
+        value * widthScaleFactor
+    }
+    
+    // MARK: - Orientation tracking
+    static func startMonitoring() {
+        guard orientationSubscriber == nil else { return }
+        
+        orientationSubscriber = NotificationCenter.default
+            .publisher(for: UIDevice.orientationDidChangeNotification)
+            .sink { _ in
+                // Update bounds when orientation changes
+                let newBounds = UIScreen.main.bounds
+                if newBounds.size != currentBounds.size {
+                    currentBounds = newBounds
+                    print("📱 Screen updated: \(currentBounds.size)")
+                }
+            }
     }
 }
+
 
 // MARK: - CGFloat Extensions
 extension CGFloat {

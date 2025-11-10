@@ -2,256 +2,219 @@ import UIKit
 import SwiftUI
 import AnuraCore
 
-class ResultsViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate {
-    
-    // MARK: - Public Properties
+class ResultsViewController: UIViewController {
+
+    // MARK: - Public Properties (required by MeasurementDelegate)
     var results: [String: MeasurementResults.SignalResult] = [:] {
         didSet {
-            buildDisplayData()
-            updateUI(for: .success)
-            collectionView.reloadData()
-            
-            // rebuild buttons with fresh results
-            resultButtons.rootView = ResultScreenButtons(result: results)
+            handleNewResults()
         }
     }
-    
+
     var measurementID: String = ""
     var dismissBlock: () -> () = {}
-    
+
     // MARK: - Private Properties
-    private var resultsToDisplay: [(key: String, value: Double, minValue: Int, maxValue: Int, icon: UIImage?, unit: String?)] = []
-    private var collectionView: UICollectionView!
-    
-    // UI state views
+    private var resultsModel = ResultsModel()
+    private var resultScreenHost: UIHostingController<ResultScreen>!
+    private var resultButtonsHost: UIHostingController<ResultScreenButtons>!
     private var activityIndicator: UIActivityIndicatorView!
     private var errorLabel: UILabel!
     private var exitButton: UIButton!
-    private var resultButtons: UIHostingController<ResultScreenButtons>!
-    
+
     private enum UIState {
         case loading, success, failure
     }
-    
+
+    /// Keys we want to show in the UI for *real* results (the same six used for mock)
+    private let visibleKeys: [String] = [
+        "BP_CVD",
+        "HBA1C_RISK_PROB",
+        "BP_SYSTOLIC",
+        "BP_DIASTOLIC",
+        "HDLTC_RISK_PROB",
+        "TG_RISK_PROB"
+    ]
+
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        view.backgroundColor = .white
-        
-        // Toolbar hosting controller
-        let toolbar = UIHostingController(rootView: Toolbar())
-        addChild(toolbar)
-        toolbar.view.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(toolbar.view)
-        toolbar.didMove(toParent: self)
-        
-        // Privacy message hosting controller
-        let privacyMessage = UIHostingController(rootView: PrivacyMessageView())
-        addChild(privacyMessage)
-        privacyMessage.view.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(privacyMessage.view)
-        privacyMessage.didMove(toParent: self)
-        
-        // Bottom buttons
-        resultButtons = UIHostingController(rootView: ResultScreenButtons(result: results))
-        addChild(resultButtons)
-        resultButtons.view.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(resultButtons.view)
-        resultButtons.didMove(toParent: self)
-        
-        // Collection view setup
-        let layout = UICollectionViewFlowLayout()
-        let padding: CGFloat = 16
-        let spacing: CGFloat = 8
-        let itemWidth = (view.bounds.width - (padding * 2) - spacing) / 2
-        layout.itemSize = CGSize(width: itemWidth, height: 140)
-        layout.minimumInteritemSpacing = spacing
-        layout.minimumLineSpacing = 16
-        layout.sectionInset = UIEdgeInsets(top: padding, left: padding, bottom: padding, right: padding)
-        
-        collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.backgroundColor = .white
-        collectionView.dataSource = self
-        collectionView.delegate = self
-        collectionView.register(ResultCardCell.self, forCellWithReuseIdentifier: "ResultCardCell")
-        view.addSubview(collectionView)
-        
-        // Loading indicator
+        view.backgroundColor = .systemBackground
+        setupSwiftUIScreen()
+        setupBottomButtons()
+        setupLoadingAndErrorViews()
+        setupConstraints()
+
+        updateUI(for: .loading)
+
+        // ⚙️ Uncomment this line to show mock data during testing
+        loadMockDataForDebug()
+    }
+
+    // MARK: - Mock Debug Data
+    /// Injects fake sample results to test UI quickly (useful during development)
+    private func loadMockDataForDebug() {
+        print("ResultsViewController: Injecting mock data into ResultsModel")
+
+        let sample: ResultsMap = [
+            "BP_CVD": SignalResult(notes: [], value: 22.5),
+            "HBA1C_RISK_PROB": SignalResult(notes: [], value: 30.0),
+            "BP_SYSTOLIC": SignalResult(notes: [], value: 112.4),
+            "BP_DIASTOLIC": SignalResult(notes: [], value: 78.2),
+            "HDLTC_RISK_PROB": SignalResult(notes: [], value: 55.3),
+            "TG_RISK_PROB": SignalResult(notes: [], value: 47.1),
+        ]
+
+        resultsModel.update(with: sample)
+        resultButtonsHost.rootView = ResultScreenButtons(result: [:])
+        updateUI(for: .success)
+
+        print("✅ Mock data injected — check SwiftUI Results screen now.")
+    }
+
+    // MARK: - Setup Views
+    private func setupSwiftUIScreen() {
+        let screen = ResultScreen(model: resultsModel, showBottomButtons: false, showLoadingOverlay: false)
+        resultScreenHost = UIHostingController(rootView: screen)
+        addChild(resultScreenHost)
+        resultScreenHost.view.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(resultScreenHost.view)
+        resultScreenHost.didMove(toParent: self)
+    }
+
+    private func setupBottomButtons() {
+        resultButtonsHost = UIHostingController(rootView: ResultScreenButtons(result: [:]))
+        addChild(resultButtonsHost)
+        resultButtonsHost.view.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(resultButtonsHost.view)
+        resultButtonsHost.didMove(toParent: self)
+    }
+
+    private func setupLoadingAndErrorViews() {
         activityIndicator = UIActivityIndicatorView(style: .large)
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
         activityIndicator.hidesWhenStopped = true
         view.addSubview(activityIndicator)
-        
-        // Error label
+
         errorLabel = UILabel()
         errorLabel.text = "Measurement failed"
-        errorLabel.textColor = .red
+        errorLabel.textColor = .systemRed
         errorLabel.font = .boldSystemFont(ofSize: 18)
         errorLabel.textAlignment = .center
         errorLabel.translatesAutoresizingMaskIntoConstraints = false
         errorLabel.isHidden = true
         view.addSubview(errorLabel)
-        
-        // Exit button
+
         exitButton = UIButton(type: .system)
         exitButton.setTitle("Exit", for: .normal)
-        exitButton.titleLabel?.font = UIFont.systemFont(ofSize: 22, weight: .semibold)
-        exitButton.setTitleColor(.black, for: .normal)
-        exitButton.backgroundColor = UIColor(red: 1.0, green: 0.63, blue: 0.58, alpha: 1.0) // hex #FFA094
+        exitButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
+        exitButton.setTitleColor(.white, for: .normal)
+        exitButton.backgroundColor = UIColor(red: 1.0, green: 0.63, blue: 0.58, alpha: 1.0)
         exitButton.layer.cornerRadius = 10
-        exitButton.isHidden = true
         exitButton.translatesAutoresizingMaskIntoConstraints = false
+        exitButton.isHidden = true
         exitButton.addTarget(self, action: #selector(exitTapped), for: .touchUpInside)
         view.addSubview(exitButton)
-        
-        // Layout constraints
+    }
+
+    private func setupConstraints() {
         NSLayoutConstraint.activate([
-            toolbar.view.topAnchor.constraint(equalTo: view.topAnchor),
-            toolbar.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            toolbar.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            toolbar.view.heightAnchor.constraint(equalToConstant: 190),
-            
-            privacyMessage.view.topAnchor.constraint(equalTo: toolbar.view.bottomAnchor),
-            privacyMessage.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            privacyMessage.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            privacyMessage.view.heightAnchor.constraint(greaterThanOrEqualToConstant: 60),
-            
-            collectionView.topAnchor.constraint(equalTo: privacyMessage.view.bottomAnchor),
-            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: resultButtons.view.topAnchor),
-            
-            resultButtons.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            resultButtons.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            resultButtons.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            resultButtons.view.heightAnchor.constraint(greaterThanOrEqualToConstant: 60),
-            
+            resultScreenHost.view.topAnchor.constraint(equalTo: view.topAnchor),
+            resultScreenHost.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            resultScreenHost.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            resultScreenHost.view.bottomAnchor.constraint(equalTo: resultButtonsHost.view.topAnchor),
+
+            resultButtonsHost.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            resultButtonsHost.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            resultButtonsHost.view.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            resultButtonsHost.view.heightAnchor.constraint(equalToConstant: 80),
+
             activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            
+
             errorLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            errorLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -30),
-            
-            exitButton.topAnchor.constraint(equalTo: errorLabel.bottomAnchor, constant: 16),
+            errorLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: 20),
+
+            exitButton.topAnchor.constraint(equalTo: errorLabel.bottomAnchor, constant: 12),
             exitButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            exitButton.widthAnchor.constraint(equalToConstant: 200),
-            exitButton.heightAnchor.constraint(equalToConstant: 50)
+            exitButton.widthAnchor.constraint(equalToConstant: 180),
+            exitButton.heightAnchor.constraint(equalToConstant: 44)
         ])
-        // Start with loading state
-        updateUI(for: .loading)
-        
-        //load mock data for testing
-         loadMockData()
     }
-    
-    // MARK: - UI State Handling
+
+    // MARK: - State Updates
     private func updateUI(for state: UIState) {
         switch state {
         case .loading:
             activityIndicator.startAnimating()
             errorLabel.isHidden = true
             exitButton.isHidden = true
-            collectionView.isHidden = true
-            resultButtons.view.isHidden = true
-            
+            resultButtonsHost.view.isHidden = true
+            resultScreenHost.view.isHidden = true
+
         case .success:
             activityIndicator.stopAnimating()
             errorLabel.isHidden = true
             exitButton.isHidden = true
-            collectionView.isHidden = false
-            resultButtons.view.isHidden = false
-            
+            resultButtonsHost.view.isHidden = false
+            resultScreenHost.view.isHidden = false
+
         case .failure:
             activityIndicator.stopAnimating()
             errorLabel.isHidden = false
             exitButton.isHidden = false
-            collectionView.isHidden = true
-            resultButtons.view.isHidden = true
+            resultButtonsHost.view.isHidden = true
+            resultScreenHost.view.isHidden = true
         }
     }
-    
-    // MARK: - Actions
-    @objc func close() {
-        presentingViewController?.dismiss(animated: true, completion: dismissBlock)
+
+    // MARK: - Public Methods (required by MeasurementDelegate)
+    func setLoadingMessage(currentChunk: Int, totalChunks: Int) {
+        DispatchQueue.main.async {
+            self.navigationItem.prompt = "Loading (\(currentChunk + 1) of \(totalChunks))"
+            self.updateUI(for: .loading)
+        }
     }
-    
+
+    func measurementDidCancel() {
+        DispatchQueue.main.async {
+            self.navigationItem.prompt = ""
+            self.updateUI(for: .failure)
+        }
+    }
+
+    // MARK: - Handle Real SDK Results
+    private func handleNewResults() {
+        DispatchQueue.main.async {
+            guard self.results.isEmpty == false else { return }
+
+            // Convert and FILTER SDK results to SwiftUI SignalResults (only keep visibleKeys)
+            var converted: ResultsMap = [:]
+            for key in self.visibleKeys {
+                if let sdkResult = self.results[key] {
+                    converted[key] = SignalResult(notes: sdkResult.notes, value: sdkResult.value)
+                }
+            }
+
+            // If nothing from allowed keys is present, show failure / empty state
+            if converted.isEmpty {
+                // no relevant data
+                self.updateUI(for: .failure)
+                print("ResultsViewController: no visible keys present in SDK results -> showing failure.")
+                return
+            }
+
+            // Update SwiftUI state with filtered data
+            self.resultsModel.update(with: converted)
+            self.resultButtonsHost.rootView = ResultScreenButtons(result: self.results)
+
+            self.updateUI(for: .success)
+            print("✅ Real SDK results displayed successfully (filtered to visible keys).")
+        }
+    }
+
+    // MARK: - Exit
     @objc private func exitTapped() {
         dismiss(animated: true, completion: dismissBlock)
     }
-    
-    func setLoadingMessage(currentChunk: Int, totalChunks: Int) {
-        navigationItem.prompt = "Loading (\(currentChunk + 1) of \(totalChunks))"
-        updateUI(for: .loading)
-    }
-    
-    func measurementDidCancel() {
-        navigationItem.prompt = ""
-        updateUI(for: .failure)
-    }
-    
-    // MARK: - Collection View Data Source
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return resultsToDisplay.count
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ResultCardCell", for: indexPath) as! ResultCardCell
-        let item = resultsToDisplay[indexPath.item]
-        let scaled = scale(value: Float(item.value), within: [Float(item.minValue), Float(item.maxValue)])
-        
-        cell.configure(
-            title: item.key,
-            value: String(format: "%.1f", item.value),
-            progress: scaled,
-            icon: item.icon,
-            unit: item.unit,
-            minValue: item.minValue,
-            maxValue: item.maxValue
-        )
-        return cell
-    }
-    
-    // MARK: - Helpers
-    private func scale(value: Float, within range: [Float]) -> Float {
-        guard range.count >= 2 else { return 0 }
-        let lowerBound = range.first!
-        let upperBound = range.last!
-        let scaled = (value - lowerBound) / (upperBound - lowerBound)
-        return Swift.max(0, Swift.min(1, scaled))
-    }
-    
-    private func buildDisplayData() {
-        resultsToDisplay = []
-        
-        func addResult(_ key: String, title: String, minValue: Int, maxValue: Int, icon: UIImage?, unit: String?) {
-            if let result = results[key] {
-                resultsToDisplay.append((key: title, value: result.value, minValue: minValue, maxValue: maxValue, icon: icon, unit: unit))
-            }
-        }
-        
-        addResult("BP_CVD", title: "Cardiovascular Risk", minValue: 0, maxValue: 100, icon: UIImage(systemName: "heart.text.square.fill"), unit: "%")
-        addResult("HBA1C_RISK_PROB", title: "Hemoglobin A1C Risk", minValue: 0, maxValue: 100, icon: UIImage(systemName: "drop.fill"), unit: "%")
-        addResult("BP_SYSTOLIC", title: "Systolic Blood Pressure", minValue: 0, maxValue: 180, icon: UIImage(systemName: "waveform.path.ecg"), unit: "mmHg")
-        addResult("BP_DIASTOLIC", title: "Diastolic Blood Pressure", minValue: 0, maxValue: 120, icon: UIImage(systemName: "waveform"), unit: "mmHg")
-        addResult("HDLTC_RISK_PROB", title: "Hypercholesterolemia Risk", minValue: 0, maxValue: 100, icon: UIImage(systemName: "bolt.heart.fill"), unit: "%")
-        addResult("TG_RISK_PROB", title: "Hypertriglyceridemia Risk", minValue: 0, maxValue: 100, icon: UIImage(systemName: "flame.fill"), unit: "%")
-        addResult("HR_BPM", title: "Heart Rate", minValue: 0, maxValue: 140, icon: UIImage(systemName: "heart.fill"), unit: "bpm")
-    }
-    
-    private func loadMockData() {
-        let jsonString = """
-        { "ABSI" : { "notes" : [ ], "value" : 7.7581 }, "AGE" : { "notes" : [ ], "value" : 37 }, "BMI_CALC" : { "notes" : [ ], "value" : 27.6816 }, "BP_CVD" : { "notes" : [ "NOTE_DEGRADED_ACCURACY", "NOTE_MISSING_MEDICAL_INFO" ], "value" : 0.2024 }, "BP_DIASTOLIC" : { "notes" : [ "NOTE_DEGRADED_ACCURACY", "NOTE_MISSING_MEDICAL_INFO" ], "value" : 83.7584 }, "BP_HEART_ATTACK" : { "notes" : [ "NOTE_DEGRADED_ACCURACY", "NOTE_MISSING_MEDICAL_INFO" ], "value" : 0.0155 }, "BP_RPP" : { "notes" : [ "NOTE_DEGRADED_ACCURACY", "NOTE_MISSING_MEDICAL_INFO" ], "value" : 3.8988 }, "BP_STROKE" : { "notes" : [ "NOTE_DEGRADED_ACCURACY", "NOTE_MISSING_MEDICAL_INFO" ], "value" : 0.1882 }, "BP_SYSTOLIC" : { "notes" : [ "NOTE_DEGRADED_ACCURACY", "NOTE_MISSING_MEDICAL_INFO" ], "value" : 112.4425 }, "BP_TAU" : { "notes" : [ "NOTE_DEGRADED_ACCURACY", "NOTE_MISSING_MEDICAL_INFO" ], "value" : 1.966 }, "BR_BPM" : { "notes" : [ ], "value" : 12 }, "DBT_RISK_PROB" : { "notes" : [ ], "value" : 4.6369 }, "FLD_RISK_PROB" : { "notes" : [ ], "value" : 22.5801 }, "GENDER" : { "notes" : [ ], "value" : 1 }, "HBA1C_RISK_PROB" : { "notes" : [ ], "value" : 26.295 }, "HDLTC_RISK_PROB" : { "notes" : [ ], "value" : 54.1508 }, "HEALTH_SCORE" : { "notes" : [ "NOTE_DEGRADED_ACCURACY", "NOTE_MISSING_MEDICAL_INFO" ], "value" : 72.5714 }, "HEIGHT" : { "notes" : [ ], "value" : 170.9476 }, "HPT_RISK_PROB" : { "notes" : [ ], "value" : 2.3682 }, "HRV_SDNN" : { "notes" : [ ], "value" : 30.3802 }, "HR_BPM" : { "notes" : [ ], "value" : 70.4494 }, "IHB_COUNT" : { "notes" : [ ], "value" : 4 }, "MENTAL_SCORE" : { "notes" : [ ], "value" : 3 }, "MFBG_RISK_PROB" : { "notes" : [ ], "value" : 33.5665 }, "MSI" : { "notes" : [ ], "value" : 3.2648 }, "OVERALL_METABOLIC_RISK_PROB" : { "notes" : [ ], "value" : 26.1821 }, "PHYSICAL_SCORE" : { "notes" : [ ], "value" : 3 }, "PHYSIO_SCORE" : { "notes" : [ "NOTE_DEGRADED_ACCURACY", "NOTE_MISSING_MEDICAL_INFO" ], "value" : 3.5 }, "RISKS_SCORE" : { "notes" : [ "NOTE_DEGRADED_ACCURACY", "NOTE_MISSING_MEDICAL_INFO" ], "value" : 4.1428 }, "SNR" : { "notes" : [ ], "value" : 3.2639 }, "TG_RISK_PROB" : { "notes" : [ ], "value" : 47.1745 }, "VITAL_SCORE" : { "notes" : [ "NOTE_DEGRADED_ACCURACY", "NOTE_MISSING_MEDICAL_INFO" ], "value" : 4.5 }, "WAIST_CIRCUM" : { "notes" : [ ], "value" : 92.5643 }, "WAIST_TO_HEIGHT" : { "notes" : [ ], "value" : 54.4496 }, "WEIGHT" : { "notes" : [ ], "value" : 81.8899 } }
- """
-        guard let jsonData = jsonString.data(using: .utf8) else { return }
-        do {
-            let decoded = try JSONDecoder().decode([String: MeasurementResults.SignalResult].self, from: jsonData)
-            self.results = decoded
-        }
-        catch {
-            print("Failed to decode mock data: \(error)")
-        }
-    }
 }
-

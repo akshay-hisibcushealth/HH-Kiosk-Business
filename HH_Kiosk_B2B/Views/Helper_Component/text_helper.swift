@@ -15,9 +15,26 @@ func buildBoldText(_ text: String,_ fontSize: CGFloat, color: Color = .black) ->
     
 }
 
-func buildMediumText(_ text: String,_ fontSize: CGFloat, color: Color = .black) -> some View {
+func buildMediumText(
+    _ text: String,
+    _ fontSize: CGFloat,
+    color: Color = .black,
+    alignment: TextAlignment = .leading
+) -> some View {
     Text(text)
         .font(.custom("NewSpirit-Medium", size: fontSize))
         .foregroundColor(color)
-    
+        .multilineTextAlignment(alignment)
+}
+
+func buildMediumText(
+    _ text: AttributedString,
+    _ fontSize: CGFloat,
+    color: Color = .black,
+    alignment: TextAlignment = .leading
+) -> some View {
+    Text(text)
+        .font(.custom("NewSpirit-Medium", size: fontSize))
+        .foregroundColor(color)
+        .multilineTextAlignment(alignment)
 }
