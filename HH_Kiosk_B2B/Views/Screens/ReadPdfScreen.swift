@@ -5,6 +5,8 @@ struct ReadPdfScreen: View {
     let docUrl: String
     @State private var isLoadingPDF = true
     @State private var pdfDocument: PDFDocument? = nil
+    @State private var refreshTrigger = false
+
 
     var body: some View {
         VStack(spacing: 0) {
@@ -28,6 +30,9 @@ struct ReadPdfScreen: View {
                 }
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .screenDidChangeBounds)) { _ in
+                   refreshTrigger.toggle()
+               }
         .onAppear {
             loadPDF()
         }

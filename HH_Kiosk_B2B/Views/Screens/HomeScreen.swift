@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct HomeScreen: View {
+    @State private var refreshTrigger = false
     @EnvironmentObject var appState: AppState
     @State private var isNavigatingToScan = false
     @StateObject private var viewModel = WeatherViewModel()
@@ -62,6 +63,9 @@ struct HomeScreen: View {
             }
             // Detect any taps or drags to reset inactivity timer
             .contentShape(Rectangle())
+            .onReceive(NotificationCenter.default.publisher(for: .screenDidChangeBounds)) { _ in
+                       refreshTrigger.toggle()
+                   }
             .gesture(
                 DragGesture(minimumDistance: 0)
                     .onChanged { _ in resetInactivityTimer() }

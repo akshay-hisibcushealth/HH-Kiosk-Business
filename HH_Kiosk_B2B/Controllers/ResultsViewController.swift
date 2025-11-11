@@ -49,7 +49,7 @@ class ResultsViewController: UIViewController {
         updateUI(for: .loading)
 
         // ⚙️ Uncomment this line to show mock data during testing
-        loadMockDataForDebug()
+//        loadMockDataForDebug()
     }
 
     // MARK: - Mock Debug Data
@@ -58,7 +58,7 @@ class ResultsViewController: UIViewController {
         print("ResultsViewController: Injecting mock data into ResultsModel")
 
         let sample: ResultsMap = [
-            "BP_CVD": SignalResult(notes: [], value: 22.5),
+            "BP_CVD": SignalResult(notes: [], value: 71),
             "HBA1C_RISK_PROB": SignalResult(notes: [], value: 30.0),
             "BP_SYSTOLIC": SignalResult(notes: [], value: 112.4),
             "BP_DIASTOLIC": SignalResult(notes: [], value: 78.2),

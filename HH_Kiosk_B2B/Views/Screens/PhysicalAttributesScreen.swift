@@ -10,6 +10,8 @@ struct PhysicalAttributesScreen: View {
     @State private var age: Int? = nil      // Make optional
     @State private var gender: String = ""  // Empty initially
     @State private var showSettings = false
+    @State private var refreshTrigger = false
+
     
     // EXTERNAL CAMERA VARIABLES
     @State private var cameraPreset: AnuraCore.CameraPreset = .hd1920x1080
@@ -173,6 +175,9 @@ struct PhysicalAttributesScreen: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .padding()
         }
+        .onReceive(NotificationCenter.default.publisher(for: .screenDidChangeBounds)) { _ in
+                   refreshTrigger.toggle()
+               }
         .onChange(of: faceManager.isPresentingMeasurementView) { presented,_ in
             if presented {
                 isLoading = false

@@ -10,7 +10,7 @@ let interpretationJSON: [String: [String: String]] = [
         Your results indicate that you have a <tag color="#1DC833">low risk</tag> of experiencing a heart attack or stroke in the next 10 years.
         """,
         "medium": """
-        Your results indicate that you have a <tag color="#FFCB59">medium risk</tag> of experiencing heart attack or stroke in the next 10 years.
+        Your results indicate that you have a <tag color="#FFCB59">medium risk</tag> of experiencing a heart attack or stroke in the next 10 years.
         """,
         "high": """
         Your results indicate that you have a <tag color="#B32D0C">high risk</tag> of experiencing a heart attack or stroke in the next 10 years.
@@ -18,6 +18,10 @@ let interpretationJSON: [String: [String: String]] = [
     ],
 
     "Systolic Blood Pressure": [
+        // include both variants to avoid mismatches with displayTitle(for:)
+        "low_high": """
+        Your results indicate that your systolic blood pressure is <tag color="#FD895A">either lower than normal or higher than normal</tag>. If it is lower than normal, this means the heart, brain, and other parts of the body may not get enough blood. If it is higher than normal, this may indicate that you have hypertension.
+        """,
         "low_normal_high": """
         Your results indicate that your systolic blood pressure is <tag color="#FD895A">either lower than normal or higher than normal</tag>.
         """,
@@ -44,51 +48,52 @@ let interpretationJSON: [String: [String: String]] = [
     // include both variants to avoid mismatches with displayTitle(for:)
     "Hemoglobin A1C Risk": [
         "low": """
-        Your results indicate that you likely have a <tag color="#1DC833">HbA1c &lt; 5.7%</tag>.
+        Your results indicate that you likely have a <tag color="#1DC833">HbA1c < 5.7%</tag>.
         """,
         "medium": """
-        Your results indicate that there is a <tag color="#FFCB59">medium risk</tag> that you may have a HbA1c &gt; 5.7%, especially if your results are 51% or over.
+        Your results indicate that there is a <tag color="#FFCB59">medium risk</tag> that you may have an HbA1c > 5.7%, especially if your results are 5.7% or higher.
         """,
         "high": """
-        Your results indicate that it is <tag color="#B32D0C">very likely</tag> that you have a HbA1c &gt; 5.7%.
+        Your results indicate that it is <tag color="#B32D0C">very likely</tag> that you have an HbA1c > 5.7%.
         """
     ],
     "HbA1c Risk": [
         "low": """
-        Your results indicate that you likely have a <tag color="#1DC833">HbA1c &lt; 5.7%</tag>.
+        Your results indicate that you likely have a <tag color="#1DC833">HbA1c < 5.7%</tag>.
         """,
         "medium": """
-        Your results indicate that there is a <tag color="#FFCB59">medium risk</tag> that you may have a HbA1c &gt; 5.7%, especially if your results are 51% or over.
+        Your results indicate that there is a <tag color="#FFCB59">medium risk</tag> that you may have an HbA1c > 5.7%, especially if your results are 5.7% or higher.
         """,
         "high": """
-        Your results indicate that it is <tag color="#B32D0C">very likely</tag> that you have a HbA1c &gt; 5.7%.
+        Your results indicate that it is <tag color="#B32D0C">very likely</tag> that you have an HbA1c > 5.7%.
         """
     ],
 
     "Hypercholesterolemia Risk": [
         "low": """
-        Your results indicate that you have a <tag color="#1DC833">low risk</tag> of having abnormally high cholesterol.
+        Your results indicate that you are at a <tag color="#1DC833">low risk</tag> of having abnormally high cholesterol.
         """,
         "medium": """
-        Your results indicate that you have a <tag color="#FFCB59">medium risk</tag> of having abnormally high cholesterol.
+        Your results indicate that you are at a <tag color="#FFCB59">medium risk</tag> of having abnormally high cholesterol.
         """,
         "high": """
-        Your results indicate that you have a <tag color="#B32D0C">high risk</tag> of having abnormally high cholesterol.
+        Your results indicate that you are at a <tag color="#B32D0C">high risk</tag> of having abnormally high cholesterol.
         """
     ],
 
     "Hypertriglyceridemia Risk": [
         "low": """
-        Your results indicate that you have a <tag color="#1DC833">low risk</tag> of having abnormally high triglycerides.
+        Your results indicate that you are at a <tag color="#1DC833">low risk</tag> of having abnormally high triglycerides.
         """,
         "medium": """
-        Your results indicate that you have a <tag color="#FFCB59">medium risk</tag> of having abnormally high triglycerides.
+        Your results indicate that you are at a <tag color="#FFCB59">medium risk</tag> of having abnormally high triglycerides.
         """,
         "high": """
-        Your results indicate that you have a <tag color="#B32D0C">high risk</tag> of having abnormally high triglycerides.
+        Your results indicate that you are at a <tag color="#B32D0C">high risk</tag> of having abnormally high triglycerides.
         """
     ]
 ]
+
 
 
 // ----------------------
@@ -147,7 +152,8 @@ struct ResultRow: View {
 
                 // Get tagged message → convert to AttributedString → show
                 let msg = getTaggedMessage(metricKey: metricKey, value: value)
-                let attr = attributedText(from: msg, fontSize: 20.sp)
+                let dynamicColor = colorForMetricValue(metricKey, value)
+                let attr = attributedText(from: msg, fontSize: 20.sp, overrideTagColor: dynamicColor)
                 buildMediumText(attr, 20.sp).frame(width: 340.w, alignment: .leading).padding(.trailing,48.w)
 
             }
@@ -339,14 +345,18 @@ fileprivate func getTaggedMessage(metricKey: String, value: Double) -> String {
 // ----------------------
 // Tag parser: converts <tag color="#HEX">text</tag> → AttributedString with color
 // ----------------------
-fileprivate func attributedText(from taggedString: String, fontSize: CGFloat = 16) -> AttributedString {
+fileprivate func attributedText(
+    from taggedString: String,
+    fontSize: CGFloat = 16,
+    overrideTagColor: Color? = nil
+) -> AttributedString {
     var result = AttributedString()
     var remaining = taggedString
 
     func makePlain(_ s: String) -> AttributedString {
         var a = AttributedString(s)
         a.font = .custom("NewSpirit-Medium", size: fontSize)
-        a.foregroundColor = Color(hex: "#333333") // default color for non-tag text
+        a.foregroundColor = Color(hex: "#333333")
         return a
     }
 
@@ -355,26 +365,22 @@ fileprivate func attributedText(from taggedString: String, fontSize: CGFloat = 1
           let tagCloseStart = remaining.range(of: "\">", range: colorEndIdx..<remaining.endIndex),
           let tagEndRange = remaining.range(of: "</tag>") {
 
-        // append plain text before tag
         let before = String(remaining[..<startRange.lowerBound])
-        if !before.isEmpty {
-            result.append(makePlain(before))
-        }
+        if !before.isEmpty { result.append(makePlain(before)) }
 
-        // extract color and content
+        // If overrideTagColor is provided, use it; otherwise use color from tag
         let colorHex = String(remaining[startRange.upperBound..<colorEndIdx])
+        let textColor = overrideTagColor ?? Color(hex: colorHex)
         let content = String(remaining[tagCloseStart.upperBound..<tagEndRange.lowerBound])
 
         var colored = AttributedString(content)
-        colored.foregroundColor = Color(hex: colorHex)
-        colored.font = .custom("NewSpirit-Medium", size: fontSize).weight(.semibold) // semibold effect
+        colored.foregroundColor = textColor
+        colored.font = .custom("NewSpirit-Medium", size: fontSize).weight(.semibold)
         result.append(colored)
 
-        // move remaining past this tag
         remaining = String(remaining[tagEndRange.upperBound...])
     }
 
-    // append leftover
     if !remaining.isEmpty {
         result.append(makePlain(remaining))
     }
@@ -382,3 +388,33 @@ fileprivate func attributedText(from taggedString: String, fontSize: CGFloat = 1
     return result
 }
 
+
+
+
+extension MeterBar {
+    func colorForValue(_ value: Double) -> Color {
+        let normalized = normalizedFraction()
+        let idx = Int(normalized * Double(segments.count - 1))
+        return segments[max(0, min(idx, segments.count - 1))]
+    }
+}
+
+
+fileprivate func colorForMetricValue(_ key: String, _ value: Double) -> Color {
+    switch key {
+    case "BP_CVD", "HBA1C_RISK_PROB", "HDLTC_RISK_PROB", "TG_RISK_PROB":
+        if value >= 66 { return Color(hex: "#B32D0C") }      // high
+        if value >= 34 { return Color(hex: "#FFCB59") }      // medium
+        return Color(hex: "#1DC833")                         // low
+    case "BP_SYSTOLIC":
+        if value >= 160 { return Color(hex: "#B32D0C") }
+        if value >= 120 { return Color(hex: "#1DC833") }
+        return Color(hex: "#FD895A")
+    case "BP_DIASTOLIC":
+        if value >= 100 { return Color(hex: "#B32D0C") }
+        if value >= 80 { return Color(hex: "#1DC833") }
+        return Color(hex: "#FD895A")
+    default:
+        return Color(hex: "#333333")
+    }
+}

@@ -14,10 +14,25 @@ public typealias ResultsMap = [String: SignalResult]
 public final class ResultsModel: ObservableObject {
     @Published public var results: ResultsMap = [:]
 
-    // Convert to an array for UI consumption (ordered if needed)
+    private let displayOrder: [String] = [
+        "BP_CVD",
+        "BP_SYSTOLIC",
+        "BP_DIASTOLIC",
+        "HBA1C_RISK_PROB",
+        "HDLTC_RISK_PROB",
+        "TG_RISK_PROB"
+    ]
+
     public var resultsArray: [(key: String, value: SignalResult)] {
-        return results.map { ($0.key, $0.value) }.sorted { $0.key < $1.key }
+        let sorted = results.sorted { lhs, rhs in
+            let leftIndex = displayOrder.firstIndex(of: lhs.key) ?? Int.max
+            let rightIndex = displayOrder.firstIndex(of: rhs.key) ?? Int.max
+            return leftIndex < rightIndex
+        }
+        return Array(sorted)
     }
+
+    public init() {} // ✅ Explicit public initializer
 
     public init(loadMock: Bool = false) {
         if loadMock {
@@ -32,9 +47,13 @@ public final class ResultsModel: ObservableObject {
     }
 }
 
+
+
 public struct ResultScreen: View {
     @StateObject private var model: ResultsModel
     let result: [String: MeasurementResults.SignalResult]
+    @State private var refreshTrigger = false
+
 
     private let showBottomButtons: Bool
     private let showLoadingOverlay: Bool
@@ -71,6 +90,8 @@ public struct ResultScreen: View {
                     .background(Color.white)
                     .shadow(radius: 4)
             }
+        } .onReceive(NotificationCenter.default.publisher(for: .screenDidChangeBounds)) { _ in
+            refreshTrigger.toggle()
         }
     }
 }

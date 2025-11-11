@@ -2,6 +2,8 @@ import SwiftUI
 
 struct ScreenSaver: View {
     @StateObject private var viewModel = ScreenSaverViewModel()
+    @State private var refreshTrigger = false
+
     
     var body: some View {
         ZStack {
@@ -73,6 +75,9 @@ struct ScreenSaver: View {
                     Spacer(minLength: 60.h)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .onReceive(NotificationCenter.default.publisher(for: .screenDidChangeBounds)) { _ in
+                           refreshTrigger.toggle()
+                       }
             }
         }
     }

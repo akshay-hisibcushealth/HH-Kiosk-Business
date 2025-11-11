@@ -5,6 +5,8 @@ struct ArticleScreen: View {
     let imageUrl: String
     private let imageHeight = UIScreen.main.bounds.height * 0.4
     @StateObject private var faceManager = FaceScanManager()
+    @State private var refreshTrigger = false
+
     
     var body: some View {
         NavigationStack{
@@ -57,6 +59,9 @@ struct ArticleScreen: View {
                 PhysicalAttributesScreen()
                     .environmentObject(faceManager)
             }
+            .onReceive(NotificationCenter.default.publisher(for: .screenDidChangeBounds)) { _ in
+                       refreshTrigger.toggle()
+                   }
             
         }
     }

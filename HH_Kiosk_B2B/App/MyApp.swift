@@ -4,7 +4,9 @@ import SwiftUI
 @main
 struct MyApp: App {
     @StateObject private var orientation = OrientationManager()
-
+    init() {
+          Screen.startMonitoring()
+      }
 
     var body: some Scene {
         WindowGroup {
@@ -26,9 +28,9 @@ struct RootView: View {
                     .transition(.opacity)
                     .zIndex(1)
             } else {
-               ResultsViewWrapper()
-//                HomeScreen()
-//                    .environmentObject(appState)
+//               ResultsViewWrapper()
+                HomeScreen()
+                    .environmentObject(appState)
                     .transition(.opacity)
                     .zIndex(0)
             }

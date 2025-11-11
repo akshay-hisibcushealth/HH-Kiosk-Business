@@ -3,14 +3,15 @@ import Foundation
 import AnuraCore
 
 struct EmailResultPopup: View {
-    @StateObject private var appState = AppState()
     let results: [String: MeasurementResults.SignalResult]
     @Environment(\.dismiss) var dismiss
     @State private var email: String = ""
     @State private var pin: String = ""
     @State private var isLoading: Bool = false
     @State private var isEmailSent: Bool = false
-    @FocusState private var isPinFocused: Bool  
+    @FocusState private var isPinFocused: Bool
+    @State private var showEmailError: Bool = false
+
 
     // Email validation
     private var isEmailValid: Bool {
@@ -91,7 +92,7 @@ struct EmailResultPopup: View {
             .padding(.bottom, 12)
 
         Button(action: {
-            navigateToHome(appState: appState)
+            navigateToHome()
             dismiss()
         }) {
             Text("Return to Home Screen")
@@ -166,7 +167,7 @@ struct EmailResultPopup: View {
                                 }
 
                         }
-                        .font(.custom("NewSpirit-SemiBold", size: 28.sp))
+                        .font(.custom("NewSpirit-SemiBold", size: 30.sp))
                         // ========================================================================
                         .padding(.horizontal)
 
@@ -181,15 +182,16 @@ struct EmailResultPopup: View {
         // Send button
         Button(action: {
             Task {
-                 isLoading = true
-                let success = await sendResultsToEmail(to: email,pin: pin)
-                 isLoading = false
-                 if success {
-                     isEmailSent = true
-                 } else {
-                     // Optionally show error UI (if you decide to handle fail later)
-                 }
-             }
+                isLoading = true
+                let success = await sendResultsToEmail(to: email, pin: pin)
+                isLoading = false
+                if success {
+                    isEmailSent = true
+                } else {
+                    // Trigger failure message
+                    showEmailError = true
+                }
+            }
         }) {
             HStack {
                 Image(systemName: "envelope.fill")
@@ -206,13 +208,27 @@ struct EmailResultPopup: View {
         .disabled(!(isEmailValid && isPinValid))
         .padding(.horizontal)
 
-        HStack(spacing: 8.w) {
-            Image(systemName: "lock.shield")
-                .foregroundColor(.blue)
-            Text("Secure and Private")
-                .foregroundColor(.blue)
-                .font(.footnote)
+        // ✅ Show message depending on success/failure
+        if showEmailError {
+            HStack(spacing: 8.w) {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .foregroundColor(.red)
+                Text("Failed to send email. Please try again.")
+                    .foregroundColor(.red)
+                    .font(.body)
+                    .multilineTextAlignment(.center)
+            }
+            .padding(.top, 8.h)
+        } else {
+            HStack(spacing: 8.w) {
+                Image(systemName: "lock.shield")
+                    .foregroundColor(.blue)
+                Text("Secure and Private")
+                    .foregroundColor(.blue)
+                    .font(.footnote)
+            }
         }
+
     }
 
     // ... rest of your functions unchanged (sendResultsToEmail, createEmailResultJSON, etc.)

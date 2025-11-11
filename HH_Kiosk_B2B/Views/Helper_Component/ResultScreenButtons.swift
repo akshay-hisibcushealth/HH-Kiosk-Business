@@ -2,13 +2,12 @@ import SwiftUI
 import AnuraCore
 
 struct ResultScreenButtons: View {
-    @StateObject private var appState = AppState()
     let result: [String: MeasurementResults.SignalResult]
     @State private var showEmailPopUp = false
     var body: some View {
         HStack(alignment: .top) {
             Button(action: {
-                navigateToHome(appState: appState)
+                navigateToHome()
             }) {
                 Text("Close result")
                     .font(.system(size: 20.sp))
@@ -54,7 +53,7 @@ struct ResultScreenButtons: View {
                           .padding(.bottom)
                           .sheet(isPresented: $showEmailPopUp) {
                               EmailResultPopup(results: result)
-                                  .presentationDetents([.fraction(0.75)])
+                                  .presentationDetents([.fraction(0.8)])
 
 
 
@@ -67,16 +66,25 @@ struct ResultScreenButtons: View {
     }
 }
 
-func navigateToHome(appState: AppState) {
-    guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-          let window = windowScene.windows.first else {
-        return
+func navigateToHome(animated: Bool = true) {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = windowScene.windows.first else { return }
+
+        let rootView = RootView()
+        let hostingController = UIHostingController(rootView: rootView)
+
+        if animated {
+            // Add a smooth crossfade transition
+            let transition = CATransition()
+            transition.type = .fade
+            transition.duration = 0.4 // ⏱ adjust smoothness here (0.3–0.6 works best)
+            transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+
+            window.layer.add(transition, forKey: kCATransition)
+        }
+
+        window.rootViewController = hostingController
+        window.makeKeyAndVisible()
     }
 
-    let homeView = HomeScreen().environmentObject(appState)
-    let hostingController = UIHostingController(rootView: homeView)
 
-    window.rootViewController = hostingController
-    
-    window.makeKeyAndVisible()
-}
