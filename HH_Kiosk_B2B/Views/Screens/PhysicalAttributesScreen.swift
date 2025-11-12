@@ -175,6 +175,9 @@ struct PhysicalAttributesScreen: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .padding()
         }
+        .onAppear {
+            detectExternalCameraConfiguration()
+        }
         .onReceive(NotificationCenter.default.publisher(for: .screenDidChangeBounds)) { _ in
                    refreshTrigger.toggle()
                }
@@ -204,6 +207,64 @@ struct PhysicalAttributesScreen: View {
             )
         }
     }
+    
+    private func detectExternalCameraConfiguration() {
+        // Use DiscoverySession to find all available video devices (built-in + external)
+        let discoverySession = AVCaptureDevice.DiscoverySession(
+            deviceTypes: [.builtInWideAngleCamera, .external],
+            mediaType: .video,
+            position: .unspecified
+        )
+        
+        let videoDevices = discoverySession.devices
+        
+        // Find external camera (non built-in)
+        guard let externalCamera = videoDevices.first(where: { $0.deviceType == .external }) else {
+            print("⚠️ No external camera found.")
+            return
+        }
+        
+        print("📸 External camera found: \(externalCamera.localizedName)")
+        
+        var bestResolution: CMVideoDimensions = .init(width: 0, height: 0)
+        
+        // Find the highest supported resolution
+        for format in externalCamera.formats {
+            let description = format.formatDescription
+            let dimensions = CMVideoFormatDescriptionGetDimensions(description)
+            if dimensions.width > bestResolution.width {
+                bestResolution = dimensions
+            }
+        }
+        
+        // Map resolution to your AnuraCore.CameraPreset
+        var selectedPreset: AnuraCore.CameraPreset = .hd1920x1080
+        switch (bestResolution.width, bestResolution.height) {
+        case (..<1920, _):
+            selectedPreset = .hd1280x720
+        case (1920..<2560, _):
+            selectedPreset = .hd1920x1080
+        case (2560..<3840, _):
+            selectedPreset = .hd2K2560x1440
+        default:
+            selectedPreset = .hd4K3840x2160
+        }
+        
+        // Log details
+        print("""
+        ✅ External camera configuration detected:
+        Name: \(externalCamera.localizedName)
+        Max Resolution: \(bestResolution.width)x\(bestResolution.height)
+        Selected Preset: \(selectedPreset)
+        """)
+        
+        // Update SwiftUI state
+        DispatchQueue.main.async {
+            self.cameraPreset = selectedPreset
+            self.useOnlyExternalCamera = true
+        }
+    }
+
 }
 
 // Helper Binding (so optional Int works with your subviews)

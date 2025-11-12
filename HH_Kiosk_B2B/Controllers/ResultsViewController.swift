@@ -58,10 +58,10 @@ class ResultsViewController: UIViewController {
         print("ResultsViewController: Injecting mock data into ResultsModel")
 
         let sample: ResultsMap = [
-            "BP_CVD": SignalResult(notes: [], value: 71),
+            "BP_CVD": SignalResult(notes: [], value: 55),
             "HBA1C_RISK_PROB": SignalResult(notes: [], value: 30.0),
-            "BP_SYSTOLIC": SignalResult(notes: [], value: 112.4),
-            "BP_DIASTOLIC": SignalResult(notes: [], value: 78.2),
+            "BP_SYSTOLIC": SignalResult(notes: [], value: 12),
+            "BP_DIASTOLIC": SignalResult(notes: [], value: 11.2),
             "HDLTC_RISK_PROB": SignalResult(notes: [], value: 55.3),
             "TG_RISK_PROB": SignalResult(notes: [], value: 47.1),
         ]

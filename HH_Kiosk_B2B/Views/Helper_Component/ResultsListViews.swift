@@ -144,7 +144,7 @@ struct ResultRow: View {
 
             // Meter + Value + Result
             HStack(alignment: .center, spacing: 16) {
-                MeterBar(value: value, minValue: minValue, maxValue: maxValue)
+                MeterBar(metricKey: metricKey,value: value, minValue: minValue, maxValue: maxValue)
                     .frame(width: 310.w, height: 50.h) // give enough height for thumb
                 Spacer()
                 buildBoldText(formattedValue(value, for: metricKey), 42.sp, color: Color(hex: "#333333"))
@@ -172,17 +172,35 @@ struct ResultRow: View {
 // MeterBar (kept mostly same)
 // ----------------------
 struct MeterBar: View {
+    let metricKey: String
     let value: Double
     let minValue: Double
     let maxValue: Double
 
-    private let segments: [Color] = [
+    private let bloodPressureSegments: [Color] = [
+        Color(hex: "#FBED95"),
+        Color(hex: "#82D79F"),
+        Color(hex: "#A5E3BA"),
+        Color(hex: "#FBED95"),
+        Color(hex: "#EC635E")
+    ]
+    
+    private let othersSegments: [Color] = [
         Color(hex: "#1DC833"),
         Color(hex: "#B8EB5E"),
         Color(hex: "#FFCB59"),
         Color(hex: "#FD895A"),
         Color(hex: "#B32D0C")
     ]
+    
+    // ✅ Use a computed property for conditional assignment
+    private var segments: [Color] {
+        if metricKey == "BP_SYSTOLIC" || metricKey == "BP_DIASTOLIC" {
+            return bloodPressureSegments
+        } else {
+            return othersSegments
+        }
+    }
 
     // fixed sizes
     private let thumbWidth: CGFloat = 15.w
@@ -212,7 +230,7 @@ struct MeterBar: View {
                 )
                 .frame(width: totalWidth, height: barHeight)
 
-                // thumb (centered vertically on the whole geo height)
+                // thumb (centered vertically)
                 Rectangle()
                     .fill(Color(hex: "#4D4D4D"))
                     .frame(width: thumbWidth, height: thumbHeight)
@@ -230,6 +248,7 @@ struct MeterBar: View {
         return (clipped - minValue) / (maxValue - minValue)
     }
 }
+
 
 // ----------------------
 // Helpers & mapping functions
@@ -249,7 +268,7 @@ fileprivate func formattedValue(_ value: Double, for metricKey: String) -> Strin
 fileprivate func displayTitle(for key: String) -> String {
     switch key {
     case "BP_CVD": return "Cardiovascular Disease Risk"
-    case "HBA1C_RISK_PROB": return "HbA1c Risk"
+    case "HBA1C_RISK_PROB": return "Hemoglobin A1C Risk"
     case "BP_SYSTOLIC": return "Systolic Blood Pressure"
     case "BP_DIASTOLIC": return "Diastolic Blood Pressure"
     case "HDLTC_RISK_PROB": return "Hypercholesterolemia Risk"
@@ -401,19 +420,37 @@ extension MeterBar {
 
 
 fileprivate func colorForMetricValue(_ key: String, _ value: Double) -> Color {
+    let very_low = Color(hex: "#1DC833")
+    let low = Color(hex: "#B8EB5E")
+    let medium = Color(hex: "#FFCB59")
+    let high = Color(hex: "#FD895A")
+    let very_high =  Color(hex: "#B32D0C")
+
+    let very_low_for_blood_pressure = Color(hex: "#FBED95")
+    let low_for_blood_pressure = Color(hex: "#82D79F")
+    let medium_for_blood_pressure = Color(hex: "#A5E3BA")
+    let high_for_blood_pressure = Color(hex: "#FBED95")
+    let very_high_for_blood_pressure =  Color(hex: "#EC635E")
+    
     switch key {
     case "BP_CVD", "HBA1C_RISK_PROB", "HDLTC_RISK_PROB", "TG_RISK_PROB":
-        if value >= 66 { return Color(hex: "#B32D0C") }      // high
-        if value >= 34 { return Color(hex: "#FFCB59") }      // medium
-        return Color(hex: "#1DC833")                         // low
+        if value <= 20 { return very_low }
+        if value <= 40 { return low }
+        if value <= 60 { return medium }
+        if value <= 80 { return high }
+        return very_high                      
     case "BP_SYSTOLIC":
-        if value >= 160 { return Color(hex: "#B32D0C") }
-        if value >= 120 { return Color(hex: "#1DC833") }
-        return Color(hex: "#FD895A")
+        if value <= 36 { return very_low_for_blood_pressure }
+        if value <= 72 { return low_for_blood_pressure }
+        if value <= 108 { return medium_for_blood_pressure }
+        if value <= 144 { return high_for_blood_pressure }
+        return very_high_for_blood_pressure
     case "BP_DIASTOLIC":
-        if value >= 100 { return Color(hex: "#B32D0C") }
-        if value >= 80 { return Color(hex: "#1DC833") }
-        return Color(hex: "#FD895A")
+        if value <= 24 { return very_low_for_blood_pressure }
+        if value <= 48 { return low_for_blood_pressure }
+        if value <= 72 { return medium_for_blood_pressure }
+        if value <= 96 { return high_for_blood_pressure }
+        return very_high_for_blood_pressure
     default:
         return Color(hex: "#333333")
     }
