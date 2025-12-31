@@ -2,8 +2,15 @@ import SwiftUI
 
 struct ProfileHeightSection: View {
     @Binding var selectedHeight: Int?
-    @State private var selectedFeet: Int? = nil
-    @State private var selectedInches: Int? = nil
+
+    // COMMITTED (shown in text field)
+    @State private var committedFeet: Int? = nil
+    @State private var committedInches: Int? = nil
+
+    // TEMP (used inside picker only)
+    @State private var tempFeet: Int = 5
+    @State private var tempInches: Int = 6
+
     @State private var showPicker: Bool = false
 
     let feetRange = Array(4...7)
@@ -14,24 +21,25 @@ struct ProfileHeightSection: View {
             Text("Height (ft/in)")
                 .font(.body)
                 .fontWeight(.bold)
-                .foregroundColor(.black)
 
             Button {
-                // ensure defaults are set when opening picker
-                if selectedFeet == nil || selectedInches == nil {
-                    if let cm = selectedHeight {
-                        let totalInches = Int(round(Double(cm) / 2.54))
-                        selectedFeet = totalInches / 12
-                        selectedInches = totalInches % 12
-                    } else {
-                        selectedFeet = feetRange.first
-                        selectedInches = inchRange.first
-                    }
+                // Initialize temp values when opening picker
+                if let feet = committedFeet, let inches = committedInches {
+                    tempFeet = feet
+                    tempInches = inches
+                } else if let cm = selectedHeight {
+                    let totalInches = Int(round(Double(cm) / 2.54))
+                    tempFeet = totalInches / 12
+                    tempInches = totalInches % 12
+                } else {
+                    tempFeet = 5
+                    tempInches = 6
                 }
+
                 showPicker = true
             } label: {
                 HStack {
-                    if let feet = selectedFeet, let inches = selectedInches {
+                    if let feet = committedFeet, let inches = committedInches {
                         Text("\(feet) ft \(inches) in")
                             .foregroundColor(.black)
                     } else {
@@ -42,7 +50,6 @@ struct ProfileHeightSection: View {
                 }
                 .padding(.vertical, 20.h)
                 .padding(.horizontal, 16.w)
-                .frame(maxWidth: .infinity)
                 .background(Color.white)
                 .overlay(
                     RoundedRectangle(cornerRadius: 12.r)
@@ -53,45 +60,41 @@ struct ProfileHeightSection: View {
                 VStack {
                     Text("Select Height")
                         .font(.headline)
-                        .padding(.top, 12.h)
+                        .padding(.top, 12)
 
                     HStack(spacing: 16) {
-                        WheelSelector(items: feetRange,
-                                      selection: Binding(get: { selectedFeet ?? feetRange.first! },
-                                                         set: { selectedFeet = $0 }),
-                                      label: "")
+                        WheelSelector(
+                            items: feetRange,
+                            selection: $tempFeet,
+                            label: "ft"
+                        )
 
-                        WheelSelector(items: inchRange,
-                                      selection: Binding(get: { selectedInches ?? inchRange.first! },
-                                                         set: { selectedInches = $0 }),
-                                      label: "")
+                        WheelSelector(
+                            items: inchRange,
+                            selection: $tempInches,
+                            label: "in"
+                        )
                     }
-                    .padding(.horizontal, 12.w)
 
                     Button("Done") {
-                        // Apply defaults if user didn't pick
-                        let feet = selectedFeet ?? feetRange.first!
-                        let inches = selectedInches ?? inchRange.first!
+                        // ✅ COMMIT ONLY HERE
+                        committedFeet = tempFeet
+                        committedInches = tempInches
 
-                        let totalInches = feet * 12 + inches
+                        let totalInches = tempFeet * 12 + tempInches
                         selectedHeight = Int(Double(totalInches) * 2.54)
 
-                        // Also update state so the button shows correctly afterwards
-                        selectedFeet = feet
-                        selectedInches = inches
-
                         showPicker = false
-                        // replace with your haptic util if available
-                        // HapticFeedback.light()
                         UIDevice.current.playInputClick()
                     }
-                    .padding(.bottom, 12.h)
+                    .padding(.bottom, 12)
                 }
                 .frame(width: 320.w, height: 300.h)
             }
         }
     }
 }
+
 
 struct WheelSelector<T: Hashable & CustomStringConvertible>: View {
     let items: [T]

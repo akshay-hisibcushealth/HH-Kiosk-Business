@@ -20,7 +20,7 @@ let interpretationJSON: [String: [String: String]] = [
     "Systolic Blood Pressure": [
         // include both variants to avoid mismatches with displayTitle(for:)
         "low_high": """
-        Your results indicate that your systolic blood pressure is <tag color="#FD895A">either lower than normal or higher than normal</tag>. If it is lower than normal, this means the heart, brain, and other parts of the body may not get enough blood. If it is higher than normal, this may indicate that you have hypertension.
+        Your results indicate that your systolic blood pressure is <tag color="#FD895A">either lower than normal or higher than normal</tag>.
         """,
         "low_normal_high": """
         Your results indicate that your systolic blood pressure is <tag color="#FD895A">either lower than normal or higher than normal</tag>.
@@ -147,13 +147,12 @@ struct ResultRow: View {
                 MeterBar(metricKey: metricKey,value: value, minValue: minValue, maxValue: maxValue)
                     .frame(width: 310.w, height: 50.h) // give enough height for thumb
                 Spacer()
-                buildBoldText(formattedValue(value, for: metricKey), 42.sp, color: Color(hex: "#333333"))
+                buildBoldText(formattedValue(value, for: metricKey), 36.sp, color: Color(hex: "#333333"))
                 Spacer()
 
                 // Get tagged message → convert to AttributedString → show
                 let msg = getTaggedMessage(metricKey: metricKey, value: value)
-                let dynamicColor = colorForMetricValue(metricKey, value)
-                let attr = attributedText(from: msg, fontSize: 20.sp, overrideTagColor: dynamicColor)
+                let attr = attributedText(from: msg, fontSize: 20.sp)
                 buildMediumText(attr, 20.sp).frame(width: 340.w, alignment: .leading).padding(.trailing,48.w)
 
             }
@@ -177,6 +176,20 @@ struct MeterBar: View {
     let minValue: Double
     let maxValue: Double
 
+    
+    private var fraction: Double {
+        if metricKey == "BP_SYSTOLIC" {
+            return scaleValueToRange(value, [0, 90, 120, 130, 140, 180])
+        }
+        else if metricKey == "BP_DIASTOLIC" {
+            return scaleValueToRange(value, [0, 60, 70, 80, 90, 120])
+        }
+        else {
+            return normalizedFraction()
+        }
+    }
+
+    
     private let bloodPressureSegments: [Color] = [
         Color(hex: "#FBED95"),
         Color(hex: "#82D79F"),
@@ -210,7 +223,6 @@ struct MeterBar: View {
     var body: some View {
         GeometryReader { geo in
             let totalWidth = geo.size.width
-            let fraction = normalizedFraction()
             let usableWidth = max(0, totalWidth - thumbWidth)
             let thumbX = CGFloat(fraction) * usableWidth
 
@@ -220,7 +232,8 @@ struct MeterBar: View {
                     ForEach(0..<segments.count, id: \.self) { i in
                         Rectangle()
                             .fill(segments[i])
-                            .frame(width: totalWidth / CGFloat(segments.count), height: barHeight)
+                            .frame(width: totalWidth / CGFloat(segments.count),
+                                   height: barHeight)
                     }
                 }
                 .cornerRadius(barHeight / 2)
@@ -230,7 +243,7 @@ struct MeterBar: View {
                 )
                 .frame(width: totalWidth, height: barHeight)
 
-                // thumb (centered vertically)
+                // thumb
                 Rectangle()
                     .fill(Color(hex: "#4D4D4D"))
                     .frame(width: thumbWidth, height: thumbHeight)
@@ -334,13 +347,18 @@ fileprivate func riskBucket(for key: String, value: Double) -> String {
         if value >= 34 { return "medium" }
         return "low"
     case "BP_SYSTOLIC":
-        if value >= 160 { return "very_high" }
+        if value >= 140 { return "very_high" }
+        if value >= 130 { return "low_high" }
         if value >= 120 { return "healthy" }
-        return "low_normal_high"
-    case "BP_DIASTOLIC":
-        if value >= 100 { return "very_high" }
-        if value >= 80 { return "healthy" }
+        if value >= 90  { return "healthy" }
         return "low_high"
+
+    case "BP_DIASTOLIC":
+        if value >= 90 { return "very_high" }
+        if value >= 80 { return "low_high" }
+        if value >= 60 { return "healthy" }
+        return "low_high"
+
     case "HR_BPM":
         // example: normal 60-100
         if value >= 60 && value <= 100 { return "normal" }
@@ -366,16 +384,16 @@ fileprivate func getTaggedMessage(metricKey: String, value: Double) -> String {
 // ----------------------
 fileprivate func attributedText(
     from taggedString: String,
-    fontSize: CGFloat = 16,
-    overrideTagColor: Color? = nil
+    fontSize: CGFloat = 16
 ) -> AttributedString {
+
     var result = AttributedString()
     var remaining = taggedString
 
     func makePlain(_ s: String) -> AttributedString {
         var a = AttributedString(s)
         a.font = .custom("NewSpirit-Medium", size: fontSize)
-        a.foregroundColor = Color(hex: "#333333")
+        a.foregroundColor = Color(hex: "#333333")   // normal text color
         return a
     }
 
@@ -384,18 +402,20 @@ fileprivate func attributedText(
           let tagCloseStart = remaining.range(of: "\">", range: colorEndIdx..<remaining.endIndex),
           let tagEndRange = remaining.range(of: "</tag>") {
 
+        // text before tag
         let before = String(remaining[..<startRange.lowerBound])
-        if !before.isEmpty { result.append(makePlain(before)) }
+        if !before.isEmpty {
+            result.append(makePlain(before))
+        }
 
-        // If overrideTagColor is provided, use it; otherwise use color from tag
-        let colorHex = String(remaining[startRange.upperBound..<colorEndIdx])
-        let textColor = overrideTagColor ?? Color(hex: colorHex)
+        // tagged content → bold only
         let content = String(remaining[tagCloseStart.upperBound..<tagEndRange.lowerBound])
 
-        var colored = AttributedString(content)
-        colored.foregroundColor = textColor
-        colored.font = .custom("NewSpirit-Medium", size: fontSize).weight(.semibold)
-        result.append(colored)
+        var boldText = AttributedString(content)
+        boldText.font = .custom("NewSpirit-Medium", size: fontSize).weight(.bold)
+        boldText.foregroundColor = Color(hex: "#333333") // SAME color as normal text
+
+        result.append(boldText)
 
         remaining = String(remaining[tagEndRange.upperBound...])
     }
@@ -406,6 +426,31 @@ fileprivate func attributedText(
 
     return result
 }
+
+func scaleValueToRange(_ value: Double, _ stops: [Double]) -> Double {
+    guard stops.count >= 2 else { return 0 }
+
+    let maxStop = stops.last!
+    let minStop = stops.first!
+
+    let v = Swift.min(Swift.max(value, minStop), maxStop)
+
+    let segmentCount = stops.count - 1
+    let segmentWidth = 1.0 / Double(segmentCount)
+
+    for i in 0..<segmentCount {
+        let start = stops[i]
+        let end = stops[i + 1]
+
+        if v >= start && v <= end {
+            let local = (v - start) / (end - start)
+            return Double(i) * segmentWidth + local * segmentWidth
+        }
+    }
+
+    return 1.0
+}
+
 
 
 
@@ -426,9 +471,7 @@ fileprivate func colorForMetricValue(_ key: String, _ value: Double) -> Color {
     let high = Color(hex: "#FD895A")
     let very_high =  Color(hex: "#B32D0C")
 
-    let very_low_for_blood_pressure = Color(hex: "#FBED95")
     let low_for_blood_pressure = Color(hex: "#82D79F")
-    let medium_for_blood_pressure = Color(hex: "#A5E3BA")
     let high_for_blood_pressure = Color(hex: "#FBED95")
     let very_high_for_blood_pressure =  Color(hex: "#EC635E")
     
@@ -440,17 +483,13 @@ fileprivate func colorForMetricValue(_ key: String, _ value: Double) -> Color {
         if value <= 80 { return high }
         return very_high                      
     case "BP_SYSTOLIC":
-        if value <= 36 { return very_low_for_blood_pressure }
-        if value <= 72 { return low_for_blood_pressure }
-        if value <= 108 { return medium_for_blood_pressure }
-        if value <= 144 { return high_for_blood_pressure }
-        return very_high_for_blood_pressure
+        if value >= 140 { return very_high_for_blood_pressure }
+        if value >= 90 && value < 130 { return low_for_blood_pressure }
+        return high_for_blood_pressure
     case "BP_DIASTOLIC":
-        if value <= 24 { return very_low_for_blood_pressure }
-        if value <= 48 { return low_for_blood_pressure }
-        if value <= 72 { return medium_for_blood_pressure }
-        if value <= 96 { return high_for_blood_pressure }
-        return very_high_for_blood_pressure
+        if value >= 90 { return very_high_for_blood_pressure }
+        if value >= 60 && value < 80 { return low_for_blood_pressure }
+        return high_for_blood_pressure
     default:
         return Color(hex: "#333333")
     }
