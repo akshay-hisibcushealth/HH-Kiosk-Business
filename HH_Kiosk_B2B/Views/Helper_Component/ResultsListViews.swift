@@ -191,11 +191,11 @@ struct MeterBar: View {
 
     
     private let bloodPressureSegments: [Color] = [
-        Color(hex: "#FBED95"),
-        Color(hex: "#82D79F"),
-        Color(hex: "#A5E3BA"),
-        Color(hex: "#FBED95"),
-        Color(hex: "#EC635E")
+        Color(hex: "#FFCB59"),
+        Color(hex: "#1DC833"),
+        Color(hex: "#B8EB5E"),
+        Color(hex: "#FFCB59"),
+        Color(hex: "#B32D0C")
     ]
     
     private let othersSegments: [Color] = [
