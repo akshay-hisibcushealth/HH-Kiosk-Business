@@ -25,6 +25,9 @@ let interpretationJSON: [String: [String: String]] = [
         "low_normal_high": """
         Your results indicate that your systolic blood pressure is <tag color="#FD895A">either lower than normal or higher than normal</tag>.
         """,
+        "healthy_light": """
+        Your results indicate that your systolic blood pressure is <tag color="#FD895A">either lower than normal or higher than normal</tag>.
+        """,
         "healthy": """
         Your results indicate that your systolic blood pressure falls within a <tag color="#1DC833">healthy range</tag>.
         """,
@@ -38,6 +41,9 @@ let interpretationJSON: [String: [String: String]] = [
         Your results indicate that your diastolic blood pressure is <tag color="#1DC833">within a healthy range</tag>.
         """,
         "low_high": """
+        Your results indicate that your diastolic blood pressure is <tag color="#FD895A">either lower than normal or higher than normal</tag>.
+        """,
+        "healthy_light": """
         Your results indicate that your diastolic blood pressure is <tag color="#FD895A">either lower than normal or higher than normal</tag>.
         """,
         "very_high": """
@@ -147,7 +153,7 @@ struct ResultRow: View {
                 MeterBar(metricKey: metricKey,value: value, minValue: minValue, maxValue: maxValue)
                     .frame(width: 310.w, height: 50.h) // give enough height for thumb
                 Spacer()
-                buildBoldText(formattedValue(value, for: metricKey), 36.sp, color: Color(hex: "#333333"))
+                buildBoldText(formattedValue(value, for: metricKey), 34.sp, color: Color(hex: "#333333"))
                 Spacer()
 
                 // Get tagged message → convert to AttributedString → show
@@ -175,20 +181,34 @@ struct MeterBar: View {
     let value: Double
     let minValue: Double
     let maxValue: Double
-
+    
     
     private var fraction: Double {
-        if metricKey == "BP_SYSTOLIC" {
+        if metricKey == "BP_CVD" {
+            return cvdFraction(value)
+        }
+        else if metricKey == "BP_SYSTOLIC" {
             return scaleValueToRange(value, [0, 90, 120, 130, 140, 180])
         }
         else if metricKey == "BP_DIASTOLIC" {
             return scaleValueToRange(value, [0, 60, 70, 80, 90, 120])
         }
         else {
-            return normalizedFraction()
+            return riskProbabilityFraction(value)
         }
     }
-
+    
+    fileprivate func cvdFraction(_ value: Double) -> Double {
+        switch value {
+        case ..<5.0:   return 0.0    // Very Low
+        case ..<7.5:   return 0.25   // Low/Borderline
+        case ..<10.0:  return 0.50   // Medium
+        case ..<20.0:  return 0.75   // High
+        default:       return 1.0    // Very High
+        }
+    }
+    
+    
     
     private let bloodPressureSegments: [Color] = [
         Color(hex: "#FFCB59"),
@@ -214,18 +234,18 @@ struct MeterBar: View {
             return othersSegments
         }
     }
-
+    
     // fixed sizes
     private let thumbWidth: CGFloat = 15.w
     private let thumbHeight: CGFloat = 40.h
     private let barHeight: CGFloat = 12.h
-
+    
     var body: some View {
         GeometryReader { geo in
             let totalWidth = geo.size.width
             let usableWidth = max(0, totalWidth - thumbWidth)
             let thumbX = CGFloat(fraction) * usableWidth
-
+            
             ZStack(alignment: .leading) {
                 // bar
                 HStack(spacing: 0) {
@@ -242,7 +262,7 @@ struct MeterBar: View {
                         .stroke(Color.gray.opacity(0.2), lineWidth: 1)
                 )
                 .frame(width: totalWidth, height: barHeight)
-
+                
                 // thumb
                 Rectangle()
                     .fill(Color(hex: "#4D4D4D"))
@@ -254,11 +274,22 @@ struct MeterBar: View {
         }
         .frame(height: 50.h)
     }
-
+    
     private func normalizedFraction() -> Double {
         guard maxValue - minValue > 0 else { return 0 }
         let clipped = min(max(value, minValue), maxValue)
         return (clipped - minValue) / (maxValue - minValue)
+    }
+    
+    
+    fileprivate func riskProbabilityFraction(_ value: Double) -> Double {
+        switch value {
+        case ..<25:   return 0.0
+        case ..<45:   return 0.25
+        case ..<55:   return 0.50
+        case ..<75:   return 0.75
+        default:      return 1.0
+        }
     }
 }
 
@@ -349,13 +380,14 @@ fileprivate func riskBucket(for key: String, value: Double) -> String {
     case "BP_SYSTOLIC":
         if value >= 140 { return "very_high" }
         if value >= 130 { return "low_high" }
-        if value >= 120 { return "healthy" }
+        if value >= 120 { return "healthy_light" }
         if value >= 90  { return "healthy" }
         return "low_high"
 
     case "BP_DIASTOLIC":
         if value >= 90 { return "very_high" }
         if value >= 80 { return "low_high" }
+        if value >= 70 { return "healthy_light" }
         if value >= 60 { return "healthy" }
         return "low_high"
 
