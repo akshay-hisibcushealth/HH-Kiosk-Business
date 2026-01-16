@@ -67,10 +67,35 @@ class ResultsViewController: UIViewController {
         ]
 
         resultsModel.update(with: sample)
-        resultButtonsHost.rootView = ResultScreenButtons(result: [:])
+        resultButtonsHost.rootView = ResultScreenButtons(result: [:],onDownloadPDF: {})
         updateUI(for: .success)
 
         print("✅ Mock data injected — check SwiftUI Results screen now.")
+    }
+    
+    
+    private func exportPDF() {
+        // 1. Create the view
+        let pdfView = ResultScreen(
+            model: self.resultsModel,
+            showBottomButtons: false,
+            showLoadingOverlay: false
+        )
+        .background(Color.white)
+        .frame(width: 595.2)     // A4 Width
+        
+        // 2. Attempt generation
+        if let url = PDFGenerator.generatePDF(view: pdfView, fileName: "HealthReport") {
+            let activityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+            
+            if let popover = activityVC.popoverPresentationController {
+                popover.sourceView = self.resultButtonsHost.view
+            }
+            
+            self.present(activityVC, animated: true)
+        } else {
+            print("❌ Failed to generate PDF URL")
+        }
     }
 
     // MARK: - Setup Views
@@ -84,7 +109,9 @@ class ResultsViewController: UIViewController {
     }
 
     private func setupBottomButtons() {
-        resultButtonsHost = UIHostingController(rootView: ResultScreenButtons(result: [:]))
+        resultButtonsHost = UIHostingController(rootView: ResultScreenButtons(result: [:], onDownloadPDF: { [weak self] in
+                self?.exportPDF()
+            }))
         addChild(resultButtonsHost)
         resultButtonsHost.view.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(resultButtonsHost.view)
@@ -207,8 +234,9 @@ class ResultsViewController: UIViewController {
 
             // Update SwiftUI state with filtered data
             self.resultsModel.update(with: converted)
-            self.resultButtonsHost.rootView = ResultScreenButtons(result: self.results)
-
+            self.resultButtonsHost.rootView = ResultScreenButtons(result: self.results, onDownloadPDF: { [weak self] in
+                        self?.exportPDF()
+                    })
             self.updateUI(for: .success)
             print("✅ Real SDK results displayed successfully (filtered to visible keys).")
         }

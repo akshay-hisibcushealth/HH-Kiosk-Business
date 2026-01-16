@@ -3,6 +3,8 @@ import AnuraCore
 
 struct ResultScreenButtons: View {
     let result: [String: MeasurementResults.SignalResult]
+    let onDownloadPDF: () -> Void
+
     @State private var showEmailPopUp = false
     var body: some View {
         HStack(alignment: .top) {
@@ -21,6 +23,7 @@ struct ResultScreenButtons: View {
             VStack{
             Button(action: {
                 showEmailPopUp = true
+                onDownloadPDF()
             })
             {
                 HStack {

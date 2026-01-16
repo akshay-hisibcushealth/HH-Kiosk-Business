@@ -2,8 +2,7 @@ import SwiftUI
 import Combine
 import AnuraCore
 
-
-
+// MARK: - Models
 public struct SignalResult: Decodable {
     public let notes: [String]
     public let value: Double
@@ -32,13 +31,7 @@ public final class ResultsModel: ObservableObject {
         return Array(sorted)
     }
 
-    public init() {} // ✅ Explicit public initializer
-
-    public init(loadMock: Bool = false) {
-        if loadMock {
-            // optional mock loader if you want
-        }
-    }
+    public init() {}
 
     public func update(with newResults: ResultsMap) {
         DispatchQueue.main.async {
@@ -47,13 +40,23 @@ public final class ResultsModel: ObservableObject {
     }
 }
 
+struct ShareSheet: UIViewControllerRepresentable {
+    let activityItems: [Any]
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+    }
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
+}
 
-
+// MARK: - Main Screen
 public struct ResultScreen: View {
     @StateObject private var model: ResultsModel
     let result: [String: MeasurementResults.SignalResult]
     @State private var refreshTrigger = false
-
+    
+    // PDF States
+    @State private var pdfURL: URL?
+    @State private var isSharing = false
 
     private let showBottomButtons: Bool
     private let showLoadingOverlay: Bool
@@ -65,7 +68,7 @@ public struct ResultScreen: View {
         showLoadingOverlay: Bool = true
     ) {
         _model = StateObject(wrappedValue: model)
-        self.result = result 
+        self.result = result
         self.showBottomButtons = showBottomButtons
         self.showLoadingOverlay = showLoadingOverlay
     }
@@ -73,29 +76,53 @@ public struct ResultScreen: View {
     public var body: some View {
         ZStack(alignment: .bottom) {
             ScrollView(showsIndicators: false) {
-                VStack(spacing: 0) {
-                    HeroHeader()
-                    TitleBlock()
-                    ResultsList(model: model)
-                    BottomBar()
-                    Footer()
-                }
-                .frame(maxWidth: .infinity)
-                .background(Color(.systemBackground))
+                mainContentView // Extracted for reuse in PDF
             }
             .ignoresSafeArea(edges: .top)
             
             if showBottomButtons {
-                ResultScreenButtons(result: result)
-                    .background(Color.white)
-                    .shadow(radius: 4)
+                ResultScreenButtons(result: result, onDownloadPDF: {
+                    exportToPDF()
+                })
+                .background(Color.white)
+                .shadow(radius: 4)
             }
-        } .onReceive(NotificationCenter.default.publisher(for: .screenDidChangeBounds)) { _ in
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .screenDidChangeBounds)) { _ in
             refreshTrigger.toggle()
+        }
+        .sheet(isPresented: $isSharing) {
+            if let url = pdfURL {
+                ShareSheet(activityItems: [url])
+            }
+        }
+    }
+    
+    // Extracted content view so we can render it without the ScrollView wrapper for PDF
+    private var mainContentView: some View {
+        VStack(spacing: 0) {
+            HeroHeader()
+            TitleBlock()
+            ResultsList(model: model)
+            BottomBar()
+            Footer()
+        }
+        .frame(maxWidth: .infinity)
+        .background(Color(.systemBackground))
+    }
+    
+    private func exportToPDF() {
+        // We render the raw content (without the ScrollView) to ensure we get the full length
+        let pdfView = mainContentView.frame(width: 595) // Fix width to A4
+        
+        if let url = PDFGenerator.generatePDF(view: pdfView, fileName: "Hibiscus_Health_Report") {
+            self.pdfURL = url
+            self.isSharing = true
         }
     }
 }
 
+// MARK: - Subviews
 private struct HeroHeader: View {
     var body: some View {
         ZStack(alignment: .leading) {
@@ -104,7 +131,7 @@ private struct HeroHeader: View {
                 .scaledToFill()
                 .frame(height: 460.h)
                 .clipped()
-                .padding(.top,200.h)
+                .padding(.top, 200.h)
             
             VStack(alignment: .leading, spacing: 0) {
                 ResultToolbar()
@@ -140,7 +167,8 @@ private struct TitleBlock: View {
                 color: Color(hex: "#142A6D")
             )
             .padding(.leading, 48.w)
-            .padding(.trailing, 120.w)        }
+            .padding(.trailing, 120.w)
+        }
     }
 }
 
@@ -156,7 +184,7 @@ private struct InfoFooter: View {
                 .frame(maxWidth: .infinity)
                 .frame(minHeight: 105.h, maxHeight: 105.h)
             
-            HStack( spacing: 12.w) {
+            HStack(spacing: 12.w) {
                 Image(systemName: "info.circle")
                     .resizable()
                     .frame(width: 24, height: 24)
@@ -178,8 +206,8 @@ private struct BottomBar: View {
         VStack(spacing: 16.h) {
             InfoFooter()
                 .padding(.horizontal, 24.w)
-                .padding(.bottom,40.h)
-            ZStack(alignment: .bottom){
+                .padding(.bottom, 40.h)
+            ZStack(alignment: .bottom) {
                 Color(hex: "#142A6D")
                     .frame(height: 100.h)
                     .frame(maxWidth: .infinity)
@@ -192,10 +220,8 @@ private struct BottomBar: View {
                         RoundedCorner(radius: 40.r, corners: [.topLeft, .topRight])
                     )
 
-                
-                
                 VStack {
-                    buildMediumText("Next Steps",44.sp,color: .white)
+                    buildMediumText("Next Steps", 44.sp, color: .white)
                     VStack(alignment: .leading, spacing: 8) {
                         (
                             Text("We know every organization is unique. Whether you’re an employer, health plan, or solution partner, Hibiscus can integrate seamlessly into your existing ecosystem — or provide full end-to-end support from ")
@@ -207,8 +233,8 @@ private struct BottomBar: View {
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
                     }
-                    .padding(.bottom,24.h)
-                    .padding(.horizontal,150.w)
+                    .padding(.bottom, 24.h)
+                    .padding(.horizontal, 150.w)
                     
                     Image("bottom_info_box")
                         .resizable()
@@ -216,7 +242,6 @@ private struct BottomBar: View {
                         .frame(height: 400.h)
                         .clipped()
                 }
-                
             }
         }
         .frame(maxWidth: .infinity)
@@ -230,18 +255,8 @@ private struct Footer: View {
     var body: some View {
         VStack(spacing: 32.h) {
             VStack(spacing: 0) {
-                buildMediumText(
-                    "Find even more resources,",
-                    44.sp,
-                    color: .white,
-                    alignment: .center
-                )
-                buildMediumText(
-                    "tips & insights on the app",
-                    44.sp,
-                    color: .white,
-                    alignment: .center
-                )
+                buildMediumText("Find even more resources,", 44.sp, color: .white, alignment: .center)
+                buildMediumText("tips & insights on the app", 44.sp, color: .white, alignment: .center)
             }
             .padding(.top, 16.h)
             

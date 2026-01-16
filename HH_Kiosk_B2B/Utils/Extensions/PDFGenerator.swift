@@ -1,42 +1,51 @@
 import SwiftUI
-import UIKit
 
 @MainActor
-class PDFGenerator {
-    static func generatePDF(from view: some View, fileName: String) -> URL? {
+struct PDFGenerator {
+    static func generatePDF<Content: View>(view: Content, fileName: String) -> URL? {
+        let directory = FileManager.default.temporaryDirectory
+        let url = directory.appendingPathComponent("\(fileName).pdf")
+        
+        let pageWidth: CGFloat = 595.2
+        let pageHeight: CGFloat = 841.8
+        
+        // 1. Wrap the view and propose a size to force layout expansion
         let renderer = ImageRenderer(content: view)
+        renderer.proposedSize = ProposedViewSize(width: pageWidth, height: nil)
+        renderer.scale = 2.0 // Higher quality for text
         
-        // Set a standard A4 page size
-        let pageWidth: CGFloat = 595.2 // A4 Width
-        let pageHeight: CGFloat = 841.8 // A4 Height
-        let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("\(fileName).pdf")
-        
-        renderer.render { size, context in
-            var box = CGRect(x: 0, y: 0, width: pageWidth, height: pageHeight)
-            
-            guard let pdfContext = CGContext(tempURL as CFURL, mediaBox: &box, nil) else { return }
-            
-            // Calculate how many pages we need based on the SwiftUI view's intrinsic size
-            let totalHeight = size.height
-            let numberOfPages = Int(ceil(totalHeight / pageHeight))
-            
-            for pageIndex in 0..<numberOfPages {
-                pdfContext.beginPage(mediaBox: &box)
-                
-                // Shift the context upward so the "current" section of the view 
-                // aligns with the top of the current PDF page
-                let translationY = CGFloat(pageIndex) * pageHeight
-                pdfContext.translateBy(x: 0, y: -translationY)
-                
-                // Render the view into the context
-                context(pdfContext)
-                
-                pdfContext.endPage()
-            }
-            
-            pdfContext.closePDF()
+        // 2. FORCE RENDER: This is the secret to fixing blank PDFs.
+        // Accessing uiImage forces SwiftUI to process the View tree and images.
+        guard let uiImage = renderer.uiImage else {
+            print("❌ PDF Error: View content could not be converted to image.")
+            return nil
         }
         
-        return tempURL
+        let contentSize = uiImage.size
+        let totalPages = Int(ceil(contentSize.height / (pageHeight * 2.0))) // Adjust for scale 2.0
+        
+        var box = CGRect(x: 0, y: 0, width: pageWidth, height: pageHeight)
+        
+        guard let consumer = CGDataConsumer(url: url as CFURL),
+              let context = CGContext(consumer: consumer, mediaBox: &box, nil) else {
+            return nil
+        }
+        
+        for page in 0..<totalPages {
+            context.beginPage(mediaBox: &box)
+            
+            // Shift the drawing area for each page
+            // We use the pageHeight and account for the scale used in uiImage
+            context.translateBy(x: 0, y: -CGFloat(page) * pageHeight)
+            
+            renderer.render { size, renderInContext in
+                renderInContext(context)
+            }
+            context.endPage()
+        }
+        
+        context.closePDF()
+        print("✅ PDF successfully created at: \(url.path)")
+        return url
     }
 }
