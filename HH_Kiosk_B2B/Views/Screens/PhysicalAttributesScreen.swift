@@ -19,6 +19,9 @@ struct PhysicalAttributesScreen: View {
     @State private var mirrorExternalCameraPreview: Bool = true
     @State private var useOnlyExternalCamera: Bool = false
     
+    //KEYBOARD OBSERVER
+    @StateObject private var keyboard = KeyboardObserver()
+    
     // ALERT
     @State private var showValidationAlert = false
     @State private var validationMessage: String = ""
@@ -52,9 +55,13 @@ struct PhysicalAttributesScreen: View {
                 Image("avatar_image")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .frame(width:260.w,height: 370.h)
+                    // Dynamic height based on keyboard state
+                    .frame(width: 260.w, height: keyboard.isKeyboardVisible ? 0 : 370.h)
+                    .opacity(keyboard.isKeyboardVisible ? 0 : 1)
+                    .clipped() // Ensures it doesn't bleed out when height is 0
                     .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.top,100.h)
+                    .padding(.top, keyboard.isKeyboardVisible ? 0 : 100.h) // Reduce padding when hidden
+                    .animation(.easeInOut(duration: 0.3), value: keyboard.isKeyboardVisible)
                 
                 // Privacy info
                 HStack {
@@ -102,6 +109,7 @@ struct PhysicalAttributesScreen: View {
                 // Action buttons
                 HStack(spacing: 20) {
                     Button(action: {
+                        hideKeyboard()
                         showWebView = true
                     }) {
                         HStack {
@@ -117,7 +125,7 @@ struct PhysicalAttributesScreen: View {
                     }
                     
                     Button(action: {
-                        
+                        hideKeyboard()
                         // ✅ Validate step by step
                         if height == nil {
                             validationMessage = "Please select your height"

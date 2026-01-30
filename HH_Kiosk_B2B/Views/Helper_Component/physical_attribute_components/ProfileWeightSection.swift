@@ -2,8 +2,9 @@ import SwiftUI
 
 struct ProfileWeightSection: View {
     @Binding var selectedWeight: Int?  // Stored in kg
-    @State private var showPicker: Bool = false
-    @State private var selectedPounds: Int? = nil   // 🔹 optional now
+    @State private var weightInput: String = "" // Local input in lbs
+
+    private let weightRange = 75...400
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -12,23 +13,12 @@ struct ProfileWeightSection: View {
                 .fontWeight(.bold)
                 .foregroundColor(.black)
 
-            Button {
-                // Only set if there's already a weight stored
-                if let weight = selectedWeight,weight  > 0 {
-                    selectedPounds = Int(Double(weight) * 2.20462)
-                }
-                showPicker = true
-            } label: {
-                HStack {
-                    if let pounds = selectedPounds {
-                        Text("\(pounds) lbs")
-                            .foregroundColor(.black)
-                    } else {
-                        Text("Select weight")
-                            .foregroundColor(.gray)
-                    }
-                    Spacer()
-                }
+            TextField("Select weight", text: $weightInput)
+                // 🔹 FIX: Use .numbersAndPunctuation to force full-width keyboard on iPad
+                // (.numberPad forces the small floating window on iPadOS)
+                .keyboardType(.asciiCapableNumberPad)
+                .textFieldStyle(.plain)
+                .foregroundColor(.black)
                 .padding(.vertical, 20.h)
                 .padding(.horizontal, 16.w)
                 .frame(maxWidth: .infinity)
@@ -37,41 +27,41 @@ struct ProfileWeightSection: View {
                     RoundedRectangle(cornerRadius: 12.r)
                         .stroke(Color.black, lineWidth: 1)
                 )
-            }
-            .popover(isPresented: $showPicker) {
-                VStack {
-                    Text("Select Weight")
-                        .font(.body)
-                        .fontWeight(.medium)
-                        .foregroundColor(.black)
-                        .padding(.top, 12.h)
-                        .padding(.horizontal, 32.h)
-
-                    ScrollView {
-                        LazyVStack(spacing: 0) {
-                            ForEach(75...400, id: \.self) { lbs in
-                                Text("\(lbs) lbs")
-                                    .font(.body)
-                                    .foregroundColor(.primary)
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.top, 4.h)
-                                    .padding(.bottom, 4.h)
-                                    .background(selectedPounds == lbs ? Color.gray.opacity(0.2) : Color.clear)
-                                    .cornerRadius(8.r)
-                                    .onTapGesture {
-                                        selectedPounds = lbs
-                                        selectedWeight = Int(Double(lbs) / 2.20462)  // Convert lbs back to kg
-                                        showPicker = false
-                                        HapticFeedback.light()
-                                    }
-                            }
+                // 🔹 Input Validation Logic
+                .onChange(of: weightInput) { newValue, _ in
+                    // 1. Filter numeric digits only
+                    let filtered = newValue.filter { "0123456789".contains($0) }
+                    
+                    // 2. Limit to 3 digits
+                    var finalValue = String(filtered.prefix(3))
+                    
+                    // 3. Apply Range Guard (75-400)
+                    if let lbs = Int(finalValue) {
+                        // If they've typed 3 digits and it's over 400, clear it
+                        if finalValue.count == 3 && lbs > 400 {
+                            finalValue = ""
                         }
-                        .padding()
+                        
+                        // Sync with the actual weight binding
+                        if weightRange.contains(lbs) {
+                            selectedWeight = Int(Double(lbs) / 2.20462)
+                        } else {
+                            selectedWeight = nil
+                        }
+                    }
+                    
+                    // 4. Update the text field state
+                    if weightInput != finalValue {
+                        weightInput = finalValue
                     }
                 }
-                .frame(height: 400.h)
-            }
-            .buttonStyle(PlainButtonStyle())
+                // 🔹 Pre-fill (Kg -> Lbs)
+                .onAppear {
+                    if let kg = selectedWeight, kg > 0 {
+                        let lbs = Int(Double(kg) * 2.20462)
+                        weightInput = String(lbs)
+                    }
+                }
         }
     }
 }

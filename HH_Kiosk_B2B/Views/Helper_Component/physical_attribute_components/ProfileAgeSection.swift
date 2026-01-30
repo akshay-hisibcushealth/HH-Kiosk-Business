@@ -1,10 +1,13 @@
 import SwiftUI
 
 struct ProfileAgeSection: View {
-    @State private var showAlert = false
     @Binding var selectedAge: Int?
-    @State private var showPicker: Bool = false
-    @State private var localAge: Int? = nil   // 🔹 optional local state
+    @State private var ageInput: String = ""
+    
+    // 🔹 1. Add FocusState to control keyboard visibility
+    @FocusState private var isInputActive: Bool
+    
+    private let ageRange = 13...75
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -13,68 +16,56 @@ struct ProfileAgeSection: View {
                 .fontWeight(.bold)
                 .foregroundColor(.black)
 
-            HStack {
-                Button {
-                    // Only preload if binding has a valid value
-                    if let age = selectedAge, age > 0 {
-                        localAge = age
-                    }
-                    showPicker = true
-                } label: {
-                    HStack {
-                        if let age = localAge, age > 0 {
-                            Text("\(age) years")
-                                .foregroundColor(.black)
-                        } else {
-                            Text("Select age")
-                                .foregroundColor(.gray)
-                        }
-                        Spacer()
-                    }
-                    .padding(.vertical, 20.h)
-                    .padding(.horizontal, 16.w)
-                    .frame(maxWidth: .infinity)
-                    .background(Color.white)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12.r)
-                            .stroke(Color.black, lineWidth: 1)
-                    )
-                }
-                .popover(isPresented: $showPicker) {
-                    VStack {
-                        Text("Select Age")
-                            .font(.body)
-                            .fontWeight(.medium)
-                            .foregroundColor(.black)
-                            .padding(.top, 12.h)
-                            .padding(.horizontal, 32.w)
+            TextField("Select age", text: $ageInput)
+                .keyboardType(.asciiCapableNumberPad)
 
-                        ScrollView {
-                            LazyVStack(spacing: 0) {
-                                ForEach(13...75, id: \.self) { age in
-                                    Text("\(age) years")
-                                        .font(.body)
-                                        .foregroundColor(.primary)
-                                        .frame(maxWidth: .infinity)
-                                        .padding(.top, 4.h)
-                                        .padding(.bottom, 4.h)
-                                        .background(localAge == age ? Color.gray.opacity(0.2) : Color.clear)
-                                        .cornerRadius(8.r)
-                                        .onTapGesture {
-                                            localAge = age
-                                            selectedAge = age
-                                            showPicker = false
-                                            HapticFeedback.light()
-                                        }
-                                }
-                            }
-                            .padding()
+                .focused($isInputActive) // 🔹 2. Bind the text field to the focus state
+                .textFieldStyle(.plain)
+                .foregroundColor(.black)
+                .padding(.vertical, 20.h)
+                .padding(.horizontal, 16.w)
+                .frame(maxWidth: .infinity)
+                .background(Color.white)
+                .keyboardType(.asciiCapableNumberPad)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12.r)
+                        .stroke(Color.black, lineWidth: 1)
+                )
+                // Logic to filter input and handle range
+                .onChange(of: ageInput) { newValue, _ in
+                    // 1. Filter numeric digits only
+                    let filtered = newValue.filter { "0123456789".contains($0) }
+                    
+                    // 2. Limit to 2 digits (since max age is 75)
+                    var finalValue = String(filtered.prefix(2))
+                    
+                    // 3. Apply Range Guard (13-75)
+                    if let age = Int(finalValue) {
+                        // If they've typed 2 digits and it's over 75, clear it immediately
+                        if finalValue.count == 2 && age > 75 {
+                            finalValue = ""
                         }
+                        
+                        // Update the actual binding only if it's within the valid range
+                        if ageRange.contains(age) {
+                            selectedAge = age
+                        } else {
+                            selectedAge = nil
+                        }
+                    } else {
+                        selectedAge = nil // Clear binding if field is empty
                     }
-                    .frame(height: 400.h)
+                    
+                    // 4. Update the text field state to stay in sync
+                    if ageInput != finalValue {
+                        ageInput = finalValue
+                    }
                 }
-                .buttonStyle(PlainButtonStyle())
-            }
+                .onAppear {
+                    if let age = selectedAge {
+                        ageInput = String(age)
+                    }
+                }
         }
     }
 }
