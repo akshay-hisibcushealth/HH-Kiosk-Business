@@ -43,11 +43,7 @@ struct ProfileWeightSection: View {
                         }
                         
                         // Sync with the actual weight binding
-                        if weightRange.contains(lbs) {
-                            selectedWeight = Int(Double(lbs) / 2.20462)
-                        } else {
-                            selectedWeight = nil
-                        }
+                        selectedWeight = Int(Double(lbs) / 2.20462)
                     }
                     
                     // 4. Update the text field state

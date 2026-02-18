@@ -47,11 +47,8 @@ struct ProfileAgeSection: View {
                         }
                         
                         // Update the actual binding only if it's within the valid range
-                        if ageRange.contains(age) {
                             selectedAge = age
-                        } else {
-                            selectedAge = nil
-                        }
+                    
                     } else {
                         selectedAge = nil // Clear binding if field is empty
                     }

@@ -126,40 +126,8 @@ struct PhysicalAttributesScreen: View {
                     
                     Button(action: {
                         hideKeyboard()
-                        // ✅ Validate step by step
-                        if height == nil {
-                            validationMessage = "Please select your height"
-                            showValidationAlert = true
-                        } else if weight == nil {
-                            validationMessage = "Please select your weight"
-                            showValidationAlert = true
-                        } else if age == nil {
-                            validationMessage = "Please enter your age"
-                            showValidationAlert = true
-                        } else if gender.isEmpty {
-                            validationMessage = "Please select your gender"
-                            showValidationAlert = true
-                        }
-                        
-                        else {
-                            isLoading = true
-                            let user = AnuraUser(
-                                height: height!,
-                                weight: weight!,
-                                age: age!,
-                                gender: gender.lowercased() == "male" ? .male : .female
-                            )
-                            
-                            faceManager.initMethods()
-                            faceManager.startAnuraMeasurement(
-                                currentUser: user,
-                                currentCameraPreset: cameraPreset,
-                                currentPreviewOrientation: previewOrientation,
-                                currentMirrorExternalCameraPreview: mirrorExternalCameraPreview,
-                                currentUseOnlyExternalCamera: useOnlyExternalCamera
-                            ){
-                                isLoading = false
-                            }
+                        if validateInputs() {
+                           proceedToScan()
                         }
                     }) {
                         if isLoading {
@@ -215,6 +183,60 @@ struct PhysicalAttributesScreen: View {
             )
         }
     }
+    
+    private func validateInputs() -> Bool {
+
+        switch true {
+
+        case height == nil:
+            validationMessage = "Please select your height."
+
+        case weight == nil:
+            validationMessage = "Please select your weight."
+
+        case weight! < 34:
+            validationMessage = "Weight cannot be less than 75 lbs."
+
+        case age == nil:
+            validationMessage = "Please enter your age."
+
+        case age! < 13:
+            validationMessage = "Age cannot be less than 13 years."
+
+        case gender.isEmpty:
+            validationMessage = "Please select your gender."
+
+        default:
+            return true
+        }
+
+        showValidationAlert = true
+        return false
+    }
+    
+    private func proceedToScan() {
+        isLoading = true
+
+        let user = AnuraUser(
+            height: height!,
+            weight: weight!,
+            age: age!,
+            gender: gender.lowercased() == "male" ? .male : .female
+        )
+
+        faceManager.initMethods()
+
+        faceManager.startAnuraMeasurement(
+            currentUser: user,
+            currentCameraPreset: cameraPreset,
+            currentPreviewOrientation: previewOrientation,
+            currentMirrorExternalCameraPreview: mirrorExternalCameraPreview,
+            currentUseOnlyExternalCamera: useOnlyExternalCamera
+        ) {
+            isLoading = false
+        }
+    }
+
     
     private func detectExternalCameraConfiguration() {
         // Use DiscoverySession to find all available video devices (built-in + external)
