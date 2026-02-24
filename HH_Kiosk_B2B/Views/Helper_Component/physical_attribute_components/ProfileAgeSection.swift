@@ -26,7 +26,6 @@ struct ProfileAgeSection: View {
                 .padding(.horizontal, 16.w)
                 .frame(maxWidth: .infinity)
                 .background(Color.white)
-                .keyboardType(.asciiCapableNumberPad)
                 .overlay(
                     RoundedRectangle(cornerRadius: 12.r)
                         .stroke(Color.black, lineWidth: 1)

@@ -16,7 +16,6 @@ struct ProfileWeightSection: View {
             TextField("Select weight", text: $weightInput)
                 // 🔹 FIX: Use .numbersAndPunctuation to force full-width keyboard on iPad
                 // (.numberPad forces the small floating window on iPadOS)
-                .keyboardType(.asciiCapableNumberPad)
                 .textFieldStyle(.plain)
                 .foregroundColor(.black)
                 .padding(.vertical, 20.h)
