@@ -84,7 +84,7 @@ public struct ResultScreen: View {
                 ResultScreenButtons(result: result, onDownloadPDF: {
                     exportToPDF()
                 })
-                .background(Color.white)
+                .background(Color(AppColors.white))
                 .shadow(radius: 4)
             }
         }
@@ -108,7 +108,7 @@ public struct ResultScreen: View {
             Footer()
         }
         .frame(maxWidth: .infinity)
-        .background(Color(.systemBackground))
+        .background(Color(AppColors.systemBackground))
     }
     
     private func exportToPDF() {
@@ -136,12 +136,12 @@ private struct HeroHeader: View {
             VStack(alignment: .leading, spacing: 0) {
                 ResultToolbar()
                 Spacer(minLength: 20)
-                buildSemiBoldText("Your Face Scan Results", 50.sp, color: Color(hex: "#142A6D"))
+                buildSemiBoldText("Your Face Scan Results", 50.sp, color: Color(AppColors.primary))
                     .font(.system(size: 34, weight: .bold))
-                    .foregroundColor(.white)
+                    .foregroundColor(Color(AppColors.white))
                     .padding(.leading, 50.w)
                 Text("This sample report features your personal face-scan results and demonstrates how we can design a customized, population-level version aligned with your wellness strategy — giving individuals insight and delivering actionable value for your organization.")
-                    .foregroundColor(Color(hex: "#353535"))
+                    .foregroundColor(Color(AppColors.bodyTextMuted))
                     .font(.system(size: 24.sp, weight: .light))
                     .italic()
                     .padding(.leading, 50.w)
@@ -157,14 +157,14 @@ private struct TitleBlock: View {
     var body: some View {
         ZStack {
             Rectangle()
-                .fill(Color(hex: "#B8E2F5"))
+                .fill(Color(AppColors.resultInfoBackground))
                 .frame(maxWidth: .infinity)
                 .frame(height: 120.h)
             
             buildMediumText(
                 "At Hibiscus, we believe that great technology is only meaningful when paired with thoughtful human support. Our facial-scan insights are designed to spark action and our programs ensure each member is guided, not left on their own, to achieve lasting health goals.",
                 18.sp,
-                color: Color(hex: "#142A6D")
+                color: Color(AppColors.primary)
             )
             .padding(.leading, 48.w)
             .padding(.trailing, 120.w)
@@ -176,10 +176,10 @@ private struct InfoFooter: View {
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 8.r, style: .continuous)
-                .fill(Color(hex: "#FFE7DE"))
+                .fill(Color(AppColors.resultAlertBackground))
                 .overlay(
                     RoundedRectangle(cornerRadius: 8.r, style: .continuous)
-                        .stroke(Color(hex: "A92E00"), lineWidth: 1)
+                        .stroke(Color(AppColors.resultAlertBorder), lineWidth: 1)
                 )
                 .frame(maxWidth: .infinity)
                 .frame(minHeight: 105.h, maxHeight: 105.h)
@@ -188,12 +188,12 @@ private struct InfoFooter: View {
                 Image(systemName: "info.circle")
                     .resizable()
                     .frame(width: 24, height: 24)
-                    .foregroundColor(Color(hex: "A92E00"))
+                    .foregroundColor(Color(AppColors.resultAlertBorder))
                     .padding(.leading, 12.w)
                 
                 Text("Hibiscus Health is intended to improve your awareness of general wellness. Hibiscus Health does not diagnose, treat, mitigate or prevent any disease, symptom, disorder or abnormal physical state. Consult with a healthcare professional or emergency services if you believe you may have a medical issue.")
                     .font(.system(size: 18.sp))
-                    .foregroundColor(Color(hex: "8A2600"))
+                    .foregroundColor(Color(AppColors.resultAlertText))
                     .italic()
                     .padding(12.w)
             }
@@ -208,7 +208,7 @@ private struct BottomBar: View {
                 .padding(.horizontal, 24.w)
                 .padding(.bottom, 40.h)
             ZStack(alignment: .bottom) {
-                Color(hex: "#142A6D")
+                Color(AppColors.primary)
                     .frame(height: 100.h)
                     .frame(maxWidth: .infinity)
                     .ignoresSafeArea(edges: .bottom)
@@ -221,7 +221,7 @@ private struct BottomBar: View {
                     )
 
                 VStack {
-                    buildMediumText("Next Steps", 44.sp, color: .white)
+                    buildMediumText("Next Steps", 44.sp, color: Color(AppColors.white))
                     VStack(alignment: .leading, spacing: 8) {
                         (
                             Text("We know every organization is unique. Whether you’re an employer, health plan, or solution partner, Hibiscus can integrate seamlessly into your existing ecosystem — or provide full end-to-end support from ")
@@ -229,7 +229,7 @@ private struct BottomBar: View {
                             + Text(" for maximum impact. Choose the components that best complement your current resources.")
                         )
                         .font(.system(size: 19.sp))
-                        .foregroundColor(.white)
+                        .foregroundColor(Color(AppColors.white))
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
                     }
@@ -255,8 +255,8 @@ private struct Footer: View {
     var body: some View {
         VStack(spacing: 32.h) {
             VStack(spacing: 0) {
-                buildMediumText("Find even more resources,", 44.sp, color: .white, alignment: .center)
-                buildMediumText("tips & insights on the app", 44.sp, color: .white, alignment: .center)
+                buildMediumText("Find even more resources,", 44.sp, color: Color(AppColors.white), alignment: .center)
+                buildMediumText("tips & insights on the app", 44.sp, color: Color(AppColors.white), alignment: .center)
             }
             .padding(.top, 16.h)
             
@@ -283,13 +283,13 @@ private struct Footer: View {
                 .padding(.trailing, 32.h)
             Text("575 LEXINGTON AVE, FL 14TH NEW YORK, NY 10022-6102 United States")
                 .font(.system(size: 20.sp))
-                .foregroundColor(.white)
+                .foregroundColor(Color(AppColors.white))
                 .multilineTextAlignment(.center)
                 .padding(.top, 8.h)
         }
         .padding(.vertical, 48.h)
         .frame(maxWidth: .infinity)
-        .background(Color(hex: "#142A6D"))
+        .background(Color(AppColors.primary))
     }
 }
 

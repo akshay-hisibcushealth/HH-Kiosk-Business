@@ -64,16 +64,16 @@ struct ResultCardView: View {
         VStack(alignment: .leading, spacing: 6) {
             Text(title)
                 .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(.primary)
+                .foregroundColor(Color(AppColors.textPrimary))
 
             HStack(spacing: 4) {
                 Text(valueText)
                     .font(.system(size: 22, weight: .bold))
-                    .foregroundColor(.blue)
+                    .foregroundColor(Color(AppColors.blue))
                 if let unit {
                     Text(unit)
                         .font(.system(size: 14))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Color(AppColors.textSecondary))
                 }
                 Spacer()
             }
@@ -81,7 +81,7 @@ struct ResultCardView: View {
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 14)
-                .fill(Color(.secondarySystemBackground))
+                .fill(Color(AppColors.secondarySystemBackground))
                 .shadow(radius: 1)
         )
     }

@@ -40,7 +40,7 @@ class ResultsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationController?.navigationBar.isHidden = true
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = AppColors.systemBackground
         setupSwiftUIScreen()
         setupBottomButtons()
         setupLoadingAndErrorViews()
@@ -81,7 +81,7 @@ class ResultsViewController: UIViewController {
             showBottomButtons: false,
             showLoadingOverlay: false
         )
-        .background(Color.white)
+        .background(Color(AppColors.white))
         .frame(width: 595.2)     // A4 Width
         
         // 2. Attempt generation
@@ -126,7 +126,7 @@ class ResultsViewController: UIViewController {
 
         errorLabel = UILabel()
         errorLabel.text = "Measurement failed"
-        errorLabel.textColor = .systemRed
+        errorLabel.textColor = AppColors.error
         errorLabel.font = .boldSystemFont(ofSize: 18)
         errorLabel.textAlignment = .center
         errorLabel.translatesAutoresizingMaskIntoConstraints = false

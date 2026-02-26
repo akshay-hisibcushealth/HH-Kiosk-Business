@@ -11,21 +11,18 @@ struct ProfileWeightSection: View {
             Text("Weight (lbs)")
                 .font(.body)
                 .fontWeight(.bold)
-                .foregroundColor(.black)
+                .foregroundColor(Color(AppColors.black))
 
             TextField("Select weight", text: $weightInput)
-                // 🔹 FIX: Use .numbersAndPunctuation to force full-width keyboard on iPad
-                // (.numberPad forces the small floating window on iPadOS)
-                .keyboardType(.asciiCapableNumberPad)
                 .textFieldStyle(.plain)
-                .foregroundColor(.black)
+                .foregroundColor(Color(AppColors.black))
                 .padding(.vertical, 20.h)
                 .padding(.horizontal, 16.w)
                 .frame(maxWidth: .infinity)
-                .background(Color.white)
+                .background(Color(AppColors.white))
                 .overlay(
                     RoundedRectangle(cornerRadius: 12.r)
-                        .stroke(Color.black, lineWidth: 1)
+                        .stroke(Color(AppColors.black), lineWidth: 1)
                 )
                 // 🔹 Input Validation Logic
                 .onChange(of: weightInput) { newValue, _ in

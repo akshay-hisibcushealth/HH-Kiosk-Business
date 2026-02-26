@@ -25,7 +25,7 @@ struct DateTimeView: View {
                 Text(dateString.uppercased())
                     .font(.system(size: 20.sp, weight: .medium))
             }
-            .foregroundColor(.white)
+            .foregroundColor(Color(AppColors.white))
         }
         .padding(.trailing, 16.w)
         .padding(.top, 8.h)

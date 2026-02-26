@@ -54,7 +54,7 @@ struct EmailResultPopup: View {
                     Spacer()
                     Image(systemName: "xmark")
                         .padding(.trailing, 32.w)
-                        .foregroundColor(.black)
+                        .foregroundColor(Color(AppColors.black))
                 }
             }
         }
@@ -66,7 +66,7 @@ struct EmailResultPopup: View {
         HStack {
             Spacer()
             ProgressView()
-                .progressViewStyle(CircularProgressViewStyle(tint: .gray))
+                .progressViewStyle(CircularProgressViewStyle(tint: Color(AppColors.gray)))
                 .scaleEffect(2)
             Spacer()
         }
@@ -96,11 +96,11 @@ struct EmailResultPopup: View {
             dismiss()
         }) {
             Text("Return to Home Screen")
-                .foregroundColor(.black)
+                .foregroundColor(Color(AppColors.black))
                 .fontWeight(.bold)
                 .padding()
                 .frame(maxWidth: .infinity)
-                .background(Color(hex: "#B8EB5E"))
+                .background(Color(AppColors.ctaGreen))
                 .cornerRadius(10)
         }
         .padding(.horizontal)
@@ -124,13 +124,13 @@ struct EmailResultPopup: View {
             Text("Email address")
                 .font(.headline)
                 .padding(.horizontal)
-                .foregroundColor(.black)
+                .foregroundColor(Color(AppColors.black))
             TextField("Email", text: $email)
                 .keyboardType(.emailAddress)
                 .autocapitalization(.none)
                 .padding(.vertical, 24.h)
                 .padding(.horizontal)
-                .background(RoundedRectangle(cornerRadius: 10.r).stroke(Color.gray.opacity(0.3)))
+                .background(RoundedRectangle(cornerRadius: 10.r).stroke(Color(AppColors.gray).opacity(0.3)))
                 .padding(.horizontal)
         }
         
@@ -140,7 +140,7 @@ struct EmailResultPopup: View {
                         Text("Create a 4-digit secret key")
                             .font(.headline)
                             .padding(.horizontal)
-                            .foregroundColor(.black)
+                            .foregroundColor(Color(AppColors.black))
 
                         ZStack(alignment: .leading) {
                             // Background display of asterisks
@@ -157,11 +157,10 @@ struct EmailResultPopup: View {
 
                             // The actual input field
                             TextField("* * * *", text: $pin)
-                                .keyboardType(.numberPad)
-                                .foregroundColor(.clear)
+                                .foregroundColor(Color(AppColors.clear))
                                 
                                 .padding()
-                                .background(RoundedRectangle(cornerRadius: 10).stroke(Color.gray.opacity(0.3)))
+                                .background(RoundedRectangle(cornerRadius: 10).stroke(Color(AppColors.gray).opacity(0.3)))
                                 .onChange(of: pin) { _,newValue in
                                     pin = String(newValue.prefix(4).filter { $0.isNumber })
                                 }
@@ -175,7 +174,7 @@ struct EmailResultPopup: View {
                             .font(.caption)
                             .italic()
                             .padding(.horizontal)
-                            .foregroundColor(.blue)
+                            .foregroundColor(Color(AppColors.blue))
                     }
         
 
@@ -195,14 +194,14 @@ struct EmailResultPopup: View {
         }) {
             HStack {
                 Image(systemName: "envelope.fill")
-                    .foregroundColor(.black)
+                    .foregroundColor(Color(AppColors.black))
                 Text("Send mail")
-                    .foregroundColor(.black)
+                    .foregroundColor(Color(AppColors.black))
                     .fontWeight(.bold)
             }
             .padding()
             .frame(maxWidth: .infinity)
-            .background((isEmailValid && isPinValid) ? Color(hex: "#B8EB5E") : Color(hex: "#B8EB5E").opacity(0.5))
+            .background((isEmailValid && isPinValid) ? Color(AppColors.ctaGreen) : Color(AppColors.ctaGreen).opacity(0.5))
             .cornerRadius(10.r)
         }
         .disabled(!(isEmailValid && isPinValid))
@@ -212,9 +211,9 @@ struct EmailResultPopup: View {
         if showEmailError {
             HStack(spacing: 8.w) {
                 Image(systemName: "exclamationmark.triangle.fill")
-                    .foregroundColor(.red)
+                    .foregroundColor(Color(AppColors.error))
                 Text("Failed to send email. Please try again.")
-                    .foregroundColor(.red)
+                    .foregroundColor(Color(AppColors.error))
                     .font(.body)
                     .multilineTextAlignment(.center)
             }
@@ -222,9 +221,9 @@ struct EmailResultPopup: View {
         } else {
             HStack(spacing: 8.w) {
                 Image(systemName: "lock.shield")
-                    .foregroundColor(.blue)
+                    .foregroundColor(Color(AppColors.blue))
                 Text("Secure and Private")
-                    .foregroundColor(.blue)
+                    .foregroundColor(Color(AppColors.blue))
                     .font(.footnote)
             }
         }

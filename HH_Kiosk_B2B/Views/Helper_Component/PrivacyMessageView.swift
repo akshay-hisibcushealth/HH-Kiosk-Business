@@ -10,20 +10,20 @@ struct PrivacyMessageView: View {
 
             HStack(alignment: .center, spacing: 16) {
                 Image(systemName: "info.circle")
-                    .foregroundColor(Color(hex: "#246FA0"))
+                    .foregroundColor(Color(AppColors.supportLinkText))
                     .font(.system(size: 24))
                     .alignmentGuide(.firstTextBaseline) { d in d[VerticalAlignment.top] }
 
                 Text("The results from this face scan are not intended to diagnose, treat, or replace professional medical advice. For any health concerns, please consult a healthcare provider.")
                     .font(.system(size: 22.sp))
                     .italic()
-                    .foregroundColor(Color(hex: "#246FA0"))
+                    .foregroundColor(Color(AppColors.supportLinkText))
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.bottom,16.h)
             }
             .padding()
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color(hex: "#DFEEF7"))
+            .background(Color(AppColors.infoPanelBackground))
             .cornerRadius(8)
             .padding(.leading, 32)
             .padding(.trailing, 16)

@@ -37,7 +37,7 @@ struct PhysicalAttributesScreen: View {
                      
                         Text("For best accuracy, kindly complete the form below.")
                             .font(.system(size: 24.sp, weight: .regular))
-                            .foregroundColor(Color(hex: "#383C48"))
+                            .foregroundColor(Color(AppColors.physicalAttributeText))
                     }
                     Spacer()
                     Button(action: {
@@ -67,23 +67,23 @@ struct PhysicalAttributesScreen: View {
                 HStack {
                     Image("lock")
                         .resizable()
-                        .foregroundColor(.blue)
+                        .foregroundColor(Color(AppColors.blue))
                         .frame(width: 45.w,height: 45.w)
                     Text("We prioritize your privacy. Your information will NOT be stored during this process and will only be used for calculations.")
                         .font(.system(size: 24.sp, weight: .regular))
                         .italic()
-                        .foregroundColor(Color(hex: "#246FA0"))
+                        .foregroundColor(Color(AppColors.supportLinkText))
                         .lineLimit(2)
                         .padding(.leading,16.w)
                         .padding(.trailing,120.w)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 .padding(.all, 20.w)
-                .background(Color(hex: "#DFEEF7"))
+                .background(Color(AppColors.infoPanelBackground))
                 .cornerRadius(8) // must come before overlay
                 .overlay(
                     RoundedRectangle(cornerRadius: 12.r)
-                        .stroke(Color(hex: "#B4CBED"), lineWidth: 1)
+                        .stroke(Color(AppColors.formBorder), lineWidth: 1)
                 )
                 .padding(.top, 110.h)
                 .padding(.bottom, 56.h)
@@ -120,7 +120,7 @@ struct PhysicalAttributesScreen: View {
                         }
                         .padding()
                         .frame(maxWidth: .infinity)
-                        .background(Color.gray.opacity(0.2))
+                        .background(Color(AppColors.gray).opacity(0.2))
                         .cornerRadius(10)
                     }
                     
@@ -132,18 +132,18 @@ struct PhysicalAttributesScreen: View {
                     }) {
                         if isLoading {
                             ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                .progressViewStyle(CircularProgressViewStyle(tint: Color(AppColors.white)))
                                 .padding()
                                 .frame(maxWidth: .infinity)
                         } else {
                             Text("Proceed to Scan")
                                 .font(.system(size: 30.sp,weight: .semibold))
-                                .foregroundColor(.black)
+                                .foregroundColor(Color(AppColors.black))
                                 .padding()
                                 .frame(maxWidth: .infinity)
                         }
                     }
-                    .background(Color(hex: "#B8EB5E"))
+                    .background(Color(AppColors.ctaGreen))
                     .cornerRadius(10)
                 }
                 .padding(.top, 30)

@@ -16,12 +16,12 @@ struct Toolbar: View {
             // White bordered box with text
             Text("PUT YOUR COMPANY\nLOGO HERE")
                 .font(.system(size: 24.sp, weight: .semibold))
-                .foregroundColor(.white)
+                .foregroundColor(Color(AppColors.white))
                 .multilineTextAlignment(.center)
                 .padding(.all, 24.w)
                 .overlay(
                     RoundedRectangle(cornerRadius: 0)
-                        .stroke(Color.white, lineWidth: 5.w)
+                        .stroke(Color(AppColors.white), lineWidth: 5.w)
                 )
             
             Spacer()
@@ -47,11 +47,11 @@ struct ResultToolbar: View {
         HStack {
             ZStack {
                 Rectangle()
-                    .fill(Color(hex: "#D7F3FF"))
+                    .fill(Color(AppColors.toolbarLogoBackground))
                     .frame(width: 200.w, height: 90.h)
                     .padding()
                 
-                buildMediumText("Partner logo\ngoes  here", 24.sp, color: Color(hex: "#11245E"))
+                buildMediumText("Partner logo\ngoes  here", 24.sp, color: Color(AppColors.toolbarPlaceholderText))
                     .padding()
                 
             }

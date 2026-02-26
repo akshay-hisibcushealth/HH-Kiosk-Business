@@ -14,9 +14,9 @@ struct ResultScreenButtons: View {
                 Text("Close result")
                     .font(.system(size: 20.sp))
                     .fontWeight(.medium)
-                    .foregroundColor(.black)
+                    .foregroundColor(Color(AppColors.black))
                     .frame(maxWidth: .infinity, minHeight: 60.h)
-                    .background(Color(hex: "#C4C4C4"))
+                    .background(Color(AppColors.mutedControlGray))
                     .cornerRadius(10)
             }
             
@@ -33,24 +33,24 @@ struct ResultScreenButtons: View {
                     Text("Email my results")
                         .font(.system(size: 20.sp))
                         .fontWeight(.medium)
-                        .foregroundColor(.black)
+                        .foregroundColor(Color(AppColors.black))
                         
                 }
                 .padding()
                 .frame(maxWidth: .infinity)
-                .background(Color.gray.opacity(0.2))
+                .background(Color(AppColors.gray).opacity(0.2))
                 .cornerRadius(10)
             }
             .frame(maxWidth: .infinity, minHeight: 60.h)
-            .background(Color.init(hex: "#B8EB5E"))
+            .background(Color(AppColors.ctaGreen))
             .cornerRadius(10)
                 HStack(spacing: 8) {
                               Image( "secure_email")
                         .resizable()
                         .frame(width: 24.w,height: 24.sp)
-                                  .foregroundColor(.blue)
+                                  .foregroundColor(Color(AppColors.blue))
                               Text("Secure and Private")
-                                  .foregroundColor(.blue)
+                                  .foregroundColor(Color(AppColors.blue))
                                   .font(.system(size: 18.sp))
                           }
                           .padding(.bottom)
