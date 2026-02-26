@@ -35,7 +35,7 @@ struct SettingsView: View {
 
                 Text("If enabled, only the external camera will be used. If disabled, the app will automatically switch between the built-in camera and an external camera (external camera is prioritized).")
                     .font(.caption2)
-                    .foregroundColor(.gray)
+                    .foregroundColor(Color(AppColors.gray))
                     .fixedSize(horizontal: false, vertical: true)
             }
             .navigationTitle("Camera Settings")

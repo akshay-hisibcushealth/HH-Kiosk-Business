@@ -96,8 +96,8 @@ private struct CarouselImageView: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: width, height: height)
-                    .foregroundColor(.gray)
-                    .background(Color.gray.opacity(0.1))
+                    .foregroundColor(Color(AppColors.gray))
+                    .background(Color(AppColors.gray).opacity(0.1))
                     .cornerRadius(radius)
                     .eraseToAnyView()
             }

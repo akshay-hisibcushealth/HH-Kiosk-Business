@@ -14,21 +14,19 @@ struct ProfileAgeSection: View {
             Text("Age (years)")
                 .font(.body)
                 .fontWeight(.bold)
-                .foregroundColor(.black)
+                .foregroundColor(Color(AppColors.black))
 
             TextField("Select age", text: $ageInput)
-                .keyboardType(.asciiCapableNumberPad)
-
                 .focused($isInputActive) // 🔹 2. Bind the text field to the focus state
                 .textFieldStyle(.plain)
-                .foregroundColor(.black)
+                .foregroundColor(Color(AppColors.black))
                 .padding(.vertical, 20.h)
                 .padding(.horizontal, 16.w)
                 .frame(maxWidth: .infinity)
-                .background(Color.white)
+                .background(Color(AppColors.white))
                 .overlay(
                     RoundedRectangle(cornerRadius: 12.r)
-                        .stroke(Color.black, lineWidth: 1)
+                        .stroke(Color(AppColors.black), lineWidth: 1)
                 )
                 // Logic to filter input and handle range
                 .onChange(of: ageInput) { newValue, _ in

@@ -9,13 +9,13 @@ struct SectionHeader: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 48.w, height: 48.h)
-                    .foregroundColor(Color(hex: "#241F1F"))
+                    .foregroundColor(Color(AppColors.sectionHeaderText))
             }
-            buildSemiBoldText(title, 28.sp,color: Color(hex: "#241F1F"))
+            buildSemiBoldText(title, 28.sp,color: Color(AppColors.sectionHeaderText))
             if !isLeading {
                 Image(systemName: "chevron.right")
                     .font(.system(size: 24.sp))
-                    .foregroundColor(Color(hex: "#241F1F"))
+                    .foregroundColor(Color(AppColors.sectionHeaderText))
             }
             Spacer(minLength: 0)
         }

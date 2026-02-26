@@ -6,7 +6,7 @@ class TriangleView: UIView {
     init(color: UIColor) {
         self.color = color
         super.init(frame: .zero)
-        backgroundColor = .clear
+        backgroundColor = AppColors.clear
     }
 
     required init?(coder: NSCoder) {
@@ -24,4 +24,3 @@ class TriangleView: UIView {
         context.fillPath()
     }
 }
-

@@ -1,7 +1,5 @@
 import SwiftUI
 
-import SwiftUI
-
 struct Schedule: Identifiable {
     let id = UUID()
     let title: String
@@ -24,17 +22,17 @@ class ScheduleViewModel: ObservableObject {
         
         // Example event pool (besides Daily Stand-Up)
         let eventPool: [(String, String, Color)] = [
-            ("Quarterly Town Hall Meeting", "To discuss about the upcoming project & organization of units", Color.init(hex: "##FAA98A")),
-            ("Q3 Wellness Challenge begins", "To discuss about the upcoming project & organization of units", Color.init(hex: "#C8D1EF")),
-            ("Diversity, Equity & Inclusion (DEI) Awareness Days", "Panels, training, and celebration of heritage months or cultural milestones.", Color.init(hex: "#FAA98A")),
-            ("Wellness Week / Health Fair", "Activities focused on physical and mental well-being.", Color.init(hex: "#C8D1EF")),
-            ("Hackathons / Innovation Days", "Creative sprints where teams develop solutions, tools, or prototypes.", Color.init(hex: "#FAA98A")),
-            ("Team-Building Retreat", "A full-day or overnight program to boost collaboration and morale.", Color.init(hex: "#C8D1EF")),
-            ("Company Anniversary", "Celebration of the organization's founding and journey.", Color.init(hex: "#FAA98A")),
-            ("Open Enrollment / Benefits Fair", "Informational sessions on employee benefits, insurance, and perks.", Color.init(hex: "#C8D1EF")),
-            ("Community Service / Volunteer Day", "Team-led initiatives supporting local organizations.", Color.init(hex: "#FAA98A")),
-            ("Mid-Year Review", "Alignment on key metrics, shifting priorities, and future plans.", Color.init(hex: "#C8D1EF")),
-            ("New Employee Welcome Sessions", "Monthly or quarterly onboarding experiences with leadership meet-and-greets.", Color.init(hex: "#FAA98A"))
+            ("Quarterly Town Hall Meeting", "To discuss about the upcoming project & organization of units", Color(AppColors.scheduleEventPeach)),
+            ("Q3 Wellness Challenge begins", "To discuss about the upcoming project & organization of units", Color(AppColors.scheduleEventBlue)),
+            ("Diversity, Equity & Inclusion (DEI) Awareness Days", "Panels, training, and celebration of heritage months or cultural milestones.", Color(AppColors.scheduleEventPeach)),
+            ("Wellness Week / Health Fair", "Activities focused on physical and mental well-being.", Color(AppColors.scheduleEventBlue)),
+            ("Hackathons / Innovation Days", "Creative sprints where teams develop solutions, tools, or prototypes.", Color(AppColors.scheduleEventPeach)),
+            ("Team-Building Retreat", "A full-day or overnight program to boost collaboration and morale.", Color(AppColors.scheduleEventBlue)),
+            ("Company Anniversary", "Celebration of the organization's founding and journey.", Color(AppColors.scheduleEventPeach)),
+            ("Open Enrollment / Benefits Fair", "Informational sessions on employee benefits, insurance, and perks.", Color(AppColors.scheduleEventBlue)),
+            ("Community Service / Volunteer Day", "Team-led initiatives supporting local organizations.", Color(AppColors.scheduleEventPeach)),
+            ("Mid-Year Review", "Alignment on key metrics, shifting priorities, and future plans.", Color(AppColors.scheduleEventBlue)),
+            ("New Employee Welcome Sessions", "Monthly or quarterly onboarding experiences with leadership meet-and-greets.", Color(AppColors.scheduleEventPeach))
         ]
         
         for offset in 0..<5 {
@@ -59,7 +57,7 @@ class ScheduleViewModel: ObservableObject {
                     description: "A stand-up meeting is a meeting in which attendees typically participate while standing.",
                     startTime: dailyStart,
                     endTime: dailyEnd,
-                    color: Color.init(hex: "#89D4FA")
+                    color: Color(AppColors.scheduleStandupBackground)
                 )
             )
             
@@ -102,20 +100,20 @@ struct ScheduleView: View {
                             Text(date, format: .dateTime.day())
                                 .font(.system(size: 24.sp, weight: .medium))
                                 .foregroundColor(
-                                    Calendar.current.isDate(date, inSameDayAs: selectedDate) ? .white : Color(hex: "#9B9B9B")
+                                    Calendar.current.isDate(date, inSameDayAs: selectedDate) ? Color(AppColors.white) : Color(AppColors.scheduleDayText)
                                 )
                             
                             Text(date, format: .dateTime.weekday(.abbreviated))
                                 .font(.system(size: 28.sp))
                                 .foregroundColor(
-                                    Calendar.current.isDate(date, inSameDayAs: selectedDate) ? .white : Color(hex: "#9B9B9B")
+                                    Calendar.current.isDate(date, inSameDayAs: selectedDate) ? Color(AppColors.white) : Color(AppColors.scheduleDayText)
                                 )
                         }
                         .frame(width: 75.w, height: 130.h)
                         .background(
                             Calendar.current.isDate(date, inSameDayAs: selectedDate)
-                            ? Color(hex: "#EE4B0E")
-                            : Color.clear
+                            ? Color(AppColors.primaryActionOrange)
+                            : Color(AppColors.clear)
                         )
                         .clipShape(Capsule())
                         .onTapGesture {
@@ -141,7 +139,7 @@ struct ScheduleView: View {
                                 .frame(width: 56.w, height: 56.h)
                             Text("No Schedule")
                                 .font(.system(size: 20.sp,weight: .medium))
-                                .foregroundColor(Color(hex: "#9D8F89"))
+                                .foregroundColor(Color(AppColors.scheduleEmptyText))
                                 .padding(.top,16.h)
                         }
                         .frame(maxWidth: .infinity, minHeight: 200.h)
@@ -152,15 +150,15 @@ struct ScheduleView: View {
                                 Text(schedule.title)
                                     .font(.system(size: 22.sp, weight: .semibold))
                                     .lineLimit(1)
-                                    .foregroundColor(Color(hex: "#111322"))
+                                    .foregroundColor(Color(AppColors.scheduleTitleText))
                                 Text(schedule.startTime, style: .time)
                                     .font(.system(size: 18.sp, weight: .bold))
-                                    .foregroundColor(Color(hex: "#565151"))
+                                    .foregroundColor(Color(AppColors.scheduleTimeText))
 
                             }
                             .padding(.all,24.w)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(Color(hex: "#FBDBCF"))
+                            .background(Color(AppColors.scheduleCardBackground))
                             .clipShape(RoundedRectangle(cornerRadius: 20.r))
                             
                         }
@@ -170,7 +168,7 @@ struct ScheduleView: View {
             }
         }
     
-        .background(Color(hex: "#1ACEA99B"))
+        .background(Color(AppColors.overlayMint))
         .clipShape(RoundedRectangle(cornerRadius: 24.r))
     }
 }

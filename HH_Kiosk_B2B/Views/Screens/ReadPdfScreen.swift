@@ -25,7 +25,7 @@ struct ReadPdfScreen: View {
                 VStack {
                     Spacer()
                     Text("Failed to load PDF")
-                        .foregroundColor(.red)
+                        .foregroundColor(Color(AppColors.error))
                     Spacer()
                 }
             }
@@ -78,7 +78,7 @@ struct PdfView: View {
                                 .cornerRadius(8)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 8)
-                                        .stroke(index == currentPageIndex ? Color.blue : Color.clear, lineWidth: 2)
+                                        .stroke(index == currentPageIndex ? Color(AppColors.blue) : Color(AppColors.clear), lineWidth: 2)
                                 )
                                 .onTapGesture {
                                     currentPageIndex = index
@@ -102,7 +102,7 @@ struct PDFKitView: UIViewRepresentable {
         pdfView.autoScales = true
         pdfView.displayMode = .singlePage
         pdfView.displayDirection = .horizontal
-        pdfView.backgroundColor = .white
+        pdfView.backgroundColor = AppColors.white
         pdfView.usePageViewController(true)
         return pdfView
     }
