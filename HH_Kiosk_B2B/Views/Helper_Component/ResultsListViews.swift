@@ -5,34 +5,34 @@ import SwiftUI
 // ----------------------
 let interpretationJSON: [String: [String: String]] = [
     "Cardiovascular Disease Risk": [
-        "low": "Your results indicate that you have a <tag color=\"#1DC833\">low risk</tag> of experiencing a heart attack or stroke in the next 10 years.",
-        "medium": "Your results indicate that you have a <tag color=\"#FD895A\">medium risk</tag> of experiencing heart attack or stroke in the next 10 years.",
-        "high": "Your results indicate that you have a <tag color=\"#B32D0C\">high risk</tag> of experiencing heart attack or stroke in the next 10 years."
+        "low": "Your results indicate that you have a <tag color=\"\(AppColors.tagRiskLow)\">low risk</tag> of experiencing a heart attack or stroke in the next 10 years.",
+        "medium": "Your results indicate that you have a <tag color=\"\(AppColors.tagRiskMedium)\">medium risk</tag> of experiencing heart attack or stroke in the next 10 years.",
+        "high": "Your results indicate that you have a <tag color=\"\(AppColors.tagRiskHigh)\">high risk</tag> of experiencing heart attack or stroke in the next 10 years."
     ],
     "Systolic Blood Pressure": [
-        "healthy": "Your results indicate that your systolic blood pressure falls within a <tag color=\"#1DC833\">healthy range</tag>.",
-        "warning": "Your results indicate that your systolic blood pressure is <tag color=\"#FD895A\">either lower than normal or higher than normal</tag>.",
-        "critical": "Your results indicate that your systolic blood pressure is <tag color=\"#B32D0C\">much higher than normal</tag> and that you may have hypertension."
+        "healthy": "Your results indicate that your systolic blood pressure falls within a <tag color=\"\(AppColors.tagRiskLow)\">healthy range</tag>.",
+        "warning": "Your results indicate that your systolic blood pressure is <tag color=\"\(AppColors.tagRiskMedium)\">either lower than normal or higher than normal</tag>.",
+        "critical": "Your results indicate that your systolic blood pressure is <tag color=\"\(AppColors.tagRiskHigh)\">much higher than normal</tag> and that you may have hypertension."
     ],
     "Diastolic Blood Pressure": [
-        "healthy": "Your results indicate that your diastolic blood pressure is <tag color=\"#1DC833\">within a healthy range</tag>.",
-        "warning": "Your results indicate that your diastolic blood pressure is <tag color=\"#FD895A\">either lower than normal or higher than normal</tag>.",
-        "critical": "Your results indicate that your diastolic blood pressure is <tag color=\"#B32D0C\">much higher than normal</tag> and that you may have hypertension."
+        "healthy": "Your results indicate that your diastolic blood pressure is <tag color=\"\(AppColors.tagRiskLow)\">within a healthy range</tag>.",
+        "warning": "Your results indicate that your diastolic blood pressure is <tag color=\"\(AppColors.tagRiskMedium)\">either lower than normal or higher than normal</tag>.",
+        "critical": "Your results indicate that your diastolic blood pressure is <tag color=\"\(AppColors.tagRiskHigh)\">much higher than normal</tag> and that you may have hypertension."
     ],
     "HbA1c Risk": [
-        "low": "Your results indicate that you likely have a <tag color=\"#1DC833\">HbA1c < 5.7%</tag>.",
-        "medium": "Your results indicate that there is a <tag color=\"#FFCB59\">medium risk</tag> that you may have an HbA1c > 5.7%, especially if your results are 51% or over.",
-        "high": "Your results indicate that it is <tag color=\"#B32D0C\">very likely</tag> that you have an HbA1c > 5.7%."
+        "low": "Your results indicate that you likely have a <tag color=\"\(AppColors.tagRiskLow)\">HbA1c < 5.7%</tag>.",
+        "medium": "Your results indicate that there is a <tag color=\"\(AppColors.tagRiskWarning)\">medium risk</tag> that you may have an HbA1c > 5.7%, especially if your results are 51% or over.",
+        "high": "Your results indicate that it is <tag color=\"\(AppColors.tagRiskHigh)\">very likely</tag> that you have an HbA1c > 5.7%."
     ],
     "Hypercholesterolemia Risk": [
-        "low": "Your results indicate that you are at a <tag color=\"#1DC833\">low risk</tag> of having abnormally high cholesterol.",
-        "medium": "Your results indicate that you are at a <tag color=\"#FFCB59\">medium risk</tag> of having abnormally high cholesterol.",
-        "high": "Your results indicate that you are at a <tag color=\"#B32D0C\">high risk</tag> of having abnormally high cholesterol."
+        "low": "Your results indicate that you are at a <tag color=\"\(AppColors.tagRiskLow)\">low risk</tag> of having abnormally high cholesterol.",
+        "medium": "Your results indicate that you are at a <tag color=\"\(AppColors.tagRiskWarning)\">medium risk</tag> of having abnormally high cholesterol.",
+        "high": "Your results indicate that you are at a <tag color=\"\(AppColors.tagRiskHigh)\">high risk</tag> of having abnormally high cholesterol."
     ],
     "Hypertriglyceridemia Risk": [
-        "low": "Your results indicate that you are at a <tag color=\"#1DC833\">low risk</tag> of having abnormally high triglycerides.",
-        "medium": "Your results indicate that you are at a <tag color=\"#FFCB59\">medium risk</tag> of having abnormally high triglycerides.",
-        "high": "Your results indicate that you are at a <tag color=\"#B32D0C\">high risk</tag> of having abnormally high triglycerides."
+        "low": "Your results indicate that you are at a <tag color=\"\(AppColors.tagRiskLow)\">low risk</tag> of having abnormally high triglycerides.",
+        "medium": "Your results indicate that you are at a <tag color=\"\(AppColors.tagRiskWarning)\">medium risk</tag> of having abnormally high triglycerides.",
+        "high": "Your results indicate that you are at a <tag color=\"\(AppColors.tagRiskHigh)\">high risk</tag> of having abnormally high triglycerides."
     ]
 ]
 
@@ -70,15 +70,15 @@ struct ResultRow: View {
     private var gaugeColors: [Color] {
         switch metricKey {
         case "BP_SYSTOLIC", "BP_DIASTOLIC":
-            return [Color(hex: "#FFCB59"), Color(hex: "#1DC833"), Color(hex: "#B8EB5E"), Color(hex: "#FFCB59"), Color(hex: "#B32D0C")]
+            return [Color(AppColors.riskWarning), Color(AppColors.riskLow), Color(AppColors.ctaGreen), Color(AppColors.riskWarning), Color(AppColors.riskHigh)]
         case "HR_BPM", "BR_BPM":
-            return [Color(hex: "#FBED95"), Color(hex: "#A5E3BA"), Color(hex: "#A5E3BA"), Color(hex: "#A5E3BA"), Color(hex: "#FBED95")]
+            return [Color(AppColors.gaugePaleYellow), Color(AppColors.gaugeSoftGreen), Color(AppColors.gaugeSoftGreen), Color(AppColors.gaugeSoftGreen), Color(AppColors.gaugePaleYellow)]
         case "HRV_SDNN", "BP_TAU":
-            return [Color(hex: "#EC635E"), Color(hex: "#EF8F8C"), Color(hex: "#FBED95"), Color(hex: "#A5E3BA"), Color(hex: "#82D79F")]
+            return [Color(AppColors.gaugeCoral), Color(AppColors.gaugeSoftCoral), Color(AppColors.gaugePaleYellow), Color(AppColors.gaugeSoftGreen), Color(AppColors.gaugeDeepGreen)]
         case "BMI_CALC", "WAIST_TO_HEIGHT":
-            return [Color(hex: "#FBED95"), Color(hex: "#A5E3BA"), Color(hex: "#FBED95"), Color(hex: "#EF8F8C"), Color(hex: "#EC635E")]
+            return [Color(AppColors.gaugePaleYellow), Color(AppColors.gaugeSoftGreen), Color(AppColors.gaugePaleYellow), Color(AppColors.gaugeSoftCoral), Color(AppColors.gaugeCoral)]
         default:
-            return [Color(hex: "#1DC833"), Color(hex: "#B8EB5E"), Color(hex: "#FFCB59"), Color(hex: "#FD895A"), Color(hex: "#B32D0C")]
+            return [Color(AppColors.riskLow), Color(AppColors.ctaGreen), Color(AppColors.riskWarning), Color(AppColors.riskMedium), Color(AppColors.riskHigh)]
         }
     }
 
@@ -86,10 +86,10 @@ struct ResultRow: View {
         VStack(alignment: .leading, spacing: 12) {
             // Header: Title + Subtitle (Preserving iOS Styles)
             VStack(alignment: .leading, spacing: 6) {
-                buildBoldText(title, 24.sp, color: Color(hex: "#1E4B86"))
+                buildBoldText(title, 24.sp, color: Color(AppColors.resultTitleText))
                 Text(subtitle)
                     .font(.system(size: 22.sp))
-                    .foregroundColor(Color(hex: "#333333"))
+                    .foregroundColor(Color(AppColors.bodyText))
                     .multilineTextAlignment(.leading)
             }
 
@@ -99,7 +99,7 @@ struct ResultRow: View {
                     .frame(width: 310.w, height: 50.h)
                 
                 Spacer()
-                buildBoldText(formattedValue(value, for: metricKey), 34.sp, color: Color(hex: "#333333"))
+                buildBoldText(formattedValue(value, for: metricKey), 34.sp, color: Color(AppColors.bodyText))
                 Spacer()
 
                 let msg = getTaggedMessage(metricKey: metricKey, value: value)
@@ -111,7 +111,7 @@ struct ResultRow: View {
             .padding(.horizontal, 32.h)
             .padding(.bottom, 32.h)
 
-            Divider().background(Color.gray.opacity(0.3))
+            Divider().background(Color(AppColors.gray).opacity(0.3))
         }
         .padding(.vertical, 6.h)
         .padding(.horizontal, 24.w)
@@ -165,7 +165,7 @@ struct MeterBar: View {
                 
                 // Indicator (Thumb)
                 Rectangle()
-                    .fill(Color(hex: "#142A6D")) // Matching Web Indicator Color
+                    .fill(Color(AppColors.primary)) // Matching Web Indicator Color
                     .frame(width: thumbWidth, height: 40.h)
                     .cornerRadius(5.r)
                     .offset(x: thumbX, y: (geo.size.height - 40.h) / 2)
@@ -266,20 +266,20 @@ fileprivate func attributedText(from taggedString: String, fontSize: CGFloat = 1
         if !before.isEmpty {
             var a = AttributedString(before)
             a.font = .custom("NewSpirit-Medium", size: fontSize)
-            a.foregroundColor = Color(hex: "#333333")
+            a.foregroundColor = Color(AppColors.bodyText)
             result.append(a)
         }
         let content = String(remaining[tagCloseStart.upperBound..<tagEndRange.lowerBound])
         var boldText = AttributedString(content)
         boldText.font = .custom("NewSpirit-Medium", size: fontSize).weight(.bold)
-        boldText.foregroundColor = Color(hex: "#333333")
+        boldText.foregroundColor = Color(AppColors.bodyText)
         result.append(boldText)
         remaining = String(remaining[tagEndRange.upperBound...])
     }
     if !remaining.isEmpty {
         var a = AttributedString(remaining)
         a.font = .custom("NewSpirit-Medium", size: fontSize)
-        a.foregroundColor = Color(hex: "#333333")
+        a.foregroundColor = Color(AppColors.bodyText)
         result.append(a)
     }
     return result

@@ -116,7 +116,7 @@ struct HomeScreen: View {
             } else if let error = viewModel.errorMessage {
                 VStack {
                     Text("Error:")
-                    Text(error).foregroundColor(.red)
+                    Text(error).foregroundColor(Color(AppColors.error))
                 }
                 .frame(maxWidth: .infinity, alignment: .top)
             } else {
@@ -132,7 +132,7 @@ private struct WeatherContentView: View {
         VStack(alignment: .leading, spacing: 12.h) {
             HStack{
                 buildSemiBoldText("Welcome to", 36.sp)
-                buildSemiBoldText("[ABC Company]", 36.sp,color: Color(hex: "#B32D0C"))
+                buildSemiBoldText("[ABC Company]", 36.sp,color: Color(AppColors.companyAccentText))
                 buildSemiBoldText("Kiosk", 36.sp)
             }
             .padding(.leading,40.w)
@@ -161,7 +161,7 @@ private struct WeatherCard: View {
     var body: some View {
         ZStack(alignment: .leading) {
             RoundedRectangle(cornerRadius: 24.r)
-                .fill(Color(hex: "#2EAEDD"))
+                .fill(Color(AppColors.weatherBack))
             HStack {
                 Image(weatherIconName(for: viewModel.condition))
                     .resizable()
@@ -172,15 +172,15 @@ private struct WeatherCard: View {
                 
                 // Weather info
                 VStack(alignment: .leading) {
-                    buildSemiBoldText("\(celsiusToFahrenheit(viewModel.currentTemp))°F",64.sp,color: .white)
+                    buildSemiBoldText("\(celsiusToFahrenheit(viewModel.currentTemp))°F",64.sp,color: Color(AppColors.white))
                     
                     Text(viewModel.condition.uppercased())
                         .font(.system(size: 20.sp, weight: .semibold))
-                        .foregroundColor(.white)
+                        .foregroundColor(Color(AppColors.white))
                     
                     Text("H:\(celsiusToFahrenheit(viewModel.high))°F  L:\(celsiusToFahrenheit(viewModel.low))°F")
                         .font(.system(size: 16.sp, weight: .semibold))
-                        .foregroundColor(.white)
+                        .foregroundColor(Color(AppColors.white))
                     
                 }
                 Spacer()
@@ -188,7 +188,7 @@ private struct WeatherCard: View {
                         HStack{
                             VStack(spacing: 8.h) {
                                 Text(forecast.hour)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(Color(AppColors.white))
                                     .font(.system(size: 20.sp, weight: .semibold))
                                 
                                 Image(weatherIconName(for: forecast.condition))
@@ -197,7 +197,7 @@ private struct WeatherCard: View {
                                     .frame(width: 32.w)
                                 
                                 Text("\(celsiusToFahrenheit(forecast.temperature))")
-                                    .foregroundColor(.white)
+                                    .foregroundColor(Color(AppColors.white))
                                     .font(.system(size: 22.sp, weight: .semibold))
                             }
                             Spacer().frame(width: 48.w)
@@ -223,7 +223,7 @@ private struct LoadingLocationView: View {
             ProgressView()
                 .progressViewStyle(CircularProgressViewStyle())
             Text("Fetching location...")
-                .foregroundColor(.gray)
+                .foregroundColor(Color(AppColors.gray))
         }
         .frame(maxWidth: .infinity, alignment: .top)
     }

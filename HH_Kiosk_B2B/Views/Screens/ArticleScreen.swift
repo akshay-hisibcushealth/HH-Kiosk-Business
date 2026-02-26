@@ -22,7 +22,7 @@ struct ArticleScreen: View {
                                 .clipped()
                         } placeholder: {
                             ZStack {
-                                Color.gray.opacity(0.2)
+                                Color(AppColors.gray).opacity(0.2)
                                 ProgressView("Loading Image...")
                             }
                             .frame(maxWidth: .infinity, minHeight: imageHeight, maxHeight: imageHeight)
@@ -38,7 +38,7 @@ struct ArticleScreen: View {
                     Staying in one position while doing repetitive motions is typical of a desk job. An analysis of job industry trends over the past 50 years revealed that at least 8 in 10 American workers are desk potatoes. The habits we build at our desk, especially while sitting, can contribute to discomfort and health issues, including:
                     """)
                         .font(.title3)
-                        .foregroundColor(.primary)
+                        .foregroundColor(Color(AppColors.textPrimary))
                     }
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .topLeading)

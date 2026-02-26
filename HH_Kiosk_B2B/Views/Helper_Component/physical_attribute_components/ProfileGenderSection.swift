@@ -11,7 +11,7 @@ struct ProfileGenderSection: View {
             Text("Gender (at birth)")
                 .font(.body)
                 .fontWeight(.bold)
-                .foregroundColor(.black)
+                .foregroundColor(Color(AppColors.black))
 
             HStack {
                 Button {
@@ -24,20 +24,20 @@ struct ProfileGenderSection: View {
                     HStack {
                         if let gender = localGender, !gender.isEmpty {
                             Text(gender)
-                                .foregroundColor(.black)
+                                .foregroundColor(Color(AppColors.black))
                         } else {
                             Text("Select Gender")
-                                .foregroundColor(.gray)
+                                .foregroundColor(Color(AppColors.gray))
                         }
                         Spacer()
                     }
                     .padding(.vertical, 20.h)
                     .padding(.horizontal, 16.w)
                     .frame(maxWidth: .infinity)
-                    .background(Color.white)
+                    .background(Color(AppColors.white))
                     .overlay(
                         RoundedRectangle(cornerRadius: 12.r)
-                            .stroke(Color.black, lineWidth: 1)
+                            .stroke(Color(AppColors.black), lineWidth: 1)
                     )
                 }
                 .popover(isPresented: $showPicker) {
@@ -45,7 +45,7 @@ struct ProfileGenderSection: View {
                         Text("Select Gender")
                             .font(.body)
                             .fontWeight(.medium)
-                            .foregroundColor(.black)
+                            .foregroundColor(Color(AppColors.black))
                             .padding(.top, 12.h)
                             .padding(.horizontal, 32.w)
 
@@ -54,11 +54,11 @@ struct ProfileGenderSection: View {
                                 ForEach(["Male", "Female"], id: \.self) { gender in
                                     Text(gender)
                                         .font(.body)
-                                        .foregroundColor(.primary)
+                                        .foregroundColor(Color(AppColors.textPrimary))
                                         .frame(maxWidth: .infinity)
                                         .padding(.top, 4.h)
                                         .padding(.bottom, 4.h)
-                                        .background(localGender == gender ? Color.gray.opacity(0.2) : Color.clear)
+                                        .background(localGender == gender ? Color(AppColors.gray).opacity(0.2) : Color(AppColors.clear))
                                         .cornerRadius(8.r)
                                         .onTapGesture {
                                             localGender = gender

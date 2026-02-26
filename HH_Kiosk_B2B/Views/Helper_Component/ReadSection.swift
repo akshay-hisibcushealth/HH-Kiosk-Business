@@ -12,7 +12,7 @@ struct ReadSection: View {
                         .padding()
                 } else if let error = viewModel.errorMessage {
                     Text("Failed to load: \(error)")
-                        .foregroundColor(.red)
+                        .foregroundColor(Color(AppColors.error))
                         .padding()
                 } else {
                     // Today’s Read
@@ -62,24 +62,24 @@ private struct TodayReadSection: View {
                             
                             Text("Article")
                                 .font(.system(size: 25.sp, weight: .medium))
-                                .foregroundColor(Color(hex: "#980B0B"))
+                                .foregroundColor(Color(AppColors.warningText))
                         }
                         
                         Text(today.title)
                             .font(.system(size: 26.sp, weight: .medium))
                             .lineLimit(2)
-                            .foregroundColor(Color(hex: "#333333"))
+                            .foregroundColor(Color(AppColors.bodyText))
                         
                         Text(today.read_time)
                             .font(.system(size: 18.sp, weight: .light))
-                            .foregroundColor(.gray)
+                            .foregroundColor(Color(AppColors.gray))
                     }
                     Spacer()
                 }
             }
         }
         .padding()
-        .background(Color(hex: "#1ACEA99B"))
+        .background(Color(AppColors.overlayMint))
         .clipShape(RoundedRectangle(cornerRadius: 24.r))
     }
 }
@@ -110,7 +110,7 @@ private struct HRDeskSection: View {
                                 Text(item.title)
                                     .font(.system(size: 22.sp, weight: .medium))
                                     .lineLimit(1)
-                                    .foregroundColor(.black)
+                                    .foregroundColor(Color(AppColors.black))
                             }
                             .frame(width: 140.w)
                         }
@@ -123,7 +123,7 @@ private struct HRDeskSection: View {
             }
         }
         .padding()
-        .background(Color(hex: "#1ACEA99B"))
+        .background(Color(AppColors.overlayMint))
         .clipShape(RoundedRectangle(cornerRadius: 24.r))
     }
 }

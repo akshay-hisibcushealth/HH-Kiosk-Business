@@ -30,7 +30,7 @@ struct CachedAsyncImage<Content: View>: View {
             } else {
                 ZStack {
                     RoundedRectangle(cornerRadius: cornerRadius)
-                        .fill(Color.gray.opacity(0.2))
+                        .fill(Color(AppColors.gray).opacity(0.2))
                         .frame(width: width, height: height)
                     ProgressView()
                 }

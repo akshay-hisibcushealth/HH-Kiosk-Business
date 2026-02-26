@@ -15,7 +15,7 @@ class ResultCardCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        contentView.backgroundColor = .white
+        contentView.backgroundColor = AppColors.white
         contentView.layer.cornerRadius = 12
         contentView.layer.shadowOpacity = 0.1
         contentView.layer.shadowRadius = 4
@@ -33,28 +33,28 @@ class ResultCardCell: UICollectionViewCell {
         switch type {
         case .risk:
             configureCell(icon: icon,title: title, value: value,unit: unit, segments: [
-                (UIColor(hex: "#5EC54C"), 0.2),
-                (UIColor(hex: "#C2EA73"), 0.2),
-                (UIColor(hex: "#F7CD6C"), 0.2),
-                (UIColor(hex: "#EE8F64"), 0.2),
-                (UIColor(hex: "#A5391E"), 0.2)
+                (AppColors.gaugeGreen, 0.2),
+                (AppColors.gaugeLime, 0.2),
+                (AppColors.gaugeYellow, 0.2),
+                (AppColors.gaugeOrange, 0.2),
+                (AppColors.gaugeRed, 0.2)
             ] ,minValue: minValue, maxValue: maxValue
             )
         case .bloodPressure:
             configureCell(icon: icon,title: title, value: value, unit: unit,segments: [
-                (UIColor(hex: "#F7CD6C"), 0.2),
-                (UIColor(hex: "#5EC54C"), 0.2),
-                (UIColor(hex: "#5EC54C"), 0.2),
-                (UIColor(hex: "#F7CD6C"), 0.2),
-                (UIColor(hex: "#A5391E"), 0.2)
+                (AppColors.gaugeYellow, 0.2),
+                (AppColors.gaugeGreen, 0.2),
+                (AppColors.gaugeGreen, 0.2),
+                (AppColors.gaugeYellow, 0.2),
+                (AppColors.gaugeRed, 0.2)
             ]  ,minValue: minValue, maxValue: maxValue)
         case .heartRate:
             configureCell(icon: icon,title: title, value: value, unit: unit,segments: [
-                (UIColor(hex: "#F7CD6C"), 0.2),
-                (UIColor(hex: "#5EC54C"), 0.2),
-                (UIColor(hex: "#5EC54C"), 0.2),
-                (UIColor(hex: "#5EC54C"), 0.2),
-                (UIColor(hex: "#F7CD6C"), 0.2)
+                (AppColors.gaugeYellow, 0.2),
+                (AppColors.gaugeGreen, 0.2),
+                (AppColors.gaugeGreen, 0.2),
+                (AppColors.gaugeGreen, 0.2),
+                (AppColors.gaugeYellow, 0.2)
             ] ,minValue: minValue, maxValue: maxValue  )
         }
     }
@@ -76,13 +76,13 @@ class ResultCardCell: UICollectionViewCell {
         self.contentView.subviews.forEach { $0.removeFromSuperview() } // clean old views
         
         let iconView = UIImageView(image: icon)
-        iconView.tintColor = .label
+        iconView.tintColor = AppColors.textPrimary
         iconView.translatesAutoresizingMaskIntoConstraints = false
         
         let titleLabel = UILabel()
         titleLabel.text = title
         titleLabel.font = .boldSystemFont(ofSize: 18)
-        titleLabel.textColor = .label
+        titleLabel.textColor = AppColors.textPrimary
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         
         let titleStack = UIStackView(arrangedSubviews: [iconView, titleLabel])
@@ -119,7 +119,7 @@ class ResultCardCell: UICollectionViewCell {
         }
         
         // Arrow indicator
-        let arrow = TriangleView(color: .systemIndigo)
+        let arrow = TriangleView(color: AppColors.indigo)
         arrow.translatesAutoresizingMaskIntoConstraints = false
         
         // Value label
@@ -133,7 +133,7 @@ class ResultCardCell: UICollectionViewCell {
         
         // Map value to color based on cumulative segment ranges
         var cumulative: Float = 0
-        var matchedColor: UIColor = .label
+        var matchedColor: UIColor = AppColors.textPrimary
         
         for segment in segments {
             let range = segment.1 * CGFloat(maxValue)
@@ -151,7 +151,7 @@ class ResultCardCell: UICollectionViewCell {
         let unitLabel = UILabel()
         unitLabel.text = unit
         unitLabel.font = .systemFont(ofSize: 16)
-        unitLabel.textColor = .secondaryLabel
+        unitLabel.textColor = AppColors.textSecondary
         unitLabel.translatesAutoresizingMaskIntoConstraints = false
         
         let valueStack = UIStackView(arrangedSubviews: [valueLabel, unitLabel])
@@ -201,4 +201,3 @@ class ResultCardCell: UICollectionViewCell {
     
     
 }
-

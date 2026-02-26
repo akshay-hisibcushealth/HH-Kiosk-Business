@@ -15,7 +15,7 @@ struct ScreenSaver: View {
             
             if viewModel.isLoading {
                 ProgressView("Loading...")
-                    .foregroundColor(.white)
+                    .foregroundColor(Color(AppColors.white))
                     .font(.system(size: 28.sp))
             } else {
                 VStack(spacing: 0) {

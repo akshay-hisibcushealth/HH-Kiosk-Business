@@ -41,19 +41,19 @@ struct ProfileHeightSection: View {
                 HStack {
                     if let feet = committedFeet, let inches = committedInches {
                         Text("\(feet) ft \(inches) in")
-                            .foregroundColor(.black)
+                            .foregroundColor(Color(AppColors.black))
                     } else {
                         Text("Select height")
-                            .foregroundColor(.gray)
+                            .foregroundColor(Color(AppColors.gray))
                     }
                     Spacer()
                 }
                 .padding(.vertical, 20.h)
                 .padding(.horizontal, 16.w)
-                .background(Color.white)
+                .background(Color(AppColors.white))
                 .overlay(
                     RoundedRectangle(cornerRadius: 12.r)
-                        .stroke(Color.black, lineWidth: 1)
+                        .stroke(Color(AppColors.black), lineWidth: 1)
                 )
             }
             .popover(isPresented: $showPicker) {
@@ -105,7 +105,7 @@ struct WheelSelector<T: Hashable & CustomStringConvertible>: View {
         VStack {
             Text(label)
                 .font(.caption)
-                .foregroundColor(.gray)
+                .foregroundColor(Color(AppColors.gray))
 
             ScrollViewReader { proxy in
                 ScrollView(.vertical, showsIndicators: false) {
@@ -115,7 +115,7 @@ struct WheelSelector<T: Hashable & CustomStringConvertible>: View {
                                 .font(selection == item ? .headline : .body)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 40.h)
-                                .background(selection == item ? Color.gray.opacity(0.2) : Color.clear)
+                                .background(selection == item ? Color(AppColors.gray).opacity(0.2) : Color(AppColors.clear))
                                 .cornerRadius(8.r)
                                 .id(item) // important: solid id for scrollTo
                                 .onTapGesture {
