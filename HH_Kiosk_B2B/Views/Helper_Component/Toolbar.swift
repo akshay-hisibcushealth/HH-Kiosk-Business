@@ -6,23 +6,18 @@ struct Toolbar: View {
     private let timer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
     var body: some View {
         HStack {
-            Image("logo")
+            Image("logo_blue")
                 .resizable()
                 .scaledToFit()
                 .frame(width: 200.w, height: 140.h)
                 .padding([.vertical], 16.h)
             
             Spacer()
-            // White bordered box with text
-            Text("PUT YOUR COMPANY\nLOGO HERE")
-                .font(.system(size: 24.sp, weight: .semibold))
-                .foregroundColor(Color(AppColors.white))
-                .multilineTextAlignment(.center)
-                .padding(.all, 24.w)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 0)
-                        .stroke(Color(AppColors.white), lineWidth: 5.w)
-                )
+            Image("ucf_logo_horizontal")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 300.w, height: 180.h)
+                .padding([.vertical], 16.h)
             
             Spacer()
             
@@ -30,7 +25,25 @@ struct Toolbar: View {
         }
         .padding(.horizontal,24.w)
         .padding(.vertical, 10.h)
-        .background(Color(AppColors.primary))
+        .background(
+            Color(AppColors.white)
+                .overlay(
+                    VStack {
+                        Spacer()
+                        
+                        LinearGradient(
+                            gradient: Gradient(colors: [
+                                Color.black.opacity(0.15),
+                                Color.black.opacity(0.05),
+                                Color.clear
+                            ]),
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                        .frame(height: 20) // 👈 control shadow height
+                    }
+                )
+        )
         .onReceive(timer) { _ in
             currentTime = HomeScreen.getCurrentTime()
         }

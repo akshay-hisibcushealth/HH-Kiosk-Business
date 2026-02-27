@@ -83,7 +83,7 @@ public struct ResultScreen: View {
             if showBottomButtons {
                 ResultScreenButtons(result: result, onDownloadPDF: {
                     exportToPDF()
-                })
+                },onPrint: {})
                 .background(Color(AppColors.white))
                 .shadow(radius: 4)
             }

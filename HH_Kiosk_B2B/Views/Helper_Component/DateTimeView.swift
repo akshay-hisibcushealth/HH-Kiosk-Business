@@ -13,7 +13,7 @@ struct DateTimeView: View {
                     .foregroundColor(Color(AppColors.secondary))
 
                 Text(timeString)
-                    .foregroundColor(Color(AppColors.secondary))
+                    .foregroundColor(Color(AppColors.black))
                     .font(.system(size: 40.sp, weight: .bold))
             }
 
@@ -25,7 +25,7 @@ struct DateTimeView: View {
                 Text(dateString.uppercased())
                     .font(.system(size: 20.sp, weight: .medium))
             }
-            .foregroundColor(Color(AppColors.white))
+            .foregroundColor(Color(AppColors.black))
         }
         .padding(.trailing, 16.w)
         .padding(.top, 8.h)

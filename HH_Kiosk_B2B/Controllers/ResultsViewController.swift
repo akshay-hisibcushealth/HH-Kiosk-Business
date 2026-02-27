@@ -67,7 +67,11 @@ class ResultsViewController: UIViewController {
         ]
 
         resultsModel.update(with: sample)
-        resultButtonsHost.rootView = ResultScreenButtons(result: [:],onDownloadPDF: {})
+        resultButtonsHost.rootView = ResultScreenButtons(
+            result: [:],
+            onDownloadPDF: {},
+            onPrint: { [weak self] in self?.printResults() }
+        )
         updateUI(for: .success)
 
         print("✅ Mock data injected — check SwiftUI Results screen now.")
@@ -109,9 +113,15 @@ class ResultsViewController: UIViewController {
     }
 
     private func setupBottomButtons() {
-        resultButtonsHost = UIHostingController(rootView: ResultScreenButtons(result: [:], onDownloadPDF: { [weak self] in
+        resultButtonsHost = UIHostingController(rootView: ResultScreenButtons(
+            result: [:],
+            onDownloadPDF: { [weak self] in
                 self?.exportPDF()
-            }))
+            },
+            onPrint: { [weak self] in
+                self?.printResults()
+            }
+        ))
         addChild(resultButtonsHost)
         resultButtonsHost.view.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(resultButtonsHost.view)
@@ -234,11 +244,233 @@ class ResultsViewController: UIViewController {
 
             // Update SwiftUI state with filtered data
             self.resultsModel.update(with: converted)
-            self.resultButtonsHost.rootView = ResultScreenButtons(result: self.results, onDownloadPDF: { [weak self] in
-                        self?.exportPDF()
-                    })
+            self.resultButtonsHost.rootView = ResultScreenButtons(
+                result: self.results,
+                onDownloadPDF: { [weak self] in
+                    self?.exportPDF()
+                },
+                onPrint: { [weak self] in
+                    self?.printResults()
+                }
+            )
             self.updateUI(for: .success)
             print("✅ Real SDK results displayed successfully (filtered to visible keys).")
+        }
+    }
+
+    // MARK: - Printing
+    private func printResults() {
+        // Workaround: Render the SwiftUI view at the main screen width (matching in-app appearance), then scale the image to A4 width for the PDF.
+        // Effect: The PDF layout, font sizing, and paddings will match the on-screen appearance. Some loss of sharpness may occur due to scaling, but appearance will match.
+
+        // 1. Use current device screen width for content width to match on-screen appearance exactly
+        let screenWidth = UIScreen.main.bounds.width
+        let contentHeight: CGFloat = 3000 // Tall enough to fit the entire content as one image
+
+        // 2. Set A4 PDF target width/height in points
+        let pdfPageWidth: CGFloat = 595.2 // A4 width
+        let pdfPageHeight: CGFloat = 841.8 // A4 height
+
+        // 3. Create the SwiftUI ResultScreen view sized to screen width and content height
+        let printView = ResultScreen(
+            model: self.resultsModel,
+            showBottomButtons: false,
+            showLoadingOverlay: false
+        )
+        .background(Color(AppColors.white))
+        .frame(width: screenWidth, height: contentHeight)
+
+        // 4. Render SwiftUI view to UIImage at device screen scale (for best fidelity)
+        guard let image = renderImage(from: printView, targetSize: CGSize(width: screenWidth, height: contentHeight)) else {
+            DispatchQueue.main.async {
+                let alert = UIAlertController(title: "Error", message: "Failed to render results for printing.", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default))
+                self.present(alert, animated: true)
+            }
+            print("❌ Failed to render SwiftUI view for printing")
+            return
+        }
+
+        // 5. Create paged PDF from the rendered image, scaling each slice horizontally to exactly fit A4 width
+        guard let pdfURL = createPagedPDF(from: image, pageSize: CGSize(width: pdfPageWidth, height: pdfPageHeight)) else {
+            DispatchQueue.main.async {
+                let alert = UIAlertController(title: "Error", message: "Failed to generate PDF for printing.", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default))
+                self.present(alert, animated: true)
+            }
+            print("❌ Failed to create paged PDF from rendered image")
+            return
+        }
+
+        // 6. Setup print controller with the generated PDF URL
+        let printInfo = UIPrintInfo(dictionary: nil)
+        printInfo.jobName = "Health Report"
+        printInfo.outputType = .general
+
+        let printController = UIPrintInteractionController.shared
+        printController.printInfo = printInfo
+        printController.showsNumberOfCopies = false
+        printController.printingItem = pdfURL
+
+        // 7. Present print controller anchored to buttons view (popover on iPad)
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            printController.present(from: resultButtonsHost.view.bounds, in: resultButtonsHost.view, animated: true, completionHandler: nil)
+        } else {
+            printController.present(animated: true, completionHandler: nil)
+        }
+    }
+    
+    // Helper: Render SwiftUI view into UIImage with device screen scale for best fidelity
+    private func renderImage<V: View>(from swiftUIView: V, targetSize: CGSize) -> UIImage? {
+        // Use UIHostingController to host the SwiftUI view
+        let controller = UIHostingController(rootView: swiftUIView)
+
+        // Set bounds to target size
+        controller.view.bounds = CGRect(origin: .zero, size: targetSize)
+
+        // Use device screen scale for high-fidelity rendering (will be downscaled when drawing PDF)
+        controller.view.contentScaleFactor = UIScreen.main.scale
+
+        controller.view.backgroundColor = .clear
+
+        // Add to view hierarchy to properly layout (required for layout updates)
+        let window = UIApplication.shared.windows.first
+        window?.addSubview(controller.view)
+        controller.view.setNeedsLayout()
+        controller.view.layoutIfNeeded()
+
+        // Configure UIGraphicsImageRenderer with device scale
+        let rendererFormat = UIGraphicsImageRendererFormat.default()
+        rendererFormat.scale = UIScreen.main.scale
+
+        let renderer = UIGraphicsImageRenderer(size: targetSize, format: rendererFormat)
+        let image = renderer.image { context in
+            // Fill white background to avoid transparency
+            UIColor.white.setFill()
+            context.fill(CGRect(origin: .zero, size: targetSize))
+
+            // Draw the view hierarchy into the context at device screen scale
+            controller.view.drawHierarchy(in: controller.view.bounds, afterScreenUpdates: true)
+        }
+
+        controller.view.removeFromSuperview()
+        return image
+    }
+    
+    /// Helper to create a multi-page PDF from a tall UIImage by slicing it into pages of given pageSize height.
+    ///
+    /// Each cropped slice is scaled horizontally to exactly fit PDF page width (A4 width),
+    /// maintaining the aspect ratio for height.
+    ///
+    /// This ensures the PDF matches the on-screen layout width.
+    ///
+    /// This method also pads the last page slice with a white background if it is shorter than the page height,
+    /// to prevent PDF viewers from vertically centering the last page content instead of aligning at top.
+    ///
+    /// - Parameters:
+    ///   - image: The tall image to slice and draw into PDF pages
+    ///   - pageSize: The CGSize of each PDF page (width and height in points)
+    /// - Returns: URL to the created PDF file in temporary directory or nil if failed
+    private func createPagedPDF(from image: UIImage, pageSize: CGSize) -> URL? {
+        let pdfData = NSMutableData()
+        let pdfConsumer = CGDataConsumer(data: pdfData as CFMutableData)!
+
+        var mediaBox = CGRect(origin: .zero, size: pageSize)
+        guard let pdfContext = CGContext(consumer: pdfConsumer, mediaBox: &mediaBox, nil) else {
+            return nil
+        }
+
+        // Use image.size (points) directly for accurate cropping without scale confusion
+        let imageSize = image.size
+        let imageScale = image.scale
+
+        // Calculate horizontal scale factor to fit image width exactly to PDF page width
+        // This scale factor will be applied to height proportionally
+        let scaleFactor = pageSize.width / imageSize.width
+
+        // Calculate number of pages by dividing the image height by page height scaled back to the original image height space
+        // Because each PDF page height corresponds to (pageHeight / scaleFactor) points of the original image height
+        let pageHeightInImageSpace = pageSize.height / scaleFactor
+        let pageCount = Int(ceil(imageSize.height / pageHeightInImageSpace))
+
+        // Draw each page by cropping the relevant slice of the image and drawing it scaled to PDF page size
+        for pageIndex in 0..<pageCount {
+            pdfContext.beginPage(mediaBox: &mediaBox)
+
+            // Crop rect in image points (not pixels)
+            let sliceOriginY = CGFloat(pageIndex) * pageHeightInImageSpace
+            let sliceHeight = min(pageHeightInImageSpace, imageSize.height - sliceOriginY)
+            let cropRect = CGRect(x: 0, y: sliceOriginY, width: imageSize.width, height: sliceHeight)
+
+            // Crop CGImage using pixels (points * scale)
+            guard let cgImage = image.cgImage?.cropping(to: CGRect(
+                x: cropRect.origin.x * imageScale,
+                y: cropRect.origin.y * imageScale,
+                width: cropRect.size.width * imageScale,
+                height: cropRect.size.height * imageScale
+            )) else {
+                pdfContext.endPage()
+                return nil
+            }
+
+            let croppedImage = UIImage(cgImage: cgImage, scale: imageScale, orientation: image.imageOrientation)
+
+            pdfContext.saveGState()
+            
+            // Fill page with white to avoid transparency that may cause last page content to not align top
+            pdfContext.setFillColor(UIColor.white.cgColor)
+            pdfContext.fill(mediaBox)
+
+            // Draw cropped image scaled horizontally to PDF page width, height scaled proportionally
+            // Always draw at origin (0,0) so last page content aligns top of page (no vertical centering)
+            let drawRect = CGRect(
+                x: 0,
+                y: 0,
+                width: pageSize.width,
+                height: sliceHeight * scaleFactor
+            )
+
+            if pageIndex == pageCount - 1 && (sliceHeight * scaleFactor) < pageSize.height {
+                // Last page content is shorter than full page height.
+                // To prevent PDF viewers from vertically centering the last page content, 
+                // we create a new white-filled image of full page height and draw the cropped image at the top.
+
+                // Create a UIGraphicsImageRenderer to draw the padded last page image
+                let paddedRenderer = UIGraphicsImageRenderer(size: pageSize)
+                let paddedImage = paddedRenderer.image { ctx in
+                    // Fill background with white
+                    UIColor.white.setFill()
+                    ctx.fill(CGRect(origin: .zero, size: pageSize))
+
+                    // Draw the cropped image at the top (y: 0) with scaled size
+                    croppedImage.draw(in: drawRect)
+                }
+
+                // Draw the padded image into the PDF page rect
+                if let paddedCGImage = paddedImage.cgImage {
+                    pdfContext.draw(paddedCGImage, in: mediaBox)
+                }
+            } else {
+                // For all other pages, draw cropped image scaled to page rect directly
+                pdfContext.draw(croppedImage.cgImage!, in: drawRect)
+            }
+
+            pdfContext.restoreGState()
+            pdfContext.endPage()
+        }
+
+        pdfContext.closePDF()
+
+        // Write PDF to temp file
+        let tempDir = FileManager.default.temporaryDirectory
+        let fileURL = tempDir.appendingPathComponent("HealthReport_Print.pdf")
+
+        do {
+            try pdfData.write(to: fileURL, options: .atomic)
+            return fileURL
+        } catch {
+            print("❌ Failed to write PDF file: \(error)")
+            return nil
         }
     }
 
@@ -247,3 +479,4 @@ class ResultsViewController: UIViewController {
         dismiss(animated: true, completion: dismissBlock)
     }
 }
+

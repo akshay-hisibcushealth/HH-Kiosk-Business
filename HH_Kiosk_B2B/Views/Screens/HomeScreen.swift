@@ -41,18 +41,18 @@ struct HomeScreen: View {
                             .padding(.bottom, 24.w)
 
                         
-                        HStack(alignment: .top) {
-                            ReadSection()
-                            ScheduleView()
-                        }
-                        .frame(height: 650.h)
-                        .padding(.horizontal, 24.w)
-
-                        Image("customized_image")
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 700.w,height: 80.h)
-                            .padding(.top,48.h)
+//                        HStack(alignment: .top) {
+//                            ReadSection()
+//                            ScheduleView()
+//                        }
+//                        .frame(height: 650.h)
+//                        .padding(.horizontal, 24.w)
+//
+//                        Image("customized_image")
+//                            .resizable()
+//                            .scaledToFill()
+//                            .frame(width: 700.w,height: 80.h)
+//                            .padding(.top,48.h)
                     }
                 }
                 .frame(maxHeight: .infinity, alignment: .top)
@@ -129,14 +129,13 @@ private struct WeatherContentView: View {
     @ObservedObject var viewModel: WeatherViewModel
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12.h) {
+        VStack(alignment: .leading) {
             HStack{
-                buildSemiBoldText("Welcome to", 36.sp)
-                buildSemiBoldText("[ABC Company]", 36.sp,color: Color(AppColors.companyAccentText))
-                buildSemiBoldText("Kiosk", 36.sp)
+                buildSemiBoldText("Welcome to", 52.sp)
+                buildSemiBoldText("UCF Kiosk!", 52.sp,color: Color(AppColors.companyAccentText))
             }
             .padding(.leading,40.w)
-            .padding(.top,16.w)
+//            .padding(.top,16.w)
             .padding(.bottom,8.w)
             
             WeatherCard(viewModel: viewModel)
@@ -172,15 +171,15 @@ private struct WeatherCard: View {
                 
                 // Weather info
                 VStack(alignment: .leading) {
-                    buildSemiBoldText("\(celsiusToFahrenheit(viewModel.currentTemp))°F",64.sp,color: Color(AppColors.white))
+                    buildSemiBoldText("\(celsiusToFahrenheit(viewModel.currentTemp))°F",64.sp,color: Color(AppColors.black))
                     
                     Text(viewModel.condition.uppercased())
                         .font(.system(size: 20.sp, weight: .semibold))
-                        .foregroundColor(Color(AppColors.white))
+                        .foregroundColor(Color(AppColors.black))
                     
                     Text("H:\(celsiusToFahrenheit(viewModel.high))°F  L:\(celsiusToFahrenheit(viewModel.low))°F")
                         .font(.system(size: 16.sp, weight: .semibold))
-                        .foregroundColor(Color(AppColors.white))
+                        .foregroundColor(Color(AppColors.black))
                     
                 }
                 Spacer()
@@ -188,7 +187,7 @@ private struct WeatherCard: View {
                         HStack{
                             VStack(spacing: 8.h) {
                                 Text(forecast.hour)
-                                    .foregroundColor(Color(AppColors.white))
+                                    .foregroundColor(Color(AppColors.black))
                                     .font(.system(size: 20.sp, weight: .semibold))
                                 
                                 Image(weatherIconName(for: forecast.condition))
@@ -197,7 +196,7 @@ private struct WeatherCard: View {
                                     .frame(width: 32.w)
                                 
                                 Text("\(celsiusToFahrenheit(forecast.temperature))")
-                                    .foregroundColor(Color(AppColors.white))
+                                    .foregroundColor(Color(AppColors.black))
                                     .font(.system(size: 22.sp, weight: .semibold))
                             }
                             Spacer().frame(width: 48.w)

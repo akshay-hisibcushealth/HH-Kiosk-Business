@@ -3,7 +3,7 @@ import UIKit
 struct AppColors {
     static let primary = UIColor(hex: "#142A6D")
     static let secondary = UIColor(hex: "#F2C800")
-    static let weatherBack = UIColor(hex: "#2EAEDD")
+    static let weatherBack = UIColor(hex: "#F2C800")
     static let grayB3 = UIColor(red: 179 / 255, green: 179 / 255, blue: 179 / 255, alpha: 0.09)
 
     static let background = UIColor(white: 0.95, alpha: 1.0)
@@ -31,7 +31,7 @@ struct AppColors {
     static let physicalAttributeText = UIColor(hex: "#383C48")
     static let supportLinkText = UIColor(hex: "#246FA0")
     static let warningText = UIColor(hex: "#980B0B")
-    static let companyAccentText = UIColor(hex: "#B32D0C")
+    static let companyAccentText = UIColor(hex: "#715D00")
     static let resultTitleText = UIColor(hex: "#1E4B86")
 
     static let scheduleEventPeach = UIColor(hex: "#FAA98A")
@@ -47,7 +47,7 @@ struct AppColors {
     static let resultAlertText = UIColor(hex: "#8A2600")
     static let ctaGreen = UIColor(hex: "#B8EB5E")
     static let mutedControlGray = UIColor(hex: "#C4C4C4")
-    static let primaryActionOrange = UIColor(hex: "#EE4B0E")
+    static let primaryActionOrange = UIColor(hex: "#231F20")
 
     static let gaugeGreen = UIColor(hex: "#5EC54C")
     static let gaugeLime = UIColor(hex: "#C2EA73")
