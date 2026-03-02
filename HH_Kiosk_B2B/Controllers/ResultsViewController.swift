@@ -265,22 +265,25 @@ class ResultsViewController: UIViewController {
 
         // 1. Use current device screen width for content width to match on-screen appearance exactly
         let screenWidth = UIScreen.main.bounds.width
-        let contentHeight: CGFloat = 3000 // Tall enough to fit the entire content as one image
 
         // 2. Set A4 PDF target width/height in points
         let pdfPageWidth: CGFloat = 595.2 // A4 width
         let pdfPageHeight: CGFloat = 841.8 // A4 height
 
-        // 3. Create the SwiftUI ResultScreen view sized to screen width and content height
+        // 3. Create the SwiftUI ResultScreen view sized to screen width. We'll measure height dynamically.
         let printView = ResultScreen(
             model: self.resultsModel,
             showBottomButtons: false,
             showLoadingOverlay: false
         )
         .background(Color(AppColors.white))
-        .frame(width: screenWidth, height: contentHeight)
+        .frame(width: screenWidth)
 
-        // 4. Render SwiftUI view to UIImage at device screen scale (for best fidelity)
+        // 4. Measure the actual required height for the SwiftUI view at the given width
+        let measured = measuredSize(for: printView, targetWidth: screenWidth)
+        let contentHeight: CGFloat = max(1, measured.height)
+
+        // 5. Render SwiftUI view to UIImage at device screen scale (for best fidelity)
         guard let image = renderImage(from: printView, targetSize: CGSize(width: screenWidth, height: contentHeight)) else {
             DispatchQueue.main.async {
                 let alert = UIAlertController(title: "Error", message: "Failed to render results for printing.", preferredStyle: .alert)
@@ -291,7 +294,7 @@ class ResultsViewController: UIViewController {
             return
         }
 
-        // 5. Create paged PDF from the rendered image, scaling each slice horizontally to exactly fit A4 width
+        // 6. Create paged PDF from the rendered image, scaling each slice horizontally to exactly fit A4 width
         guard let pdfURL = createPagedPDF(from: image, pageSize: CGSize(width: pdfPageWidth, height: pdfPageHeight)) else {
             DispatchQueue.main.async {
                 let alert = UIAlertController(title: "Error", message: "Failed to generate PDF for printing.", preferredStyle: .alert)
@@ -302,7 +305,7 @@ class ResultsViewController: UIViewController {
             return
         }
 
-        // 6. Setup print controller with the generated PDF URL
+        // 7. Setup print controller with the generated PDF URL
         let printInfo = UIPrintInfo(dictionary: nil)
         printInfo.jobName = "Health Report"
         printInfo.outputType = .general
@@ -312,7 +315,7 @@ class ResultsViewController: UIViewController {
         printController.showsNumberOfCopies = false
         printController.printingItem = pdfURL
 
-        // 7. Present print controller anchored to buttons view (popover on iPad)
+        // 8. Present print controller anchored to buttons view (popover on iPad)
         if UIDevice.current.userInterfaceIdiom == .pad {
             printController.present(from: resultButtonsHost.view.bounds, in: resultButtonsHost.view, animated: true, completionHandler: nil)
         } else {
@@ -320,6 +323,39 @@ class ResultsViewController: UIViewController {
         }
     }
     
+    private func measuredSize<V: View>(for swiftUIView: V, targetWidth: CGFloat) -> CGSize {
+        // Host the SwiftUI view in a UIHostingController to allow Auto Layout sizing
+        let controller = UIHostingController(rootView: swiftUIView)
+        controller.view.translatesAutoresizingMaskIntoConstraints = false
+        controller.view.backgroundColor = .clear
+
+        // Constrain to the target width, let height be flexible
+        controller.view.bounds = CGRect(x: 0, y: 0, width: targetWidth, height: 10)
+
+        // Add temporarily to a key window so layout can occur correctly
+        let keyWindow = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap { $0.windows }
+            .first { $0.isKeyWindow }
+
+        keyWindow?.addSubview(controller.view)
+
+        let widthConstraint = controller.view.widthAnchor.constraint(equalToConstant: targetWidth)
+        widthConstraint.isActive = true
+
+        controller.view.setNeedsLayout()
+        controller.view.layoutIfNeeded()
+
+        // Ask the hosting controller for the size that best fits the given width
+        let fittingSize = controller.sizeThatFits(in: CGSize(width: targetWidth, height: CGFloat.greatestFiniteMagnitude))
+
+        // Clean up
+        controller.view.removeFromSuperview()
+
+        // Return a ceilinged size to avoid fractional pixel rounding issues later
+        return CGSize(width: ceil(fittingSize.width), height: ceil(fittingSize.height))
+    }
+
     // Helper: Render SwiftUI view into UIImage with device screen scale for best fidelity
     private func renderImage<V: View>(from swiftUIView: V, targetSize: CGSize) -> UIImage? {
         // Use UIHostingController to host the SwiftUI view
@@ -432,7 +468,7 @@ class ResultsViewController: UIViewController {
 
             if pageIndex == pageCount - 1 && (sliceHeight * scaleFactor) < pageSize.height {
                 // Last page content is shorter than full page height.
-                // To prevent PDF viewers from vertically centering the last page content, 
+                // To prevent PDF viewers from vertically centering the last page content,
                 // we create a new white-filled image of full page height and draw the cropped image at the top.
 
                 // Create a UIGraphicsImageRenderer to draw the padded last page image
@@ -479,4 +515,3 @@ class ResultsViewController: UIViewController {
         dismiss(animated: true, completion: dismissBlock)
     }
 }
-
