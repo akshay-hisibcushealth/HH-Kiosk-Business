@@ -7,8 +7,10 @@ struct AlbumGalleryScreen: View {
     
     var body: some View {
         VStack(spacing: 0) {
+            
             Toolbar()
-            // MAIN IMAGE
+            
+            // MARK: - MAIN IMAGE
             TabView(selection: $currentIndex) {
                 ForEach(album.photos.indices, id: \.self) { index in
                     
@@ -35,41 +37,82 @@ struct AlbumGalleryScreen: View {
             }
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
             
-            // THUMBNAILS
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 18.w) {
-                    ForEach(album.photos.indices, id: \.self) { index in
+            
+            // MARK: - THUMBNAILS + SIDE ARROWS
+            ScrollViewReader { proxy in
+                
+                HStack(alignment: .center) {
+                    
+                    // LEFT ARROW
+                    Button {
+                        moveLeft(proxy: proxy)
+                    } label: {
+                        arrowButton(systemName: "chevron.left")
+                    }
+                    .opacity(currentIndex == 0 ? 0.3 : 1)
+                    .disabled(currentIndex == 0)
+                    
+                    
+                    GeometryReader { geo in
                         
-                        AsyncImage(url: URL(string: album.photos[index])) { phase in
-                            switch phase {
-                            case .success(let image):
-                                image
-                                    .resizable()
-                                    .scaledToFill()
-                            default:
-                                Color.gray.opacity(0.3)
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 18.w) {
+                                
+                                ForEach(album.photos.indices, id: \.self) { index in
+                                    
+                                    AsyncImage(url: URL(string: album.photos[index])) { phase in
+                                        switch phase {
+                                        case .success(let image):
+                                            image
+                                                .resizable()
+                                                .scaledToFill()
+                                        default:
+                                            Color.gray.opacity(0.3)
+                                        }
+                                    }
+                                    .frame(width: 180.w, height: 130.h)
+                                    .clipShape(RoundedRectangle(cornerRadius: 18.r))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 18.r)
+                                            .stroke(
+                                                index == currentIndex
+                                                ? Color(AppColors.primary)
+                                                : Color.clear,
+                                                lineWidth: 4
+                                            )
+                                    )
+                                    .id(index)
+                                    .onTapGesture {
+                                        withAnimation(.easeInOut) {
+                                            currentIndex = index
+                                            proxy.scrollTo(index, anchor: .center)
+                                        }
+                                    }
+                                }
                             }
-                        }
-                        .frame(width: 180.w, height: 130.h)
-                        .clipShape(RoundedRectangle(cornerRadius: 18.r))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 18.r)
-                                .stroke(
-                                    index == currentIndex
-                                    ? Color(AppColors.primary)
-                                    : Color.clear,
-                                    lineWidth: 4
-                                )
-                        )
-                        .onTapGesture {
-                            withAnimation(.easeInOut) {
-                                currentIndex = index
-                            }
+                            .frame(minWidth: geo.size.width, alignment: .center) // 👈 THIS CENTERS IT
+                            .padding(.horizontal, 12.w)
                         }
                     }
+                    .frame(height: 150.h)
+                    
+                    
+                    // RIGHT ARROW
+                    Button {
+                        moveRight(proxy: proxy)
+                    } label: {
+                        arrowButton(systemName: "chevron.right")
+                    }
+                    .opacity(currentIndex == album.photos.count - 1 ? 0.3 : 1)
+                    .disabled(currentIndex == album.photos.count - 1)
                 }
-                .padding(.horizontal, horizontalPadding())
+                .padding(.horizontal, 24.w)
                 .padding(.top, 28.h)
+                .onChange(of: currentIndex) { newIndex,_ in
+                    withAnimation(.easeInOut) {
+                        proxy.scrollTo(newIndex, anchor: .center)
+                    }
+                }
             }
             
             Spacer()
@@ -77,22 +120,33 @@ struct AlbumGalleryScreen: View {
         .background(Color.white)
         .navigationBarTitleDisplayMode(.inline)
     }
+}
+extension AlbumGalleryScreen {
     
-    
-    
-    private func horizontalPadding() -> CGFloat {
-        let itemWidth: CGFloat = 180.w
-        let spacing: CGFloat = 18.w
-        let totalWidth =
-        (itemWidth * CGFloat(album.photos.count)) +
-        (spacing * CGFloat(album.photos.count - 1))
-        
-        let screenWidth = UIScreen.main.bounds.width
-        
-        if totalWidth < screenWidth {
-            return (screenWidth - totalWidth) / 2
-        } else {
-            return 24.w
+    private func moveLeft(proxy: ScrollViewProxy) {
+        guard currentIndex > 0 else { return }
+        withAnimation(.easeInOut) {
+            currentIndex -= 1
+            proxy.scrollTo(currentIndex, anchor: .center)
         }
+    }
+    
+    private func moveRight(proxy: ScrollViewProxy) {
+        guard currentIndex < album.photos.count - 1 else { return }
+        withAnimation(.easeInOut) {
+            currentIndex += 1
+            proxy.scrollTo(currentIndex, anchor: .center)
+        }
+    }
+    
+    private func arrowButton(systemName: String) -> some View {
+        Image(systemName: systemName)
+            .font(.system(size: 32.w, weight: .semibold))
+            .foregroundColor(.black.opacity(0.7))
+            .frame(width: 80.w, height: 80.w)
+            .background(
+                Circle()
+                    .fill(Color.gray.opacity(0.15))
+            )
     }
 }

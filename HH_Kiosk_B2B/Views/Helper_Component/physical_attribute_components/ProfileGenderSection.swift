@@ -8,10 +8,9 @@ struct ProfileGenderSection: View {
 
     var body: some View {
         VStack(alignment: .leading) {
-            Text("Gender (at birth)")
-                .font(.body)
-                .fontWeight(.bold)
-                .foregroundColor(Color(AppColors.black))
+            Text("Sex (at birth)")
+                .font(.system(size: 32.sp))
+
 
             HStack {
                 Button {
@@ -26,13 +25,14 @@ struct ProfileGenderSection: View {
                             Text(gender)
                                 .foregroundColor(Color(AppColors.black))
                         } else {
-                            Text("Select Gender")
+                            Text("Male / Female")
+                                .font(.system(size: 36.sp))
                                 .foregroundColor(Color(AppColors.gray))
                         }
                         Spacer()
                     }
-                    .padding(.vertical, 20.h)
-                    .padding(.horizontal, 16.w)
+                    .padding(.vertical, 30.h)
+                    .padding(.horizontal, 24.w)
                     .frame(maxWidth: .infinity)
                     .background(Color(AppColors.white))
                     .overlay(

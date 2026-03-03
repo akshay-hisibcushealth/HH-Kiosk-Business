@@ -8,18 +8,16 @@ struct ProfileWeightSection: View {
 
     var body: some View {
         VStack(alignment: .leading) {
-            Text("Weight (lbs)")
-                .font(.body)
-                .fontWeight(.bold)
-                .foregroundColor(Color(AppColors.black))
+            Text("Weight")
+                .font(.system(size: 32.sp))
 
-            TextField("Select weight", text: $weightInput)
-                // 🔹 FIX: Use .numbersAndPunctuation to force full-width keyboard on iPad
-                // (.numberPad forces the small floating window on iPadOS)
+
+            TextField("Lbs", text: $weightInput)
+                .font(.system(size: 36.sp)) 
                 .textFieldStyle(.plain)
                 .foregroundColor(Color(AppColors.black))
-                .padding(.vertical, 20.h)
-                .padding(.horizontal, 16.w)
+                .padding(.vertical, 30.h)
+                .padding(.horizontal, 24.w)
                 .frame(maxWidth: .infinity)
                 .background(Color(AppColors.white))
                 .overlay(

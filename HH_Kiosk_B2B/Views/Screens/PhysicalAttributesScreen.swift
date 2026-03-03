@@ -31,46 +31,39 @@ struct PhysicalAttributesScreen: View {
             Toolbar()
             VStack(alignment: .leading) {
                 // Header
-                HStack {
-                    VStack(alignment: .leading) {
-                        buildSemiBoldText("Physical Attributes", 44.sp) .padding(.top,60.h)
-                     
-                        Text("For best accuracy, kindly complete the form below.")
-                            .font(.system(size: 24.sp, weight: .regular))
-                            .foregroundColor(Color(AppColors.physicalAttributeText))
+                VStack(alignment: .leading) {
+                    HStack(alignment:.center){
+                        VStack(alignment: .leading){
+                            buildSemiBoldText("Tell us about yourself", 48.sp) .padding(.top,10.h)
+                            
+                            Text("We use these details to ensure your scan results are as accurate as possible.")
+                                .font(.system(size: 32.sp, weight: .regular))
+                                .foregroundColor(Color(AppColors.physicalAttributeText))
+                            
+                        }
+                        
+                        Spacer()
+                        Button(action: {
+                            showSettings = true
+                        }) {
+                            Image(systemName: "gearshape.fill")
+                                .font(.system(size: 40.w))
+                                .foregroundColor(.black.opacity(0.5))
+                                .padding(.trailing,36.w)
+                        }
                     }
-                    Spacer()
-                    Button(action: {
-                        showSettings = true
-                    }) {
-                        Image(systemName: "gearshape.fill")
-                            .font(.system(size: 40.w))
-                            .foregroundColor(.black.opacity(0.5))
-                            .padding(.top,60.h)
-                            .padding(.trailing,36.w)
-                    }
+                
                 }
-                
-                // Avatar
-                Image("avatar_image")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    // Dynamic height based on keyboard state
-                    .frame(width: 260.w, height: keyboard.isKeyboardVisible ? 0 : 370.h)
-                    .opacity(keyboard.isKeyboardVisible ? 0 : 1)
-                    .clipped() // Ensures it doesn't bleed out when height is 0
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.top, keyboard.isKeyboardVisible ? 0 : 100.h) // Reduce padding when hidden
-                    .animation(.easeInOut(duration: 0.3), value: keyboard.isKeyboardVisible)
-                
+                .padding(.all, 20.w)
+
                 // Privacy info
                 HStack {
                     Image("lock")
                         .resizable()
                         .foregroundColor(Color(AppColors.blue))
-                        .frame(width: 45.w,height: 45.w)
+                        .frame(width: 55.w,height: 55.w)
                     Text("We prioritize your privacy. Your information will NOT be stored during this process and will only be used for calculations.")
-                        .font(.system(size: 24.sp, weight: .regular))
+                        .font(.system(size: 30.sp, weight: .regular))
                         .italic()
                         .foregroundColor(Color(AppColors.supportLinkText))
                         .lineLimit(2)
@@ -85,71 +78,89 @@ struct PhysicalAttributesScreen: View {
                     RoundedRectangle(cornerRadius: 12.r)
                         .stroke(Color(AppColors.formBorder), lineWidth: 1)
                 )
-                .padding(.top, 110.h)
-                .padding(.bottom, 56.h)
-                
-                // Form sections
-                HStack(spacing: 42.w) {
-                    VStack(spacing: 24.h) {
-                        HStack {
-                            ProfileHeightSection(selectedHeight: $height)
-                            ProfileWeightSection(selectedWeight: $weight)
-                        }
-                        
-                        HStack {
-                            ProfileAgeSection(selectedAge: $age)
-                            ProfileGenderSection(selectedGender: $gender)
-                        }
-                    }
-                    .padding(.top, 12)
-                }
-                
-                Spacer()
-                
-                // Action buttons
-                HStack(spacing: 20) {
-                    Button(action: {
-                        hideKeyboard()
-                        showWebView = true
-                    }) {
-                        HStack {
-                            Image(systemName: "play.circle.fill")
-                            Text("Watch Quick Demo")
-                                .font(.system(size: 30.sp,weight: .semibold))
+                .padding(.all, 20.w)
 
-                        }
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color(AppColors.gray).opacity(0.2))
-                        .cornerRadius(10)
-                    }
+                HStack{
                     
-                    Button(action: {
-                        hideKeyboard()
-                        if validateInputs() {
-                           proceedToScan()
+                    // Avatar
+                    Image("avatar_image")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        // Dynamic height based on keyboard state
+                        .frame(width: 320.w,height: 420.h)
+                        .opacity(keyboard.isKeyboardVisible ? 0 : 1)
+                        .clipped() // Ensures it doesn't bleed out when height is 0
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .animation(.easeInOut(duration: 0.3), value: keyboard.isKeyboardVisible)
+                    
+                    VStack{
+                        ProfileHeightSection(selectedHeight: $height)
+                            .padding(.top,16.w)
+                        ProfileWeightSection(selectedWeight: $weight)
+                            .padding(.top,8.w)
+                        ProfileAgeSection(selectedAge: $age)
+                            .padding(.top,8.w)
+                        ProfileGenderSection(selectedGender: $gender)
+                            .padding(.top,8.w)
+
+                    }
+                    .frame(width: Screen.width*0.6)
+                    
+                    
+                }
+                .padding(.all, 20.w)
+
+                Spacer()
+        
+                // Action buttons
+                VStack {
+                    HStack(spacing: 24.w) {
+                        
+                        Button(action: {
+                            showWebView = true
+                        }) {
+                            HStack {
+                                Image(systemName: "play.circle.fill")
+                                    .foregroundColor(Color.black)
+                                    .font(.system(size: 30.sp, weight: .semibold))
+
+                                Text("Watch Quick Demo")
+                                    .font(.system(size: 30.sp, weight: .semibold))
+                                    .foregroundColor(Color.black)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 65.h)
+                            .padding()
+                            .background(Color.gray.opacity(0.2))
+                            .cornerRadius(12)
                         }
-                    }) {
-                        if isLoading {
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle(tint: Color(AppColors.white)))
-                                .padding()
-                                .frame(maxWidth: .infinity)
-                        } else {
+
+                        Button(action: {
+                            if validateInputs() {
+                                proceedToScan()
+                            }
+                        }) {
                             Text("Proceed to Scan")
-                                .font(.system(size: 30.sp,weight: .semibold))
-                                .foregroundColor(Color(AppColors.black))
-                                .padding()
+                                .font(.system(size: 30.sp, weight: .semibold))
+                                .foregroundColor(.black)
                                 .frame(maxWidth: .infinity)
+                                .frame(height: 65.h)
+                                .padding()
+                                .background(Color(AppColors.ctaGreen))
+                                .cornerRadius(12)
                         }
                     }
-                    .background(Color(AppColors.ctaGreen))
-                    .cornerRadius(10)
+                    .padding(.horizontal, 60.w)
+                    .padding(.vertical, 30.h)
                 }
-                .padding(.top, 30)
+                .frame(maxWidth: .infinity)
+                .background(Color.white)
+                .shadow(color: Color.black.opacity(0.15),
+                        radius: 12,
+                        x: 0,
+                        y: -6)   // 👈 Negative Y gives TOP shadow
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .padding()
         }
         .onAppear {
             detectExternalCameraConfiguration()
@@ -178,7 +189,8 @@ struct PhysicalAttributesScreen: View {
         // ALERT
         .alert(isPresented: $showValidationAlert) {
             Alert(
-                title: Text(validationMessage),
+                title: Text(validationMessage)
+                    .font(.system(size: 36.sp)),
                 dismissButton: .default(Text("OK"))
             )
         }

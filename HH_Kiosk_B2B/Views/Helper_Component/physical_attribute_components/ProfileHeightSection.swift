@@ -18,9 +18,8 @@ struct ProfileHeightSection: View {
 
     var body: some View {
         VStack(alignment: .leading) {
-            Text("Height (ft/in)")
-                .font(.body)
-                .fontWeight(.bold)
+            Text("Height")
+                .font(.system(size: 32.sp))
 
             Button {
                 // Initialize temp values when opening picker
@@ -43,13 +42,14 @@ struct ProfileHeightSection: View {
                         Text("\(feet) ft \(inches) in")
                             .foregroundColor(Color(AppColors.black))
                     } else {
-                        Text("Select height")
+                        Text("Feet / Inches")
+                            .font(.system(size: 36.sp))
                             .foregroundColor(Color(AppColors.gray))
                     }
                     Spacer()
                 }
-                .padding(.vertical, 20.h)
-                .padding(.horizontal, 16.w)
+                .padding(.vertical, 30.h)
+                .padding(.horizontal, 24.w)
                 .background(Color(AppColors.white))
                 .overlay(
                     RoundedRectangle(cornerRadius: 12.r)
