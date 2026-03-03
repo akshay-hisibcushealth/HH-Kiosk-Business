@@ -20,7 +20,7 @@ struct ScreenSaver: View {
             } else {
                 VStack(spacing: 0) {
                     // Toolbar (Logo + Time)
-                    Toolbar()
+                    ScreenSaverToolbar()
                         .padding(.horizontal, 48.w)
                         .padding(.top, 75.h)
                         .frame(maxWidth: .infinity, alignment: .top)

@@ -23,6 +23,7 @@ struct ProfileGenderSection: View {
                     HStack {
                         if let gender = localGender, !gender.isEmpty {
                             Text(gender)
+                                .font(.system(size: 36.sp))
                                 .foregroundColor(Color(AppColors.black))
                         } else {
                             Text("Male / Female")
@@ -43,7 +44,7 @@ struct ProfileGenderSection: View {
                 .popover(isPresented: $showPicker) {
                     VStack {
                         Text("Select Gender")
-                            .font(.body)
+                            .font(.system(size: 32.sp))
                             .fontWeight(.medium)
                             .foregroundColor(Color(AppColors.black))
                             .padding(.top, 12.h)
@@ -53,7 +54,7 @@ struct ProfileGenderSection: View {
                             LazyVStack(spacing: 0) {
                                 ForEach(["Male", "Female"], id: \.self) { gender in
                                     Text(gender)
-                                        .font(.body)
+                                        .font(.system(size: 32.sp))
                                         .foregroundColor(Color(AppColors.textPrimary))
                                         .frame(maxWidth: .infinity)
                                         .padding(.top, 4.h)

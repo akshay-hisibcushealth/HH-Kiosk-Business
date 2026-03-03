@@ -17,7 +17,7 @@ struct ProfileAgeSection: View {
 
             TextField("Year", text: $ageInput)
                 .font(.system(size: 36.sp))
-                .focused($isInputActive) // 🔹 2. Bind the text field to the focus state
+                .focused($isInputActive)
                 .textFieldStyle(.plain)
                 .foregroundColor(Color(AppColors.black))
                 .padding(.vertical, 30.h)

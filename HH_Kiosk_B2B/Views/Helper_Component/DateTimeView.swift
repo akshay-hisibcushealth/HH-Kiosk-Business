@@ -84,3 +84,89 @@ struct DateTimeView: View {
         }
     }
 }
+
+
+struct ScreenSaverDateTimeView: View {
+    @State private var currentDate = Date()
+    @State private var timerStarted = false
+
+    var body: some View {
+        VStack(alignment: .trailing) {
+            // First row: icon + time
+            HStack(spacing: 8.w) {
+                Image(systemName: isDayTime ? "sun.max.fill" : "moon.fill")
+                    .font(.system(size: 32.sp))
+                    .foregroundColor(Color(AppColors.secondary))
+
+                Text(timeString)
+                    .foregroundColor(Color(AppColors.white))
+                    .font(.system(size: 40.sp, weight: .bold))
+            }
+
+            // Second row: day + date
+            HStack(spacing: 8.w) {
+                Text("\(dayName.uppercased()),")
+                    .font(.system(size: 20.sp, weight: .medium))
+
+                Text(dateString.uppercased())
+                    .font(.system(size: 20.sp, weight: .medium))
+            }
+            .foregroundColor(Color(AppColors.white))
+        }
+        .padding(.trailing, 16.w)
+        .padding(.top, 8.h)
+        .padding(.bottom, 8.h)
+        .onAppear {
+            updateTime()
+            startSyncedTimer()
+        }
+    }
+
+    // MARK: - Computed Properties
+
+    var isDayTime: Bool {
+        let hour = Calendar.current.component(.hour, from: currentDate)
+        return hour >= 6 && hour < 18
+    }
+
+    var timeString: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "h:mm a"
+        return formatter.string(from: currentDate)
+    }
+
+    var dayName: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEEE"
+        return formatter.string(from: currentDate)
+    }
+
+    var dateString: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM d"
+        return formatter.string(from: currentDate)
+    }
+
+    // MARK: - Timer Helpers
+
+    private func updateTime() {
+        currentDate = Date()
+    }
+
+    private func startSyncedTimer() {
+        guard !timerStarted else { return }
+        timerStarted = true
+
+        let now = Date()
+        let calendar = Calendar.current
+        let nextMinute = calendar.nextDate(after: now, matching: DateComponents(second: 0), matchingPolicy: .nextTime)!
+        let delay = nextMinute.timeIntervalSince(now)
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+            updateTime()
+            Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { _ in
+                updateTime()
+            }
+        }
+    }
+}

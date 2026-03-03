@@ -40,6 +40,7 @@ struct ProfileHeightSection: View {
                 HStack {
                     if let feet = committedFeet, let inches = committedInches {
                         Text("\(feet) ft \(inches) in")
+                            .font(.system(size: 36.sp))
                             .foregroundColor(Color(AppColors.black))
                     } else {
                         Text("Feet / Inches")
@@ -59,7 +60,8 @@ struct ProfileHeightSection: View {
             .popover(isPresented: $showPicker) {
                 VStack {
                     Text("Select Height")
-                        .font(.headline)
+                        .font(.system(size: 32.sp))
+                        .bold()
                         .padding(.top, 12)
 
                     HStack(spacing: 16) {
@@ -87,6 +89,7 @@ struct ProfileHeightSection: View {
                         showPicker = false
                         UIDevice.current.playInputClick()
                     }
+                    .font(.system(size: 28.sp, weight: .semibold))
                     .padding(.bottom, 12)
                 }
                 .frame(width: 320.w, height: 300.h)
@@ -104,7 +107,7 @@ struct WheelSelector<T: Hashable & CustomStringConvertible>: View {
     var body: some View {
         VStack {
             Text(label)
-                .font(.caption)
+                .font(.system(size: 24.sp))
                 .foregroundColor(Color(AppColors.gray))
 
             ScrollViewReader { proxy in
@@ -112,7 +115,7 @@ struct WheelSelector<T: Hashable & CustomStringConvertible>: View {
                     LazyVStack(spacing: 10) {
                         ForEach(items, id: \.self) { item in
                             Text(item.description)
-                                .font(selection == item ? .headline : .body)
+                                .font(.system(size: selection == item ? 32.sp : 28.sp))
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 40.h)
                                 .background(selection == item ? Color(AppColors.gray).opacity(0.2) : Color(AppColors.clear))

@@ -44,6 +44,30 @@ struct Toolbar: View {
 }
 
 
+struct ScreenSaverToolbar: View {
+    // For updating time in the toolbar
+    @State private var currentTime: String = HomeScreen.getCurrentTime()
+    private let timer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
+    var body: some View {
+        HStack {
+            Image("logo")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 200.w, height: 140.h)
+                .padding([.vertical], 16.h)
+            
+            Spacer()
+            ScreenSaverDateTimeView()
+        }
+        .padding(.horizontal,24.w)
+        .padding(.vertical, 10.h)
+        .background(Color(AppColors.primary))
+        .onReceive(timer) { _ in
+            currentTime = HomeScreen.getCurrentTime()
+        }
+        
+    }
+}
 
 
 
