@@ -8,7 +8,6 @@ struct WeatherSection: View {
             ProgressView("Loading Weather...")
                 .progressViewStyle(CircularProgressViewStyle())
                 .padding()
-                .frame(maxWidth: .infinity, alignment: .top)
         } else if let error = viewModel.errorMessage {
             VStack {
                 Text("Error:")
@@ -32,22 +31,18 @@ private struct WeatherCard: View {
                 Image(weatherIconName(for: viewModel.condition))
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 175.w,height: 160.w)
-                    .padding(.trailing, 15.w)
+                    .frame(width: 120.w)
                 
                 VStack(alignment: .trailing) {
-                    buildSemiBoldText("\(celsiusToFahrenheit(viewModel.currentTemp))°F",64.sp,color: Color(AppColors.black))
+                    buildBoldText("\(celsiusToFahrenheit(viewModel.currentTemp))°F",55.sp,color: Color(AppColors.black))
                     
                     Text(viewModel.condition.uppercased())
-                        .font(.system(size: 20.sp, weight: .semibold))
+                        .font(.system(size: 30.sp, weight: .semibold))
                         .foregroundColor(Color(AppColors.black))
                     
                 
                 }
-                Spacer()
                          }
-            .padding(.leading, 72.w)
-            .padding(.vertical,32.h)
         }
     }
 }

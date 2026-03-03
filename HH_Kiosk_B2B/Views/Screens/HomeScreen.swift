@@ -24,25 +24,10 @@ struct HomeScreen: View {
             VStack {
                 Toolbar()
                 ScrollView(.vertical) {
-                    ZStack {
-                        if let location = locationManager.location {
-                            WeatherSection(viewModel: viewModel)
-                                .onAppear {
-                                    viewModel.fetchWeather(
-                                        lat: location.coordinate.latitude,
-                                        lon: location.coordinate.longitude
-                                    )
-                                }
-                        } else {
-                            LoadingLocationView()
-                        }
+                    FaceScanPromoView(isNavigating: $isNavigatingToScan,locationManager: locationManager,viewModel: viewModel)
+                        .padding(.bottom, 64.w)
 
-                    }
-
-                    FaceScanPromoView(isNavigating: $isNavigatingToScan)
-                        .padding(.horizontal, 24.w)
-                        .padding(.bottom, 24.w)
-
+                    
                     NavigationStack{
                             BrowsePhotoAlbumsSection()}
 
@@ -114,6 +99,24 @@ struct HomeScreen: View {
                     .foregroundColor(Color(AppColors.gray))
             }
             .frame(maxWidth: .infinity, alignment: .top)
+        }
+    }
+
+    private struct WhetherView: View {
+        @ObservedObject var locationManager: LocationManager
+        @ObservedObject  var viewModel = WeatherViewModel()
+        var body: some View {
+            if let location = locationManager.location {
+                WeatherSection(viewModel: viewModel)
+                    .onAppear {
+                        viewModel.fetchWeather(
+                            lat: location.coordinate.latitude,
+                            lon: location.coordinate.longitude
+                        )
+                    }
+            } else {
+                LoadingLocationView()
+            }
         }
     }
 

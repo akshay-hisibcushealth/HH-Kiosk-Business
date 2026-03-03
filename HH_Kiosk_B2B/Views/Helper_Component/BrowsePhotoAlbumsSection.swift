@@ -23,7 +23,7 @@ struct BrowsePhotoAlbumsSection: View {
     
     private var header: some View {
         HStack {
-            buildBoldText("Browse Photo Albums >", 40.sp)
+            buildSemiBoldText("Browse Photo Albums >", 40.sp)
                 .padding(.horizontal, 24.w)
                         
             Spacer()

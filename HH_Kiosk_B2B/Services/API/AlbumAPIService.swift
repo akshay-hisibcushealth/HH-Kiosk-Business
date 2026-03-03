@@ -24,6 +24,12 @@ class AlbumAPIService {
                 "photos": [
                   "https://picsum.photos/id/1011/600/600",
                   "https://picsum.photos/id/1012/600/600",
+                  "https://picsum.photos/id/1011/600/600",
+                  "https://picsum.photos/id/1012/600/600",
+                  "https://picsum.photos/id/1011/600/600",
+                  "https://picsum.photos/id/1012/600/600",
+                  "https://picsum.photos/id/1011/600/600",
+                  "https://picsum.photos/id/1012/600/600",
                   "https://picsum.photos/id/1013/600/600"
                 ]
               }, {
