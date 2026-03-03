@@ -112,7 +112,7 @@ struct ScheduleView: View {
                         .frame(width: 75.w, height: 130.h)
                         .background(
                             Calendar.current.isDate(date, inSameDayAs: selectedDate)
-                            ? Color(AppColors.primaryActionOrange)
+                            ? Color(AppColors.faceScanPromoBackground)
                             : Color(AppColors.clear)
                         )
                         .clipShape(Capsule())

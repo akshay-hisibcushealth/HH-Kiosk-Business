@@ -13,14 +13,6 @@ struct Toolbar: View {
                 .padding([.vertical], 16.h)
             
             Spacer()
-            Image("ucf_logo_horizontal")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 300.w, height: 180.h)
-                .padding([.vertical], 16.h)
-            
-            Spacer()
-            
             DateTimeView()
         }
         .padding(.horizontal,24.w)

@@ -47,7 +47,7 @@ struct AppColors {
     static let resultAlertText = UIColor(hex: "#8A2600")
     static let ctaGreen = UIColor(hex: "#B8EB5E")
     static let mutedControlGray = UIColor(hex: "#C4C4C4")
-    static let primaryActionOrange = UIColor(hex: "#231F20")
+    static let faceScanPromoBackground = UIColor(hex: "#1C316F")
 
     static let gaugeGreen = UIColor(hex: "#5EC54C")
     static let gaugeLime = UIColor(hex: "#C2EA73")

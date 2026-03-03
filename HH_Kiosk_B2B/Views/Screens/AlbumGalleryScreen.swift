@@ -7,7 +7,7 @@ struct AlbumGalleryScreen: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            
+            Toolbar()
             // MAIN IMAGE
             TabView(selection: $currentIndex) {
                 ForEach(album.photos.indices, id: \.self) { index in
@@ -28,9 +28,8 @@ struct AlbumGalleryScreen: View {
                     }
                     .frame(maxWidth: .infinity)
                     .frame(height: UIScreen.main.bounds.height * 0.7)
-                    .clipShape(RoundedRectangle(cornerRadius: 24))
-                    .padding(.horizontal, 24)
-                    .padding(.top, 20)
+                    .clipShape(RoundedRectangle(cornerRadius: 24.r))
+                    .padding(.horizontal, 24.w)
                     .tag(index)
                 }
             }
@@ -38,7 +37,7 @@ struct AlbumGalleryScreen: View {
             
             // THUMBNAILS
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 14) {
+                HStack(spacing: 18.w) {
                     ForEach(album.photos.indices, id: \.self) { index in
                         
                         AsyncImage(url: URL(string: album.photos[index])) { phase in
@@ -51,32 +50,49 @@ struct AlbumGalleryScreen: View {
                                 Color.gray.opacity(0.3)
                             }
                         }
-                        .frame(width: 90, height: 70)
-                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                        .frame(width: 180.w, height: 130.h)
+                        .clipShape(RoundedRectangle(cornerRadius: 18.r))
                         .overlay(
-                            RoundedRectangle(cornerRadius: 14)
+                            RoundedRectangle(cornerRadius: 18.r)
                                 .stroke(
                                     index == currentIndex
-                                    ? Color(AppColors.secondary)
+                                    ? Color(AppColors.primary)
                                     : Color.clear,
-                                    lineWidth: 3
+                                    lineWidth: 4
                                 )
                         )
                         .onTapGesture {
-                            withAnimation {
+                            withAnimation(.easeInOut) {
                                 currentIndex = index
                             }
                         }
                     }
                 }
-                .padding(.horizontal, 24)
-                .padding(.top, 20)
+                .padding(.horizontal, horizontalPadding())
+                .padding(.top, 28.h)
             }
             
             Spacer()
         }
         .background(Color.white)
-        .navigationTitle(album.title)
         .navigationBarTitleDisplayMode(.inline)
+    }
+    
+    
+    
+    private func horizontalPadding() -> CGFloat {
+        let itemWidth: CGFloat = 180.w
+        let spacing: CGFloat = 18.w
+        let totalWidth =
+        (itemWidth * CGFloat(album.photos.count)) +
+        (spacing * CGFloat(album.photos.count - 1))
+        
+        let screenWidth = UIScreen.main.bounds.width
+        
+        if totalWidth < screenWidth {
+            return (screenWidth - totalWidth) / 2
+        } else {
+            return 24.w
+        }
     }
 }
