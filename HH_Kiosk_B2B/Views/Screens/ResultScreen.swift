@@ -192,7 +192,7 @@ private struct InfoFooter: View {
                     .padding(.leading, 12.w)
                 
                 Text("Hibiscus Health is intended to improve your awareness of general wellness. Hibiscus Health does not diagnose, treat, mitigate or prevent any disease, symptom, disorder or abnormal physical state. Consult with a healthcare professional or emergency services if you believe you may have a medical issue.")
-                    .font(.system(size: 18.sp))
+                    .font(.system(size: 22.sp))
                     .foregroundColor(Color(AppColors.resultAlertText))
                     .italic()
                     .padding(12.w)
@@ -228,7 +228,7 @@ private struct BottomBar: View {
                             + Text("Face Scan → Care Guide → Clinician").fontWeight(.bold)
                             + Text(" for maximum impact. Choose the components that best complement your current resources.")
                         )
-                        .font(.system(size: 19.sp))
+                        .font(.system(size: 20.sp))
                         .foregroundColor(Color(AppColors.white))
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
@@ -253,13 +253,10 @@ private struct Footer: View {
     private let playStoreURL = URL(string: "https://play.google.com/store/apps/details?id=com.nutritionApp.hibiscus_health&hl")!
     
     var body: some View {
-        VStack(spacing: 32.h) {
-            VStack(spacing: 0) {
-                buildMediumText("Find even more resources,", 44.sp, color: Color(AppColors.white), alignment: .center)
-                buildMediumText("tips & insights on the app", 44.sp, color: Color(AppColors.white), alignment: .center)
-            }
-            .padding(.top, 16.h)
-            
+        VStack(spacing: 8.h) {
+                buildMediumText("Find even more resources,\ntips & insights on the app", 44.sp, color: Color(AppColors.white), alignment: .center)
+       
+        
             HStack(spacing: 48.w) {
                 Link(destination: appStoreURL) {
                     Image("app_store_button")
@@ -279,15 +276,14 @@ private struct Footer: View {
                 .resizable()
                 .scaledToFit()
                 .frame(width: 220.w, height: 140.h)
-                .padding(.vertical, 16.h)
+                .padding(.vertical, 8.h)
                 .padding(.trailing, 32.h)
             Text("575 LEXINGTON AVE, FL 14TH NEW YORK, NY 10022-6102 United States")
                 .font(.system(size: 20.sp))
                 .foregroundColor(Color(AppColors.white))
                 .multilineTextAlignment(.center)
-                .padding(.top, 8.h)
         }
-        .padding(.vertical, 48.h)
+        .padding(.vertical, 72.h)
         .frame(maxWidth: .infinity)
         .background(Color(AppColors.primary))
     }

@@ -27,7 +27,7 @@ struct ResultScreenButtons: View {
                         Spacer()
                     }
                 )
-                .frame(height: 250.h)
+                .frame(height: 200.h)
             
             HStack(alignment: .top) {
                 Button(action: {
