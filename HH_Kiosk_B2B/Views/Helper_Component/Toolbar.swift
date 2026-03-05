@@ -74,27 +74,17 @@ struct ScreenSaverToolbar: View {
 struct ResultToolbar: View {
     var body: some View {
         HStack {
-            ZStack {
-                Rectangle()
-                    .fill(Color(AppColors.toolbarLogoBackground))
-                    .frame(width: 200.w, height: 90.h)
-                    .padding()
-                
-                buildMediumText("Partner logo\ngoes  here", 24.sp, color: Color(AppColors.toolbarPlaceholderText))
-                    .padding()
-                
-            }
-            Spacer()
-            Image("powered_by_hh_logo")
+            Image("logo_blue")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 220.w, height: 140.h)
-                .padding(.vertical, 48.h)
-                .padding(.trailing, 32.h)
+                .frame(width: 200.w, height: 140.h)
+                .padding([.vertical], 16.h)
+            
+            Spacer()
+            DateTimeView()
         }
         .padding(.horizontal, 24.w)
-        .background(Color(AppColors.primary))
-        .clipShape(UnevenRoundedRectangle(bottomLeadingRadius: 52.r, bottomTrailingRadius: 52.r))
+        .background(Color(AppColors.white))
     }
     
 }

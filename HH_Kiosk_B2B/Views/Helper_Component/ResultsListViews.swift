@@ -83,34 +83,37 @@ struct ResultRow: View {
     }
 
     var body: some View {
+        let msg = getTaggedMessage(metricKey: metricKey, value: value)
+        let attr = attributedText(from: msg, fontSize: 30.sp)
         VStack(alignment: .leading, spacing: 12) {
             // Header: Title + Subtitle (Preserving iOS Styles)
             VStack(alignment: .leading, spacing: 6) {
-                buildBoldText(title, 24.sp, color: Color(AppColors.resultTitleText))
+                buildSemiBoldText(title, 36.sp, color: Color(AppColors.resultTitleText))
+                    .padding(.top,16.h)
+
                 Text(subtitle)
-                    .font(.system(size: 22.sp))
+                    .font(.system(size: 28.sp))
                     .foregroundColor(Color(AppColors.bodyText))
                     .multilineTextAlignment(.leading)
+                    .padding(.top,8.h)
             }
 
             // Meter + Value + Result Text
             HStack(alignment: .center, spacing: 16) {
                 MeterBar(metricKey: metricKey, value: value, colors: gaugeColors)
-                    .frame(width: 310.w, height: 50.h)
+                    .frame(width: UIScreen.main.bounds.width * 0.45, height: 50.h)
                 
                 Spacer()
-                buildBoldText(formattedValue(value, for: metricKey), 34.sp, color: Color(AppColors.bodyText))
+                buildBoldText(formattedValue(value, for: metricKey), 55.sp, color: Color(AppColors.bodyText))
                 Spacer()
 
-                let msg = getTaggedMessage(metricKey: metricKey, value: value)
-                let attr = attributedText(from: msg, fontSize: 20.sp)
-                buildMediumText(attr, 20.sp)
-                    .frame(width: 340.w, alignment: .leading)
-                    .padding(.trailing, 48.w)
+             
             }
-            .padding(.horizontal, 32.h)
+            .padding(.horizontal, 30.h)
             .padding(.bottom, 32.h)
 
+            buildMediumText(attr, 32.sp)
+                .padding(.bottom,32.h)
             Divider().background(Color(AppColors.gray).opacity(0.3))
         }
         .padding(.vertical, 6.h)
@@ -149,7 +152,7 @@ struct MeterBar: View {
     var body: some View {
         GeometryReader { geo in
             let totalWidth = geo.size.width
-            let thumbWidth: CGFloat = 15.w
+            let thumbWidth: CGFloat = 25.w
             let usableWidth = max(0, totalWidth - thumbWidth)
             let thumbX = CGFloat(fraction) * usableWidth
             
@@ -158,7 +161,7 @@ struct MeterBar: View {
                     ForEach(0..<colors.count, id: \.self) { i in
                         Rectangle()
                             .fill(colors[i])
-                            .frame(width: totalWidth / CGFloat(colors.count), height: 12.h)
+                            .frame(width: totalWidth / CGFloat(colors.count), height: 24.h)
                     }
                 }
                 .cornerRadius(6.h)
@@ -166,7 +169,7 @@ struct MeterBar: View {
                 // Indicator (Thumb)
                 Rectangle()
                     .fill(Color(AppColors.primary)) // Matching Web Indicator Color
-                    .frame(width: thumbWidth, height: 40.h)
+                    .frame(width: thumbWidth, height: 70.h)
                     .cornerRadius(5.r)
                     .offset(x: thumbX, y: (geo.size.height - 40.h) / 2)
                     .shadow(radius: 1)

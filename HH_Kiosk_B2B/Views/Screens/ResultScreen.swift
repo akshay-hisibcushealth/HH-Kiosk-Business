@@ -140,13 +140,13 @@ private struct HeroHeader: View {
                     .font(.system(size: 34, weight: .bold))
                     .foregroundColor(Color(AppColors.white))
                     .padding(.leading, 50.w)
-                Text("This sample report features your personal face-scan results and demonstrates how we can design a customized, population-level version aligned with your wellness strategy — giving individuals insight and delivering actionable value for your organization.")
+                Text("This report is designed to empower you with awareness of your current health, offering a proactive view to manage your cardiovascular and metabolic wellbeing. Whether you are tracking your progress or simply staying ahead of your health, these results provide the clarity you need to nourish your body and thrive with confidence at every stage of life.")
                     .foregroundColor(Color(AppColors.bodyTextMuted))
-                    .font(.system(size: 24.sp, weight: .light))
+                    .font(.system(size: 28.sp, weight: .regular))
                     .italic()
                     .padding(.leading, 50.w)
                     .padding(.bottom, 24.w)
-                    .padding(.trailing, 330.w)
+                    .padding(.trailing, 50.w)
             }
         }
         .frame(maxWidth: .infinity)
@@ -159,15 +159,15 @@ private struct TitleBlock: View {
             Rectangle()
                 .fill(Color(AppColors.resultInfoBackground))
                 .frame(maxWidth: .infinity)
-                .frame(height: 120.h)
+                .frame(height: 148.h)
             
             buildMediumText(
                 "At Hibiscus, we believe that great technology is only meaningful when paired with thoughtful human support. Our facial-scan insights are designed to spark action and our programs ensure each member is guided, not left on their own, to achieve lasting health goals.",
-                18.sp,
+                22.sp,
                 color: Color(AppColors.primary)
             )
-            .padding(.leading, 48.w)
-            .padding(.trailing, 120.w)
+            .padding(.horizontal, 48.w)
+            .padding(.vertical, 16.w)
         }
     }
 }
