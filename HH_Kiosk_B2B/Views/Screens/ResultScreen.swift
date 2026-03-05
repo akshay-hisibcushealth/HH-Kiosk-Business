@@ -104,8 +104,8 @@ public struct ResultScreen: View {
             HeroHeader()
             TitleBlock()
             ResultsList(model: model)
-            BottomBar()
-            Footer()
+//            BottomBar()
+//            Footer()
         }
         .frame(maxWidth: .infinity)
         .background(Color(AppColors.systemBackground))

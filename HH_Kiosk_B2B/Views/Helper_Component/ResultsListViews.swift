@@ -88,8 +88,9 @@ struct ResultRow: View {
         VStack(alignment: .leading, spacing: 12) {
             // Header: Title + Subtitle (Preserving iOS Styles)
             VStack(alignment: .leading, spacing: 6) {
+                
                 buildSemiBoldText(title, 36.sp, color: Color(AppColors.resultTitleText))
-                    .padding(.top,16.h)
+                    .padding(.top,24.h)
 
                 Text(subtitle)
                     .font(.system(size: 28.sp))
@@ -111,10 +112,12 @@ struct ResultRow: View {
             }
             .padding(.horizontal, 30.h)
             .padding(.bottom, 32.h)
+            .padding(.top,12.h)
 
             buildMediumText(attr, 32.sp)
                 .padding(.bottom,32.h)
             Divider().background(Color(AppColors.gray).opacity(0.3))
+
         }
         .padding(.vertical, 6.h)
         .padding(.horizontal, 24.w)

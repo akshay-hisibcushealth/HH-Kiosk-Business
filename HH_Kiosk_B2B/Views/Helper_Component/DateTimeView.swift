@@ -7,15 +7,18 @@ struct DateTimeView: View {
     var body: some View {
         VStack(alignment: .trailing) {
             // First row: icon + time
-            HStack(spacing: 8.w) {
-                Image(systemName: isDayTime ? "sun.max.fill" : "moon.fill")
-                    .font(.system(size: 32.sp))
-                    .foregroundColor(Color(AppColors.secondary))
-
-                Text(timeString)
-                    .foregroundColor(Color(AppColors.black))
-                    .font(.system(size: 40.sp, weight: .bold))
-            }
+            Text(timeString)
+                .foregroundColor(Color(AppColors.black))
+                .font(.system(size: 50.sp, weight: .bold))
+//            HStack(spacing: 8.w) {
+//                Image(systemName: isDayTime ? "sun.max.fill" : "moon.fill")
+//                    .font(.system(size: 32.sp))
+//                    .foregroundColor(Color(AppColors.secondary))
+//
+//                Text(timeString)
+//                    .foregroundColor(Color(AppColors.black))
+//                    .font(.system(size: 40.sp, weight: .bold))
+//            }
 
             // Second row: day + date
             HStack(spacing: 8.w) {

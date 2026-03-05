@@ -1,6 +1,7 @@
 import UIKit
 import SwiftUI
 import AnuraCore
+import PDFKit
 
 class ResultsViewController: UIViewController {
 
@@ -90,7 +91,15 @@ class ResultsViewController: UIViewController {
         
         // 2. Attempt generation
         if let url = PDFGenerator.generatePDF(view: pdfView, fileName: "HealthReport") {
-            let activityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+            // Trim to 2 pages using PDFKit
+            let shareURL: URL
+            if let trimmed = trimPDFToTwoPages(at: url) {
+                shareURL = trimmed
+            } else {
+                shareURL = url
+            }
+            
+            let activityVC = UIActivityViewController(activityItems: [shareURL], applicationActivities: nil)
             
             if let popover = activityVC.popoverPresentationController {
                 popover.sourceView = self.resultButtonsHost.view
@@ -428,9 +437,10 @@ class ResultsViewController: UIViewController {
         // Because each PDF page height corresponds to (pageHeight / scaleFactor) points of the original image height
         let pageHeightInImageSpace = pageSize.height / scaleFactor
         let pageCount = Int(ceil(imageSize.height / pageHeightInImageSpace))
+        let cappedPageCount = min(pageCount, 2)
 
         // Draw each page by cropping the relevant slice of the image and drawing it scaled to PDF page size
-        for pageIndex in 0..<pageCount {
+        for pageIndex in 0..<cappedPageCount {
             pdfContext.beginPage(mediaBox: &mediaBox)
 
             // Crop rect in image points (not pixels)
@@ -466,7 +476,7 @@ class ResultsViewController: UIViewController {
                 height: sliceHeight * scaleFactor
             )
 
-            if pageIndex == pageCount - 1 && (sliceHeight * scaleFactor) < pageSize.height {
+            if pageIndex == cappedPageCount - 1 && (sliceHeight * scaleFactor) < pageSize.height {
                 // Last page content is shorter than full page height.
                 // To prevent PDF viewers from vertically centering the last page content,
                 // we create a new white-filled image of full page height and draw the cropped image at the top.
@@ -510,8 +520,30 @@ class ResultsViewController: UIViewController {
         }
     }
 
+    // Helper: Trim a PDF to only first 2 pages
+    private func trimPDFToTwoPages(at url: URL) -> URL? {
+        guard let doc = PDFDocument(url: url) else { return nil }
+        let newDoc = PDFDocument()
+        let pages = min(2, doc.pageCount)
+        for i in 0..<pages {
+            if let page = doc.page(at: i) {
+                newDoc.insert(page, at: i)
+            }
+        }
+        guard let data = newDoc.dataRepresentation() else { return nil }
+        let outURL = FileManager.default.temporaryDirectory.appendingPathComponent("HealthReport_2Pages_\(UUID().uuidString).pdf")
+        do {
+            try data.write(to: outURL, options: .atomic)
+            return outURL
+        } catch {
+            print("❌ Failed to write trimmed PDF: \(error)")
+            return nil
+        }
+    }
+
     // MARK: - Exit
     @objc private func exitTapped() {
         dismiss(animated: true, completion: dismissBlock)
     }
 }
+

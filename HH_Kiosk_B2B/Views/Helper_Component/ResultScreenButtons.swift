@@ -37,7 +37,7 @@ struct ResultScreenButtons: View {
                         .font(.system(size: 22.sp))
                         .fontWeight(.medium)
                         .foregroundColor(Color(AppColors.black))
-                        .frame(maxWidth: .infinity, minHeight: 60.h)
+                        .frame(maxWidth: .infinity, minHeight: 66.h)
                         .background(Color(AppColors.mutedControlGray))
                         .cornerRadius(10)
                 }
