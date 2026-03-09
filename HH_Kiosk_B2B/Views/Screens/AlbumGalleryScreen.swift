@@ -14,19 +14,15 @@ struct AlbumGalleryScreen: View {
             TabView(selection: $currentIndex) {
                 ForEach(album.photos.indices, id: \.self) { index in
                     
-                    AsyncImage(url: URL(string: album.photos[index])) { phase in
-                        switch phase {
-                        case .success(let image):
-                            image
-                                .resizable()
-                                .scaledToFill()
-                        case .empty:
-                            ProgressView()
-                        case .failure:
-                            Color.gray
-                        @unknown default:
-                            EmptyView()
-                        }
+                    CachedAsyncImage(
+                        url: URL(string: album.photos[index]),
+                        width: UIScreen.main.bounds.width, // will be constrained by the following frames
+                        height: UIScreen.main.bounds.height * 0.7,
+                        cornerRadius: 24.r
+                    ) { image in
+                        image
+                            .resizable()
+                            .scaledToFill()
                     }
                     .frame(maxWidth: .infinity)
                     .frame(height: UIScreen.main.bounds.height * 0.7)
@@ -60,15 +56,15 @@ struct AlbumGalleryScreen: View {
                                 
                                 ForEach(album.photos.indices, id: \.self) { index in
                                     
-                                    AsyncImage(url: URL(string: album.photos[index])) { phase in
-                                        switch phase {
-                                        case .success(let image):
-                                            image
-                                                .resizable()
-                                                .scaledToFill()
-                                        default:
-                                            Color.gray.opacity(0.3)
-                                        }
+                                    CachedAsyncImage(
+                                        url: URL(string: album.photos[index]),
+                                        width: 180.w,
+                                        height: 130.h,
+                                        cornerRadius: 18.r
+                                    ) { image in
+                                        image
+                                            .resizable()
+                                            .scaledToFill()
                                     }
                                     .frame(width: 180.w, height: 130.h)
                                     .clipShape(RoundedRectangle(cornerRadius: 18.r))
