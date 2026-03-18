@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		960016092F6AD75300C7F9CA /* CONTRIBUTING.md in Resources */ = {isa = PBXBuildFile; fileRef = 960016082F6AD75300C7F9CA /* CONTRIBUTING.md */; };
 		96B73FD62EA016F70004A505 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96B73FD52EA016F70004A505 /* Accelerate.framework */; };
 		96B73FD82EA017110004A505 /* AnuraCore.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96B73FD72EA017110004A505 /* AnuraCore.xcframework */; };
 		96B73FD92EA017110004A505 /* AnuraCore.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 96B73FD72EA017110004A505 /* AnuraCore.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -35,6 +36,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		960016082F6AD75300C7F9CA /* CONTRIBUTING.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CONTRIBUTING.md; sourceTree = "<group>"; };
 		96B73F8F2EA014890004A505 /* HH_Kiosk_B2B.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HH_Kiosk_B2B.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		96B73FD52EA016F70004A505 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		96B73FD72EA017110004A505 /* AnuraCore.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = AnuraCore.xcframework; path = Frameworks/AnuraCore.xcframework; sourceTree = "<group>"; };
@@ -87,6 +89,7 @@
 				96B73F912EA014890004A505 /* HH_Kiosk_B2B */,
 				96B73FD42EA016F70004A505 /* Frameworks */,
 				96B73F902EA014890004A505 /* Products */,
+				960016082F6AD75300C7F9CA /* CONTRIBUTING.md */,
 			);
 			sourceTree = "<group>";
 		};
@@ -180,6 +183,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				960016092F6AD75300C7F9CA /* CONTRIBUTING.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
