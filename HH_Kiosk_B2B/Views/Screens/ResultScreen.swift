@@ -254,11 +254,8 @@ private struct Footer: View {
     
     var body: some View {
         VStack(spacing: 32.h) {
-            VStack(spacing: 0) {
-                buildMediumText("Find even more resources,", 44.sp, color: Color(AppColors.white), alignment: .center)
-                buildMediumText("tips & insights on the app", 44.sp, color: Color(AppColors.white), alignment: .center)
-            }
-            .padding(.top, 16.h)
+                buildMediumText("Find even more resources\ntips & insights on the app,", 44.sp, color: Color(AppColors.white), alignment: .center)
+            
             
             HStack(spacing: 48.w) {
                 Link(destination: appStoreURL) {
@@ -275,6 +272,7 @@ private struct Footer: View {
                         .frame(width: 180.w)
                 }
             }
+            .padding(.bottom, 24.h)
             Image("powered_by_hh_logo")
                 .resizable()
                 .scaledToFit()

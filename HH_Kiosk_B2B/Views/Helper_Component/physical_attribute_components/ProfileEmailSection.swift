@@ -1,3 +1,11 @@
+//
+//  ProfileEmailSection.swift
+//  HH_Kiosk_B2B
+//
+//  Created by Applite Solutions on 13/03/26.
+//
+
+
 import SwiftUI
 
 struct ProfileEmailSection: View {
@@ -16,6 +24,8 @@ struct ProfileEmailSection: View {
 
             TextField("Enter email", text: $localEmail)
                 .keyboardType(.emailAddress)
+                .textContentType(.emailAddress)
+                .submitLabel(.done)
                 .autocapitalization(.none)
                 .disableAutocorrection(true)
                 .foregroundColor(Color(AppColors.black))

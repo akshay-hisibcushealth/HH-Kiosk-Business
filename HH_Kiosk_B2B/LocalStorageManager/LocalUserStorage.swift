@@ -1,3 +1,11 @@
+//
+//  LocalUserStorage.swift
+//  HH_Kiosk_B2B
+//
+//  Created by Applite Solutions on 13/03/26.
+//
+
+
 import Foundation
 
 struct LocalUserStorage {

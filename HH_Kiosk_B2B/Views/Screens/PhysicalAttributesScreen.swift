@@ -9,6 +9,7 @@ struct PhysicalAttributesScreen: View {
     @State private var weight: Int? = nil   // Make optional
     @State private var age: Int? = nil      // Make optional
     @State private var gender: String = ""  // Empty initially
+    @State private var email: String? = nil
     @State private var showSettings = false
     @State private var refreshTrigger = false
 
@@ -85,12 +86,14 @@ struct PhysicalAttributesScreen: View {
                     RoundedRectangle(cornerRadius: 12.r)
                         .stroke(Color(AppColors.formBorder), lineWidth: 1)
                 )
-                .padding(.top, 110.h)
-                .padding(.bottom, 56.h)
+                .padding(.vertical, 24.h)
                 
                 // Form sections
                 HStack(spacing: 42.w) {
                     VStack(spacing: 24.h) {
+                        HStack {
+                            ProfileEmailSection(email: $email)
+                        }
                         HStack {
                             ProfileHeightSection(selectedHeight: $height)
                             ProfileWeightSection(selectedWeight: $weight)
@@ -187,6 +190,11 @@ struct PhysicalAttributesScreen: View {
     private func validateInputs() -> Bool {
 
         switch true {
+        case email == nil || email!.isEmpty:
+            validationMessage = "Please enter your email."
+
+        case !isValidEmail(email!):
+            validationMessage = "Please enter a valid email."
 
         case height == nil:
             validationMessage = "Please select your height."
@@ -214,9 +222,32 @@ struct PhysicalAttributesScreen: View {
         return false
     }
     
+    private func isValidEmail(_ email: String) -> Bool {
+
+        let emailRegex =
+        #"^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$"#
+
+        let predicate = NSPredicate(
+            format: "SELF MATCHES[c] %@",
+            emailRegex
+        )
+
+        return predicate.evaluate(with: email)
+    }
+    
     private func proceedToScan() {
         isLoading = true
 
+        // Save user locally
+        LocalUserStorage.saveUser(
+            email: email!,
+            height: height!,
+            weight: weight!,
+            age: age!,
+            gender: gender
+        )
+
+        // Create User for Anura
         let user = AnuraUser(
             height: height!,
             weight: weight!,
@@ -224,8 +255,10 @@ struct PhysicalAttributesScreen: View {
             gender: gender.lowercased() == "male" ? .male : .female
         )
 
+        // Initilize Face Scan
         faceManager.initMethods()
 
+        // Start Face Measurement
         faceManager.startAnuraMeasurement(
             currentUser: user,
             currentCameraPreset: cameraPreset,

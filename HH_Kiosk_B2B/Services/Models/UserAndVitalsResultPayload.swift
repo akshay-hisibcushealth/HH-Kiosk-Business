@@ -9,13 +9,16 @@
 
 import Foundation
 
-struct ResultEntry: Codable {
-    let value: Double
-    let notes: [String]
+struct VitalsResultPayload: Codable {
+    let email: String
+      let demographic: Demographic
+      let data: [String: ResultEntry]
 }
 
-struct EmailResultPayload: Codable {
-    let email: String
-    let pin: String
-    let data: [String: ResultEntry]
+
+struct Demographic: Codable {
+    let age: Int
+    let height: Int
+    let weight: Int
+    let gender: String
 }

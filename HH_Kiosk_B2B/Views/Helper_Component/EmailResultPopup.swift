@@ -5,7 +5,7 @@ import AnuraCore
 struct EmailResultPopup: View {
     let results: [String: MeasurementResults.SignalResult]
     @Environment(\.dismiss) var dismiss
-    @State private var email: String = ""
+    @State private var email: String = UserDefaults.standard.string(forKey: "user_email") ?? ""
     @State private var pin: String = ""
     @State private var isLoading: Bool = false
     @State private var isEmailSent: Bool = false
@@ -27,6 +27,8 @@ struct EmailResultPopup: View {
         return predicate.evaluate(with: pin)
     }
 
+
+    
     var body: some View {
         ZStack(alignment: .topTrailing) {
             closeButton
@@ -230,7 +232,6 @@ struct EmailResultPopup: View {
 
     }
 
-    // ... rest of your functions unchanged (sendResultsToEmail, createEmailResultJSON, etc.)
     func sendResultsToEmail(to email: String,pin:String) async -> Bool {
         // Build JSON payload string
         guard let jsonString = createEmailResultJSON(email: email,pin:pin, results: results) else {
