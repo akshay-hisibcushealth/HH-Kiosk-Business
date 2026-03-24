@@ -16,7 +16,7 @@ struct PhysicalAttributesScreen: View {
     
     // EXTERNAL CAMERA VARIABLES
     @State private var cameraPreset: AnuraCore.CameraPreset = .hd1920x1080
-    @State private var previewOrientation: AnuraCore.PreviewOrientation = .landscapeLeft
+    @State private var previewOrientation: AnuraCore.PreviewOrientation = .landscapeRight
     @State private var mirrorExternalCameraPreview: Bool = true
     @State private var useOnlyExternalCamera: Bool = false
     
@@ -79,6 +79,7 @@ struct PhysicalAttributesScreen: View {
                         .padding(.trailing,120.w)
                         .fixedSize(horizontal: false, vertical: true)
                 }
+                .frame(maxWidth: .infinity, alignment: .leading) 
                 .padding(.all, 20.w)
                 .background(Color(AppColors.infoPanelBackground))
                 .cornerRadius(8) // must come before overlay
