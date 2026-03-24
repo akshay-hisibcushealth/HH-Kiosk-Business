@@ -6,7 +6,7 @@ struct Toolbar: View {
     private let timer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
     var body: some View {
         HStack {
-            Image("logo")
+            Image(AppIconNames.Asset.logo)
                 .resizable()
                 .scaledToFit()
                 .frame(width: 200.w, height: 140.h)
@@ -56,7 +56,7 @@ struct ResultToolbar: View {
                 
             }
             Spacer()
-            Image("powered_by_hh_logo")
+            Image(AppIconNames.Asset.poweredByHHLogo)
                 .resizable()
                 .scaledToFit()
                 .frame(width: 220.w, height: 140.h)

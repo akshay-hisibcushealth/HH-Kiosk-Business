@@ -48,7 +48,7 @@ struct HomeScreen: View {
                         .frame(height: 650.h)
                         .padding(.horizontal, 24.w)
 
-                        Image("customized_image")
+                        Image(AppIconNames.Asset.customizedImage)
                             .resizable()
                             .scaledToFill()
                             .frame(width: 700.w,height: 80.h)

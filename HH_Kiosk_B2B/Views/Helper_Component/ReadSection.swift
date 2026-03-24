@@ -55,7 +55,7 @@ private struct TodayReadSection: View {
                     
                     VStack(alignment: .leading, spacing: 8.h) {
                         HStack(spacing: 8.w) {
-                            Image("article_icon")
+                            Image(AppIconNames.Asset.articleIcon)
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 30.w, height: 30.h)

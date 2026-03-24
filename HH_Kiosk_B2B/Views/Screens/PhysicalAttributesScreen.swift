@@ -44,7 +44,7 @@ struct PhysicalAttributesScreen: View {
                     Button(action: {
                         showSettings = true
                     }) {
-                        Image(systemName: "gearshape.fill")
+                        Image(systemName: AppIconNames.Symbol.gearshapeFill)
                             .font(.system(size: 40.w))
                             .foregroundColor(.black.opacity(0.5))
                             .padding(.top,60.h)
@@ -53,7 +53,7 @@ struct PhysicalAttributesScreen: View {
                 }
                 
                 // Avatar
-                Image("avatar_image")
+                Image(AppIconNames.Asset.avatarImage)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     // Dynamic height based on keyboard state
@@ -66,7 +66,7 @@ struct PhysicalAttributesScreen: View {
                 
                 // Privacy info
                 HStack {
-                    Image("lock")
+                    Image(AppIconNames.Asset.lock)
                         .resizable()
                         .foregroundColor(Color(AppColors.blue))
                         .frame(width: 45.w,height: 45.w)
@@ -116,7 +116,7 @@ struct PhysicalAttributesScreen: View {
                         showWebView = true
                     }) {
                         HStack {
-                            Image(systemName: "play.circle.fill")
+                            Image(systemName: AppIconNames.Symbol.playCircleFill)
                             Text(PhysicalAttributesScreenStrings.watchQuickDemo)
                                 .font(.system(size: 30.sp,weight: .semibold))
 

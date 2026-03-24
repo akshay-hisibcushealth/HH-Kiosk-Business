@@ -22,7 +22,7 @@ struct FaceScanPromoView: View {
                 Button(action: {
                     isNavigating = true
                 }) {
-                    Image("scan_button")
+                    Image(AppIconNames.Asset.scanButton)
                         .resizable()
                         .scaledToFit()
                         .frame(width: 280.w, height: 80.h)
@@ -33,7 +33,7 @@ struct FaceScanPromoView: View {
                     showWebView = true
                 }) {
                     HStack(spacing: 8) {
-                        Image(systemName: "play.circle.fill")
+                        Image(systemName: AppIconNames.Symbol.playCircleFill)
                             .foregroundColor(Color(AppColors.white))
                             .font(.title3)
                         Text(HomeScreenStrings.Promo.demoButtonTitle)

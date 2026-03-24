@@ -5,7 +5,7 @@ struct SectionHeader: View {
     var body: some View {
         HStack {
             if isLeading {
-                Image("schedule")
+                Image(AppIconNames.Asset.schedule)
                     .resizable()
                     .scaledToFit()
                     .frame(width: 48.w, height: 48.h)
@@ -13,7 +13,7 @@ struct SectionHeader: View {
             }
             buildSemiBoldText(title, 28.sp,color: Color(AppColors.sectionHeaderText))
             if !isLeading {
-                Image(systemName: "chevron.right")
+                Image(systemName: AppIconNames.Symbol.chevronRight)
                     .font(.system(size: 24.sp))
                     .foregroundColor(Color(AppColors.sectionHeaderText))
             }

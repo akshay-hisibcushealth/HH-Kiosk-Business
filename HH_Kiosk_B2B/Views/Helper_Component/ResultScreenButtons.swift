@@ -28,7 +28,7 @@ struct ResultScreenButtons: View {
                     showEmailPopUp = true
                 }) {
                     HStack {
-                        Image("email")
+                        Image(AppIconNames.Asset.email)
                             .resizable()
                             .frame(width: 24.w, height: 24.w)
                         Text(ResultScreenStrings.Actions.emailMyResults)
@@ -46,7 +46,7 @@ struct ResultScreenButtons: View {
                 .cornerRadius(10)
 
                 HStack(spacing: 8) {
-                    Image("secure_email")
+                    Image(AppIconNames.Asset.secureEmail)
                         .resizable()
                         .frame(width: 24.w, height: 24.sp)
                         .foregroundColor(Color(AppColors.black))
@@ -66,7 +66,7 @@ struct ResultScreenButtons: View {
 
                 }) {
                     HStack {
-                        Image(systemName: "printer.fill")
+                        Image(systemName: AppIconNames.Symbol.printerFill)
                             .resizable()
                             .frame(width: 24.w, height: 24.w)
                             .foregroundColor(Color(AppColors.black))

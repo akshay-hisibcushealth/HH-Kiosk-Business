@@ -8,7 +8,7 @@ struct ScreenSaver: View {
     var body: some View {
         ZStack {
             // Background
-            Image("screensaverbg")
+            Image(AppIconNames.Asset.screensaverBackground)
                 .resizable()
                 .scaledToFill()
                 .ignoresSafeArea()

@@ -6,7 +6,7 @@ struct HealthJourneyButton: View {
     var text: String = ScreenSaverStrings.actionButton
     var backgroundColor: Color = Color(red: 0.85, green: 0.23, blue: 0.0)
     var textColor: Color = .white
-    var icon: String = "scan_face"
+    var icon: String = AppIconNames.Asset.scanFace
     
     var body: some View {
             Button(action: {

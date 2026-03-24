@@ -54,7 +54,7 @@ struct EmailResultPopup: View {
             if !isEmailSent {
                 HStack {
                     Spacer()
-                    Image(systemName: "xmark")
+                    Image(systemName: AppIconNames.Symbol.xmark)
                         .padding(.trailing, 32.w)
                         .foregroundColor(Color(AppColors.black))
                 }
@@ -77,7 +77,7 @@ struct EmailResultPopup: View {
 
     @ViewBuilder
     private var emailSentView: some View {
-        Image("email_sent")
+        Image(AppIconNames.Asset.emailSent)
             .resizable()
             .scaledToFit()
             .padding(.top)
@@ -110,7 +110,7 @@ struct EmailResultPopup: View {
 
     @ViewBuilder
     private var emailFormView: some View {
-        Image("email_lock")
+        Image(AppIconNames.Asset.emailLock)
             .resizable()
             .scaledToFit()
             .padding(.top)
@@ -195,7 +195,7 @@ struct EmailResultPopup: View {
             }
         }) {
             HStack {
-                Image(systemName: "envelope.fill")
+                Image(systemName: AppIconNames.Symbol.envelopeFill)
                     .foregroundColor(Color(AppColors.black))
                 Text(ResultScreenStrings.EmailPopup.sendMail)
                     .foregroundColor(Color(AppColors.black))
@@ -212,7 +212,7 @@ struct EmailResultPopup: View {
         // ✅ Show message depending on success/failure
         if showEmailError {
             HStack(spacing: 8.w) {
-                Image(systemName: "exclamationmark.triangle.fill")
+                Image(systemName: AppIconNames.Symbol.exclamationmarkTriangleFill)
                     .foregroundColor(Color(AppColors.error))
                 Text(ResultScreenStrings.EmailPopup.emailFailure)
                     .foregroundColor(Color(AppColors.error))
@@ -222,7 +222,7 @@ struct EmailResultPopup: View {
             .padding(.top, 8.h)
         } else {
             HStack(spacing: 8.w) {
-                Image(systemName: "lock.shield")
+                Image(systemName: AppIconNames.Symbol.lockShield)
                     .foregroundColor(Color(AppColors.blue))
                 Text(ResultScreenStrings.EmailPopup.secureAndPrivate)
                     .foregroundColor(Color(AppColors.blue))

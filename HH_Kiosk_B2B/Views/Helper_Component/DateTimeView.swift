@@ -8,7 +8,7 @@ struct DateTimeView: View {
         VStack(alignment: .trailing) {
             // First row: icon + time
             HStack(spacing: 8.w) {
-                Image(systemName: isDayTime ? "sun.max.fill" : "moon.fill")
+                Image(systemName: isDayTime ? AppIconNames.Symbol.sunMaxFill : AppIconNames.Symbol.moonFill)
                     .font(.system(size: 32.sp))
                     .foregroundColor(Color(AppColors.secondary))
 

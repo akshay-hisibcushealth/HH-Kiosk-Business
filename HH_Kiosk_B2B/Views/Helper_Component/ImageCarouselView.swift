@@ -92,7 +92,7 @@ private struct CarouselImageView: View {
                         .scaledToFill()
                 }
             } else {
-                Image(systemName: "photo")
+                Image(systemName: AppIconNames.Symbol.photo)
                     .resizable()
                     .scaledToFit()
                     .frame(width: width, height: height)

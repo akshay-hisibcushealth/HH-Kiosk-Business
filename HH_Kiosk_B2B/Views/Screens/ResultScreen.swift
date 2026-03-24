@@ -126,7 +126,7 @@ public struct ResultScreen: View {
 private struct HeroHeader: View {
     var body: some View {
         ZStack(alignment: .leading) {
-            Image("result_screen_top_image")
+            Image(AppIconNames.Asset.resultScreenTopImage)
                 .resizable()
                 .scaledToFill()
                 .frame(height: 460.h)
@@ -185,7 +185,7 @@ private struct InfoFooter: View {
                 .frame(minHeight: 105.h, maxHeight: 105.h)
             
             HStack(spacing: 12.w) {
-                Image(systemName: "info.circle")
+                Image(systemName: AppIconNames.Symbol.infoCircle)
                     .resizable()
                     .frame(width: 24, height: 24)
                     .foregroundColor(Color(AppColors.resultAlertBorder))
@@ -212,7 +212,7 @@ private struct BottomBar: View {
                     .frame(height: 100.h)
                     .frame(maxWidth: .infinity)
                     .ignoresSafeArea(edges: .bottom)
-                Image("result_screen_bottom_image")
+                Image(AppIconNames.Asset.resultScreenBottomImage)
                     .resizable()
                     .scaledToFill()
                     .frame(height: 600.h)
@@ -236,7 +236,7 @@ private struct BottomBar: View {
                     .padding(.bottom, 24.h)
                     .padding(.horizontal, 150.w)
                     
-                    Image("bottom_info_box")
+                    Image(AppIconNames.Asset.bottomInfoBox)
                         .resizable()
                         .scaledToFit()
                         .frame(height: 400.h)
@@ -259,21 +259,21 @@ private struct Footer: View {
             
             HStack(spacing: 48.w) {
                 Link(destination: appStoreURL) {
-                    Image("app_store_button")
+                    Image(AppIconNames.Asset.appStoreButton)
                         .resizable()
                         .scaledToFit()
                         .frame(width: 180.w)
                 }
                 
                 Link(destination: playStoreURL) {
-                    Image("play_store_button")
+                    Image(AppIconNames.Asset.playStoreButton)
                         .resizable()
                         .scaledToFit()
                         .frame(width: 180.w)
                 }
             }
             .padding(.bottom, 24.h)
-            Image("powered_by_hh_logo")
+            Image(AppIconNames.Asset.poweredByHHLogo)
                 .resizable()
                 .scaledToFit()
                 .frame(width: 220.w, height: 140.h)

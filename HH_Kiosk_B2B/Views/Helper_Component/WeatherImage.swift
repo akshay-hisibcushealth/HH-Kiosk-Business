@@ -1,15 +1,15 @@
 func weatherIconName(for condition: String) -> String {
     switch condition.lowercased() {
     case "clear":
-        return "sun"          // e.g. sunny.png
+        return AppIconNames.Asset.sun
     case "clouds":
-        return "clouds"         // cloudy.png
+        return AppIconNames.Asset.clouds
     case "rain":
-        return "rain"           // rain.png
+        return AppIconNames.Asset.rain
     case "snow":
-        return "snow"           // snow.png
+        return AppIconNames.Asset.snow
     default:
-        return "sun"        // fallback.png
+        return AppIconNames.Asset.sun
     }
 }
 

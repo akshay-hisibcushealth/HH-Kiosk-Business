@@ -9,7 +9,7 @@ struct PrivacyMessageView: View {
             .padding(.top, 32)
 
             HStack(alignment: .center, spacing: 16) {
-                Image(systemName: "info.circle")
+                Image(systemName: AppIconNames.Symbol.infoCircle)
                     .foregroundColor(Color(AppColors.supportLinkText))
                     .font(.system(size: 24))
                     .alignmentGuide(.firstTextBaseline) { d in d[VerticalAlignment.top] }

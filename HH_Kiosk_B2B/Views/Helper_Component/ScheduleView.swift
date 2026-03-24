@@ -127,7 +127,7 @@ struct ScheduleView: View {
                     
                     if todaysSchedules.isEmpty {
                         VStack{
-                            Image("no_schedule")
+                            Image(AppIconNames.Asset.noSchedule)
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 56.w, height: 56.h)

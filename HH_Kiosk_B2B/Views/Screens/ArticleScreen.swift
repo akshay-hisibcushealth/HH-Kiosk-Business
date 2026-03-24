@@ -42,7 +42,7 @@ struct ArticleScreen: View {
                             isNavigatingToScan = true
                         }
                     ){
-                        Image("article_face_scan")
+                        Image(AppIconNames.Asset.articleFaceScan)
                             .resizable()
                             .scaledToFit()
                             .frame(maxWidth: .infinity)
