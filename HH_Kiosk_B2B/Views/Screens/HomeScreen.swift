@@ -109,13 +109,13 @@ struct HomeScreen: View {
         
         var body: some View {
             if viewModel.isLoading {
-                ProgressView("Loading Weather...")
+                ProgressView(HomeScreenStrings.Weather.loading)
                     .progressViewStyle(CircularProgressViewStyle())
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .top)
             } else if let error = viewModel.errorMessage {
                 VStack {
-                    Text("Error:")
+                    Text(HomeScreenStrings.Weather.errorTitle)
                     Text(error).foregroundColor(Color(AppColors.error))
                 }
                 .frame(maxWidth: .infinity, alignment: .top)
@@ -131,9 +131,9 @@ private struct WeatherContentView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12.h) {
             HStack{
-                buildSemiBoldText("Welcome to", 36.sp)
-                buildSemiBoldText("[ABC Company]", 36.sp,color: Color(AppColors.companyAccentText))
-                buildSemiBoldText("Kiosk", 36.sp)
+                buildSemiBoldText(HomeScreenStrings.Weather.welcomePrefix, 36.sp)
+                buildSemiBoldText(HomeScreenStrings.Weather.companyName, 36.sp,color: Color(AppColors.companyAccentText))
+                buildSemiBoldText(HomeScreenStrings.Weather.kioskSuffix, 36.sp)
             }
             .padding(.leading,40.w)
             .padding(.top,16.w)
@@ -222,7 +222,7 @@ private struct LoadingLocationView: View {
         VStack {
             ProgressView()
                 .progressViewStyle(CircularProgressViewStyle())
-            Text("Fetching location...")
+            Text(HomeScreenStrings.Weather.fetchingLocation)
                 .foregroundColor(Color(AppColors.gray))
         }
         .frame(maxWidth: .infinity, alignment: .top)

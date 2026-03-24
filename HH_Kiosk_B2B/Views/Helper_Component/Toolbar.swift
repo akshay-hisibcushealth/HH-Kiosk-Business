@@ -14,7 +14,7 @@ struct Toolbar: View {
             
             Spacer()
             // White bordered box with text
-            Text("PUT YOUR COMPANY\nLOGO HERE")
+            Text(SharedViewStrings.Toolbar.companyLogoPlaceholder)
                 .font(.system(size: 24.sp, weight: .semibold))
                 .foregroundColor(Color(AppColors.white))
                 .multilineTextAlignment(.center)
@@ -51,7 +51,7 @@ struct ResultToolbar: View {
                     .frame(width: 200.w, height: 90.h)
                     .padding()
                 
-                buildMediumText("Partner logo\ngoes  here", 24.sp, color: Color(AppColors.toolbarPlaceholderText))
+                buildMediumText(SharedViewStrings.Toolbar.resultPartnerLogoPlaceholder, 24.sp, color: Color(AppColors.toolbarPlaceholderText))
                     .padding()
                 
             }

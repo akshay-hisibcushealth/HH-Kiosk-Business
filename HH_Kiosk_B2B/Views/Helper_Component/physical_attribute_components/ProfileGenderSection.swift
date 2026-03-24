@@ -8,7 +8,7 @@ struct ProfileGenderSection: View {
 
     var body: some View {
         VStack(alignment: .leading) {
-            Text("Gender (at birth)")
+            Text(PhysicalAttributesScreenStrings.Form.genderLabel)
                 .font(.body)
                 .fontWeight(.bold)
                 .foregroundColor(Color(AppColors.black))
@@ -26,7 +26,7 @@ struct ProfileGenderSection: View {
                             Text(gender)
                                 .foregroundColor(Color(AppColors.black))
                         } else {
-                            Text("Select Gender")
+                            Text(PhysicalAttributesScreenStrings.Form.genderPlaceholder)
                                 .foregroundColor(Color(AppColors.gray))
                         }
                         Spacer()
@@ -42,7 +42,7 @@ struct ProfileGenderSection: View {
                 }
                 .popover(isPresented: $showPicker) {
                     VStack {
-                        Text("Select Gender")
+                        Text(PhysicalAttributesScreenStrings.Form.genderPlaceholder)
                             .font(.body)
                             .fontWeight(.medium)
                             .foregroundColor(Color(AppColors.black))
@@ -51,7 +51,7 @@ struct ProfileGenderSection: View {
 
                         ScrollView {
                             LazyVStack(spacing: 0) {
-                                ForEach(["Male", "Female"], id: \.self) { gender in
+                                ForEach(PhysicalAttributesScreenStrings.Form.genderOptions, id: \.self) { gender in
                                     Text(gender)
                                         .font(.body)
                                         .foregroundColor(Color(AppColors.textPrimary))

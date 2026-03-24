@@ -3,7 +3,7 @@ import SwiftUI
 struct HealthJourneyButton: View {
     @EnvironmentObject var appState: AppState
     // MARK: - Parameters with default values
-    var text: String = "Start Your Health Journey."
+    var text: String = ScreenSaverStrings.actionButton
     var backgroundColor: Color = Color(red: 0.85, green: 0.23, blue: 0.0)
     var textColor: Color = .white
     var icon: String = "scan_face"

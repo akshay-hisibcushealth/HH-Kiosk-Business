@@ -18,11 +18,11 @@ struct ProfileEmailSection: View {
     var body: some View {
         VStack(alignment: .leading) {
 
-            Text("Email")
+            Text(PhysicalAttributesScreenStrings.Form.emailLabel)
                 .font(.body)
                 .fontWeight(.bold)
 
-            TextField("Enter email", text: $localEmail)
+            TextField(PhysicalAttributesScreenStrings.Form.emailPlaceholder, text: $localEmail)
                 .keyboardType(.emailAddress)
                 .textContentType(.emailAddress)
                 .submitLabel(.done)
@@ -52,7 +52,7 @@ struct ProfileEmailSection: View {
                 }
 
             if showError {
-                Text("Enter a valid email address")
+                Text(PhysicalAttributesScreenStrings.Form.emailInlineError)
                     .font(.caption)
                     .foregroundColor(.red)
             }

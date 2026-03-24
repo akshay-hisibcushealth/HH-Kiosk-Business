@@ -21,19 +21,13 @@ class ScheduleViewModel: ObservableObject {
         let today = Date()
         
         // Example event pool (besides Daily Stand-Up)
-        let eventPool: [(String, String, Color)] = [
-            ("Quarterly Town Hall Meeting", "To discuss about the upcoming project & organization of units", Color(AppColors.scheduleEventPeach)),
-            ("Q3 Wellness Challenge begins", "To discuss about the upcoming project & organization of units", Color(AppColors.scheduleEventBlue)),
-            ("Diversity, Equity & Inclusion (DEI) Awareness Days", "Panels, training, and celebration of heritage months or cultural milestones.", Color(AppColors.scheduleEventPeach)),
-            ("Wellness Week / Health Fair", "Activities focused on physical and mental well-being.", Color(AppColors.scheduleEventBlue)),
-            ("Hackathons / Innovation Days", "Creative sprints where teams develop solutions, tools, or prototypes.", Color(AppColors.scheduleEventPeach)),
-            ("Team-Building Retreat", "A full-day or overnight program to boost collaboration and morale.", Color(AppColors.scheduleEventBlue)),
-            ("Company Anniversary", "Celebration of the organization's founding and journey.", Color(AppColors.scheduleEventPeach)),
-            ("Open Enrollment / Benefits Fair", "Informational sessions on employee benefits, insurance, and perks.", Color(AppColors.scheduleEventBlue)),
-            ("Community Service / Volunteer Day", "Team-led initiatives supporting local organizations.", Color(AppColors.scheduleEventPeach)),
-            ("Mid-Year Review", "Alignment on key metrics, shifting priorities, and future plans.", Color(AppColors.scheduleEventBlue)),
-            ("New Employee Welcome Sessions", "Monthly or quarterly onboarding experiences with leadership meet-and-greets.", Color(AppColors.scheduleEventPeach))
+        let palette = [
+            Color(AppColors.scheduleEventPeach),
+            Color(AppColors.scheduleEventBlue)
         ]
+        let eventPool = HomeScreenStrings.Schedule.eventPool.enumerated().map { index, event in
+            (event.title, event.description, palette[index % palette.count])
+        }
         
         for offset in 0..<5 {
             guard let date = calendar.date(byAdding: .day, value: offset, to: today) else { continue }
@@ -53,8 +47,8 @@ class ScheduleViewModel: ObservableObject {
             
             events.append(
                 Schedule(
-                    title: "Daily Stand-Up",
-                    description: "A stand-up meeting is a meeting in which attendees typically participate while standing.",
+                    title: HomeScreenStrings.Schedule.dailyStandupTitle,
+                    description: HomeScreenStrings.Schedule.dailyStandupDescription,
                     startTime: dailyStart,
                     endTime: dailyEnd,
                     color: Color(AppColors.scheduleStandupBackground)
@@ -89,7 +83,7 @@ struct ScheduleView: View {
         VStack(alignment: .leading) {
             
             // Title
-            SectionHeader(title: "Today's Schedule",isLeading: true).padding(.top,12.h)
+            SectionHeader(title: HomeScreenStrings.Schedule.sectionTitle,isLeading: true).padding(.top,12.h)
             // Horizontal Days (5 days from today)
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHGrid(rows: [GridItem(.flexible())], spacing: 0) {
@@ -137,7 +131,7 @@ struct ScheduleView: View {
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 56.w, height: 56.h)
-                            Text("No Schedule")
+                            Text(HomeScreenStrings.Schedule.noSchedule)
                                 .font(.system(size: 20.sp,weight: .medium))
                                 .foregroundColor(Color(AppColors.scheduleEmptyText))
                                 .padding(.top,16.h)

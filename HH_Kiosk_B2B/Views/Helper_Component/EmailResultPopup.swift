@@ -83,12 +83,12 @@ struct EmailResultPopup: View {
             .padding(.top)
             .frame(width: 120.w, height: 120.w)
 
-        Text("Check your inbox!")
+        Text(ResultScreenStrings.EmailPopup.inboxTitle)
             .font(.title)
             .bold()
             .padding(.bottom, 24)
 
-        Text("Your result has been sent to your email!\nTell a colleague about our Kiosk!")
+        Text(ResultScreenStrings.EmailPopup.inboxMessage)
             .font(.headline)
             .multilineTextAlignment(.center)
             .padding(.bottom, 12)
@@ -97,7 +97,7 @@ struct EmailResultPopup: View {
             navigateToHome()
             dismiss()
         }) {
-            Text("Return to Home Screen")
+            Text(ResultScreenStrings.EmailPopup.returnHome)
                 .foregroundColor(Color(AppColors.black))
                 .fontWeight(.bold)
                 .padding()
@@ -116,18 +116,18 @@ struct EmailResultPopup: View {
             .padding(.top)
             .frame(width: 50.w, height: 60.h)
 
-        Text("Send result to your mail")
+        Text(ResultScreenStrings.EmailPopup.title)
             .font(.headline)
             .bold()
             .padding(.bottom, 12)
 
         // Email field
         VStack(alignment: .leading) {
-            Text("Email address")
+            Text(ResultScreenStrings.EmailPopup.emailAddress)
                 .font(.headline)
                 .padding(.horizontal)
                 .foregroundColor(Color(AppColors.black))
-            TextField("Email", text: $email)
+            TextField(ResultScreenStrings.EmailPopup.emailPlaceholder, text: $email)
                 .keyboardType(.emailAddress)
                 .autocapitalization(.none)
                 .padding(.vertical, 24.h)
@@ -139,7 +139,7 @@ struct EmailResultPopup: View {
 
         // PIN field
                     VStack(alignment: .leading) {
-                        Text("Create a 4-digit secret key")
+                        Text(ResultScreenStrings.EmailPopup.pinTitle)
                             .font(.headline)
                             .padding(.horizontal)
                             .foregroundColor(Color(AppColors.black))
@@ -158,7 +158,7 @@ struct EmailResultPopup: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
 
                             // The actual input field
-                            TextField("* * * *", text: $pin)
+                            TextField(ResultScreenStrings.EmailPopup.pinPlaceholder, text: $pin)
                                 .foregroundColor(Color(AppColors.clear))
                                 
                                 .padding()
@@ -172,7 +172,7 @@ struct EmailResultPopup: View {
                         // ========================================================================
                         .padding(.horizontal)
 
-                        Text("This will be used to view your result ")
+                        Text(ResultScreenStrings.EmailPopup.pinHelp)
                             .font(.caption)
                             .italic()
                             .padding(.horizontal)
@@ -197,7 +197,7 @@ struct EmailResultPopup: View {
             HStack {
                 Image(systemName: "envelope.fill")
                     .foregroundColor(Color(AppColors.black))
-                Text("Send mail")
+                Text(ResultScreenStrings.EmailPopup.sendMail)
                     .foregroundColor(Color(AppColors.black))
                     .fontWeight(.bold)
             }
@@ -214,7 +214,7 @@ struct EmailResultPopup: View {
             HStack(spacing: 8.w) {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .foregroundColor(Color(AppColors.error))
-                Text("Failed to send email. Please try again.")
+                Text(ResultScreenStrings.EmailPopup.emailFailure)
                     .foregroundColor(Color(AppColors.error))
                     .font(.body)
                     .multilineTextAlignment(.center)
@@ -224,7 +224,7 @@ struct EmailResultPopup: View {
             HStack(spacing: 8.w) {
                 Image(systemName: "lock.shield")
                     .foregroundColor(Color(AppColors.blue))
-                Text("Secure and Private")
+                Text(ResultScreenStrings.EmailPopup.secureAndPrivate)
                     .foregroundColor(Color(AppColors.blue))
                     .font(.footnote)
             }

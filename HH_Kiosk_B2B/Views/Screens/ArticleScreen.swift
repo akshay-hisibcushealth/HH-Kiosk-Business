@@ -23,20 +23,14 @@ struct ArticleScreen: View {
                         } placeholder: {
                             ZStack {
                                 Color(AppColors.gray).opacity(0.2)
-                                ProgressView("Loading Image...")
+                                ProgressView(ArticleScreenStrings.imageLoading)
                             }
                             .frame(maxWidth: .infinity, minHeight: imageHeight, maxHeight: imageHeight)
                             .clipped()
                         }
                         .cornerRadius(10)
                         
-                        Text("""
-                    If you are feeling stiff and uncomfortable while working at a sedentary job, there are exercises you can do without even leaving your desk that will leave you feeling refreshed and healthier.
-                    
-                    Work-related disorders aren’t just limited to heavy manufacturing or construction. They can occur in all types of industries and work environments, including office spaces. Research shows that repetitive motion, poor posture, and staying in the same position can cause or worsen musculoskeletal disorders.
-                    
-                    Staying in one position while doing repetitive motions is typical of a desk job. An analysis of job industry trends over the past 50 years revealed that at least 8 in 10 American workers are desk potatoes. The habits we build at our desk, especially while sitting, can contribute to discomfort and health issues, including:
-                    """)
+                        Text(ArticleScreenStrings.body)
                         .font(.title3)
                         .foregroundColor(Color(AppColors.textPrimary))
                     }
@@ -66,4 +60,3 @@ struct ArticleScreen: View {
         }
     }
 }
-

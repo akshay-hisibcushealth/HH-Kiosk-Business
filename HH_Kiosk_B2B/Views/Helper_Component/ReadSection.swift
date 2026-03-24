@@ -7,11 +7,11 @@ struct ReadSection: View {
         ScrollView {
             VStack(alignment: .leading) {
                 if viewModel.isLoading {
-                    ProgressView("Loading...")
+                    ProgressView(HomeScreenStrings.ReadSection.loading)
                         .frame(maxWidth: .infinity, alignment: .center)
                         .padding()
                 } else if let error = viewModel.errorMessage {
-                    Text("Failed to load: \(error)")
+                    Text("\(HomeScreenStrings.ReadSection.failedToLoadPrefix) \(error)")
                         .foregroundColor(Color(AppColors.error))
                         .padding()
                 } else {
@@ -37,7 +37,7 @@ private struct TodayReadSection: View {
     
     var body: some View {
         VStack {
-            SectionHeader(title: "Today's Read", isLeading: false)
+            SectionHeader(title: HomeScreenStrings.ReadSection.todaysReadTitle, isLeading: false)
             NavigationLink(destination: ArticleScreen(imageUrl: today.image)) {
                 HStack {
                     CachedAsyncImage(
@@ -60,7 +60,7 @@ private struct TodayReadSection: View {
                                 .scaledToFit()
                                 .frame(width: 30.w, height: 30.h)
                             
-                            Text("Article")
+                            Text(HomeScreenStrings.ReadSection.articleBadge)
                                 .font(.system(size: 25.sp, weight: .medium))
                                 .foregroundColor(Color(AppColors.warningText))
                         }
@@ -89,7 +89,7 @@ private struct HRDeskSection: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            SectionHeader(title: "From HR Desk", isLeading: false)
+            SectionHeader(title: HomeScreenStrings.ReadSection.hrDeskTitle, isLeading: false)
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 24.w) {
                     ForEach(items) { item in

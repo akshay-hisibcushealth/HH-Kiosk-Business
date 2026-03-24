@@ -18,7 +18,7 @@ struct ProfileHeightSection: View {
 
     var body: some View {
         VStack(alignment: .leading) {
-            Text("Height (ft/in)")
+            Text(PhysicalAttributesScreenStrings.Form.heightLabel)
                 .font(.body)
                 .fontWeight(.bold)
 
@@ -40,10 +40,10 @@ struct ProfileHeightSection: View {
             } label: {
                 HStack {
                     if let feet = committedFeet, let inches = committedInches {
-                        Text("\(feet) ft \(inches) in")
+                        Text("\(feet) \(PhysicalAttributesScreenStrings.Form.feetUnit) \(inches) \(PhysicalAttributesScreenStrings.Form.inchesUnit)")
                             .foregroundColor(Color(AppColors.black))
                     } else {
-                        Text("Select height")
+                        Text(PhysicalAttributesScreenStrings.Form.heightPlaceholder)
                             .foregroundColor(Color(AppColors.gray))
                     }
                     Spacer()
@@ -58,7 +58,7 @@ struct ProfileHeightSection: View {
             }
             .popover(isPresented: $showPicker) {
                 VStack {
-                    Text("Select Height")
+                    Text(PhysicalAttributesScreenStrings.Form.heightSheetTitle)
                         .font(.headline)
                         .padding(.top, 12)
 
@@ -66,17 +66,17 @@ struct ProfileHeightSection: View {
                         WheelSelector(
                             items: feetRange,
                             selection: $tempFeet,
-                            label: "ft"
+                            label: PhysicalAttributesScreenStrings.Form.feetUnit
                         )
 
                         WheelSelector(
                             items: inchRange,
                             selection: $tempInches,
-                            label: "in"
+                            label: PhysicalAttributesScreenStrings.Form.inchesUnit
                         )
                     }
 
-                    Button("Done") {
+                    Button(PhysicalAttributesScreenStrings.Form.doneButton) {
                         // ✅ COMMIT ONLY HERE
                         committedFeet = tempFeet
                         committedInches = tempInches

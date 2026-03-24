@@ -14,7 +14,7 @@ struct ScreenSaver: View {
                 .ignoresSafeArea()
             
             if viewModel.isLoading {
-                ProgressView("Loading...")
+                ProgressView(ScreenSaverStrings.loading)
                     .foregroundColor(Color(AppColors.white))
                     .font(.system(size: 28.sp))
             } else {
@@ -29,10 +29,10 @@ struct ScreenSaver: View {
                     
                     // Title text
                     VStack(spacing: 24.h) {
-                        buildSemiBoldText("Welcome to the Hibiscus Wellness Kiosk!",40.sp,color: Color(AppColors.white))
+                        buildSemiBoldText(ScreenSaverStrings.title,40.sp,color: Color(AppColors.white))
                       
                         
-                        Text("Take a few minutes to check in on your health.")
+                        Text(ScreenSaverStrings.subtitle)
                             .foregroundColor(Color(AppColors.white))
                             .font(.system(size: 34.sp, weight: .regular))
                             .multilineTextAlignment(.center)
@@ -48,7 +48,7 @@ struct ScreenSaver: View {
                     }
                     
                     // Button
-                    HealthJourneyButton()
+                    HealthJourneyButton(text: ScreenSaverStrings.actionButton)
                         .padding(.vertical, 100.h)
                     
                     // Dynamic QR code section
@@ -66,7 +66,7 @@ struct ScreenSaver: View {
                             }
                             .padding(.trailing, 12.w)
                             .padding(.bottom, 12.w)
-                            buildBoldText("Scan to try it on your smartphone!",30.sp,color: Color(AppColors.white))
+                            buildBoldText(ScreenSaverStrings.qrPrompt,30.sp,color: Color(AppColors.white))
                                 .padding(.top, 12.h)
                             
                         }

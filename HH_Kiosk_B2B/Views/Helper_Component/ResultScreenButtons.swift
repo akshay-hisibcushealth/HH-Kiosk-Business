@@ -12,7 +12,7 @@ struct ResultScreenButtons: View {
             Button(action: {
                 navigateToHome()
             }) {
-                Text("Close result")
+                Text(ResultScreenStrings.Actions.closeResult)
                     .font(.system(size: 20.sp))
                     .fontWeight(.medium)
                     .foregroundColor(Color(AppColors.black))
@@ -31,7 +31,7 @@ struct ResultScreenButtons: View {
                         Image("email")
                             .resizable()
                             .frame(width: 24.w, height: 24.w)
-                        Text("Email my results")
+                        Text(ResultScreenStrings.Actions.emailMyResults)
                             .font(.system(size: 20.sp))
                             .fontWeight(.medium)
                             .foregroundColor(Color(AppColors.black))
@@ -50,7 +50,7 @@ struct ResultScreenButtons: View {
                         .resizable()
                         .frame(width: 24.w, height: 24.sp)
                         .foregroundColor(Color(AppColors.black))
-                    Text("Secure and Private")
+                    Text(ResultScreenStrings.Actions.secureAndPrivate)
                         .foregroundColor(Color(AppColors.blue))
                         .font(.system(size: 18.sp))
                 }
@@ -71,7 +71,7 @@ struct ResultScreenButtons: View {
                             .frame(width: 24.w, height: 24.w)
                             .foregroundColor(Color(AppColors.black))
 
-                        Text("Print")
+                        Text(ResultScreenStrings.Actions.print)
                             .font(.system(size: 20.sp))
                             .fontWeight(.medium)
                             .foregroundColor(Color(AppColors.black))
@@ -119,4 +119,3 @@ func navigateToHome(animated: Bool = true) {
     window.rootViewController = hostingController
     window.makeKeyAndVisible()
 }
-

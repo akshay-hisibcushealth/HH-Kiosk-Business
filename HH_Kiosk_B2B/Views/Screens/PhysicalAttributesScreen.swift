@@ -34,9 +34,9 @@ struct PhysicalAttributesScreen: View {
                 // Header
                 HStack {
                     VStack(alignment: .leading) {
-                        buildSemiBoldText("Physical Attributes", 44.sp) .padding(.top,60.h)
+                        buildSemiBoldText(PhysicalAttributesScreenStrings.title, 44.sp) .padding(.top,60.h)
                      
-                        Text("For best accuracy, kindly complete the form below.")
+                        Text(PhysicalAttributesScreenStrings.subtitle)
                             .font(.system(size: 24.sp, weight: .regular))
                             .foregroundColor(Color(AppColors.physicalAttributeText))
                     }
@@ -70,7 +70,7 @@ struct PhysicalAttributesScreen: View {
                         .resizable()
                         .foregroundColor(Color(AppColors.blue))
                         .frame(width: 45.w,height: 45.w)
-                    Text("We prioritize your privacy. Your information will NOT be stored during this process and will only be used for calculations.")
+                    Text(PhysicalAttributesScreenStrings.privacyMessage)
                         .font(.system(size: 24.sp, weight: .regular))
                         .italic()
                         .foregroundColor(Color(AppColors.supportLinkText))
@@ -117,7 +117,7 @@ struct PhysicalAttributesScreen: View {
                     }) {
                         HStack {
                             Image(systemName: "play.circle.fill")
-                            Text("Watch Quick Demo")
+                            Text(PhysicalAttributesScreenStrings.watchQuickDemo)
                                 .font(.system(size: 30.sp,weight: .semibold))
 
                         }
@@ -139,7 +139,7 @@ struct PhysicalAttributesScreen: View {
                                 .padding()
                                 .frame(maxWidth: .infinity)
                         } else {
-                            Text("Proceed to Scan")
+                            Text(PhysicalAttributesScreenStrings.proceedToScan)
                                 .font(.system(size: 30.sp,weight: .semibold))
                                 .foregroundColor(Color(AppColors.black))
                                 .padding()
@@ -167,7 +167,7 @@ struct PhysicalAttributesScreen: View {
             }
         }
         .sheet(isPresented: $showWebView) {
-            WebViewSheetView(url: URL(string: "https://drive.google.com/file/d/1dPJs1A6aptEh3yTCVxR5BUlRfyLWa3rL/view?usp=sharing")!)
+            WebViewSheetView(url: URL(string: PhysicalAttributesScreenStrings.demoURL)!)
         }
         .sheet(isPresented: $showSettings) {
             SettingsView(
@@ -182,7 +182,7 @@ struct PhysicalAttributesScreen: View {
         .alert(isPresented: $showValidationAlert) {
             Alert(
                 title: Text(validationMessage),
-                dismissButton: .default(Text("OK"))
+                dismissButton: .default(Text(PhysicalAttributesScreenStrings.alertDismiss))
             )
         }
     }
@@ -191,28 +191,28 @@ struct PhysicalAttributesScreen: View {
 
         switch true {
         case email == nil || email!.isEmpty:
-            validationMessage = "Please enter your email."
+            validationMessage = PhysicalAttributesScreenStrings.Validation.missingEmail
 
         case !isValidEmail(email!):
-            validationMessage = "Please enter a valid email."
+            validationMessage = PhysicalAttributesScreenStrings.Validation.invalidEmail
 
         case height == nil:
-            validationMessage = "Please select your height."
+            validationMessage = PhysicalAttributesScreenStrings.Validation.missingHeight
 
         case weight == nil:
-            validationMessage = "Please select your weight."
+            validationMessage = PhysicalAttributesScreenStrings.Validation.missingWeight
 
         case weight! < 34:
-            validationMessage = "Weight cannot be less than 75 lbs."
+            validationMessage = PhysicalAttributesScreenStrings.Validation.invalidWeight
 
         case age == nil:
-            validationMessage = "Please enter your age."
+            validationMessage = PhysicalAttributesScreenStrings.Validation.missingAge
 
         case age! < 13:
-            validationMessage = "Age cannot be less than 13 years."
+            validationMessage = PhysicalAttributesScreenStrings.Validation.invalidAge
 
         case gender.isEmpty:
-            validationMessage = "Please select your gender."
+            validationMessage = PhysicalAttributesScreenStrings.Validation.missingGender
 
         default:
             return true

@@ -11,12 +11,12 @@ struct ProfileAgeSection: View {
 
     var body: some View {
         VStack(alignment: .leading) {
-            Text("Age (years)")
+            Text(PhysicalAttributesScreenStrings.Form.ageLabel)
                 .font(.body)
                 .fontWeight(.bold)
                 .foregroundColor(Color(AppColors.black))
 
-            TextField("Select age", text: $ageInput)
+            TextField(PhysicalAttributesScreenStrings.Form.agePlaceholder, text: $ageInput)
                 .focused($isInputActive) // 🔹 2. Bind the text field to the focus state
                 .textFieldStyle(.plain)
                 .foregroundColor(Color(AppColors.black))

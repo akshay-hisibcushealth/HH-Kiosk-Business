@@ -115,7 +115,7 @@ public struct ResultScreen: View {
         // We render the raw content (without the ScrollView) to ensure we get the full length
         let pdfView = mainContentView.frame(width: 595) // Fix width to A4
         
-        if let url = PDFGenerator.generatePDF(view: pdfView, fileName: "Hibiscus_Health_Report") {
+        if let url = PDFGenerator.generatePDF(view: pdfView, fileName: ResultScreenStrings.pdfFileName) {
             self.pdfURL = url
             self.isSharing = true
         }
@@ -136,11 +136,11 @@ private struct HeroHeader: View {
             VStack(alignment: .leading, spacing: 0) {
                 ResultToolbar()
                 Spacer(minLength: 20)
-                buildSemiBoldText("Your Face Scan Results", 50.sp, color: Color(AppColors.primary))
+                buildSemiBoldText(ResultScreenStrings.title, 50.sp, color: Color(AppColors.primary))
                     .font(.system(size: 34, weight: .bold))
                     .foregroundColor(Color(AppColors.white))
                     .padding(.leading, 50.w)
-                Text("This sample report features your personal face-scan results and demonstrates how we can design a customized, population-level version aligned with your wellness strategy — giving individuals insight and delivering actionable value for your organization.")
+                Text(ResultScreenStrings.heroDescription)
                     .foregroundColor(Color(AppColors.bodyTextMuted))
                     .font(.system(size: 24.sp, weight: .light))
                     .italic()
@@ -162,7 +162,7 @@ private struct TitleBlock: View {
                 .frame(height: 120.h)
             
             buildMediumText(
-                "At Hibiscus, we believe that great technology is only meaningful when paired with thoughtful human support. Our facial-scan insights are designed to spark action and our programs ensure each member is guided, not left on their own, to achieve lasting health goals.",
+                ResultScreenStrings.titleBlockDescription,
                 18.sp,
                 color: Color(AppColors.primary)
             )
@@ -191,7 +191,7 @@ private struct InfoFooter: View {
                     .foregroundColor(Color(AppColors.resultAlertBorder))
                     .padding(.leading, 12.w)
                 
-                Text("Hibiscus Health is intended to improve your awareness of general wellness. Hibiscus Health does not diagnose, treat, mitigate or prevent any disease, symptom, disorder or abnormal physical state. Consult with a healthcare professional or emergency services if you believe you may have a medical issue.")
+                Text(ResultScreenStrings.infoFooter)
                     .font(.system(size: 18.sp))
                     .foregroundColor(Color(AppColors.resultAlertText))
                     .italic()
@@ -221,12 +221,12 @@ private struct BottomBar: View {
                     )
 
                 VStack {
-                    buildMediumText("Next Steps", 44.sp, color: Color(AppColors.white))
+                    buildMediumText(ResultScreenStrings.nextStepsTitle, 44.sp, color: Color(AppColors.white))
                     VStack(alignment: .leading, spacing: 8) {
                         (
-                            Text("We know every organization is unique. Whether you’re an employer, health plan, or solution partner, Hibiscus can integrate seamlessly into your existing ecosystem — or provide full end-to-end support from ")
-                            + Text("Face Scan → Care Guide → Clinician").fontWeight(.bold)
-                            + Text(" for maximum impact. Choose the components that best complement your current resources.")
+                            Text(ResultScreenStrings.nextStepsPrefix)
+                            + Text(ResultScreenStrings.nextStepsEmphasis).fontWeight(.bold)
+                            + Text(ResultScreenStrings.nextStepsSuffix)
                         )
                         .font(.system(size: 19.sp))
                         .foregroundColor(Color(AppColors.white))
@@ -249,12 +249,12 @@ private struct BottomBar: View {
 }
 
 private struct Footer: View {
-    private let appStoreURL = URL(string: "https://apps.apple.com/tn/app/hibiscus-health/id6478411080")!
-    private let playStoreURL = URL(string: "https://play.google.com/store/apps/details?id=com.nutritionApp.hibiscus_health&hl")!
+    private let appStoreURL = URL(string: ResultScreenStrings.appStoreURL)!
+    private let playStoreURL = URL(string: ResultScreenStrings.playStoreURL)!
     
     var body: some View {
         VStack(spacing: 32.h) {
-                buildMediumText("Find even more resources\ntips & insights on the app,", 44.sp, color: Color(AppColors.white), alignment: .center)
+                buildMediumText(ResultScreenStrings.footerResources, 44.sp, color: Color(AppColors.white), alignment: .center)
             
             
             HStack(spacing: 48.w) {
@@ -279,7 +279,7 @@ private struct Footer: View {
                 .frame(width: 220.w, height: 140.h)
                 .padding(.vertical, 16.h)
                 .padding(.trailing, 32.h)
-            Text("575 LEXINGTON AVE, FL 14TH NEW YORK, NY 10022-6102 United States")
+            Text(ResultScreenStrings.footerAddress)
                 .font(.system(size: 20.sp))
                 .foregroundColor(Color(AppColors.white))
                 .multilineTextAlignment(.center)

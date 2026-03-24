@@ -8,12 +8,12 @@ struct ProfileWeightSection: View {
 
     var body: some View {
         VStack(alignment: .leading) {
-            Text("Weight (lbs)")
+            Text(PhysicalAttributesScreenStrings.Form.weightLabel)
                 .font(.body)
                 .fontWeight(.bold)
                 .foregroundColor(Color(AppColors.black))
 
-            TextField("Select weight", text: $weightInput)
+            TextField(PhysicalAttributesScreenStrings.Form.weightPlaceholder, text: $weightInput)
                 .textFieldStyle(.plain)
                 .foregroundColor(Color(AppColors.black))
                 .padding(.vertical, 20.h)

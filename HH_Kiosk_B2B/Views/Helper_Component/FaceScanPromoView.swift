@@ -7,10 +7,10 @@ struct FaceScanPromoView: View {
     var body: some View {
         HStack(alignment: .center) {
             VStack(alignment: .leading) {
-                Text("Curious About Your Health?")
+                Text(HomeScreenStrings.Promo.title)
                     .foregroundColor(Color(AppColors.white))
                     .font(.system(size: 32.sp, weight: .semibold))
-                buildSemiBoldText("Start with a 30 seconds Face Scan",36.sp,color: Color(AppColors.white))
+                buildSemiBoldText(HomeScreenStrings.Promo.subtitle,36.sp,color: Color(AppColors.white))
 
 
             }
@@ -36,7 +36,7 @@ struct FaceScanPromoView: View {
                         Image(systemName: "play.circle.fill")
                             .foregroundColor(Color(AppColors.white))
                             .font(.title3)
-                        Text("Watch Quick Demo")
+                        Text(HomeScreenStrings.Promo.demoButtonTitle)
                             .font(.system(size: 25.sp, weight: .semibold))
                             .foregroundColor(Color(AppColors.white))
                             .underline()
@@ -50,9 +50,8 @@ struct FaceScanPromoView: View {
         .background(Color(AppColors.primaryActionOrange))
         .clipShape(RoundedRectangle(cornerRadius: 24.r))
         .sheet(isPresented: $showWebView) {
-                   WebViewSheetView(url: URL(string: "https://drive.google.com/file/d/1dPJs1A6aptEh3yTCVxR5BUlRfyLWa3rL/view?usp=sharing")!)
-               }
+            WebViewSheetView(url: URL(string: HomeScreenStrings.Promo.demoURL)!)
+        }
         
     }
 }
-

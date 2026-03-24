@@ -22,9 +22,9 @@ struct WebViewSheetView: View {
     var body: some View {
         NavigationView {
             WebView(url: url)
-                .navigationBarTitle("Face Scan Demo", displayMode: .inline)
+                .navigationBarTitle(SharedViewStrings.WebView.faceScanDemoTitle, displayMode: .inline)
                 .navigationBarItems(leading:
-                    Button("Done") {
+                    Button(SharedViewStrings.WebView.doneButtonTitle) {
                         dismiss()
                     }
                 )

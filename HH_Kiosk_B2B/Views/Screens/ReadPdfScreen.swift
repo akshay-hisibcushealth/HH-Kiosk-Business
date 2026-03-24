@@ -17,14 +17,14 @@ struct ReadPdfScreen: View {
             } else if isLoadingPDF {
                 VStack {
                     Spacer()
-                    ProgressView("Loading PDF...")
+                    ProgressView(ReadPdfScreenStrings.loading)
                         .padding()
                     Spacer()
                 }
             } else {
                 VStack {
                     Spacer()
-                    Text("Failed to load PDF")
+                    Text(ReadPdfScreenStrings.failedToLoad)
                         .foregroundColor(Color(AppColors.error))
                     Spacer()
                 }

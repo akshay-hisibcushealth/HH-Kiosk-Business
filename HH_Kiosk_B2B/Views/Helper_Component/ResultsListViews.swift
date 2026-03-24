@@ -3,38 +3,7 @@ import SwiftUI
 // ----------------------
 // Tagged interpretation JSON
 // ----------------------
-let interpretationJSON: [String: [String: String]] = [
-    "Cardiovascular Disease Risk": [
-        "low": "Your results indicate that you have a <tag color=\"\(AppColors.tagRiskLow)\">low risk</tag> of experiencing a heart attack or stroke in the next 10 years.",
-        "medium": "Your results indicate that you have a <tag color=\"\(AppColors.tagRiskMedium)\">medium risk</tag> of experiencing heart attack or stroke in the next 10 years.",
-        "high": "Your results indicate that you have a <tag color=\"\(AppColors.tagRiskHigh)\">high risk</tag> of experiencing heart attack or stroke in the next 10 years."
-    ],
-    "Systolic Blood Pressure": [
-        "healthy": "Your results indicate that your systolic blood pressure falls within a <tag color=\"\(AppColors.tagRiskLow)\">healthy range</tag>.",
-        "warning": "Your results indicate that your systolic blood pressure is <tag color=\"\(AppColors.tagRiskMedium)\">either lower than normal or higher than normal</tag>.",
-        "critical": "Your results indicate that your systolic blood pressure is <tag color=\"\(AppColors.tagRiskHigh)\">much higher than normal</tag> and that you may have hypertension."
-    ],
-    "Diastolic Blood Pressure": [
-        "healthy": "Your results indicate that your diastolic blood pressure is <tag color=\"\(AppColors.tagRiskLow)\">within a healthy range</tag>.",
-        "warning": "Your results indicate that your diastolic blood pressure is <tag color=\"\(AppColors.tagRiskMedium)\">either lower than normal or higher than normal</tag>.",
-        "critical": "Your results indicate that your diastolic blood pressure is <tag color=\"\(AppColors.tagRiskHigh)\">much higher than normal</tag> and that you may have hypertension."
-    ],
-    "HbA1c Risk": [
-        "low": "Your results indicate that you likely have a <tag color=\"\(AppColors.tagRiskLow)\">HbA1c < 5.7%</tag>.",
-        "medium": "Your results indicate that there is a <tag color=\"\(AppColors.tagRiskWarning)\">medium risk</tag> that you may have an HbA1c > 5.7%, especially if your results are 51% or over.",
-        "high": "Your results indicate that it is <tag color=\"\(AppColors.tagRiskHigh)\">very likely</tag> that you have an HbA1c > 5.7%."
-    ],
-    "Hypercholesterolemia Risk": [
-        "low": "Your results indicate that you are at a <tag color=\"\(AppColors.tagRiskLow)\">low risk</tag> of having abnormally high cholesterol.",
-        "medium": "Your results indicate that you are at a <tag color=\"\(AppColors.tagRiskWarning)\">medium risk</tag> of having abnormally high cholesterol.",
-        "high": "Your results indicate that you are at a <tag color=\"\(AppColors.tagRiskHigh)\">high risk</tag> of having abnormally high cholesterol."
-    ],
-    "Hypertriglyceridemia Risk": [
-        "low": "Your results indicate that you are at a <tag color=\"\(AppColors.tagRiskLow)\">low risk</tag> of having abnormally high triglycerides.",
-        "medium": "Your results indicate that you are at a <tag color=\"\(AppColors.tagRiskWarning)\">medium risk</tag> of having abnormally high triglycerides.",
-        "high": "Your results indicate that you are at a <tag color=\"\(AppColors.tagRiskHigh)\">high risk</tag> of having abnormally high triglycerides."
-    ]
-]
+let interpretationJSON = ResultScreenStrings.Metrics.interpretations
 
 // ----------------------
 // UI: ResultsList & ResultRow
@@ -217,28 +186,12 @@ fileprivate func formattedValue(_ value: Double, for metricKey: String) -> Strin
 }
 
 fileprivate func displayTitle(for key: String) -> String {
-    switch key {
-    case "BP_CVD": return "Cardiovascular Disease Risk"
-    case "HBA1C_RISK_PROB": return "HbA1c Risk"
-    case "BP_SYSTOLIC": return "Systolic Blood Pressure"
-    case "BP_DIASTOLIC": return "Diastolic Blood Pressure"
-    case "HDLTC_RISK_PROB": return "Hypercholesterolemia Risk"
-    case "TG_RISK_PROB": return "Hypertriglyceridemia Risk"
-    default: return key.replacingOccurrences(of: "_", with: " ")
-    }
+    ResultScreenStrings.Metrics.displayTitle(for: key)
 }
 
 
 fileprivate func descriptionText(for key: String) -> String {
-    switch key {
-    case "BP_CVD": return "Cardiovascular Disease Risk is your likelihood of experiencing your first heart attack or stroke within the next 10 years, expressed as a percentage."
-    case "BP_SYSTOLIC": return "Systolic blood pressure is the peak pressure in your brachial arteries during the contraction of your heart muscle, measured in millimeters of mercury (mmHg)."
-    case "BP_DIASTOLIC": return "Diastolic blood pressure is the amount of pressure in your brachial arteries when your heart muscle is relaxed, measured in millimeters of mercury (mmHg)."
-    case "HBA1C_RISK_PROB": return "A hemoglobin A1C (HbA1C) test is a blood test that measures the amount of glucose (sugar) attached to the hemoglobin in your red blood cells."
-    case "HDLTC_RISK_PROB": return "Hypercholesterolemia is when you have high amounts of cholesterol in the blood. High cholesterol can limit blood flow, increasing the risk of a heart attack or stroke."
-    case "TG_RISK_PROB": return "Hypertriglyceridemia is when you have an abnormally high level of a certain type of fat (triglycerides) in the blood, defined above 1.7 mmol/L or 150 mg/dL."
-    default: return ""
-    }
+    ResultScreenStrings.Metrics.description(for: key)
 }
 
 func scaleValueToRange(_ value: Double, _ stops: [Double]) -> Double {

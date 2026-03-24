@@ -4,7 +4,7 @@ struct PrivacyMessageView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            buildSemiBoldText("Your Face Scan Results",44.sp)
+            buildSemiBoldText(ResultScreenStrings.title,44.sp)
             .padding(.horizontal, 48)
             .padding(.top, 32)
 
@@ -14,7 +14,7 @@ struct PrivacyMessageView: View {
                     .font(.system(size: 24))
                     .alignmentGuide(.firstTextBaseline) { d in d[VerticalAlignment.top] }
 
-                Text("The results from this face scan are not intended to diagnose, treat, or replace professional medical advice. For any health concerns, please consult a healthcare provider.")
+                Text(ResultScreenStrings.privacyMessage)
                     .font(.system(size: 22.sp))
                     .italic()
                     .foregroundColor(Color(AppColors.supportLinkText))

@@ -24,16 +24,7 @@ struct ResultsGrid: View {
     }
 
     private func displayTitle(for key: String) -> String {
-        switch key {
-        case "BP_CVD": return "Cardiovascular Risk"
-        case "HBA1C_RISK_PROB": return "Hemoglobin A1C Risk"
-        case "BP_SYSTOLIC": return "Systolic Blood Pressure"
-        case "BP_DIASTOLIC": return "Diastolic Blood Pressure"
-        case "HDLTC_RISK_PROB": return "Hypercholesterolemia Risk"
-        case "TG_RISK_PROB": return "Hypertriglyceridemia Risk"
-        case "HR_BPM": return "Heart Rate"
-        default: return key.replacingOccurrences(of: "_", with: " ")
-        }
+        ResultScreenStrings.Metrics.gridTitle(for: key)
     }
 
     private func unitForMetric(_ key: String) -> String? {
