@@ -17,15 +17,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         if let currentLocation = locations.first {
             location = currentLocation
             manager.stopUpdatingLocation()
-
-            let operation = WeatherUpdateOperation(
-                latitude: currentLocation.coordinate.latitude,
-                longitude: currentLocation.coordinate.longitude
-            )
-
-            OperationQueue().addOperation(operation)
         }
     }
 
 }
-

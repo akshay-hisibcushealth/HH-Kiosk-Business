@@ -21,6 +21,7 @@ class ResultsViewController: UIViewController {
     private var activityIndicator: UIActivityIndicatorView!
     private var errorLabel: UILabel!
     private var exitButton: UIButton!
+    private let submissionService: KioskSubmissionServiceProtocol = KioskSubmissionService()
 
     private enum UIState {
         case loading, success, failure
@@ -545,75 +546,13 @@ class ResultsViewController: UIViewController {
     
     
     func saveUserAndResultData(results: [String: MeasurementResults.SignalResult]?) async -> Bool {
-
-        guard let jsonString = createResultJSON(results: results) else {
-            print("❌ Failed to create JSON payload")
-            return false
-        }
-
-        guard let url = URL(string: "\(AppConfig.baseURL)/save-kiosk-health/") else {
-            return false
-        }
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = jsonString.data(using: .utf8)
-
         do {
-            let (data, response) = try await URLSession.shared.data(for: request)
-
-            if let httpResponse = response as? HTTPURLResponse {
-                print("✅ API response:", httpResponse.statusCode)
-
-                if (200..<300).contains(httpResponse.statusCode) {
-                    return true
-                }
-
-                print("❌ Server error:", String(data: data, encoding: .utf8) ?? "")
-            }
-
+            try await submissionService.saveUserVitals(results: results)
+            return true
         } catch {
             print("❌ Network error:", error.localizedDescription)
+            return false
         }
-
-        return false
-    }
-
-    func createResultJSON(results: [String: MeasurementResults.SignalResult]?) -> String? {
-
-        var formattedData: [String: ResultEntry] = [:]
-
-        let email = UserDefaults.standard.string(forKey: "user_email") ?? ""
-        let height = UserDefaults.standard.integer(forKey: "user_height")
-        let weight = UserDefaults.standard.integer(forKey: "user_weight")
-        let age = UserDefaults.standard.integer(forKey: "user_age")
-        let gender = UserDefaults.standard.string(forKey: "user_gender") ?? ""
-        
-
-
-        if let results = results {
-            for (key, result) in results {
-                let entry = ResultEntry(value: result.value, notes: result.notes)
-                formattedData[key] = entry
-            }
-        }
-
-        let payload = VitalsResultPayload(
-            email: email,
-              demographic: Demographic(age: age, height: height, weight: weight, gender: gender),
-              data: formattedData
-        )
-        print("User Data \(payload)")
-
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-
-        if let jsonData = try? encoder.encode(payload) {
-            return String(data: jsonData, encoding: .utf8)
-        }
-
-        return nil
     }
 
     // MARK: - Exit
@@ -621,4 +560,3 @@ class ResultsViewController: UIViewController {
         dismiss(animated: true, completion: dismissBlock)
     }
 }
-

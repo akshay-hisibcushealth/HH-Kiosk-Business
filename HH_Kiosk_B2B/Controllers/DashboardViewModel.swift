@@ -1,13 +1,15 @@
-
 import Foundation
 
+@MainActor
 class DashboardViewModel: ObservableObject {
     @Published var todayRead: TodayRead?
     @Published var hrDeskItems: [HRDeskItem] = []
     @Published var isLoading = false
     @Published var errorMessage: String?
+    private let contentService: KioskContentServiceProtocol
 
-    init() {
+    init(contentService: KioskContentServiceProtocol = KioskContentService()) {
+        self.contentService = contentService
         fetchData()
     }
 
@@ -15,18 +17,15 @@ class DashboardViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
 
-        NetworkManager.shared.fetchDashboardData { [weak self] result in
-            DispatchQueue.main.async {
-                guard let self = self else { return }
+        Task {
+            do {
+                let response = try await contentService.fetchDashboardData()
                 self.isLoading = false
-
-                switch result {
-                case .success(let response):
-                    self.todayRead = response.today_read.first
-                    self.hrDeskItems = response.hrdesk
-                case .failure(let error):
-                    self.errorMessage = error.localizedDescription
-                }
+                self.todayRead = response.today_read.first
+                self.hrDeskItems = response.hrdesk
+            } catch {
+                self.isLoading = false
+                self.errorMessage = error.localizedDescription
             }
         }
     }

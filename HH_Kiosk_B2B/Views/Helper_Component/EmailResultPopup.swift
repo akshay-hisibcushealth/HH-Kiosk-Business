@@ -5,12 +5,21 @@ import AnuraCore
 struct EmailResultPopup: View {
     let results: [String: MeasurementResults.SignalResult]
     @Environment(\.dismiss) var dismiss
+    private let submissionService: KioskSubmissionServiceProtocol
     @State private var email: String = UserDefaults.standard.string(forKey: "user_email") ?? ""
     @State private var pin: String = ""
     @State private var isLoading: Bool = false
     @State private var isEmailSent: Bool = false
     @FocusState private var isPinFocused: Bool
     @State private var showEmailError: Bool = false
+
+    init(
+        results: [String: MeasurementResults.SignalResult],
+        submissionService: KioskSubmissionServiceProtocol = KioskSubmissionService()
+    ) {
+        self.results = results
+        self.submissionService = submissionService
+    }
 
 
     // Email validation
@@ -184,7 +193,7 @@ struct EmailResultPopup: View {
         Button(action: {
             Task {
                 isLoading = true
-                let success = await sendResultsToEmail(to: email, pin: pin)
+                let success = await submitEmailResults()
                 isLoading = false
                 if success {
                     isEmailSent = true
@@ -232,62 +241,13 @@ struct EmailResultPopup: View {
 
     }
 
-    func sendResultsToEmail(to email: String,pin:String) async -> Bool {
-        // Build JSON payload string
-        guard let jsonString = createEmailResultJSON(email: email,pin:pin, results: results) else {
-            print("❌ Failed to create JSON payload")
-            return false
-        }
-
-        guard let url = URL(string: "\(AppConfig.baseURL)/kiosk-email/") else {
-            return false
-        }
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = jsonString.data(using: .utf8)
-
+    private func submitEmailResults() async -> Bool {
         do {
-            let (data, response) = try await URLSession.shared.data(for: request)
-
-            if let httpResponse = response as? HTTPURLResponse {
-                print("✅ Email request response code:", httpResponse.statusCode)
-                if (200..<300).contains(httpResponse.statusCode) {
-                    return true
-                } else {
-                    print("Result: \(results)")
-                    print("URL: \(url)")
-                    print("pin: \(pin)")
-                    print("❌ Server error:", String(data: data, encoding: .utf8) ?? "")
-                    return false
-                }
-            }
+            try await submissionService.sendEmailResults(email: email, pin: pin, results: results)
+            return true
         } catch {
             print("❌ Network error:", error.localizedDescription)
             return false
-        }
-
-        return false
-    }
-
-    func createEmailResultJSON(email: String,pin:String, results: [String: MeasurementResults.SignalResult]) -> String? {
-        var formattedData: [String: ResultEntry] = [:]
-
-        for (key, result) in results {
-            let entry = ResultEntry(value: result.value, notes: result.notes)
-            formattedData[key] = entry
-        }
-
-        let payload = EmailResultPayload(email: email,pin:pin, data: formattedData)
-
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-
-        if let jsonData = try? encoder.encode(payload) {
-            return String(data: jsonData, encoding: .utf8)
-        } else {
-            return nil
         }
     }
 }

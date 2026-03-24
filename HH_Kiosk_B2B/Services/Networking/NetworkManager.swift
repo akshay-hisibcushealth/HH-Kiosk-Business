@@ -2,58 +2,29 @@ import Foundation
 
 class NetworkManager {
     static let shared = NetworkManager()
-    private init() {}
+    private let contentService: KioskContentServiceProtocol
+    private init(contentService: KioskContentServiceProtocol = KioskContentService()) {
+        self.contentService = contentService
+    }
     
     func fetchDashboardData(completion: @escaping (Result<APIResponse, Error>) -> Void) {
-        guard let url = URL(string: "\(AppConfig.baseURL)/kiosk-data") else {
-            completion(.failure(NetworkError.invalidURL))
-            return
-        }
-        
-        URLSession.shared.dataTask(with: url) { data, _, error in
-            if let error = error {
-                completion(.failure(error))
-                return
-            }
-            
-            guard let data = data else {
-                completion(.failure(NetworkError.noData))
-                return
-            }
-            
+        Task {
             do {
-                let decoded = try JSONDecoder().decode(APIResponse.self, from: data)
-                completion(.success(decoded))
+                completion(.success(try await contentService.fetchDashboardData()))
             } catch {
                 completion(.failure(error))
             }
-        }.resume()
+        }
     }
     
     func fetchScreenSaverData(completion: @escaping (Result<[ScreenSaverItem], Error>) -> Void) {
-        guard let url = URL(string: "\(AppConfig.baseURL)/kiosk-screensaver/") else {
-            completion(.failure(NetworkError.invalidURL))
-            return
-        }
-        
-        URLSession.shared.dataTask(with: url) { data, _, error in
-            if let error = error {
-                completion(.failure(error))
-                return
-            }
-            
-            guard let data = data else {
-                completion(.failure(NetworkError.noData))
-                return
-            }
-            
+        Task {
             do {
-                let decoded = try JSONDecoder().decode(ScreenSaverResponse.self, from: data)
-                completion(.success(decoded.Data))
+                completion(.success(try await contentService.fetchScreenSaverData()))
             } catch {
                 completion(.failure(error))
             }
-        }.resume()
+        }
     }
 }
 

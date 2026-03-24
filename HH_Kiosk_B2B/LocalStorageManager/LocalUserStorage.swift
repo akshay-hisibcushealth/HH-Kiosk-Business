@@ -8,6 +8,14 @@
 
 import Foundation
 
+struct StoredUser {
+    let email: String
+    let height: Int
+    let weight: Int
+    let age: Int
+    let gender: String
+}
+
 struct LocalUserStorage {
 
     private static let emailKey = "user_email"
@@ -43,5 +51,21 @@ struct LocalUserStorage {
         defaults.removeObject(forKey: weightKey)
         defaults.removeObject(forKey: ageKey)
         defaults.removeObject(forKey: genderKey)
+    }
+
+    static func loadUser() -> StoredUser? {
+        let defaults = UserDefaults.standard
+        guard let email = defaults.string(forKey: emailKey),
+              let gender = defaults.string(forKey: genderKey) else {
+            return nil
+        }
+
+        return StoredUser(
+            email: email,
+            height: defaults.integer(forKey: heightKey),
+            weight: defaults.integer(forKey: weightKey),
+            age: defaults.integer(forKey: ageKey),
+            gender: gender
+        )
     }
 }
