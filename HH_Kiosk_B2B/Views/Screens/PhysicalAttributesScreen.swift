@@ -2,6 +2,8 @@ import SwiftUI
 import AnuraCore
 
 struct PhysicalAttributesScreen: View {
+    private static let previewOrientationStorageKey = "physicalAttributes.previewOrientation"
+
     @EnvironmentObject private var faceManager: FaceScanManager
     @State private var isLoading = false
     @State private var showWebView = false
@@ -16,7 +18,7 @@ struct PhysicalAttributesScreen: View {
     
     // EXTERNAL CAMERA VARIABLES
     @State private var cameraPreset: AnuraCore.CameraPreset = .hd1920x1080
-    @State private var previewOrientation: AnuraCore.PreviewOrientation = .landscapeRight
+    @State private var previewOrientation: AnuraCore.PreviewOrientation = Self.loadSavedPreviewOrientation()
     @State private var mirrorExternalCameraPreview: Bool = true
     @State private var useOnlyExternalCamera: Bool = false
     
@@ -156,7 +158,11 @@ struct PhysicalAttributesScreen: View {
             .padding()
         }
         .onAppear {
+            previewOrientation = Self.loadSavedPreviewOrientation()
             detectExternalCameraConfiguration()
+        }
+        .onChange(of: previewOrientation) { _, newValue in
+            Self.savePreviewOrientation(newValue)
         }
         .onReceive(NotificationCenter.default.publisher(for: .screenDidChangeBounds)) { _ in
                    refreshTrigger.toggle()
@@ -271,6 +277,21 @@ struct PhysicalAttributesScreen: View {
         }
     }
 
+    private static func loadSavedPreviewOrientation() -> AnuraCore.PreviewOrientation {
+        guard
+            let storedOrientation = UserDefaults.standard.string(forKey: previewOrientationStorageKey),
+            let previewOrientation = AnuraCore.PreviewOrientation(storageValue: storedOrientation)
+        else {
+            return .landscapeLeft
+        }
+
+        return previewOrientation
+    }
+
+    private static func savePreviewOrientation(_ previewOrientation: AnuraCore.PreviewOrientation) {
+        UserDefaults.standard.set(previewOrientation.storageValue, forKey: previewOrientationStorageKey)
+    }
+
     
     private func detectExternalCameraConfiguration() {
         // Use DiscoverySession to find all available video devices (built-in + external)
@@ -338,5 +359,37 @@ extension Binding where Value == Int? {
             get: { source.wrappedValue ?? defaultValue },
             set: { source.wrappedValue = $0 }
         )
+    }
+}
+
+private extension AnuraCore.PreviewOrientation {
+    init?(storageValue: String) {
+        switch storageValue {
+        case "portrait":
+            self = .portrait
+        case "portraitUpsideDown":
+            self = .portraitUpsideDown
+        case "landscapeLeft":
+            self = .landscapeLeft
+        case "landscapeRight":
+            self = .landscapeRight
+        default:
+            return nil
+        }
+    }
+
+    var storageValue: String {
+        switch self {
+        case .portrait:
+            return "portrait"
+        case .portraitUpsideDown:
+            return "portraitUpsideDown"
+        case .landscapeLeft:
+            return "landscapeLeft"
+        case .landscapeRight:
+            return "landscapeRight"
+        @unknown default:
+            return "landscapeLeft"
+        }
     }
 }
