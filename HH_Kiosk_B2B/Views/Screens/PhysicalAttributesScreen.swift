@@ -4,6 +4,7 @@ import AnuraCore
 struct PhysicalAttributesScreen: View {
     private static let previewOrientationStorageKey = "physicalAttributes.previewOrientation"
 
+    @EnvironmentObject private var appState: AppState
     @EnvironmentObject private var faceManager: FaceScanManager
     @State private var isLoading = false
     @State private var showWebView = false
@@ -28,6 +29,10 @@ struct PhysicalAttributesScreen: View {
     // ALERT
     @State private var showValidationAlert = false
     @State private var validationMessage: String = ""
+
+    private let demoSheetSuppressionReason = "physicalAttributes.quickDemoSheet"
+    private let settingsSheetSuppressionReason = "physicalAttributes.settingsSheet"
+    private let validationAlertSuppressionReason = "physicalAttributes.validationAlert"
     
     var body: some View {
         VStack(spacing: 0) {
@@ -184,6 +189,20 @@ struct PhysicalAttributesScreen: View {
                 mirrorVideo: $mirrorExternalCameraPreview,
                 useExternalCameraOnly: $useOnlyExternalCamera
             )
+        }
+        .onChange(of: showWebView) { _, isPresented in
+            appState.setScreenSaverSuppressed(isPresented, reason: demoSheetSuppressionReason)
+        }
+        .onChange(of: showSettings) { _, isPresented in
+            appState.setScreenSaverSuppressed(isPresented, reason: settingsSheetSuppressionReason)
+        }
+        .onChange(of: showValidationAlert) { _, isPresented in
+            appState.setScreenSaverSuppressed(isPresented, reason: validationAlertSuppressionReason)
+        }
+        .onDisappear {
+            appState.setScreenSaverSuppressed(false, reason: demoSheetSuppressionReason)
+            appState.setScreenSaverSuppressed(false, reason: settingsSheetSuppressionReason)
+            appState.setScreenSaverSuppressed(false, reason: validationAlertSuppressionReason)
         }
         // ALERT
         .alert(isPresented: $showValidationAlert) {

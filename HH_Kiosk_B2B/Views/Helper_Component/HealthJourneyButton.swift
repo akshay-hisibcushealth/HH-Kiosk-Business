@@ -11,8 +11,8 @@ struct HealthJourneyButton: View {
     var body: some View {
             Button(action: {
                 withAnimation {
-                      appState.showScreenSaver = false
-                  }
+                    appState.dismissScreenSaver()
+                }
             }) {
                 HStack {
                     Image(icon)

@@ -76,6 +76,20 @@ struct HomeScreen: View {
             .onAppear {
                 startInactivityTimer()
             }
+            .onChange(of: appState.isScreenSaverSuppressed) { _, isSuppressed in
+                if isSuppressed {
+                    stopInactivityTimer()
+                } else {
+                    startInactivityTimer()
+                }
+            }
+            .onChange(of: isNavigatingToScan) { _, isNavigating in
+                if isNavigating {
+                    stopInactivityTimer()
+                } else {
+                    startInactivityTimer()
+                }
+            }
             .onDisappear {
                 stopInactivityTimer()
             }
@@ -86,9 +100,11 @@ struct HomeScreen: View {
     
     private func startInactivityTimer() {
         stopInactivityTimer()
+        guard !appState.isScreenSaverSuppressed else { return }
+        guard !isNavigatingToScan else { return }
         inactivityTimer = Timer.scheduledTimer(withTimeInterval: inactivityLimit, repeats: false) { _ in
             withAnimation(.easeInOut(duration: 0.5)) {
-                appState.showScreenSaver = true
+                appState.presentScreenSaver()
             }
         }
     }

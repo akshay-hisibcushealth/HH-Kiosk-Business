@@ -1,8 +1,11 @@
 import SwiftUI
 
 struct FaceScanPromoView: View {
+    @EnvironmentObject private var appState: AppState
     @Binding var isNavigating: Bool
     @State private var showWebView = false
+
+    private let quickDemoSuppressionReason = "home.quickDemoSheet"
 
     var body: some View {
         HStack(alignment: .center) {
@@ -52,6 +55,11 @@ struct FaceScanPromoView: View {
         .sheet(isPresented: $showWebView) {
             WebViewSheetView(url: URL(string: HomeScreenStrings.Promo.demoURL)!)
         }
-        
+        .onChange(of: showWebView) { _, isPresented in
+            appState.setScreenSaverSuppressed(isPresented, reason: quickDemoSuppressionReason)
+        }
+        .onDisappear {
+            appState.setScreenSaverSuppressed(false, reason: quickDemoSuppressionReason)
+        }
     }
 }
