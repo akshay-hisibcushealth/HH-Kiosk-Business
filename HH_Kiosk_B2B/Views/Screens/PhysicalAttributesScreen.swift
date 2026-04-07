@@ -3,6 +3,7 @@ import AnuraCore
 
 struct PhysicalAttributesScreen: View {
     private static let previewOrientationStorageKey = "physicalAttributes.previewOrientation"
+    private let validAgeRange = 13...120
 
     @EnvironmentObject private var appState: AppState
     @EnvironmentObject private var faceManager: FaceScanManager
@@ -234,7 +235,7 @@ struct PhysicalAttributesScreen: View {
         case age == nil:
             validationMessage = PhysicalAttributesScreenStrings.Validation.missingAge
 
-        case age! < 13:
+        case !validAgeRange.contains(age!):
             validationMessage = PhysicalAttributesScreenStrings.Validation.invalidAge
 
         case gender.isEmpty:

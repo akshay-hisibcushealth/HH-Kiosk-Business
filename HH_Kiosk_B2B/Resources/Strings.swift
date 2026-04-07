@@ -76,7 +76,7 @@ enum PhysicalAttributesScreenStrings {
         static let missingWeight = "Please select your weight."
         static let invalidWeight = "Weight cannot be less than 75 lbs."
         static let missingAge = "Please enter your age."
-        static let invalidAge = "Age cannot be less than 13 years."
+        static let invalidAge = "Age must be between 13 and 120 years."
         static let missingGender = "Please select your gender."
     }
 

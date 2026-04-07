@@ -7,7 +7,7 @@ struct ProfileAgeSection: View {
     // 🔹 1. Add FocusState to control keyboard visibility
     @FocusState private var isInputActive: Bool
     
-    private let ageRange = 13...75
+    private let ageRange = 13...120
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -33,18 +33,17 @@ struct ProfileAgeSection: View {
                     // 1. Filter numeric digits only
                     let filtered = newValue.filter { "0123456789".contains($0) }
                     
-                    // 2. Limit to 2 digits (since max age is 75)
-                    var finalValue = String(filtered.prefix(2))
+                    // 2. Limit to 3 digits (since max age is 120)
+                    var finalValue = String(filtered.prefix(3))
                     
-                    // 3. Apply Range Guard (13-75)
+                    // 3. Apply range guard (13-120)
                     if let age = Int(finalValue) {
-                        // If they've typed 2 digits and it's over 75, clear it immediately
-                        if finalValue.count == 2 && age > 75 {
+                        // If the value exceeds the supported range, clear it immediately.
+                        if age > ageRange.upperBound {
                             finalValue = ""
                         }
                         
-                        // Update the actual binding only if it's within the valid range
-                            selectedAge = age
+                        selectedAge = Int(finalValue)
                     
                     } else {
                         selectedAge = nil // Clear binding if field is empty
