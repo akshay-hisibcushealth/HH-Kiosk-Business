@@ -48,6 +48,11 @@ struct AppColors {
     static let ctaGreen = UIColor(hex: "#B8EB5E")
     static let mutedControlGray = UIColor(hex: "#C4C4C4")
     static let primaryActionOrange = UIColor(hex: "#EE4B0E")
+    static let clientIDDialogBackground = UIColor(hex: "#030F33")
+    static let clientIDFieldBackground = UIColor(hex: "#2C3868")
+    static let clientIDFieldBorder = UIColor(hex: "#9AA5CF")
+    static let clientIDFieldPlaceholder = UIColor(hex: "#A6B0D1")
+    static let clientIDValidationText = UIColor(hex: "#FFB4A0")
 
     static let gaugeGreen = UIColor(hex: "#5EC54C")
     static let gaugeLime = UIColor(hex: "#C2EA73")

@@ -18,11 +18,31 @@ struct StoredUser {
 
 struct LocalUserStorage {
 
+    private static let clientIDKey = "client_id"
     private static let emailKey = "user_email"
     private static let heightKey = "user_height"
     private static let weightKey = "user_weight"
     private static let ageKey = "user_age"
     private static let genderKey = "user_gender"
+
+    static func saveClientID(_ clientID: String) {
+        let trimmedClientID = clientID.trimmingCharacters(in: .whitespacesAndNewlines)
+        UserDefaults.standard.set(trimmedClientID, forKey: clientIDKey)
+    }
+
+    static func loadClientID() -> String? {
+        guard let clientID = UserDefaults.standard.string(forKey: clientIDKey)?
+            .trimmingCharacters(in: .whitespacesAndNewlines),
+            !clientID.isEmpty else {
+            return nil
+        }
+
+        return clientID
+    }
+
+    static func clearClientID() {
+        UserDefaults.standard.removeObject(forKey: clientIDKey)
+    }
 
     static func saveUser(
         email: String,

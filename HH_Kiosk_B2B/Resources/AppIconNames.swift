@@ -27,6 +27,7 @@ enum AppIconNames {
         static let secureEmail = "secure_email"
         static let snow = "snow"
         static let sun = "sun"
+        static let clientIdScreenBackground = "client_id_screen_background"
     }
 
     enum Symbol {

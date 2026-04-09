@@ -11,31 +11,41 @@ struct MyApp: App {
     var body: some Scene {
         WindowGroup {
             RootView()
+                .environmentObject(orientation)
         }
     }
 }
 
 
 struct RootView: View {
-    @EnvironmentObject var orientation: OrientationManager
     @StateObject private var appState = AppState()
+    @State private var clientID = LocalUserStorage.loadClientID()
 
     var body: some View {
         ZStack {
-            if appState.showScreenSaver {
-                ScreenSaver()
-                    .environmentObject(appState)
-                    .transition(.opacity)
-                    .zIndex(1)
+            if clientID == nil {
+                ClientIDEntryScreen { savedClientID in
+                    clientID = savedClientID
+                }
+                .environmentObject(appState)
+                .transition(.opacity)
             } else {
-//         ResultsViewWrapper()
-                HomeScreen()
-                    .environmentObject(appState)
-                    .transition(.opacity)
-                    .zIndex(0)
+                if appState.showScreenSaver {
+                    ScreenSaver()
+                        .environmentObject(appState)
+                        .transition(.opacity)
+                        .zIndex(1)
+                } else {
+    //         ResultsViewWrapper()
+                    HomeScreen()
+                        .environmentObject(appState)
+                        .transition(.opacity)
+                        .zIndex(0)
+                }
             }
         }
         .animation(.easeInOut(duration: 0.5), value: appState.showScreenSaver)
+        .animation(.easeInOut(duration: 0.3), value: clientID == nil)
     }
 }
 
@@ -52,4 +62,3 @@ struct ResultsViewWrapper: UIViewControllerRepresentable {
         // no-op
     }
 }
-
