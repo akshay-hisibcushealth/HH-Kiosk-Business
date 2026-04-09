@@ -23,6 +23,10 @@ protocol AppURLSessionClientProtocol {
 }
 
 struct AppURLSessionClient: AppURLSessionClientProtocol {
+    private struct APIErrorMessageResponse: Decodable {
+        let message: String?
+    }
+
     private let session: URLSession
     private let decoder: JSONDecoder
     private let encoder: JSONEncoder
@@ -60,8 +64,18 @@ struct AppURLSessionClient: AppURLSessionClientProtocol {
         }
 
         guard (200..<300).contains(httpResponse.statusCode) else {
-            let body = String(data: data, encoding: .utf8) ?? ""
+            let body = extractErrorMessage(from: data)
             throw AppAPIError.unexpectedStatusCode(httpResponse.statusCode, body)
         }
+    }
+
+    private func extractErrorMessage(from data: Data) -> String {
+        if let apiError = try? decoder.decode(APIErrorMessageResponse.self, from: data),
+           let message = apiError.message,
+           !message.isEmpty {
+            return message
+        }
+
+        return String(data: data, encoding: .utf8) ?? ""
     }
 }

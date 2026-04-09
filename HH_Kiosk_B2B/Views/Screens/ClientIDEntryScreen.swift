@@ -3,9 +3,20 @@ import SwiftUI
 struct ClientIDEntryScreen: View {
     @EnvironmentObject var appState: AppState
     @State private var clientID = ""
-    @State private var showValidationError = false
+    @State private var validationErrorMessage: String?
+    @State private var isValidating = false
+
+    private let validationService: ClientCodeValidationServiceProtocol
 
     let onClientIDSaved: (String) -> Void
+
+    init(
+        onClientIDSaved: @escaping (String) -> Void,
+        validationService: ClientCodeValidationServiceProtocol = ClientCodeValidationService()
+    ) {
+        self.onClientIDSaved = onClientIDSaved
+        self.validationService = validationService
+    }
 
     var body: some View {
         ZStack {
@@ -72,7 +83,7 @@ struct ClientIDEntryScreen: View {
                                 RoundedRectangle(cornerRadius: 12.r)
                                     .stroke(
                                         Color(
-                                            showValidationError
+                                            validationErrorMessage != nil
                                                 ? AppColors.error
                                                 : AppColors.clientIDFieldBorder
                                         ),
@@ -81,6 +92,7 @@ struct ClientIDEntryScreen: View {
                             )
                             .cornerRadius(12.r)
                             .tint(Color(AppColors.white))
+                            .disabled(isValidating)
                             .textInputAutocapitalization(.characters)
                             .autocorrectionDisabled()
                             .submitLabel(.go)
@@ -89,25 +101,42 @@ struct ClientIDEntryScreen: View {
                                 if normalizedValue != newValue {
                                     clientID = normalizedValue
                                 }
+                                if validationErrorMessage != nil {
+                                    validationErrorMessage = nil
+                                }
                             }
                             .onSubmit {
-                                saveClientIDAndContinue()
+                                Task {
+                                    await saveClientIDAndContinue()
+                                }
                             }
 
                         // Validation only appears after an attempted submit with no value.
-                        if showValidationError {
-                            Text(ClientIDScreenStrings.validationMessage)
+                        if let validationErrorMessage {
+                            Text(validationErrorMessage)
                                 .font(.system(size: 16.sp, weight: .medium))
                                 .foregroundColor(Color(AppColors.clientIDValidationText))
                         }
                     }
 
                     // Primary CTA: save the client ID locally, then continue into the app.
-                    Button(action: saveClientIDAndContinue) {
+                    Button {
+                        Task {
+                            await saveClientIDAndContinue()
+                        }
+                    } label: {
                         HStack {
-                            Text(ClientIDScreenStrings.actionButton)
-                                .font(.system(size: 28.sp, weight: .medium))
-                                .multilineTextAlignment(.center)
+                            Spacer()
+                            if isValidating {
+                                ProgressView()
+                                    .progressViewStyle(.circular)
+                                    .tint(Color(AppColors.white))
+                            } else {
+                                Text(ClientIDScreenStrings.actionButton)
+                                    .font(.system(size: 28.sp, weight: .medium))
+                                    .multilineTextAlignment(.center)
+                            }
+                            Spacer()
                         }
                         .foregroundColor(Color(AppColors.white))
                         .frame(maxWidth: .infinity)
@@ -115,6 +144,7 @@ struct ClientIDEntryScreen: View {
                         .background(Color(AppColors.primaryActionOrange))
                         .cornerRadius(12.r)
                     }
+                    .disabled(isValidating)
                     .buttonStyle(.plain)
                     .padding(.top, 10.h)
                     .padding(.bottom, 24.h)
@@ -137,26 +167,47 @@ struct ClientIDEntryScreen: View {
         }
     }
 
-    // Trims the user input, validates it, persists it, then lets the parent
-    // screen switch from the entry flow into the existing home flow.
-    private func saveClientIDAndContinue() {
+    // Normalizes the input, validates the format locally, confirms it with the
+    // backend, then lets the parent screen move into the existing home flow.
+    private func saveClientIDAndContinue() async {
         let normalizedClientID = normalizeClientIDInput(clientID)
         clientID = normalizedClientID
 
         guard isValidClientID(normalizedClientID) else {
-            showValidationError = true
+            validationErrorMessage = ClientIDScreenStrings.formatValidationMessage
             return
         }
 
-        showValidationError = false
-        LocalUserStorage.saveClientID(normalizedClientID)
-        onClientIDSaved(normalizedClientID)
+        isValidating = true
+        validationErrorMessage = nil
+
+        do {
+            let response = try await validationService.validateClientCode(normalizedClientID)
+            isValidating = false
+
+            guard response.valid else {
+                validationErrorMessage = response.message ?? ClientIDScreenStrings.fallbackInvalidCodeMessage
+                return
+            }
+
+            LocalUserStorage.saveClientID(normalizedClientID)
+            onClientIDSaved(normalizedClientID)
+        } catch {
+            isValidating = false
+            validationErrorMessage = error.localizedDescription
+        }
     }
 
-    // The kiosk client code is an 8-character uppercase hexadecimal value
-    // such as B92884B3.
+    // The kiosk client code is an 8-character uppercase
     private func isValidClientID(_ clientID: String) -> Bool {
-        let pattern = "^[A-F0-9]{8}$"
+        // 1. Not empty
+        guard !clientID.isEmpty else { return false }
+
+        // 2. Exactly 8 characters
+        guard clientID.count == 8 else { return false }
+
+        // 3. Only alphabets and numbers
+        let pattern = "^[A-Za-z0-9]{8}$"
         return clientID.range(of: pattern, options: .regularExpression) != nil
     }
 
@@ -164,8 +215,9 @@ struct ClientIDEntryScreen: View {
     // removing spaces, and limiting the value to 8 hexadecimal characters.
     private func normalizeClientIDInput(_ input: String) -> String {
         let uppercaseInput = input.uppercased()
+
         let filteredScalars = uppercaseInput.unicodeScalars.filter { scalar in
-            CharacterSet(charactersIn: "ABCDEF0123456789").contains(scalar)
+            CharacterSet.alphanumerics.contains(scalar)
         }
 
         return String(String.UnicodeScalarView(filteredScalars).prefix(8))

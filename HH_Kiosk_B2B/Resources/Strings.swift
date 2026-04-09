@@ -7,7 +7,8 @@ enum ClientIDScreenStrings {
     static let fieldLabel = "Company Client ID"
     static let fieldPlaceholder = "Enter 8-digit code"
     static let actionButton = "Start Your Health Journey"
-    static let validationMessage = "Please enter a valid 8-character client ID."
+    static let formatValidationMessage = "Please enter a valid 8-character client ID."
+    static let fallbackInvalidCodeMessage = "Invalid company code"
 }
 
 enum ArticleScreenStrings {
