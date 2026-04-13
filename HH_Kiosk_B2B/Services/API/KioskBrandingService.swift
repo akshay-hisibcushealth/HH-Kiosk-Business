@@ -1,0 +1,36 @@
+import Foundation
+
+protocol KioskBrandingServiceProtocol {
+    func fetchBrandingDetails(code: String) async throws -> KioskBrandingResponse
+}
+
+struct KioskBrandingService: KioskBrandingServiceProtocol {
+    private let client: AppURLSessionClientProtocol
+
+    init(client: AppURLSessionClientProtocol = AppURLSessionClient()) {
+        self.client = client
+    }
+
+    func fetchBrandingDetails(code: String) async throws -> KioskBrandingResponse {
+        let response = try await client.get(
+            KioskBrandingResponse.self,
+            from: AppAPIEndpoints.kioskBranding(code: code)
+        )
+
+        print(
+            """
+            [KioskBrandingService] Response received:
+            code=\(code)
+            companyName=\(response.brandingInfo.companyName)
+            primaryColorHex=\(response.brandingInfo.primaryColorHex)
+            accentColorHex=\(response.brandingInfo.accentColorHex)
+            logo=\(response.brandingInfo.logo)
+            welcomeText=\(response.screensaverData.welcomeText)
+            subtitle=\(response.screensaverData.subtitle)
+            carouselImageCount=\(response.screensaverData.carouselImages.count)
+            """
+        )
+
+        return response
+    }
+}

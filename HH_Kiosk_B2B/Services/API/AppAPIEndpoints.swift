@@ -24,6 +24,13 @@ enum AppAPIEndpoints {
         )
     }
 
+    static func kioskBranding(code: String) -> URL {
+        appURL(
+            path: "/kiosk-custom-branding/",
+            queryItems: [URLQueryItem(name: "code", value: code)]
+        )
+    }
+
     static func currentWeather(lat: Double, lon: Double) -> URL {
         weatherURL(path: "/data/2.5/weather", queryItems: [
             URLQueryItem(name: "lat", value: String(lat)),

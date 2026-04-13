@@ -1,7 +1,7 @@
 import UIKit
 
 struct AppColors {
-    static let primary = UIColor(hex: "#142A6D")
+    static let primary = UIColor(hex: "#B8E2F5")
     static let secondary = UIColor(hex: "#F2C800")
     static let weatherBack = UIColor(hex: "#2EAEDD")
     static let grayB3 = UIColor(red: 179 / 255, green: 179 / 255, blue: 179 / 255, alpha: 0.09)

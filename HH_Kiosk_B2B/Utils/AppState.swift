@@ -1,11 +1,21 @@
 import SwiftUI
 import Combine
 
+@MainActor
 class AppState: ObservableObject {
     @Published var showScreenSaver = false
     @Published private(set) var isScreenSaverSuppressed = false
+    @Published private(set) var brandingData: KioskBrandingResponse?
+    @Published private(set) var isBrandingLoading = false
+    @Published private(set) var brandingErrorMessage: String?
+
+    private let brandingService: KioskBrandingServiceProtocol
 
     private var suppressionReasons: Set<String> = []
+
+    init(brandingService: KioskBrandingServiceProtocol = KioskBrandingService()) {
+        self.brandingService = brandingService
+    }
 
     func setScreenSaverSuppressed(_ suppressed: Bool, reason: String) {
         if suppressed {
@@ -25,5 +35,27 @@ class AppState: ObservableObject {
 
     func dismissScreenSaver() {
         showScreenSaver = false
+    }
+
+    func loadBrandingData(for clientID: String) async {
+        guard !clientID.isEmpty else { return }
+
+        isBrandingLoading = true
+        brandingErrorMessage = nil
+
+        do {
+            brandingData = try await brandingService.fetchBrandingDetails(code: clientID)
+            isBrandingLoading = false
+        } catch {
+            brandingData = nil
+            brandingErrorMessage = error.localizedDescription
+            isBrandingLoading = false
+        }
+    }
+
+    func clearBrandingData() {
+        brandingData = nil
+        brandingErrorMessage = nil
+        isBrandingLoading = false
     }
 }

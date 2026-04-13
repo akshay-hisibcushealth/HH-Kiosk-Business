@@ -12,9 +12,22 @@ struct ClientCodeValidationService: ClientCodeValidationServiceProtocol {
     }
 
     func validateClientCode(_ code: String) async throws -> ClientCodeValidationResponse {
-        try await client.get(
+        let response = try await client.get(
             ClientCodeValidationResponse.self,
             from: AppAPIEndpoints.validateClientCode(code)
         )
+
+        print(
+            """
+            [ClientCodeValidationService] Response received:
+            code=\(code)
+            valid=\(response.valid)
+            companyName=\(response.companyName ?? "nil")
+            message=\(response.message ?? "nil")
+            returnedCode=\(response.code ?? "nil")
+            """
+        )
+
+        return response
     }
 }
