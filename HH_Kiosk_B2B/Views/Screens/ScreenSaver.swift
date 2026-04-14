@@ -29,10 +29,9 @@ struct ScreenSaver: View {
                     
                     // Title text
                     VStack(spacing: 24.h) {
-                        buildSemiBoldText(ScreenSaverStrings.title,40.sp,color: Color(AppColors.white))
-                      
+                        buildSemiBoldText(viewModel.welcomeText,40.sp,color: Color(AppColors.white))
                         
-                        Text(ScreenSaverStrings.subtitle)
+                        Text(viewModel.subtitle)
                             .foregroundColor(Color(AppColors.white))
                             .font(.system(size: 34.sp, weight: .regular))
                             .multilineTextAlignment(.center)

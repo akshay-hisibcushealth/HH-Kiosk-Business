@@ -5,10 +5,13 @@ enum AppAPIEndpoints {
         appURL(path: "/kiosk-data")
     }
 
-    static var screenSaverData: URL {
-        appURL(path: "/kiosk-screensaver/")
-    }
 
+    static func screenSaverData(code: String) -> URL {
+        appURL(
+            path: "/kiosk-custom-branding-screensaver/",
+            queryItems: [URLQueryItem(name: "code", value: code)]
+        )
+    }
     static var emailResults: URL {
         appURL(path: "/kiosk-email/")
     }
@@ -68,3 +71,6 @@ enum AppAPIEndpoints {
         return components.url!
     }
 }
+
+
+

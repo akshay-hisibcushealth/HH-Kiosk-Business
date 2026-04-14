@@ -17,10 +17,15 @@ class NetworkManager {
         }
     }
     
-    func fetchScreenSaverData(completion: @escaping (Result<[ScreenSaverItem], Error>) -> Void) {
+    func fetchScreenSaverData(completion: @escaping (Result<KioskBrandingScreenSaverData, Error>) -> Void) {
         Task {
             do {
-                completion(.success(try await contentService.fetchScreenSaverData()))
+                guard let clientID = LocalUserStorage.loadClientID() else {
+                    completion(.failure(NetworkError.invalidURL))
+                    return
+                }
+
+                completion(.success(try await contentService.fetchScreenSaverData(code: clientID)))
             } catch {
                 completion(.failure(error))
             }

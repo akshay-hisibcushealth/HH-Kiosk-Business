@@ -38,12 +38,16 @@ struct KioskBrandingScreenSaverData: Decodable {
 
 struct KioskBrandingCarouselImage: Decodable, Identifiable {
     let imageURL: String
+    let title: String
     let order: Int
 
-    var id: Int { order }
+    // `order` is no longer unique because the QR item can share the same order
+    // as a carousel image, so we use the remote image URL as the stable identity.
+    var id: String { imageURL }
 
     private enum CodingKeys: String, CodingKey {
         case imageURL = "image_url"
+        case title
         case order
     }
 }

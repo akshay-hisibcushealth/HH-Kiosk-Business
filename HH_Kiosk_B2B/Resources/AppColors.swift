@@ -1,7 +1,7 @@
 import UIKit
 
 struct AppColors {
-    private static let defaultPrimary = UIColor(hex: "#B8E2F5")
+    private static let defaultPrimary = UIColor(hex: "#142A6D")
     private static var primaryOverrideHex: String?
 
     static var primary: UIColor {
