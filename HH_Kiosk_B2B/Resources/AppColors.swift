@@ -1,7 +1,18 @@
 import UIKit
 
 struct AppColors {
-    static let primary = UIColor(hex: "#B8E2F5")
+    private static let defaultPrimary = UIColor(hex: "#B8E2F5")
+    private static var primaryOverrideHex: String?
+
+    static var primary: UIColor {
+        guard let primaryOverrideHex,
+              isValidHexColor(primaryOverrideHex) else {
+            return defaultPrimary
+        }
+
+        return UIColor(hex: primaryOverrideHex)
+    }
+
     static let secondary = UIColor(hex: "#F2C800")
     static let weatherBack = UIColor(hex: "#2EAEDD")
     static let grayB3 = UIColor(red: 179 / 255, green: 179 / 255, blue: 179 / 255, alpha: 0.09)
@@ -74,4 +85,13 @@ struct AppColors {
     static let tagRiskMedium = "#FD895A"
     static let tagRiskHigh = "#B32D0C"
     static let tagRiskWarning = "#FFCB59"
+
+    static func applyPrimaryOverride(hex: String?) {
+        primaryOverrideHex = hex
+    }
+
+    private static func isValidHexColor(_ hex: String) -> Bool {
+        let cleanedHex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        return cleanedHex.count == 6 || cleanedHex.count == 8
+    }
 }

@@ -18,6 +18,16 @@ struct KioskContentService: KioskContentServiceProtocol {
 
     func fetchScreenSaverData() async throws -> [ScreenSaverItem] {
         let response = try await client.get(ScreenSaverResponse.self, from: AppAPIEndpoints.screenSaverData)
+
+        print(
+            """
+            [KioskContentService] Screen saver response received:
+            itemCount=\(response.Data.count)
+            titles=\(response.Data.map(\.title))
+            imageURLs=\(response.Data.map(\.image))
+            """
+        )
+
         return response.Data
     }
 }

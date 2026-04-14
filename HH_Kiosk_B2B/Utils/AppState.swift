@@ -45,10 +45,12 @@ class AppState: ObservableObject {
 
         do {
             brandingData = try await brandingService.fetchBrandingDetails(code: clientID)
+            AppColors.applyPrimaryOverride(hex: brandingData?.brandingInfo.primaryColorHex)
             isBrandingLoading = false
         } catch {
             brandingData = nil
             brandingErrorMessage = error.localizedDescription
+            AppColors.applyPrimaryOverride(hex: nil)
             isBrandingLoading = false
         }
     }
@@ -57,5 +59,6 @@ class AppState: ObservableObject {
         brandingData = nil
         brandingErrorMessage = nil
         isBrandingLoading = false
+        AppColors.applyPrimaryOverride(hex: nil)
     }
 }

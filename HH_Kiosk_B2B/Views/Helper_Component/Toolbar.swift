@@ -1,9 +1,12 @@
 import SwiftUI
 
 struct Toolbar: View {
+    @EnvironmentObject var appState: AppState
+
     // For updating time in the toolbar
     @State private var currentTime: String = HomeScreen.getCurrentTime()
     private let timer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
+
     var body: some View {
         HStack {
             Image(AppIconNames.Asset.logo)
@@ -11,9 +14,41 @@ struct Toolbar: View {
                 .scaledToFit()
                 .frame(width: 200.w, height: 140.h)
                 .padding([.vertical], 16.h)
-            
+
             Spacer()
-            // White bordered box with text
+
+            brandedCompanyLogo
+
+            Spacer()
+
+            DateTimeView()
+        }
+        .padding(.horizontal, 24.w)
+        .padding(.vertical, 10.h)
+        .background(Color(AppColors.primary))
+        .onReceive(timer) { _ in
+            currentTime = HomeScreen.getCurrentTime()
+        }
+    }
+
+    @ViewBuilder
+    private var brandedCompanyLogo: some View {
+        if let logoURLString = appState.brandingData?.brandingInfo.logo,
+           let logoURL = URL(string: logoURLString) {
+            CachedAsyncImage(
+                url: logoURL,
+                width: 220.w,
+                height: 110.h,
+                cornerRadius: 0
+            ) { image in
+                image
+                    .resizable()
+                    .scaledToFit()
+                    .padding(.horizontal, 12.w)
+                    .padding(.vertical, 8.h)
+            }
+            .background(Color(AppColors.white))
+        } else {
             Text(SharedViewStrings.Toolbar.companyLogoPlaceholder)
                 .font(.system(size: 24.sp, weight: .semibold))
                 .foregroundColor(Color(AppColors.white))
@@ -23,18 +58,7 @@ struct Toolbar: View {
                     RoundedRectangle(cornerRadius: 0)
                         .stroke(Color(AppColors.white), lineWidth: 5.w)
                 )
-            
-            Spacer()
-            
-            DateTimeView()
         }
-        .padding(.horizontal,24.w)
-        .padding(.vertical, 10.h)
-        .background(Color(AppColors.primary))
-        .onReceive(timer) { _ in
-            currentTime = HomeScreen.getCurrentTime()
-        }
-        
     }
 }
 
