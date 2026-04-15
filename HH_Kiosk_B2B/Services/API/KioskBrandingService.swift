@@ -25,9 +25,6 @@ struct KioskBrandingService: KioskBrandingServiceProtocol {
             primaryColorHex=\(response.brandingInfo.primaryColorHex)
             accentColorHex=\(response.brandingInfo.accentColorHex)
             logo=\(response.brandingInfo.logo)
-            welcomeText=\(response.screensaverData.welcomeText)
-            subtitle=\(response.screensaverData.subtitle)
-            carouselImageCount=\(response.screensaverData.carouselImages.count)
             """
         )
 

@@ -50,7 +50,7 @@ struct FaceScanPromoView: View {
         }
         .padding()
         .frame(height: 240.h)
-        .background(Color(AppColors.primaryActionOrange))
+        .background(Color(AppColors.ctaGreen))
         .clipShape(RoundedRectangle(cornerRadius: 24.r))
         .sheet(isPresented: $showWebView) {
             WebViewSheetView(url: URL(string: HomeScreenStrings.Promo.demoURL)!)

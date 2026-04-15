@@ -28,7 +28,7 @@ enum HomeScreenStrings {
         static let loading = "Loading Weather..."
         static let errorTitle = "Error:"
         static let fetchingLocation = "Fetching location..."
-        static let welcomePrefix = "Welcome to"
+        static let welcomePrefix = "Welcome to the"
         static let companyName = "[ABC Company]"
         static let kioskSuffix = "Kiosk"
     }
@@ -193,12 +193,12 @@ enum ResultScreenStrings {
                 "medium": "Your results indicate that there is a <tag color=\"\(AppColors.tagRiskWarning)\">medium risk</tag> that you may have an HbA1c > 5.7%, especially if your results are 51% or over.",
                 "high": "Your results indicate that it is <tag color=\"\(AppColors.tagRiskHigh)\">very likely</tag> that you have an HbA1c > 5.7%."
             ],
-            "Hypercholesterolemia Risk": [
+            "High Cholesterol Risk": [
                 "low": "Your results indicate that you are at a <tag color=\"\(AppColors.tagRiskLow)\">low risk</tag> of having abnormally high cholesterol.",
                 "medium": "Your results indicate that you are at a <tag color=\"\(AppColors.tagRiskWarning)\">medium risk</tag> of having abnormally high cholesterol.",
                 "high": "Your results indicate that you are at a <tag color=\"\(AppColors.tagRiskHigh)\">high risk</tag> of having abnormally high cholesterol."
             ],
-            "Hypertriglyceridemia Risk": [
+            "High Triglycerides Risk": [
                 "low": "Your results indicate that you are at a <tag color=\"\(AppColors.tagRiskLow)\">low risk</tag> of having abnormally high triglycerides.",
                 "medium": "Your results indicate that you are at a <tag color=\"\(AppColors.tagRiskWarning)\">medium risk</tag> of having abnormally high triglycerides.",
                 "high": "Your results indicate that you are at a <tag color=\"\(AppColors.tagRiskHigh)\">high risk</tag> of having abnormally high triglycerides."
@@ -211,8 +211,8 @@ enum ResultScreenStrings {
             case "HBA1C_RISK_PROB": return "HbA1c Risk"
             case "BP_SYSTOLIC": return "Systolic Blood Pressure"
             case "BP_DIASTOLIC": return "Diastolic Blood Pressure"
-            case "HDLTC_RISK_PROB": return "Hypercholesterolemia Risk"
-            case "TG_RISK_PROB": return "Hypertriglyceridemia Risk"
+            case "HDLTC_RISK_PROB": return "High Cholesterol Risk"
+            case "TG_RISK_PROB": return "High Triglycerides Risk"
             default: return key.replacingOccurrences(of: "_", with: " ")
             }
         }

@@ -2,7 +2,9 @@ import UIKit
 
 struct AppColors {
     private static let defaultPrimary = UIColor(hex: "#142A6D")
+    private static let defaultCTA = UIColor(hex: "#B8EB5E")
     private static var primaryOverrideHex: String?
+    private static var accentOverrideHex: String?
 
     static var primary: UIColor {
         guard let primaryOverrideHex,
@@ -11,6 +13,15 @@ struct AppColors {
         }
 
         return UIColor(hex: primaryOverrideHex)
+    }
+
+    static var ctaGreen: UIColor {
+        guard let accentOverrideHex,
+              isValidHexColor(accentOverrideHex) else {
+            return defaultCTA
+        }
+
+        return UIColor(hex: accentOverrideHex)
     }
 
     static let secondary = UIColor(hex: "#F2C800")
@@ -56,7 +67,6 @@ struct AppColors {
     static let resultAlertBackground = UIColor(hex: "#FFE7DE")
     static let resultAlertBorder = UIColor(hex: "#A92E00")
     static let resultAlertText = UIColor(hex: "#8A2600")
-    static let ctaGreen = UIColor(hex: "#B8EB5E")
     static let mutedControlGray = UIColor(hex: "#C4C4C4")
     static let primaryActionOrange = UIColor(hex: "#EE4B0E")
     static let clientIDDialogBackground = UIColor(hex: "#030F33")
@@ -88,6 +98,10 @@ struct AppColors {
 
     static func applyPrimaryOverride(hex: String?) {
         primaryOverrideHex = hex
+    }
+
+    static func applyAccentOverride(hex: String?) {
+        accentOverrideHex = hex
     }
 
     private static func isValidHexColor(_ hex: String) -> Bool {

@@ -142,13 +142,18 @@ struct HomeScreen: View {
     }
 }
 private struct WeatherContentView: View {
+    @EnvironmentObject private var appState: AppState
     @ObservedObject var viewModel: WeatherViewModel
+
+    private var companyName: String {
+        appState.brandingData?.brandingInfo.companyName ?? HomeScreenStrings.Weather.companyName
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12.h) {
             HStack{
                 buildSemiBoldText(HomeScreenStrings.Weather.welcomePrefix, 36.sp)
-                buildSemiBoldText(HomeScreenStrings.Weather.companyName, 36.sp,color: Color(AppColors.companyAccentText))
+                buildSemiBoldText(companyName, 36.sp,color: Color(AppColors.companyAccentText))
                 buildSemiBoldText(HomeScreenStrings.Weather.kioskSuffix, 36.sp)
             }
             .padding(.leading,40.w)
@@ -161,14 +166,7 @@ private struct WeatherContentView: View {
         .frame(maxWidth: .infinity, alignment: .top)
     }
     
-    private func getGreetingBasedOnTime() -> String {
-        let hour = Calendar.current.component(.hour, from: Date())
-        switch hour {
-        case 5..<12: return "Good morning!"
-        case 12..<18: return "Good afternoon!"
-        default: return "Good evening!"
-        }
-    }
+
 }
 
 private struct WeatherCard: View {
