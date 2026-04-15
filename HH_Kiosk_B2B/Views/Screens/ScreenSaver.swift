@@ -8,6 +8,10 @@ struct ScreenSaver: View {
     var body: some View {
         ZStack {
             // Background
+            //here we need to add a ractangle background that cover whole screen color will be AppColors.primary
+            Rectangle()
+                   .fill(Color(AppColors.primary))
+                   .ignoresSafeArea()
             Image(AppIconNames.Asset.screensaverBackground)
                 .resizable()
                 .scaledToFill()
