@@ -66,7 +66,7 @@ private struct BrandedCompanyLogoView: View {
                     .padding(.horizontal, 12.w)
                     .padding(.vertical, 8.h)
             }
-            .background(Color(AppColors.white))
+            .background(Color.clear)
         } else {
             Text(SharedViewStrings.Toolbar.companyLogoPlaceholder)
                 .font(.system(size: 24.sp, weight: .semibold))
