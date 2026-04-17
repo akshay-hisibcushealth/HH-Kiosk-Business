@@ -245,7 +245,7 @@ enum ScreenSaverStrings {
     static let loading = "Loading..."
     static let title = "Welcome to the Hibiscus Wellness Kiosk!"
     static let subtitle = "Take a few minutes to check in on your health."
-    static let actionButton = "Start Your Health Journey."
+    static let actionButton = "Start Your Health Journey"
     static let qrPrompt = "Scan to try it on your smartphone!"
 }
 
