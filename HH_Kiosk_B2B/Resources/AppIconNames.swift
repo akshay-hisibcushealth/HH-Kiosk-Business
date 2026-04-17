@@ -29,7 +29,7 @@ enum AppIconNames {
         static let sun = "sun"
         static let clientIdScreenBackground = "client_id_screen_background"
     }
-
+    
     enum Symbol {
         static let chevronRight = "chevron.right"
         static let envelopeFill = "envelope.fill"
@@ -43,5 +43,10 @@ enum AppIconNames {
         static let printerFill = "printer.fill"
         static let sunMaxFill = "sun.max.fill"
         static let xmark = "xmark"
+    }
+    
+    enum SvgAsset{
+        static let smile = "smile"
+
     }
 }
