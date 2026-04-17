@@ -47,12 +47,18 @@ class AppState: ObservableObject {
             brandingData = try await brandingService.fetchBrandingDetails(code: clientID)
             AppColors.applyPrimaryOverride(hex: brandingData?.brandingInfo.primaryColorHex)
             AppColors.applyAccentOverride(hex: brandingData?.brandingInfo.accentColorHex)
+            AppColors.applyCTAContentOverride(hex: brandingData?.brandingInfo.onAccentColorHex)
+            AppColors.applyHighlightedDayBackgroundOverride(hex: brandingData?.brandingInfo.highlightedDayBackgroundHex)
+            AppColors.applyScheduleBackgroundOverride(hex: brandingData?.brandingInfo.scheduleBackgroundHex)
             isBrandingLoading = false
         } catch {
             brandingData = nil
             brandingErrorMessage = error.localizedDescription
             AppColors.applyPrimaryOverride(hex: nil)
             AppColors.applyAccentOverride(hex: nil)
+            AppColors.applyCTAContentOverride(hex: nil)
+            AppColors.applyHighlightedDayBackgroundOverride(hex: nil)
+            AppColors.applyScheduleBackgroundOverride(hex: nil)
             isBrandingLoading = false
         }
     }
@@ -63,5 +69,8 @@ class AppState: ObservableObject {
         isBrandingLoading = false
         AppColors.applyPrimaryOverride(hex: nil)
         AppColors.applyAccentOverride(hex: nil)
+        AppColors.applyCTAContentOverride(hex: nil)
+        AppColors.applyHighlightedDayBackgroundOverride(hex: nil)
+        AppColors.applyScheduleBackgroundOverride(hex: nil)
     }
 }

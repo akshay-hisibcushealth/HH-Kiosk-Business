@@ -17,6 +17,7 @@ class ScreenSaverViewModel: ObservableObject {
     @Published var qrImage: String?
     @Published var welcomeText: String = ScreenSaverStrings.title
     @Published var subtitle: String = ScreenSaverStrings.subtitle
+    @Published var actionButton: String = ScreenSaverStrings.actionButton
     @Published var isLoading = false
     private let contentService: KioskContentServiceProtocol
 
@@ -54,6 +55,7 @@ class ScreenSaverViewModel: ObservableObject {
                 self.isLoading = false
                 self.welcomeText = data.welcomeText
                 self.subtitle = data.subtitle
+                self.actionButton = data.actionButtonText ?? ScreenSaverStrings.actionButton
                 self.qrImage = qrAsset?.imageURL
                 self.images = carouselAssets
                     .map(\.imageURL)

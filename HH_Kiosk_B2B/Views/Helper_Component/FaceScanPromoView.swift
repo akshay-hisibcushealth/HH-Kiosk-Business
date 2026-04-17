@@ -11,9 +11,9 @@ struct FaceScanPromoView: View {
         HStack(alignment: .center) {
             VStack(alignment: .leading) {
                 Text(HomeScreenStrings.Promo.title)
-                    .foregroundColor(Color(AppColors.white))
+                    .foregroundColor(Color(AppColors.primary))
                     .font(.system(size: 32.sp, weight: .semibold))
-                buildSemiBoldText(HomeScreenStrings.Promo.subtitle,36.sp,color: Color(AppColors.white))
+                buildSemiBoldText(HomeScreenStrings.Promo.subtitle,36.sp,color: Color(AppColors.primary))
 
 
             }
@@ -22,26 +22,20 @@ struct FaceScanPromoView: View {
             Spacer()
 
             VStack(alignment: .center) {
-                Button(action: {
+                HealthJourneyButtonFaceScanPromoView {
                     isNavigating = true
-                }) {
-                    Image(AppIconNames.Asset.scanButton)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 280.w, height: 80.h)
-                        .padding(.top, 16.h)
                 }
-
+                
                 Button(action: {
                     showWebView = true
                 }) {
                     HStack(spacing: 8) {
                         Image(systemName: AppIconNames.Symbol.playCircleFill)
-                            .foregroundColor(Color(AppColors.white))
+                            .foregroundColor(Color(AppColors.ctaContent))
                             .font(.title3)
                         Text(HomeScreenStrings.Promo.demoButtonTitle)
                             .font(.system(size: 25.sp, weight: .semibold))
-                            .foregroundColor(Color(AppColors.white))
+                            .foregroundColor(Color(AppColors.ctaContent))
                             .underline()
                     }
                 }

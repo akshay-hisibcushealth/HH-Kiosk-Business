@@ -56,7 +56,7 @@ private struct BrandedCompanyLogoView: View {
            let logoURL = URL(string: logoURLString) {
             CachedAsyncImage(
                 url: logoURL,
-                width: 220.w,
+                width: 280.w,
                 height: 110.h,
                 cornerRadius: 0
             ) { image in

@@ -37,6 +37,7 @@ enum HomeScreenStrings {
         static let title = "Curious About Your Health?"
         static let subtitle = "Start with a 30 seconds Face Scan"
         static let demoButtonTitle = "Watch Quick Demo"
+        static let tryFaceScan = "Try Face Scan"
         static let demoURL = "https://drive.google.com/file/d/1dPJs1A6aptEh3yTCVxR5BUlRfyLWa3rL/view?usp=sharing"
     }
 

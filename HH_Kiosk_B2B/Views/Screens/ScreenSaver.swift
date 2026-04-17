@@ -51,7 +51,7 @@ struct ScreenSaver: View {
                     }
                     
                     // Button
-                    HealthJourneyButton(text: ScreenSaverStrings.actionButton)
+                    HealthJourneyButton(text: viewModel.actionButton)
                         .padding(.vertical, 100.h)
                     
                     // Dynamic QR code section

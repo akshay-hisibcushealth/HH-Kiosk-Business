@@ -3,8 +3,14 @@ import UIKit
 struct AppColors {
     private static let defaultPrimary = UIColor(hex: "#142A6D")
     private static let defaultCTA = UIColor(hex: "#B8EB5E")
+    private static let defaultCTAContent = UIColor.white
+    private static let defaultHighlightedDayBackground = UIColor(hex: "#EE4B0E")
+    private static let defaultScheduleBackground = UIColor(hex: "#1ACEA99B")
     private static var primaryOverrideHex: String?
     private static var accentOverrideHex: String?
+    private static var ctaContentOverrideHex: String?
+    private static var highlightedDayBackgroundOverrideHex: String?
+    private static var scheduleBackgroundOverrideHex: String?
 
     static var primary: UIColor {
         guard let primaryOverrideHex,
@@ -22,6 +28,33 @@ struct AppColors {
         }
 
         return UIColor(hex: accentOverrideHex)
+    }
+
+    static var ctaContent: UIColor {
+        guard let ctaContentOverrideHex,
+              isValidHexColor(ctaContentOverrideHex) else {
+            return defaultCTAContent
+        }
+
+        return UIColor(hex: ctaContentOverrideHex)
+    }
+
+    static var highlightedDayBackground: UIColor {
+        guard let highlightedDayBackgroundOverrideHex,
+              isValidHexColor(highlightedDayBackgroundOverrideHex) else {
+            return defaultHighlightedDayBackground
+        }
+
+        return UIColor(hex: highlightedDayBackgroundOverrideHex)
+    }
+
+    static var scheduleBackground: UIColor {
+        guard let scheduleBackgroundOverrideHex,
+              isValidHexColor(scheduleBackgroundOverrideHex) else {
+            return defaultScheduleBackground
+        }
+
+        return UIColor(hex: scheduleBackgroundOverrideHex)
     }
 
     static let secondary = UIColor(hex: "#F2C800")
@@ -102,6 +135,18 @@ struct AppColors {
 
     static func applyAccentOverride(hex: String?) {
         accentOverrideHex = hex
+    }
+
+    static func applyCTAContentOverride(hex: String?) {
+        ctaContentOverrideHex = hex
+    }
+
+    static func applyHighlightedDayBackgroundOverride(hex: String?) {
+        highlightedDayBackgroundOverrideHex = hex
+    }
+
+    static func applyScheduleBackgroundOverride(hex: String?) {
+        scheduleBackgroundOverrideHex = hex
     }
 
     private static func isValidHexColor(_ hex: String) -> Bool {

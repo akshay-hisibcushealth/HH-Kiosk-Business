@@ -85,38 +85,38 @@ struct ScheduleView: View {
             // Title
             SectionHeader(title: HomeScreenStrings.Schedule.sectionTitle,isLeading: true).padding(.top,12.h)
             // Horizontal Days (5 days from today)
-            ScrollView(.horizontal, showsIndicators: false) {
-                LazyHGrid(rows: [GridItem(.flexible())], spacing: 0) {
-                    ForEach(0..<5) { offset in
-                        let date = Calendar.current.date(byAdding: .day, value: offset, to: Date())!
+            HStack(spacing: 0) {
+                ForEach(0..<5) { offset in
+                    let date = Calendar.current.date(byAdding: .day, value: offset, to: Date())!
+                    
+                    VStack {
+                        Text(date, format: .dateTime.day())
+                            .font(.system(size: 24.sp, weight: .medium))
+                            .foregroundColor(
+                                Calendar.current.isDate(date, inSameDayAs: selectedDate) ? Color(AppColors.white) : Color(AppColors.scheduleDayText)
+                            )
                         
-                        VStack {
-                            Text(date, format: .dateTime.day())
-                                .font(.system(size: 24.sp, weight: .medium))
-                                .foregroundColor(
-                                    Calendar.current.isDate(date, inSameDayAs: selectedDate) ? Color(AppColors.white) : Color(AppColors.scheduleDayText)
-                                )
-                            
-                            Text(date, format: .dateTime.weekday(.abbreviated))
-                                .font(.system(size: 28.sp))
-                                .foregroundColor(
-                                    Calendar.current.isDate(date, inSameDayAs: selectedDate) ? Color(AppColors.white) : Color(AppColors.scheduleDayText)
-                                )
-                        }
-                        .frame(width: 75.w, height: 130.h)
-                        .background(
-                            Calendar.current.isDate(date, inSameDayAs: selectedDate)
-                            ? Color(AppColors.primaryActionOrange)
-                            : Color(AppColors.clear)
-                        )
-                        .clipShape(Capsule())
-                        .onTapGesture {
-                            selectedDate = date
-                        }
-                        .padding(.horizontal,10.w)
+                        Text(date, format: .dateTime.weekday(.abbreviated))
+                            .font(.system(size: 28.sp))
+                            .foregroundColor(
+                                Calendar.current.isDate(date, inSameDayAs: selectedDate) ? Color(AppColors.white) : Color(AppColors.scheduleDayText)
+                            )
+                    }
+                    .frame(width: 80.w, height: 130.h)
+                    .background(
+                        Calendar.current.isDate(date, inSameDayAs: selectedDate)
+                        ? Color(AppColors.highlightedDayBackground)
+                        : Color(AppColors.clear)
+                    )
+                    .clipShape(Capsule())
+                    .contentShape(Rectangle())
+                    .frame(maxWidth: .infinity)
+                    .onTapGesture {
+                        selectedDate = date
                     }
                 }
             }
+            .frame(maxWidth: .infinity)
             
             // Daily schedule
             ScrollView {
@@ -152,7 +152,7 @@ struct ScheduleView: View {
                             }
                             .padding(.all,24.w)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(Color(AppColors.scheduleCardBackground))
+                            .background(Color(AppColors.scheduleBackground))
                             .clipShape(RoundedRectangle(cornerRadius: 20.r))
                             
                         }
