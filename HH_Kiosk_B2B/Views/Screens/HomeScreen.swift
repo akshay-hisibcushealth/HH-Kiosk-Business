@@ -153,7 +153,7 @@ private struct WeatherContentView: View {
         VStack(alignment: .leading, spacing: 12.h) {
             HStack{
                 buildSemiBoldText(HomeScreenStrings.Weather.welcomePrefix, 36.sp)
-                buildSemiBoldText(companyName, 36.sp,color: Color(AppColors.companyAccentText))
+                buildSemiBoldText(companyName, 36.sp,color: Color(AppColors.primary))
                 buildSemiBoldText(HomeScreenStrings.Weather.kioskSuffix, 36.sp)
             }
             .padding(.leading,40.w)
