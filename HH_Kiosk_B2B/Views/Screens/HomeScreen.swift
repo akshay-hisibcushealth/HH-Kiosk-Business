@@ -48,11 +48,11 @@ struct HomeScreen: View {
                         .frame(height: 650.h)
                         .padding(.horizontal, 24.w)
 
-                        Image(AppIconNames.Asset.customizedImage)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 700.w,height: 80.h)
-                            .padding(.top,48.h)
+//                        Image(AppIconNames.Asset.customizedImage)
+//                            .resizable()
+//                            .scaledToFill()
+//                            .frame(width: 700.w,height: 80.h)
+//                            .padding(.top,48.h)
                     }
                 }
                 .frame(maxHeight: .infinity, alignment: .top)
