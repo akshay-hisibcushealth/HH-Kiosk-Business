@@ -28,7 +28,7 @@ struct HealthJourneyButton: View {
                         .foregroundColor(textColor)
                         .padding(.trailing, 64.w)
                 }
-                .padding(.vertical, 24.h)
+                .padding(.vertical, 32.h)
                 .background(backgroundColor)
                 .cornerRadius(200.r)
             }
