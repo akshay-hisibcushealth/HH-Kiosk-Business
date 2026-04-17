@@ -11,11 +11,13 @@ struct KioskScreenSaverResponse: Decodable {
 struct KioskBrandingScreenSaverData: Decodable {
     let welcomeText: String
     let subtitle: String
+    let actionButtonText: String?
     let carouselImages: [KioskBrandingCarouselImage]
 
     private enum CodingKeys: String, CodingKey {
         case welcomeText = "welcome_text"
         case subtitle
+        case actionButtonText = "action_button_text"
         case carouselImages = "carousel_images"
     }
 }

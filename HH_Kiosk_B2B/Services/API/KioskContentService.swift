@@ -28,6 +28,7 @@ struct KioskContentService: KioskContentServiceProtocol {
             code=\(code)
             welcomeText=\(response.screensaverData.welcomeText)
             subtitle=\(response.screensaverData.subtitle)
+            actionButtonText=\(response.screensaverData.actionButtonText ?? "nil")
             carouselImageCount=\(response.screensaverData.carouselImages.count)
             imageTitles=\(response.screensaverData.carouselImages.map(\.title))
             imageURLs=\(response.screensaverData.carouselImages.map(\.imageURL))

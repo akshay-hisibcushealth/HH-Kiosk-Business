@@ -24,6 +24,9 @@ struct KioskBrandingService: KioskBrandingServiceProtocol {
             companyName=\(response.brandingInfo.companyName)
             primaryColorHex=\(response.brandingInfo.primaryColorHex)
             accentColorHex=\(response.brandingInfo.accentColorHex)
+            onAccentColorHex=\(response.brandingInfo.onAccentColorHex ?? "nil")
+            highlightedDayBackgroundHex=\(response.brandingInfo.highlightedDayBackgroundHex ?? "nil")
+            scheduleBackgroundHex=\(response.brandingInfo.scheduleBackgroundHex ?? "nil")
             logo=\(response.brandingInfo.logo)
             """
         )
