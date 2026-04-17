@@ -50,7 +50,7 @@ class ResultsViewController: UIViewController {
         updateUI(for: .loading)
 
         // ⚙️ Uncomment this line to show mock data during testing
-//        loadMockDataForDebug()
+        loadMockDataForDebug()
     }
 
     // MARK: - Mock Debug Data

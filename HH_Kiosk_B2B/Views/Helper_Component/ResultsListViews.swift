@@ -55,7 +55,7 @@ struct ResultRow: View {
         VStack(alignment: .leading, spacing: 12) {
             // Header: Title + Subtitle (Preserving iOS Styles)
             VStack(alignment: .leading, spacing: 6) {
-                buildBoldText(title, 24.sp, color: Color(AppColors.resultTitleText))
+                buildBoldText(title, 24.sp, color: Color(AppColors.primary))
                 Text(subtitle)
                     .font(.system(size: 22.sp))
                     .foregroundColor(Color(AppColors.bodyText))

@@ -14,7 +14,7 @@ struct HomeScreen: View {
     
     // Inactivity management
     @State private var inactivityTimer: Timer?
-    private let inactivityLimit: TimeInterval = 1 // seconds
+    private let inactivityLimit: TimeInterval = 30 // seconds
     
     var body: some View {
         NavigationStack {
