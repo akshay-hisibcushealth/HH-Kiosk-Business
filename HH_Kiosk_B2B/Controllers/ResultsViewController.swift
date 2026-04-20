@@ -3,6 +3,7 @@ import SwiftUI
 import AnuraCore
 
 class ResultsViewController: UIViewController {
+    private weak var appState: AppState?
 
     // MARK: - Public Properties (required by MeasurementDelegate)
     var results: [String: MeasurementResults.SignalResult] = [:] {
@@ -16,7 +17,7 @@ class ResultsViewController: UIViewController {
 
     // MARK: - Private Properties
     private var resultsModel = ResultsModel()
-    private var resultScreenHost: UIHostingController<ResultScreen>!
+    private var resultScreenHost: UIHostingController<AnyView>!
     private var resultButtonsHost: UIHostingController<ResultScreenButtons>!
     private var activityIndicator: UIActivityIndicatorView!
     private var errorLabel: UILabel!
@@ -36,6 +37,16 @@ class ResultsViewController: UIViewController {
         "HDLTC_RISK_PROB",
         "TG_RISK_PROB"
     ]
+
+    init(appState: AppState? = nil) {
+        self.appState = appState
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     // MARK: - Lifecycle
     override func viewDidLoad() {
@@ -81,7 +92,7 @@ class ResultsViewController: UIViewController {
     
     private func exportPDF() {
         // 1. Create the view
-        let pdfView = ResultScreen(
+        let pdfView = makeResultScreen(
             model: self.resultsModel,
             showBottomButtons: false,
             showLoadingOverlay: false
@@ -105,7 +116,7 @@ class ResultsViewController: UIViewController {
 
     // MARK: - Setup Views
     private func setupSwiftUIScreen() {
-        let screen = ResultScreen(model: resultsModel, showBottomButtons: false, showLoadingOverlay: false)
+        let screen = makeResultScreen(model: resultsModel, showBottomButtons: false, showLoadingOverlay: false)
         resultScreenHost = UIHostingController(rootView: screen)
         addChild(resultScreenHost)
         resultScreenHost.view.translatesAutoresizingMaskIntoConstraints = false
@@ -253,11 +264,11 @@ class ResultsViewController: UIViewController {
                 onDownloadPDF: { [weak self] in
                     self?.exportPDF()
                 },
-                onPrint: { [weak self] in
-                    self?.printResults()
-                }
-            )
-            Task {
+            onPrint: { [weak self] in
+                self?.printResults()
+            }
+        )
+        Task {
                 await self.prepareDataForAPI(self.results)
             }
             self.updateUI(for: .success)
@@ -278,7 +289,7 @@ class ResultsViewController: UIViewController {
         let pdfPageHeight: CGFloat = 841.8 // A4 height
 
         // 3. Create the SwiftUI ResultScreen view sized to screen width. We'll measure height dynamically.
-        let printView = ResultScreen(
+        let printView = makeResultScreen(
             model: self.resultsModel,
             showBottomButtons: false,
             showLoadingOverlay: false
@@ -361,6 +372,26 @@ class ResultsViewController: UIViewController {
 
         // Return a ceilinged size to avoid fractional pixel rounding issues later
         return CGSize(width: ceil(fittingSize.width), height: ceil(fittingSize.height))
+    }
+
+    private func makeResultScreen(
+        model: ResultsModel,
+        result: [String: MeasurementResults.SignalResult] = [:],
+        showBottomButtons: Bool,
+        showLoadingOverlay: Bool
+    ) -> AnyView {
+        let screen = ResultScreen(
+            model: model,
+            result: result,
+            showBottomButtons: showBottomButtons,
+            showLoadingOverlay: showLoadingOverlay
+        )
+
+        if let appState {
+            return AnyView(screen.environmentObject(appState))
+        } else {
+            return AnyView(screen)
+        }
     }
 
     // Helper: Render SwiftUI view into UIImage with device screen scale for best fidelity

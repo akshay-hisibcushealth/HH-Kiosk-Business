@@ -12,6 +12,7 @@ import AnuraCore
 class FaceScanManager: ObservableObject{
     @Published var isPresentingMeasurementView = false
 
+    weak var appState: AppState?
     
     var api : DeepAffexMiniAPIClient!
     var measurementDelegate : MeasurementDelegate!
@@ -37,6 +38,7 @@ class FaceScanManager: ObservableObject{
     func initializeAPI() {
         api = DeepAffexMiniAPIClient(network: WebService())
         measurementDelegate = MeasurementDelegate(api: self.api)
+        measurementDelegate.appState = appState
     }
     
 
@@ -178,5 +180,4 @@ class FaceScanManager: ObservableObject{
 
     
 }
-
 

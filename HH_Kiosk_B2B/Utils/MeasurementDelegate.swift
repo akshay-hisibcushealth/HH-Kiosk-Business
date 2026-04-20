@@ -23,6 +23,7 @@ class MeasurementDelegate : AnuraMeasurementDelegate {
     
     var api : DeepAffexMiniAPIProtocol
     var measurementResultsSubscriber : MeasurementResultsSubscriber!
+    weak var appState: AppState?
     
     weak var measurementController : AnuraMeasurementViewController?
     weak var resultsController : ResultsViewController?
@@ -112,8 +113,8 @@ class MeasurementDelegate : AnuraMeasurementDelegate {
         print("***** anuraMeasurementControllerDidFinishMeasuring")
         
         // Blood Flow Extraction is complete - Present results view controller
-        
-        let resultsController = ResultsViewController()
+
+        let resultsController = ResultsViewController(appState: appState)
         resultsController.dismissBlock = resetMeasurementID
         let navigationController = UINavigationController(rootViewController: resultsController)
         navigationController.modalPresentationStyle = .fullScreen

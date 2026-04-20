@@ -68,7 +68,7 @@ struct RootView: View {
 
 struct ResultsViewWrapper: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> ResultsViewController {
-        let controller = ResultsViewController()
+        let controller = ResultsViewController(appState: nil)
         // This will automatically call loadMockData() in viewDidLoad
         return controller
     }

@@ -264,6 +264,7 @@ struct PhysicalAttributesScreen: View {
     
     private func proceedToScan() {
         isLoading = true
+        faceManager.appState = appState
 
         // Save user locally
         LocalUserStorage.saveUser(
