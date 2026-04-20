@@ -148,6 +148,8 @@ class FaceScanManager: ObservableObject{
         
         
         let uiConfig: MeasurementUIConfiguration = .defaultConfiguration
+        uiConfig.showStatusMessages = false
+        uiConfig.showMeasurementStartedMessage = false
         let faceTracker = MediaPipeFaceTracker(quality: .high)
         
         let viewController = AnuraMeasurementViewController(
@@ -180,4 +182,3 @@ class FaceScanManager: ObservableObject{
 
     
 }
-

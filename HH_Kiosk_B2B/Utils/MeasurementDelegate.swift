@@ -13,6 +13,7 @@
 //
 
 import AnuraCore
+import UIKit
 
 // MeasurementDelegate implements the AnuraMeasurementDelegate protocol methods
 // to respond to various events from Anura. It communitcates with DeepAffex API
@@ -33,6 +34,7 @@ class MeasurementDelegate : AnuraMeasurementDelegate {
     var user : AnuraUser?
     
     var timeoutTimer : Timer?
+    private let measurementBanner = AdaptiveMeasurementBanner()
     
     init(api: DeepAffexMiniAPIProtocol) {
         self.api = api
@@ -48,6 +50,7 @@ class MeasurementDelegate : AnuraMeasurementDelegate {
 
         // Store weak reference to AnuraMeasurementViewController to use it to decode measurement results
         self.measurementController = controller
+        measurementBanner.installIfNeeded(in: controller)
         
         // This is where constraints can be configured
         // Example:
@@ -59,12 +62,14 @@ class MeasurementDelegate : AnuraMeasurementDelegate {
     // Called when the measurement controller appears on the screen
     func anuraMeasurementControllerDidAppear(_ controller: AnuraMeasurementViewController) {
         print("***** anuraMeasurementControllerDidAppear")
+        measurementBanner.installIfNeeded(in: controller)
         return
     }
     
     // Called when the measurement controller disappears from the screen
     func anuraMeasurementControllerDidDisappear(_ controller: AnuraMeasurementViewController) {
         print("***** anuraMeasurementControllerDidDisappear")
+        measurementBanner.teardown()
         return
     }
     
@@ -94,6 +99,7 @@ class MeasurementDelegate : AnuraMeasurementDelegate {
         //                                                  "gender": "male"])
         
         controller.setMeasurementProperties(properties: user?.measurementProperties ?? [:])
+        measurementBanner.showInitialPrompt()
         
         // Start measurement countdown
         // Can also call controller.startMeasurement() to start measurement immediately
@@ -103,6 +109,7 @@ class MeasurementDelegate : AnuraMeasurementDelegate {
     // Called when countdown has finished and Anura is about to start the measurement
     func anuraMeasurementControllerDidStartMeasuring(_ controller: AnuraMeasurementViewController) {
         print("***** anuraMeasurementControllerDidStartMeasuring")
+        measurementBanner.handleMeasurementStart()
         
         // Send a request to DeepAffex API to create a new measurement
         createNewMeasurement()
@@ -111,6 +118,7 @@ class MeasurementDelegate : AnuraMeasurementDelegate {
     // Called when the measurement is complete
     func anuraMeasurementControllerDidFinishMeasuring(_ controller: AnuraMeasurementViewController) {
         print("***** anuraMeasurementControllerDidFinishMeasuring")
+        measurementBanner.clear()
         
         // Blood Flow Extraction is complete - Present results view controller
 
@@ -177,12 +185,13 @@ class MeasurementDelegate : AnuraMeasurementDelegate {
     
     // Called when receiving a constraint warning from Anura. Check the `status` variable for information about the warning.
     func anuraMeasurementControllerDidGetConstraintsWarning(_ controller: AnuraMeasurementViewController, status: FaceConstraintsStatus) {
-        
+        measurementBanner.handleWarning(status)
     }
     
     // Called when a measurement is canclled due to a constraint failure. Check the `status` variable for information about the failure.
     func anuraMeasurementControllerDidCancelMeasurement(_ controller: AnuraMeasurementViewController, status: FaceConstraintsStatus) {
         print("***** anuraMeasurementControllerDidCancelMeasurement: \(status.identifier)")
+        measurementBanner.clear()
         
         resultsController?.measurementDidCancel()
         
@@ -193,11 +202,236 @@ class MeasurementDelegate : AnuraMeasurementDelegate {
     // Called on every frame update - Here you can inspect MeasurementPipelineInfo
     // for current lighting quality score and pipeline state
     func anuraMeasurementControllerDidUpdate(_ controller: AnuraMeasurementViewController, info: MeasurementPipelineInfo) {
-        
+        measurementBanner.handlePipelineUpdate(info)
+
         // For debugging, you may print the info contained in MeasurementPipelineInfo
         // Example:
         // print(info.currentLightingQuality)
         // print(info.state)
+    }
+}
+
+private final class AdaptiveMeasurementBanner {
+    private struct TimelineEntry {
+        let offset: TimeInterval
+        let message: String
+    }
+
+    private enum Copy {
+        static let initialPrompt = "CENTER YOUR FACE"
+        static let holdStill = "Hold still"
+        static let moveCloser = "Move closer"
+        static let moveFurther = "Move further"
+        static let timeline: [TimelineEntry] = [
+            TimelineEntry(offset: 1, message: "Breathe naturally and stay still"),
+            TimelineEntry(offset: 5, message: "Reading your pulse from facial blood flow"),
+            TimelineEntry(offset: 10, message: "Detecting cardiovascular patterns..."),
+            TimelineEntry(offset: 16, message: "Halfway - eyes on the camera"),
+            TimelineEntry(offset: 22, message: "Capturing your final readings..."),
+            TimelineEntry(offset: 25, message: "Almost there, don't move"),
+            TimelineEntry(offset: 27, message: "Last few seconds...")
+        ]
+    }
+    
+    private weak var hostViewController: UIViewController?
+    private let containerView = UIView()
+    private let messageLabel = UILabel()
+    private var installed = false
+    private var lastMessage: String?
+    private var lastWarningAt: Date?
+    private var scheduledWorkItems: [DispatchWorkItem] = []
+    private var baseMessage: String?
+    private var isMeasurementActive = false
+    
+    func installIfNeeded(in viewController: UIViewController) {
+        guard installed == false || hostViewController !== viewController else {
+            return
+        }
+        
+        teardown()
+        hostViewController = viewController
+        installed = true
+        
+        containerView.translatesAutoresizingMaskIntoConstraints = false
+        containerView.backgroundColor = UIColor(white: 0.20, alpha: 0.92)
+        containerView.layer.cornerRadius = 10
+        containerView.layer.masksToBounds = true
+        containerView.alpha = 0
+        containerView.isUserInteractionEnabled = false
+        
+        messageLabel.translatesAutoresizingMaskIntoConstraints = false
+        messageLabel.textColor = .white
+        messageLabel.font = .systemFont(ofSize: 18, weight: .semibold)
+        messageLabel.numberOfLines = 2
+        messageLabel.textAlignment = .center
+        messageLabel.adjustsFontSizeToFitWidth = true
+        messageLabel.minimumScaleFactor = 0.75
+        
+        containerView.addSubview(messageLabel)
+        viewController.view.addSubview(containerView)
+        
+        NSLayoutConstraint.activate([
+            messageLabel.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 8),
+            messageLabel.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -8),
+            messageLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 14),
+            messageLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -14),
+            
+            containerView.topAnchor.constraint(equalTo: viewController.view.safeAreaLayoutGuide.topAnchor, constant: 14),
+            containerView.centerXAnchor.constraint(equalTo: viewController.view.centerXAnchor),
+            containerView.widthAnchor.constraint(lessThanOrEqualTo: viewController.view.widthAnchor, multiplier: 0.7),
+            containerView.widthAnchor.constraint(greaterThanOrEqualToConstant: 220)
+        ])
+    }
+    
+    func showInitialPrompt() {
+        isMeasurementActive = false
+        updateBaseMessage(Copy.initialPrompt)
+    }
+    
+    func handleMeasurementStart() {
+        isMeasurementActive = true
+        startTimeline()
+    }
+
+    func handleWarning(_ status: FaceConstraintsStatus) {
+        lastWarningAt = Date()
+        print("***** constraint warning: \(status.identifier) | \(status.warningMessage)")
+        show(message: mappedMessage(for: status))
+    }
+
+    func handlePipelineUpdate(_ info: MeasurementPipelineInfo) {
+        switch info.state {
+        case .readyToMeasure:
+            if isMeasurementActive == false {
+                // Before the measurement actually starts, keep the guidance focused on
+                // getting the subject positioned correctly unless the SDK emits a real warning.
+                if shouldPreferBaseMessage {
+                    showBaseMessageIfNeeded()
+                }
+            } else if shouldPreferBaseMessage {
+                showBaseMessageIfNeeded()
+            }
+        case .hold:
+            if isMeasurementActive, shouldPreferBaseMessage {
+                showBaseMessageIfNeeded()
+            }
+        case .measuring, .extracting:
+            if shouldPreferBaseMessage {
+                showBaseMessageIfNeeded()
+            }
+        case .complete, .failure, .off:
+            clear()
+        default:
+            break
+        }
+    }
+    
+    func clear() {
+        cancelScheduledMessages()
+        lastWarningAt = nil
+        lastMessage = nil
+        baseMessage = nil
+        isMeasurementActive = false
+        hideMessage()
+    }
+    
+    func teardown() {
+        cancelScheduledMessages()
+        hideMessage()
+        containerView.removeFromSuperview()
+        messageLabel.removeFromSuperview()
+        installed = false
+        hostViewController = nil
+        lastMessage = nil
+        lastWarningAt = nil
+        baseMessage = nil
+        isMeasurementActive = false
+    }
+    
+    private func show(message: String) {
+        guard installed else {
+            return
+        }
+        guard lastMessage != message else {
+            return
+        }
+        
+        lastMessage = message
+        messageLabel.text = message
+        
+        UIView.animate(withDuration: 0.2) {
+            self.containerView.alpha = 1
+        }
+    }
+
+    private func updateBaseMessage(_ message: String) {
+        baseMessage = message
+        if shouldPreferBaseMessage {
+            show(message: message)
+        }
+    }
+
+    private func showBaseMessageIfNeeded() {
+        guard let baseMessage else {
+            return
+        }
+
+        show(message: baseMessage)
+    }
+
+    private func hideMessage() {
+        UIView.animate(withDuration: 0.2) {
+            self.containerView.alpha = 0
+        }
+    }
+
+    private func startTimeline() {
+        cancelScheduledMessages()
+
+        Copy.timeline.forEach { entry in
+            let workItem = DispatchWorkItem { [weak self] in
+                self?.updateBaseMessage(entry.message)
+            }
+            scheduledWorkItems.append(workItem)
+            DispatchQueue.main.asyncAfter(deadline: .now() + entry.offset, execute: workItem)
+        }
+    }
+
+    private func cancelScheduledMessages() {
+        scheduledWorkItems.forEach { $0.cancel() }
+        scheduledWorkItems.removeAll()
+    }
+
+    private var shouldPreferBaseMessage: Bool {
+        guard let lastWarningAt else {
+            return true
+        }
+
+        return Date().timeIntervalSince(lastWarningAt) >= 0.8
+    }
+
+    private func mappedMessage(for status: FaceConstraintsStatus) -> String {
+        let identifier = status.identifier.lowercased()
+        let warning = status.warningMessage.lowercased()
+        let combined = "\(identifier) \(warning)"
+
+        if containsAny(in: combined, terms: ["too far", "move closer", "closer", "far", "small face", "face too small"]) {
+            return Copy.moveCloser
+        }
+
+        if containsAny(in: combined, terms: ["too close", "move further", "farther", "further", "large face", "face too large"]) {
+            return Copy.moveFurther
+        }
+
+        if containsAny(in: combined, terms: ["movement", "moving", "still", "steady", "hold"]) {
+            return Copy.holdStill
+        }
+
+        return Copy.initialPrompt
+    }
+
+    private func containsAny(in source: String, terms: [String]) -> Bool {
+        terms.contains { source.contains($0) }
     }
 }
 
