@@ -1,4 +1,78 @@
 import SwiftUI
+import UIKit
+
+actor ImageCacheStore {
+    static let shared = ImageCacheStore()
+
+    private let fileManager = FileManager.default
+    private let cacheDirectory: URL
+
+    init() {
+        let baseDirectory = fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first
+            ?? fileManager.temporaryDirectory
+        cacheDirectory = baseDirectory.appendingPathComponent("ScreenSaverImageCache", isDirectory: true)
+
+        if !fileManager.fileExists(atPath: cacheDirectory.path) {
+            try? fileManager.createDirectory(at: cacheDirectory, withIntermediateDirectories: true)
+        }
+    }
+
+    func image(for url: URL) -> UIImage? {
+        guard let data = try? Data(contentsOf: fileURL(for: url)),
+              let image = UIImage(data: data) else {
+            return nil
+        }
+
+        return image
+    }
+
+    func store(_ data: Data, for url: URL) {
+        try? data.write(to: fileURL(for: url), options: [.atomic])
+    }
+
+    private func fileURL(for url: URL) -> URL {
+        let fileName = Data(url.absoluteString.utf8).base64EncodedString()
+            .replacingOccurrences(of: "/", with: "_")
+        return cacheDirectory.appendingPathComponent(fileName)
+    }
+}
+
+enum CachedImagePrefetcher {
+    static func preload(urls: [URL]) async {
+        await withTaskGroup(of: Void.self) { group in
+            for url in urls {
+                group.addTask {
+                    await preload(url: url)
+                }
+            }
+        }
+    }
+
+    static func preload(url: URL) async {
+        let request = URLRequest(url: url)
+
+        if let cachedResponse = URLCache.shared.cachedResponse(for: request),
+           UIImage(data: cachedResponse.data) != nil {
+            await ImageCacheStore.shared.store(cachedResponse.data, for: url)
+            return
+        }
+
+        if await ImageCacheStore.shared.image(for: url) != nil {
+            return
+        }
+
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard UIImage(data: data) != nil else { return }
+
+            let cachedResponse = CachedURLResponse(response: response, data: data)
+            URLCache.shared.storeCachedResponse(cachedResponse, for: request)
+            await ImageCacheStore.shared.store(data, for: url)
+        } catch {
+            print("Failed to preload image from \(url):", error)
+        }
+    }
+}
 
 struct CachedAsyncImage<Content: View>: View {
     private let url: URL?
@@ -48,10 +122,16 @@ struct CachedAsyncImage<Content: View>: View {
 
         let request = URLRequest(url: url)
 
+        if let diskImage = await ImageCacheStore.shared.image(for: url) {
+            loadedImage = Image(uiImage: diskImage)
+            return
+        }
+
         // Try cache first
         if let cachedResponse = URLCache.shared.cachedResponse(for: request),
            let uiImage = UIImage(data: cachedResponse.data) {
             loadedImage = Image(uiImage: uiImage)
+            await ImageCacheStore.shared.store(cachedResponse.data, for: url)
             return
         }
 
@@ -64,6 +144,7 @@ struct CachedAsyncImage<Content: View>: View {
                 // Save to cache
                 let cached = CachedURLResponse(response: response, data: data)
                 URLCache.shared.storeCachedResponse(cached, for: request)
+                await ImageCacheStore.shared.store(data, for: url)
             }
         } catch {
             print("Failed to load image from \(url):", error)

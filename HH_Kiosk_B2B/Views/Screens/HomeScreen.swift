@@ -76,6 +76,11 @@ struct HomeScreen: View {
             .onAppear {
                 startInactivityTimer()
             }
+            .task {
+                if let clientID = LocalUserStorage.loadClientID() {
+                    await appState.warmScreenSaverData(for: clientID, forceRefresh: true)
+                }
+            }
             .onChange(of: appState.isScreenSaverSuppressed) { _, isSuppressed in
                 if isSuppressed {
                     stopInactivityTimer()

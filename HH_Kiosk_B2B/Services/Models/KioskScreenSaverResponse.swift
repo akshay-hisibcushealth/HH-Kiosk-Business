@@ -1,6 +1,6 @@
 import Foundation
 
-struct KioskScreenSaverResponse: Decodable {
+struct KioskScreenSaverResponse: Codable {
     let screensaverData: KioskBrandingScreenSaverData
 
     private enum CodingKeys: String, CodingKey {
@@ -8,7 +8,7 @@ struct KioskScreenSaverResponse: Decodable {
     }
 }
 
-struct KioskBrandingScreenSaverData: Decodable {
+struct KioskBrandingScreenSaverData: Codable {
     let welcomeText: String
     let subtitle: String
     let actionButtonText: String?
@@ -22,7 +22,7 @@ struct KioskBrandingScreenSaverData: Decodable {
     }
 }
 
-struct KioskBrandingCarouselImage: Decodable, Identifiable {
+struct KioskBrandingCarouselImage: Codable, Identifiable {
     let imageURL: String
     let title: String
     let order: Int

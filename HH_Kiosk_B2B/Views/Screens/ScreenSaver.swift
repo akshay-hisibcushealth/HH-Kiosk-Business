@@ -1,8 +1,45 @@
 import SwiftUI
 
 struct ScreenSaver: View {
-    @StateObject private var viewModel = ScreenSaverViewModel()
+    @EnvironmentObject private var appState: AppState
     @State private var refreshTrigger = false
+
+    private enum ScreenSaverAssetTitle {
+        static let qrImage = "kiosk-qr.jpg"
+    }
+
+    private var carouselImages: [String] {
+        guard let data = appState.screenSaverData else { return [] }
+
+        return data.carouselImages
+            .filter { $0.title.lowercased() != ScreenSaverAssetTitle.qrImage }
+            .sorted { lhs, rhs in
+                if lhs.order == rhs.order {
+                    return lhs.title.localizedCaseInsensitiveCompare(rhs.title) == .orderedAscending
+                }
+
+                return lhs.order < rhs.order
+            }
+            .map(\.imageURL)
+    }
+
+    private var qrImageURL: String? {
+        appState.screenSaverData?.carouselImages.first(where: {
+            $0.title.lowercased() == ScreenSaverAssetTitle.qrImage
+        })?.imageURL
+    }
+
+    private var welcomeText: String {
+        appState.screenSaverData?.welcomeText ?? ScreenSaverStrings.title
+    }
+
+    private var subtitle: String {
+        appState.screenSaverData?.subtitle ?? ScreenSaverStrings.subtitle
+    }
+
+    private var actionButtonText: String {
+        appState.screenSaverData?.actionButtonText ?? ScreenSaverStrings.actionButton
+    }
 
     
     var body: some View {
@@ -17,7 +54,7 @@ struct ScreenSaver: View {
                 .scaledToFill()
                 .ignoresSafeArea()
             
-            if viewModel.isLoading {
+            if appState.isScreenSaverDataLoading && appState.screenSaverData == nil {
                 ProgressView(ScreenSaverStrings.loading)
                     .foregroundColor(Color(AppColors.white))
                     .font(.system(size: 28.sp))
@@ -33,9 +70,9 @@ struct ScreenSaver: View {
                     
                     // Title text
                     VStack(spacing: 24.h) {
-                        buildSemiBoldText(viewModel.welcomeText,40.sp,color: Color(AppColors.white))
+                        buildSemiBoldText(welcomeText,40.sp,color: Color(AppColors.white))
                         
-                        Text(viewModel.subtitle)
+                        Text(subtitle)
                             .foregroundColor(Color(AppColors.white))
                             .font(.system(size: 34.sp, weight: .regular))
                             .multilineTextAlignment(.center)
@@ -46,16 +83,16 @@ struct ScreenSaver: View {
                     Spacer(minLength: 80.h)
                     
                     // Dynamic carousel
-                    if !viewModel.images.isEmpty {
-                        ImageCarouselView(imageURLs: viewModel.images)
+                    if !carouselImages.isEmpty {
+                        ImageCarouselView(imageURLs: carouselImages)
                     }
                     
                     // Button
-                    HealthJourneyButton(text: viewModel.actionButton)
+                    HealthJourneyButton(text: actionButtonText)
                         .padding(.vertical, 100.h)
                     
                     // Dynamic QR code section
-                    if let qrURL = viewModel.qrImage, let url = URL(string: qrURL) {
+                    if let qrURL = qrImageURL, let url = URL(string: qrURL) {
                         VStack(spacing: 24.h) {
                             CachedAsyncImage(
                                 url: url,
@@ -81,6 +118,12 @@ struct ScreenSaver: View {
                 .onReceive(NotificationCenter.default.publisher(for: .screenDidChangeBounds)) { _ in
                            refreshTrigger.toggle()
                        }
+            }
+        }
+        .task {
+            if appState.screenSaverData == nil,
+               let clientID = LocalUserStorage.loadClientID() {
+                await appState.warmScreenSaverData(for: clientID)
             }
         }
     }
