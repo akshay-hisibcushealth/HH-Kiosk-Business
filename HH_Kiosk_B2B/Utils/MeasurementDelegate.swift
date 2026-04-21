@@ -63,6 +63,8 @@ class MeasurementDelegate : AnuraMeasurementDelegate {
     func anuraMeasurementControllerDidAppear(_ controller: AnuraMeasurementViewController) {
         print("***** anuraMeasurementControllerDidAppear")
         measurementBanner.installIfNeeded(in: controller)
+        controller.view.layoutIfNeeded()
+        measurementBanner.refreshLayout()
         return
     }
     
@@ -238,6 +240,7 @@ private final class AdaptiveMeasurementBanner {
     private let containerView = UIView()
     private let messageLabel = UILabel()
     private var installed = false
+    private var verticalConstraint: NSLayoutConstraint?
     private var lastMessage: String?
     private var lastWarningAt: Date?
     private var scheduledWorkItems: [DispatchWorkItem] = []
@@ -262,7 +265,7 @@ private final class AdaptiveMeasurementBanner {
         
         messageLabel.translatesAutoresizingMaskIntoConstraints = false
         messageLabel.textColor = .white
-        messageLabel.font = .systemFont(ofSize: 18, weight: .semibold)
+        messageLabel.font = .systemFont(ofSize: 30.sp, weight: .semibold)
         messageLabel.numberOfLines = 2
         messageLabel.textAlignment = .center
         messageLabel.adjustsFontSizeToFitWidth = true
@@ -271,17 +274,24 @@ private final class AdaptiveMeasurementBanner {
         containerView.addSubview(messageLabel)
         viewController.view.addSubview(containerView)
         
+        verticalConstraint = containerView.centerYAnchor.constraint(
+            equalTo: viewController.view.centerYAnchor,
+            constant: -max(110, viewController.view.bounds.height * 0.23)
+        )
+        
         NSLayoutConstraint.activate([
             messageLabel.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 8),
             messageLabel.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -8),
             messageLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 14),
             messageLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -14),
             
-            containerView.topAnchor.constraint(equalTo: viewController.view.safeAreaLayoutGuide.topAnchor, constant: 14),
+            verticalConstraint!,
             containerView.centerXAnchor.constraint(equalTo: viewController.view.centerXAnchor),
             containerView.widthAnchor.constraint(lessThanOrEqualTo: viewController.view.widthAnchor, multiplier: 0.7),
             containerView.widthAnchor.constraint(greaterThanOrEqualToConstant: 220)
         ])
+
+        updateMessagePosition(in: viewController)
     }
     
     func showInitialPrompt() {
@@ -292,6 +302,14 @@ private final class AdaptiveMeasurementBanner {
     func handleMeasurementStart() {
         isMeasurementActive = true
         startTimeline()
+    }
+
+    func refreshLayout() {
+        guard let hostViewController else {
+            return
+        }
+
+        updateMessagePosition(in: hostViewController)
     }
 
     func handleWarning(_ status: FaceConstraintsStatus) {
@@ -342,6 +360,7 @@ private final class AdaptiveMeasurementBanner {
         containerView.removeFromSuperview()
         messageLabel.removeFromSuperview()
         installed = false
+        verticalConstraint = nil
         hostViewController = nil
         lastMessage = nil
         lastWarningAt = nil
@@ -358,7 +377,7 @@ private final class AdaptiveMeasurementBanner {
         }
         
         lastMessage = message
-        messageLabel.text = message
+        messageLabel.text = message.uppercased()
         
         UIView.animate(withDuration: 0.2) {
             self.containerView.alpha = 1
@@ -455,6 +474,12 @@ private final class AdaptiveMeasurementBanner {
 
     private func containsAny(in source: String, terms: [String]) -> Bool {
         terms.contains { source.contains($0) }
+    }
+
+    private func updateMessagePosition(in viewController: UIViewController) {
+        let foreheadOffset = -max(155, viewController.view.bounds.height * 0.30)
+        verticalConstraint?.constant = foreheadOffset
+        viewController.view.layoutIfNeeded()
     }
 }
 

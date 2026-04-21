@@ -174,7 +174,7 @@ struct PhysicalAttributesScreen: View {
         }
         .onAppear {
             previewOrientation = Self.loadSavedPreviewOrientation()
-//            DispatchQueue.main.async { applyDeveloperAutofill() }
+         DispatchQueue.main.async { applyDeveloperAutofill() }
             detectExternalCameraConfiguration()
         }
         .onChange(of: previewOrientation) { _, newValue in
