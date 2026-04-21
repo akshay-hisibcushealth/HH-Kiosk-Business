@@ -220,19 +220,19 @@ private final class AdaptiveMeasurementBanner {
     }
 
     private enum Copy {
-        static let initialPrompt = "CENTER YOUR FACE"
-        static let holdStill = "Hold still"
-        static let moveCloser = "Move closer"
-        static let moveFurther = "Move further"
-        static let faceCamera = "Look directly at the camera"
+        static let initialPrompt = "Center Your Face"
+        static let holdStill = "Hold Still"
+        static let moveCloser = "Move Closer"
+        static let moveFurther = "Move Further"
+        static let faceCamera = "Look Directly at the Camera"
         static let timeline: [TimelineEntry] = [
-            TimelineEntry(offset: 0, message: "Breathe naturally and stay still"),
-            TimelineEntry(offset: 5, message: "Reading your pulse from facial blood flow"),
-            TimelineEntry(offset: 10, message: "Detecting cardiovascular patterns..."),
-            TimelineEntry(offset: 16, message: "Halfway - eyes on the camera"),
-            TimelineEntry(offset: 21, message: "Capturing your final readings..."),
-            TimelineEntry(offset: 25, message: "Almost there, don't move"),
-            TimelineEntry(offset: 28, message: "Last few seconds...")
+            TimelineEntry(offset: 0, message: "Breathe Naturally and Stay Still"),
+            TimelineEntry(offset: 5, message: "Reading Your Pulse from Facial Blood Flow"),
+            TimelineEntry(offset: 10, message: "Detecting Cardiovascular Patterns..."),
+            TimelineEntry(offset: 16, message: "Halfway - Eyes on the Camera"),
+            TimelineEntry(offset: 21, message: "Capturing Your Final Readings..."),
+            TimelineEntry(offset: 25, message: "Almost There, Don't Move"),
+            TimelineEntry(offset: 28, message: "Last Few Seconds...")
         ]
     }
     
@@ -377,7 +377,7 @@ private final class AdaptiveMeasurementBanner {
         }
         
         lastMessage = message
-        messageLabel.text = message.uppercased()
+        messageLabel.text = message
         
         UIView.animate(withDuration: 0.2) {
             self.containerView.alpha = 1
