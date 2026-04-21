@@ -411,6 +411,8 @@ private final class AdaptiveMeasurementBanner {
     }
 
     private func mappedMessage(for status: FaceConstraintsStatus) -> String {
+        print("📸 FaceConstraintsStatus -> identifier: \(status.identifier), warning: \(status.warningMessage)")
+
         let identifier = status.identifier.lowercased()
         let warning = status.warningMessage.lowercased()
         let combined = "\(identifier) \(warning)"
