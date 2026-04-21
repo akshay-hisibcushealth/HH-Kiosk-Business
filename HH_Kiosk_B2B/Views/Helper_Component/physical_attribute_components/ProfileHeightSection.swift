@@ -92,6 +92,24 @@ struct ProfileHeightSection: View {
                 .frame(width: 320.w, height: 300.h)
             }
         }
+        .onAppear {
+            syncCommittedHeight()
+        }
+        .onChange(of: selectedHeight) { _, _ in
+            syncCommittedHeight()
+        }
+    }
+
+    private func syncCommittedHeight() {
+        guard let cm = selectedHeight else {
+            committedFeet = nil
+            committedInches = nil
+            return
+        }
+
+        let totalInches = Int(round(Double(cm) / 2.54))
+        committedFeet = totalInches / 12
+        committedInches = totalInches % 12
     }
 }
 

@@ -50,6 +50,15 @@ struct ProfileEmailSection: View {
 
                     showError = !isValidEmail(newVal)
                 }
+                .onAppear {
+                    localEmail = email ?? ""
+                }
+                .onChange(of: email) { _, newValue in
+                    let resolvedEmail = newValue ?? ""
+                    if localEmail != resolvedEmail {
+                        localEmail = resolvedEmail
+                    }
+                }
 
             if showError {
                 Text(PhysicalAttributesScreenStrings.Form.emailInlineError)

@@ -4,6 +4,15 @@ import AnuraCore
 struct PhysicalAttributesScreen: View {
     private static let previewOrientationStorageKey = "physicalAttributes.previewOrientation"
     private let validAgeRange = 13...120
+    
+    private enum DeveloperAutofill {
+        static let email = "akshay@hibiscushealth.com"
+        static let heightFeet = 5
+        static let heightInches = 11
+        static let weightLbs = 185
+        static let age = 28
+        static let gender = "Male"
+    }
 
     @EnvironmentObject private var appState: AppState
     @EnvironmentObject private var faceManager: FaceScanManager
@@ -165,6 +174,7 @@ struct PhysicalAttributesScreen: View {
         }
         .onAppear {
             previewOrientation = Self.loadSavedPreviewOrientation()
+            DispatchQueue.main.async { applyDeveloperAutofill() }
             detectExternalCameraConfiguration()
         }
         .onChange(of: previewOrientation) { _, newValue in
@@ -296,6 +306,19 @@ struct PhysicalAttributesScreen: View {
         ) {
             isLoading = false
         }
+    }
+    
+    private func applyDeveloperAutofill() {
+        email = DeveloperAutofill.email
+        height = Self.heightInCentimeters(feet: DeveloperAutofill.heightFeet, inches: DeveloperAutofill.heightInches)
+        weight = Int(Double(DeveloperAutofill.weightLbs) / 2.20462)
+        age = DeveloperAutofill.age
+        gender = DeveloperAutofill.gender
+    }
+
+    private static func heightInCentimeters(feet: Int, inches: Int) -> Int {
+        let totalInches = (feet * 12) + inches
+        return Int(Double(totalInches) * 2.54)
     }
 
     private static func loadSavedPreviewOrientation() -> AnuraCore.PreviewOrientation {

@@ -75,5 +75,15 @@ struct ProfileGenderSection: View {
                 .buttonStyle(PlainButtonStyle())
             }
         }
+        .onAppear {
+            syncLocalGender()
+        }
+        .onChange(of: selectedGender) { _, _ in
+            syncLocalGender()
+        }
+    }
+    
+    private func syncLocalGender() {
+        localGender = selectedGender.isEmpty ? nil : selectedGender
     }
 }

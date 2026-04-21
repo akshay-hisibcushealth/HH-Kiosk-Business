@@ -222,14 +222,15 @@ private final class AdaptiveMeasurementBanner {
         static let holdStill = "Hold still"
         static let moveCloser = "Move closer"
         static let moveFurther = "Move further"
+        static let faceCamera = "Look directly at the camera"
         static let timeline: [TimelineEntry] = [
-            TimelineEntry(offset: 1, message: "Breathe naturally and stay still"),
+            TimelineEntry(offset: 0, message: "Breathe naturally and stay still"),
             TimelineEntry(offset: 5, message: "Reading your pulse from facial blood flow"),
             TimelineEntry(offset: 10, message: "Detecting cardiovascular patterns..."),
             TimelineEntry(offset: 16, message: "Halfway - eyes on the camera"),
-            TimelineEntry(offset: 22, message: "Capturing your final readings..."),
+            TimelineEntry(offset: 21, message: "Capturing your final readings..."),
             TimelineEntry(offset: 25, message: "Almost there, don't move"),
-            TimelineEntry(offset: 27, message: "Last few seconds...")
+            TimelineEntry(offset: 28, message: "Last few seconds...")
         ]
     }
     
@@ -417,7 +418,23 @@ private final class AdaptiveMeasurementBanner {
         let warning = status.warningMessage.lowercased()
         let combined = "\(identifier) \(warning)"
 
-        if containsAny(in: combined, terms: ["too far", "move closer", "closer", "far", "small face", "face too small"]) {
+        if identifier.contains("facetoofar") {
+            return Copy.moveCloser
+        }
+
+        if identifier.contains("facetooclose") {
+            return Copy.moveFurther
+        }
+
+        if identifier.contains("facedirection") {
+            return Copy.faceCamera
+        }
+
+        if identifier.contains("exposure") {
+            return Copy.holdStill
+        }
+
+        if containsAny(in: combined, terms: ["too far", "move closer", "closer", "small face", "face too small"]) {
             return Copy.moveCloser
         }
 
@@ -425,11 +442,15 @@ private final class AdaptiveMeasurementBanner {
             return Copy.moveFurther
         }
 
-        if containsAny(in: combined, terms: ["movement", "moving", "still", "steady", "hold"]) {
+        if containsAny(in: combined, terms: ["look directly", "face is poor", "direction"]) {
+            return Copy.faceCamera
+        }
+
+        if containsAny(in: combined, terms: ["calibrating", "movement", "moving", "still", "steady", "hold"]) {
             return Copy.holdStill
         }
 
-        return Copy.initialPrompt
+        return isMeasurementActive ? Copy.holdStill : Copy.initialPrompt
     }
 
     private func containsAny(in source: String, terms: [String]) -> Bool {
