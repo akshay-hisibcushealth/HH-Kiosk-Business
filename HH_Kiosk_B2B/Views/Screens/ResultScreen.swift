@@ -104,8 +104,6 @@ public struct ResultScreen: View {
             HeroHeader()
             TitleBlock()
             ResultsList(model: model)
-            BottomBar()
-            Footer()
         }
         .frame(maxWidth: .infinity)
         .background(Color(AppColors.systemBackground))
@@ -126,14 +124,7 @@ public struct ResultScreen: View {
 private struct HeroHeader: View {
     var body: some View {
         ZStack(alignment: .leading) {
-            Image(AppIconNames.Asset.resultScreenTopImage)
-                .resizable()
-                .scaledToFill()
-                .frame(height: 460.h)
-                .clipped()
-                .padding(.top, 200.h)
-            
-            VStack(alignment: .leading, spacing: 0) {
+     VStack(alignment: .leading, spacing: 0) {
                 ResultToolbar()
                 Spacer(minLength: 20)
                 buildSemiBoldText(ResultScreenStrings.title, 50.sp, color: Color(AppColors.primary))
@@ -201,95 +192,6 @@ private struct InfoFooter: View {
     }
 }
 
-private struct BottomBar: View {
-    var body: some View {
-        VStack(spacing: 16.h) {
-            InfoFooter()
-                .padding(.horizontal, 24.w)
-                .padding(.bottom, 40.h)
-            ZStack(alignment: .bottom) {
-                Color(AppColors.primary)
-                    .frame(height: 100.h)
-                    .frame(maxWidth: .infinity)
-                    .ignoresSafeArea(edges: .bottom)
-                Image(AppIconNames.Asset.resultScreenBottomImage)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(height: 600.h)
-                    .clipShape(
-                        RoundedCorner(radius: 40.r, corners: [.topLeft, .topRight])
-                    )
-
-                VStack {
-                    buildMediumText(ResultScreenStrings.nextStepsTitle, 44.sp, color: Color(AppColors.white))
-                    VStack(alignment: .leading, spacing: 8) {
-                        (
-                            Text(ResultScreenStrings.nextStepsPrefix)
-                            + Text(ResultScreenStrings.nextStepsEmphasis).fontWeight(.bold)
-                            + Text(ResultScreenStrings.nextStepsSuffix)
-                        )
-                        .font(.system(size: 19.sp))
-                        .foregroundColor(Color(AppColors.white))
-                        .multilineTextAlignment(.center)
-                        .fixedSize(horizontal: false, vertical: true)
-                    }
-                    .padding(.bottom, 24.h)
-                    .padding(.horizontal, 150.w)
-                    
-                    Image(AppIconNames.Asset.bottomInfoBox)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: 400.h)
-                        .clipped()
-                }
-            }
-        }
-        .frame(maxWidth: .infinity)
-    }
-}
-
-private struct Footer: View {
-    private let appStoreURL = URL(string: ResultScreenStrings.appStoreURL)!
-    private let playStoreURL = URL(string: ResultScreenStrings.playStoreURL)!
-    
-    var body: some View {
-        VStack(spacing: 32.h) {
-                buildMediumText(ResultScreenStrings.footerResources, 44.sp, color: Color(AppColors.white), alignment: .center)
-            
-            
-            HStack(spacing: 48.w) {
-                Link(destination: appStoreURL) {
-                    Image(AppIconNames.Asset.appStoreButton)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 180.w)
-                }
-                
-                Link(destination: playStoreURL) {
-                    Image(AppIconNames.Asset.playStoreButton)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 180.w)
-                }
-            }
-            .padding(.bottom, 24.h)
-            Image(AppIconNames.Asset.poweredByHHLogo)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 220.w, height: 140.h)
-                .padding(.vertical, 16.h)
-                .padding(.trailing, 32.h)
-            Text(ResultScreenStrings.footerAddress)
-                .font(.system(size: 20.sp))
-                .foregroundColor(Color(AppColors.white))
-                .multilineTextAlignment(.center)
-                .padding(.top, 8.h)
-        }
-        .padding(.vertical, 48.h)
-        .frame(maxWidth: .infinity)
-        .background(Color(AppColors.primary))
-    }
-}
 
 struct RoundedCorner: Shape {
     var radius: CGFloat = .infinity

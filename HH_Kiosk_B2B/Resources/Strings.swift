@@ -136,9 +136,9 @@ enum ReadPdfScreenStrings {
 
 enum ResultScreenStrings {
     static let pdfFileName = "Hibiscus_Health_Report"
-    static let title = "Your Face Scan Results"
-    static let heroDescription = "This sample report features your personal face-scan results and demonstrates how we can design a customized, population-level version aligned with your wellness strategy, giving individuals insight and delivering actionable value for your organization."
-    static let titleBlockDescription = "At Hibiscus, we believe that great technology is only meaningful when paired with thoughtful human support. Our facial-scan insights are designed to spark action and our programs ensure each member is guided, not left on their own, to achieve lasting health goals."
+    static let title = "Great job taking a proactive step for your health!"
+    static let heroDescription = "Below is a summary of your key biomarkers based on your 30-second scan."
+    static let titleBlockDescription = "This report is intended to improve your awareness of general wellness. It is not a substitute for the clinical judgment of a health care professional.  These results provide a non-diagnostic screening to help you understand your current wellness trends."
     static let infoFooter = "Hibiscus Health is intended to improve your awareness of general wellness. Hibiscus Health does not diagnose, treat, mitigate or prevent any disease, symptom, disorder or abnormal physical state. Consult with a healthcare professional or emergency services if you believe you may have a medical issue."
     static let privacyMessage = "The results from this face scan are not intended to diagnose, treat, or replace professional medical advice. For any health concerns, please consult a healthcare provider."
     static let nextStepsTitle = "Next Steps"

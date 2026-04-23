@@ -4,6 +4,45 @@ enum ResultType {
     case risk, bloodPressure, heartRate
 }
 
+final class GradientBarView: UIView {
+    private let gradientLayer = CAGradientLayer()
+
+    var colors: [UIColor] = [] {
+        didSet {
+            gradientLayer.colors = colors.map(\.cgColor)
+            if colors.isEmpty {
+                gradientLayer.locations = nil
+            } else if colors.count == 1 {
+                gradientLayer.locations = [0, 1]
+            } else {
+                let step = 1.0 / Double(colors.count - 1)
+                gradientLayer.locations = colors.enumerated().map { index, _ in
+                    NSNumber(value: Double(index) * step)
+                }
+            }
+        }
+    }
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        layer.addSublayer(gradientLayer)
+        gradientLayer.startPoint = CGPoint(x: 0, y: 0.5)
+        gradientLayer.endPoint = CGPoint(x: 1, y: 0.5)
+        layer.cornerRadius = 8
+        clipsToBounds = true
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        gradientLayer.frame = bounds
+        gradientLayer.cornerRadius = layer.cornerRadius
+    }
+}
+
 class ResultCardCell: UICollectionViewCell {
     
     // UI Elements
@@ -92,31 +131,9 @@ class ResultCardCell: UICollectionViewCell {
         titleStack.translatesAutoresizingMaskIntoConstraints = false
         
         // Bar container
-        let barContainer = UIView()
+        let barContainer = GradientBarView()
         barContainer.translatesAutoresizingMaskIntoConstraints = false
-        barContainer.layer.cornerRadius = 8
-        barContainer.clipsToBounds = true
-        
-        var previous: UIView? = nil
-        for segment in segments {
-            let segmentView = UIView()
-            segmentView.backgroundColor = segment.0
-            segmentView.translatesAutoresizingMaskIntoConstraints = false
-            barContainer.addSubview(segmentView)
-            
-            NSLayoutConstraint.activate([
-                segmentView.topAnchor.constraint(equalTo: barContainer.topAnchor),
-                segmentView.bottomAnchor.constraint(equalTo: barContainer.bottomAnchor),
-                segmentView.widthAnchor.constraint(equalTo: barContainer.widthAnchor, multiplier: segment.1)
-            ])
-            
-            if let prev = previous {
-                segmentView.leadingAnchor.constraint(equalTo: prev.trailingAnchor).isActive = true
-            } else {
-                segmentView.leadingAnchor.constraint(equalTo: barContainer.leadingAnchor).isActive = true
-            }
-            previous = segmentView
-        }
+        barContainer.colors = segments.map(\.0)
         
         // Arrow indicator
         let arrow = TriangleView(color: AppColors.indigo)

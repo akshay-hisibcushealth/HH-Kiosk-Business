@@ -6,7 +6,6 @@ enum AppIconNames {
         static let articleFaceScan = "article_face_scan"
         static let articleIcon = "article_icon"
         static let avatarImage = "avatar_image"
-        static let bottomInfoBox = "bottom_info_box"
         static let clouds = "clouds"
         static let customizedImage = "customized_image"
         static let email = "email"
@@ -18,8 +17,6 @@ enum AppIconNames {
         static let playStoreButton = "play_store_button"
         static let poweredByHHLogo = "powered_by_hh_logo"
         static let rain = "rain"
-        static let resultScreenBottomImage = "result_screen_bottom_image"
-        static let resultScreenTopImage = "result_screen_top_image"
         static let scanButton = "scan_button"
         static let scanFace = "scan_face"
         static let schedule = "schedule"
@@ -28,6 +25,9 @@ enum AppIconNames {
         static let snow = "snow"
         static let sun = "sun"
         static let clientIdScreenBackground = "client_id_screen_background"
+        static let hiby = "hiby_icon"
+        static let hibyLeft = "hiby_left"
+        static let hibyRight = "hiby_right"
     }
     
     enum Symbol {

@@ -123,14 +123,13 @@ struct MeterBar: View {
             let thumbX = CGFloat(fraction) * usableWidth
             
             ZStack(alignment: .leading) {
-                HStack(spacing: 0) {
-                    ForEach(0..<colors.count, id: \.self) { i in
-                        Rectangle()
-                            .fill(colors[i])
-                            .frame(width: totalWidth / CGFloat(colors.count), height: 12.h)
-                    }
-                }
-                .cornerRadius(6.h)
+                LinearGradient(
+                    stops: gradientStops,
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+                .frame(height: 12.h)
+                .clipShape(Capsule())
                 
                 // Indicator (Thumb)
                 Rectangle()
@@ -140,6 +139,24 @@ struct MeterBar: View {
                     .offset(x: thumbX, y: (geo.size.height - 40.h) / 2)
                     .shadow(radius: 1)
             }
+        }
+    }
+
+    private var gradientStops: [Gradient.Stop] {
+        guard !colors.isEmpty else {
+            return [Gradient.Stop(color: Color.clear, location: 0)]
+        }
+
+        if colors.count == 1 {
+            return [
+                Gradient.Stop(color: colors[0], location: 0),
+                Gradient.Stop(color: colors[0], location: 1)
+            ]
+        }
+
+        let step = 1.0 / Double(colors.count - 1)
+        return colors.enumerated().map { index, color in
+            Gradient.Stop(color: color, location: step * Double(index))
         }
     }
 }
