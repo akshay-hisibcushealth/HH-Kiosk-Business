@@ -97,6 +97,12 @@ class AppState: ObservableObject {
             AppColors.applyCTAContentOverride(hex: brandingData?.brandingInfo.onAccentColorHex)
             AppColors.applyHighlightedDayBackgroundOverride(hex: brandingData?.brandingInfo.highlightedDayBackgroundHex)
             AppColors.applyScheduleBackgroundOverride(hex: brandingData?.brandingInfo.scheduleBackgroundHex)
+
+            if let logoURLString = brandingData?.brandingInfo.logo,
+               let logoURL = URL(string: logoURLString) {
+                await CachedImagePrefetcher.preload(url: logoURL)
+            }
+
             isBrandingLoading = false
         } catch {
             brandingData = nil

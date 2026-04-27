@@ -1,0 +1,518 @@
+Index: HH_Kiosk_B2B/Views/Screens/ArticleScreen.swift
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import SwiftUI\n\nstruct ArticleScreen: View {\n    @State private var isNavigatingToScan = false\n    let imageUrl: String\n    private let imageHeight = UIScreen.main.bounds.height * 0.4\n    @StateObject private var faceManager = FaceScanManager()\n    @State private var refreshTrigger = false\n\n    \n    var body: some View {\n        NavigationStack{\n            VStack(spacing: 0) {\n                Toolbar()\n                ScrollView {\n                    VStack(alignment: .leading, spacing: 16) {\n                        AsyncImage(url: URL(string: imageUrl)) { image in\n                            image\n                                .resizable()\n                                .scaledToFill()\n                                .frame(maxWidth: .infinity, minHeight: imageHeight, maxHeight: imageHeight)\n                                .clipped()\n                        } placeholder: {\n                            ZStack {\n                                Color(AppColors.gray).opacity(0.2)\n                                ProgressView(ArticleScreenStrings.imageLoading)\n                            }\n                            .frame(maxWidth: .infinity, minHeight: imageHeight, maxHeight: imageHeight)\n                            .clipped()\n                        }\n                        .cornerRadius(10)\n                        \n                        Text(ArticleScreenStrings.body)\n                        .font(.title3)\n                        .foregroundColor(Color(AppColors.textPrimary))\n                    }\n                    .padding()\n                    .frame(maxWidth: .infinity, alignment: .topLeading)\n                    \n                    Button(\n                        action:    {\n                            isNavigatingToScan = true\n                        }\n                    ){\n                        Image(AppIconNames.Asset.articleFaceScan)\n                            .resizable()\n                            .scaledToFit()\n                            .frame(maxWidth: .infinity)\n                          \n                    }\n                }\n            }  .navigationDestination(isPresented: $isNavigatingToScan) {\n                PhysicalAttributesScreen()\n                    .environmentObject(faceManager)\n            }\n            .onReceive(NotificationCenter.default.publisher(for: .screenDidChangeBounds)) { _ in\n                       refreshTrigger.toggle()\n                   }\n            \n        }\n    }\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/HH_Kiosk_B2B/Views/Screens/ArticleScreen.swift b/HH_Kiosk_B2B/Views/Screens/ArticleScreen.swift
+--- a/HH_Kiosk_B2B/Views/Screens/ArticleScreen.swift	(revision e3774d58ed503b020fd1de0b59e6744e28437a38)
++++ b/HH_Kiosk_B2B/Views/Screens/ArticleScreen.swift	(date 1777050373687)
+@@ -3,10 +3,18 @@
+ struct ArticleScreen: View {
+     @State private var isNavigatingToScan = false
+     let imageUrl: String
++    let description: String
+     private let imageHeight = UIScreen.main.bounds.height * 0.4
+     @StateObject private var faceManager = FaceScanManager()
+     @State private var refreshTrigger = false
+ 
++    private var formattedDescription: String {
++        description
++            .replacingOccurrences(of: "\\r\\n", with: "\n")
++            .replacingOccurrences(of: "\\n", with: "\n")
++            .replacingOccurrences(of: "\r\n", with: "\n")
++    }
++
+     
+     var body: some View {
+         NavigationStack{
+@@ -30,7 +38,7 @@
+                         }
+                         .cornerRadius(10)
+                         
+-                        Text(ArticleScreenStrings.body)
++                        Text(formattedDescription)
+                         .font(.title3)
+                         .foregroundColor(Color(AppColors.textPrimary))
+                     }
+Index: HH_Kiosk_B2B/Resources/Strings.swift
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import Foundation\n\nenum ClientIDScreenStrings {\n    static let title = \"Hibiscus Health Wellness Kiosk\"\n    static let subtitle = \"Take a few minutes to check in on your health.\"\n    static let cardTitle = \"Client Login\"\n    static let fieldLabel = \"Company Client ID\"\n    static let fieldPlaceholder = \"Enter 8-digit code\"\n    static let actionButton = \"Start Your Health Journey\"\n    static let formatValidationMessage = \"Please enter a valid 8-character client ID.\"\n    static let fallbackInvalidCodeMessage = \"Invalid company code\"\n}\n\nenum ArticleScreenStrings {\n    static let imageLoading = \"Loading Image...\"\n    static let body = \"\"\"\n    If you are feeling stiff and uncomfortable while working at a sedentary job, there are exercises you can do without even leaving your desk that will leave you feeling refreshed and healthier.\n\n    Work-related disorders aren’t just limited to heavy manufacturing or construction. They can occur in all types of industries and work environments, including office spaces. Research shows that repetitive motion, poor posture, and staying in the same position can cause or worsen musculoskeletal disorders.\n\n    Staying in one position while doing repetitive motions is typical of a desk job. An analysis of job industry trends over the past 50 years revealed that at least 8 in 10 American workers are desk potatoes. The habits we build at our desk, especially while sitting, can contribute to discomfort and health issues, including:\n    \"\"\"\n}\n\n\nenum HomeScreenStrings {\n    enum Weather {\n        static let loading = \"Loading Weather...\"\n        static let errorTitle = \"Error:\"\n        static let fetchingLocation = \"Fetching location...\"\n        static let welcomePrefix = \"Welcome to the\"\n        static let companyName = \"[ABC Company]\"\n        static let kioskSuffix = \"Kiosk\"\n    }\n\n    enum Promo {\n        static let title = \"Curious About Your Health?\"\n        static let subtitle = \"Start with a 30 seconds Face Scan\"\n        static let demoButtonTitle = \"Watch Quick Demo\"\n        static let tryFaceScan = \"Try Face Scan\"\n        static let demoURL = \"https://drive.google.com/file/d/1dPJs1A6aptEh3yTCVxR5BUlRfyLWa3rL/view?usp=sharing\"\n    }\n\n    enum ReadSection {\n        static let loading = \"Loading...\"\n        static let failedToLoadPrefix = \"Failed to load:\"\n        static let todaysReadTitle = \"Today's Read\"\n        static let articleBadge = \"Article\"\n        static let hrDeskTitle = \"From HR Desk\"\n    }\n\n    enum Schedule {\n        static let sectionTitle = \"Today's Schedule\"\n        static let noSchedule = \"No Schedule\"\n        static let dailyStandupTitle = \"Daily Stand-Up\"\n        static let dailyStandupDescription = \"A stand-up meeting is a meeting in which attendees typically participate while standing.\"\n\n        static let eventPool: [(title: String, description: String)] = [\n            (\"Quarterly Town Hall Meeting\", \"To discuss about the upcoming project & organization of units\"),\n            (\"Q3 Wellness Challenge begins\", \"To discuss about the upcoming project & organization of units\"),\n            (\"Diversity, Equity & Inclusion (DEI) Awareness Days\", \"Panels, training, and celebration of heritage months or cultural milestones.\"),\n            (\"Wellness Week / Health Fair\", \"Activities focused on physical and mental well-being.\"),\n            (\"Hackathons / Innovation Days\", \"Creative sprints where teams develop solutions, tools, or prototypes.\"),\n            (\"Team-Building Retreat\", \"A full-day or overnight program to boost collaboration and morale.\"),\n            (\"Company Anniversary\", \"Celebration of the organization's founding and journey.\"),\n            (\"Open Enrollment / Benefits Fair\", \"Informational sessions on employee benefits, insurance, and perks.\"),\n            (\"Community Service / Volunteer Day\", \"Team-led initiatives supporting local organizations.\"),\n            (\"Mid-Year Review\", \"Alignment on key metrics, shifting priorities, and future plans.\"),\n            (\"New Employee Welcome Sessions\", \"Monthly or quarterly onboarding experiences with leadership meet-and-greets.\")\n        ]\n    }\n}\n\n\nenum PhysicalAttributesScreenStrings {\n    static let title = \"Physical Attributes\"\n    static let subtitle = \"For best accuracy, kindly complete the form below.\"\n    static let privacyMessage = \"We value your privacy. Your information will NOT be shared externally.\"\n    static let watchQuickDemo = \"Watch Quick Demo\"\n    static let proceedToScan = \"Proceed to Scan\"\n    static let alertDismiss = \"OK\"\n    static let demoURL = \"https://drive.google.com/file/d/1dPJs1A6aptEh3yTCVxR5BUlRfyLWa3rL/view?usp=sharing\"\n\n    enum Validation {\n        static let missingEmail = \"Please enter your email.\"\n        static let invalidEmail = \"Please enter a valid email.\"\n        static let missingHeight = \"Please select your height.\"\n        static let missingWeight = \"Please select your weight.\"\n        static let invalidWeight = \"Weight cannot be less than 75 lbs.\"\n        static let missingAge = \"Please enter your age.\"\n        static let invalidAge = \"Age must be between 13 and 120 years.\"\n        static let missingGender = \"Please select your gender.\"\n    }\n\n    enum Form {\n        static let emailLabel = \"Email\"\n        static let emailPlaceholder = \"Enter email\"\n        static let emailInlineError = \"Enter a valid email address\"\n        static let ageLabel = \"Age (years)\"\n        static let agePlaceholder = \"Select age\"\n        static let heightLabel = \"Height (ft/in)\"\n        static let heightPlaceholder = \"Select height\"\n        static let heightSheetTitle = \"Select Height\"\n        static let feetUnit = \"ft\"\n        static let inchesUnit = \"in\"\n        static let doneButton = \"Done\"\n        static let weightLabel = \"Weight (lbs)\"\n        static let weightPlaceholder = \"Select weight\"\n        static let genderLabel = \"Gender (at birth)\"\n        static let genderPlaceholder = \"Select Gender\"\n        static let genderOptions = [\"Male\", \"Female\"]\n    }\n\n    enum Settings {\n        static let cameraPreset = \"External camera preset\"\n        static let previewOrientation = \"Preview orientation\"\n        static let mirrorExternalVideo = \"Mirror external camera video\"\n        static let useExternalCameraOnly = \"Use external camera only\"\n        static let externalCameraDescription = \"If enabled, only the external camera will be used. If disabled, the app will automatically switch between the built-in camera and an external camera (external camera is prioritized).\"\n        static let title = \"Camera Settings\"\n        static let closeButton = \"Close\"\n        static let unknownOption = \"Unknown\"\n        static let portrait = \"Portrait\"\n        static let landscapeLeft = \"LandscapeLeft\"\n        static let landscapeRight = \"LandscapeRight\"\n        static let portraitUpsideDown = \"PortraitUpsideDown\"\n    }\n}\n\n\nenum ReadPdfScreenStrings {\n    static let loading = \"Loading PDF...\"\n    static let failedToLoad = \"Failed to load PDF\"\n}\n\n\nenum ResultScreenStrings {\n    static let pdfFileName = \"Hibiscus_Health_Report\"\n    static let title = \"Great job taking a proactive step for your health!\"\n    static let heroDescription = \"Below is a summary of your key biomarkers based on your 30-second scan.\"\n    static let titleBlockDescription = \"This report is intended to improve your awareness of general wellness. It is not a substitute for the clinical judgment of a health care professional.  These results provide a non-diagnostic screening to help you understand your current wellness trends.\"\n    static let infoFooter = \"Hibiscus Health is intended to improve your awareness of general wellness. Hibiscus Health does not diagnose, treat, mitigate or prevent any disease, symptom, disorder or abnormal physical state. Consult with a healthcare professional or emergency services if you believe you may have a medical issue.\"\n    static let privacyMessage = \"The results from this face scan are not intended to diagnose, treat, or replace professional medical advice. For any health concerns, please consult a healthcare provider.\"\n    static let nextStepsTitle = \"Next Steps\"\n    static let nextStepsPrefix = \"We know every organization is unique. Whether you’re an employer, health plan, or solution partner, Hibiscus can integrate seamlessly into your existing ecosystem, or provide full end-to-end support from \"\n    static let nextStepsEmphasis = \"Face Scan -> Care Guide -> Clinician\"\n    static let nextStepsSuffix = \" for maximum impact. Choose the components that best complement your current resources.\"\n    static let footerResources = \"Find even more resources\\ntips & insights on the app,\"\n    static let footerAddress = \"575 LEXINGTON AVE, FL 14TH NEW YORK, NY 10022-6102 United States\"\n    static let appStoreURL = \"https://apps.apple.com/tn/app/hibiscus-health/id6478411080\"\n    static let playStoreURL = \"https://play.google.com/store/apps/details?id=com.nutritionApp.hibiscus_health&hl\"\n\n    enum Actions {\n        static let closeResult = \"Close result\"\n        static let emailMyResults = \"Email my results\"\n        static let secureAndPrivate = \"Secure and Private\"\n        static let print = \"Print\"\n    }\n\n    enum EmailPopup {\n        static let inboxTitle = \"Check your inbox!\"\n        static let inboxMessage = \"Your result has been sent to your email!\\nTell a colleague about our Kiosk!\"\n        static let returnHome = \"Return to Home Screen\"\n        static let title = \"Send result to your mail\"\n        static let emailAddress = \"Email address\"\n        static let emailPlaceholder = \"Email\"\n        static let pinTitle = \"Create a 4-digit secret key\"\n        static let pinPlaceholder = \"* * * *\"\n        static let pinHelp = \"This will be used to view your result\"\n        static let sendMail = \"Send mail\"\n        static let emailFailure = \"Failed to send email. Please try again.\"\n        static let secureAndPrivate = \"Secure and Private\"\n    }\n\n    enum Metrics {\n        static let interpretations: [String: [String: String]] = [\n            \"Cardiovascular Disease Risk\": [\n                \"low\": \"Your results indicate that you have a <tag color=\\\"\\(AppColors.tagRiskLow)\\\">low risk</tag> of experiencing a heart attack or stroke in the next 10 years.\",\n                \"medium\": \"Your results indicate that you have a <tag color=\\\"\\(AppColors.tagRiskMedium)\\\">medium risk</tag> of experiencing heart attack or stroke in the next 10 years.\",\n                \"high\": \"Your results indicate that you have a <tag color=\\\"\\(AppColors.tagRiskHigh)\\\">high risk</tag> of experiencing heart attack or stroke in the next 10 years.\"\n            ],\n            \"Systolic Blood Pressure\": [\n                \"healthy\": \"Your results indicate that your systolic blood pressure falls within a <tag color=\\\"\\(AppColors.tagRiskLow)\\\">healthy range</tag>.\",\n                \"warning\": \"Your results indicate that your systolic blood pressure is <tag color=\\\"\\(AppColors.tagRiskMedium)\\\">either lower than normal or higher than normal</tag>.\",\n                \"critical\": \"Your results indicate that your systolic blood pressure is <tag color=\\\"\\(AppColors.tagRiskHigh)\\\">much higher than normal</tag> and that you may have hypertension.\"\n            ],\n            \"Diastolic Blood Pressure\": [\n                \"healthy\": \"Your results indicate that your diastolic blood pressure is <tag color=\\\"\\(AppColors.tagRiskLow)\\\">within a healthy range</tag>.\",\n                \"warning\": \"Your results indicate that your diastolic blood pressure is <tag color=\\\"\\(AppColors.tagRiskMedium)\\\">either lower than normal or higher than normal</tag>.\",\n                \"critical\": \"Your results indicate that your diastolic blood pressure is <tag color=\\\"\\(AppColors.tagRiskHigh)\\\">much higher than normal</tag> and that you may have hypertension.\"\n            ],\n            \"HbA1c Risk\": [\n                \"low\": \"Your results indicate that you likely have a <tag color=\\\"\\(AppColors.tagRiskLow)\\\">HbA1c < 5.7%</tag>.\",\n                \"medium\": \"Your results indicate that there is a <tag color=\\\"\\(AppColors.tagRiskWarning)\\\">medium risk</tag> that you may have an HbA1c > 5.7%, especially if your results are 51% or over.\",\n                \"high\": \"Your results indicate that it is <tag color=\\\"\\(AppColors.tagRiskHigh)\\\">very likely</tag> that you have an HbA1c > 5.7%.\"\n            ],\n            \"High Cholesterol Risk\": [\n                \"low\": \"Your results indicate that you are at a <tag color=\\\"\\(AppColors.tagRiskLow)\\\">low risk</tag> of having abnormally high cholesterol.\",\n                \"medium\": \"Your results indicate that you are at a <tag color=\\\"\\(AppColors.tagRiskWarning)\\\">medium risk</tag> of having abnormally high cholesterol.\",\n                \"high\": \"Your results indicate that you are at a <tag color=\\\"\\(AppColors.tagRiskHigh)\\\">high risk</tag> of having abnormally high cholesterol.\"\n            ],\n            \"High Triglycerides Risk\": [\n                \"low\": \"Your results indicate that you are at a <tag color=\\\"\\(AppColors.tagRiskLow)\\\">low risk</tag> of having abnormally high triglycerides.\",\n                \"medium\": \"Your results indicate that you are at a <tag color=\\\"\\(AppColors.tagRiskWarning)\\\">medium risk</tag> of having abnormally high triglycerides.\",\n                \"high\": \"Your results indicate that you are at a <tag color=\\\"\\(AppColors.tagRiskHigh)\\\">high risk</tag> of having abnormally high triglycerides.\"\n            ]\n        ]\n\n        static func displayTitle(for key: String) -> String {\n            switch key {\n            case \"BP_CVD\": return \"Cardiovascular Disease Risk\"\n            case \"HBA1C_RISK_PROB\": return \"HbA1c Risk\"\n            case \"BP_SYSTOLIC\": return \"Systolic Blood Pressure\"\n            case \"BP_DIASTOLIC\": return \"Diastolic Blood Pressure\"\n            case \"HDLTC_RISK_PROB\": return \"High Cholesterol Risk\"\n            case \"TG_RISK_PROB\": return \"High Triglycerides Risk\"\n            default: return key.replacingOccurrences(of: \"_\", with: \" \")\n            }\n        }\n\n        static func gridTitle(for key: String) -> String {\n            switch key {\n            case \"BP_CVD\": return \"Cardiovascular Risk\"\n            case \"HBA1C_RISK_PROB\": return \"Hemoglobin A1C Risk\"\n            case \"HR_BPM\": return \"Heart Rate\"\n            default: return displayTitle(for: key)\n            }\n        }\n\n        static func description(for key: String) -> String {\n            switch key {\n            case \"BP_CVD\": return \"Cardiovascular Disease Risk is your likelihood of experiencing your first heart attack or stroke within the next 10 years, expressed as a percentage.\"\n            case \"BP_SYSTOLIC\": return \"Systolic blood pressure is the peak pressure in your brachial arteries during the contraction of your heart muscle, measured in millimeters of mercury (mmHg).\"\n            case \"BP_DIASTOLIC\": return \"Diastolic blood pressure is the amount of pressure in your brachial arteries when your heart muscle is relaxed, measured in millimeters of mercury (mmHg).\"\n            case \"HBA1C_RISK_PROB\": return \"A hemoglobin A1C (HbA1C) test is a blood test that measures the amount of glucose (sugar) attached to the hemoglobin in your red blood cells.\"\n            case \"HDLTC_RISK_PROB\": return \"Hypercholesterolemia is when you have high amounts of cholesterol in the blood. High cholesterol can limit blood flow, increasing the risk of a heart attack or stroke.\"\n            case \"TG_RISK_PROB\": return \"Hypertriglyceridemia is when you have an abnormally high level of a certain type of fat (triglycerides) in the blood, defined above 1.7 mmol/L or 150 mg/dL.\"\n            default: return \"\"\n            }\n        }\n    }\n}\n\n\nenum ScreenSaverStrings {\n    static let loading = \"Loading...\"\n    static let title = \"Welcome to the Hibiscus Wellness Kiosk!\"\n    static let subtitle = \"Take a few minutes to check in on your health.\"\n    static let actionButton = \"Start Your Health Journey\"\n    static let qrPrompt = \"Scan to try it on your smartphone!\"\n}\n\n\nenum SharedViewStrings {\n    enum Toolbar {\n        static let companyLogoPlaceholder = \"PUT YOUR COMPANY\\nLOGO HERE\"\n        static let resultPartnerLogoPlaceholder = \"Partner logo\\ngoes here\"\n    }\n\n    enum WebView {\n        static let faceScanDemoTitle = \"Face Scan Demo\"\n        static let doneButtonTitle = \"Done\"\n    }\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/HH_Kiosk_B2B/Resources/Strings.swift b/HH_Kiosk_B2B/Resources/Strings.swift
+--- a/HH_Kiosk_B2B/Resources/Strings.swift	(revision e3774d58ed503b020fd1de0b59e6744e28437a38)
++++ b/HH_Kiosk_B2B/Resources/Strings.swift	(date 1777050070842)
+@@ -1,4 +1,5 @@
+ import Foundation
++import SwiftUI
+ 
+ enum ClientIDScreenStrings {
+     static let title = "Hibiscus Health Wellness Kiosk"
+@@ -13,13 +14,6 @@
+ 
+ enum ArticleScreenStrings {
+     static let imageLoading = "Loading Image..."
+-    static let body = """
+-    If you are feeling stiff and uncomfortable while working at a sedentary job, there are exercises you can do without even leaving your desk that will leave you feeling refreshed and healthier.
+-
+-    Work-related disorders aren’t just limited to heavy manufacturing or construction. They can occur in all types of industries and work environments, including office spaces. Research shows that repetitive motion, poor posture, and staying in the same position can cause or worsen musculoskeletal disorders.
+-
+-    Staying in one position while doing repetitive motions is typical of a desk job. An analysis of job industry trends over the past 50 years revealed that at least 8 in 10 American workers are desk potatoes. The habits we build at our desk, especially while sitting, can contribute to discomfort and health issues, including:
+-    """
+ }
+ 
+ 
+@@ -157,6 +151,39 @@
+         static let print = "Print"
+     }
+ 
++    enum Guide {
++        static let next = "NEXT"
++        static let back = "BACK"
++        static let close = "CLOSE"
++        static let firstTitle = "User-friendly Face Scan Results"
++        static let secondTitle = "Easy Integration to Workflow"
++
++        static var firstBody: AttributedString {
++            var text = AttributedString("""
++            This is a sample member-facing report that highlights key areas where small changes can drive meaningful health improvements and financial outcomes.
++
++            Earlier risk identification can support shared savings, quality performance, CCM-related economics, preventive care revenue, and better performance under value-based contracts.
++            """)
++            emphasize("highlights key areas", in: &text)
++            return text
++        }
++
++        static var secondBody: AttributedString {
++            var text = AttributedString("""
++            We can also send the backend data file of the scan's outputs at a particular cadence into your EMR system, complementing your current workflows and reducing clinical burden.
++
++            [COPY ADD: ACO can decide if they want the report to go to patient directly, just copy to ACO, or backend data file.]
++            """)
++            emphasize("[COPY ADD: ACO can decide if they want the report to go to patient directly, just copy to ACO, or backend data file.]", in: &text)
++            return text
++        }
++
++        private static func emphasize(_ phrase: String, in text: inout AttributedString) {
++            guard let range = text.range(of: phrase) else { return }
++            text[range].font = .system(size: 18, weight: .bold)
++        }
++    }
++
+     enum EmailPopup {
+         static let inboxTitle = "Check your inbox!"
+         static let inboxMessage = "Your result has been sent to your email!\nTell a colleague about our Kiosk!"
+Index: HH_Kiosk_B2B/Views/Helper_Component/ReadSection.swift
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import SwiftUI\n\nstruct ReadSection: View {\n    @StateObject private var viewModel = DashboardViewModel()\n    \n    var body: some View {\n        ScrollView {\n            VStack(alignment: .leading) {\n                if viewModel.isLoading {\n                    ProgressView(HomeScreenStrings.ReadSection.loading)\n                        .frame(maxWidth: .infinity, alignment: .center)\n                        .padding()\n                } else if let error = viewModel.errorMessage {\n                    Text(\"\\(HomeScreenStrings.ReadSection.failedToLoadPrefix) \\(error)\")\n                        .foregroundColor(Color(AppColors.error))\n                        .padding()\n                } else {\n                    // Today’s Read\n                    if let today = viewModel.todayRead {\n                        TodayReadSection(today: today)\n                    }\n                    Spacer()\n                    // HR Desk\n                    if !viewModel.hrDeskItems.isEmpty {\n                        HRDeskSection(items: viewModel.hrDeskItems)\n                    }\n                }\n            }\n            .frame(height: 650.h)\n            .padding(.horizontal, 16.w)\n        }\n    }\n}\n\nprivate struct TodayReadSection: View {\n    let today: TodayRead\n    \n    var body: some View {\n        VStack {\n            SectionHeader(title: HomeScreenStrings.ReadSection.todaysReadTitle, isLeading: false)\n            NavigationLink(destination: ArticleScreen(imageUrl: today.image)) {\n                HStack {\n                    CachedAsyncImage(\n                        url: URL(string: today.image),\n                        width: 130.w,\n                        height: 185.h,\n                        cornerRadius: 12.r\n                    ) { image in\n                        image\n                            .resizable()\n                            .scaledToFill()\n                    }\n                    .padding(.trailing, 12.w)\n                    .padding(.bottom, 12.w)\n                    \n                    VStack(alignment: .leading, spacing: 8.h) {\n                        HStack(spacing: 8.w) {\n                            Image(AppIconNames.Asset.articleIcon)\n                                .resizable()\n                                .scaledToFit()\n                                .frame(width: 30.w, height: 30.h)\n                            \n                            Text(HomeScreenStrings.ReadSection.articleBadge)\n                                .font(.system(size: 25.sp, weight: .medium))\n                                .foregroundColor(Color(AppColors.warningText))\n                        }\n                        \n                        Text(today.title)\n                            .font(.system(size: 26.sp, weight: .medium))\n                            .lineLimit(2)\n                            .foregroundColor(Color(AppColors.bodyText))\n                        \n                        Text(today.read_time)\n                            .font(.system(size: 18.sp, weight: .light))\n                            .foregroundColor(Color(AppColors.gray))\n                    }\n                    Spacer()\n                }\n            }\n        }\n        .padding()\n        .background(Color(AppColors.overlayMint))\n        .clipShape(RoundedRectangle(cornerRadius: 24.r))\n    }\n}\n\nprivate struct HRDeskSection: View {\n    let items: [HRDeskItem]\n    \n    var body: some View {\n        VStack(alignment: .leading) {\n            SectionHeader(title: HomeScreenStrings.ReadSection.hrDeskTitle, isLeading: false)\n            ScrollView(.horizontal, showsIndicators: false) {\n                HStack(spacing: 24.w) {\n                    ForEach(items) { item in\n                        NavigationLink(destination: ReadPdfScreen(docUrl: item.doc)) {\n                            VStack(alignment: .leading, spacing: 8.h) {\n                                CachedAsyncImage(\n                                    url: URL(string: item.image),\n                                    width: 130.w,\n                                    height: 185.h,\n                                    cornerRadius: 12.r\n                                ) { image in\n                                    image\n                                        .resizable()\n                                        .scaledToFill()\n                                }\n                                .padding(.trailing, 12.w)\n                                .padding(.bottom, 12.w)\n                                Text(item.title)\n                                    .font(.system(size: 22.sp, weight: .medium))\n                                    .lineLimit(1)\n                                    .foregroundColor(Color(AppColors.black))\n                            }\n                            .frame(width: 140.w)\n                        }\n                    }\n                }\n                .padding(.leading,24.h)\n                .padding(.bottom, 12.w)\n                \n                \n            }\n        }\n        .padding()\n        .background(Color(AppColors.overlayMint))\n        .clipShape(RoundedRectangle(cornerRadius: 24.r))\n    }\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/HH_Kiosk_B2B/Views/Helper_Component/ReadSection.swift b/HH_Kiosk_B2B/Views/Helper_Component/ReadSection.swift
+--- a/HH_Kiosk_B2B/Views/Helper_Component/ReadSection.swift	(revision e3774d58ed503b020fd1de0b59e6744e28437a38)
++++ b/HH_Kiosk_B2B/Views/Helper_Component/ReadSection.swift	(date 1777050241521)
+@@ -38,7 +38,7 @@
+     var body: some View {
+         VStack {
+             SectionHeader(title: HomeScreenStrings.ReadSection.todaysReadTitle, isLeading: false)
+-            NavigationLink(destination: ArticleScreen(imageUrl: today.image)) {
++            NavigationLink(destination: ArticleScreen(imageUrl: today.image, description: today.description)) {
+                 HStack {
+                     CachedAsyncImage(
+                         url: URL(string: today.image),
+Index: HH_Kiosk_B2B/Views/Screens/ResultScreen.swift
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import SwiftUI\nimport Combine\nimport AnuraCore\n\n// MARK: - Models\npublic struct SignalResult: Decodable {\n    public let notes: [String]\n    public let value: Double\n}\n\npublic typealias ResultsMap = [String: SignalResult]\n\npublic final class ResultsModel: ObservableObject {\n    @Published public var results: ResultsMap = [:]\n\n    private let displayOrder: [String] = [\n        \"BP_CVD\",\n        \"BP_SYSTOLIC\",\n        \"BP_DIASTOLIC\",\n        \"HBA1C_RISK_PROB\",\n        \"HDLTC_RISK_PROB\",\n        \"TG_RISK_PROB\"\n    ]\n\n    public var resultsArray: [(key: String, value: SignalResult)] {\n        let sorted = results.sorted { lhs, rhs in\n            let leftIndex = displayOrder.firstIndex(of: lhs.key) ?? Int.max\n            let rightIndex = displayOrder.firstIndex(of: rhs.key) ?? Int.max\n            return leftIndex < rightIndex\n        }\n        return Array(sorted)\n    }\n\n    public init() {}\n\n    public func update(with newResults: ResultsMap) {\n        DispatchQueue.main.async {\n            self.results = newResults\n        }\n    }\n}\n\nstruct ShareSheet: UIViewControllerRepresentable {\n    let activityItems: [Any]\n    func makeUIViewController(context: Context) -> UIActivityViewController {\n        UIActivityViewController(activityItems: activityItems, applicationActivities: nil)\n    }\n    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}\n}\n\n// MARK: - Main Screen\npublic struct ResultScreen: View {\n    @StateObject private var model: ResultsModel\n    let result: [String: MeasurementResults.SignalResult]\n    @State private var refreshTrigger = false\n    \n    // PDF States\n    @State private var pdfURL: URL?\n    @State private var isSharing = false\n\n    private let showBottomButtons: Bool\n    private let showLoadingOverlay: Bool\n    \n    public init(\n        model: ResultsModel = ResultsModel(),\n        result: [String: MeasurementResults.SignalResult] = [:],\n        showBottomButtons: Bool = true,\n        showLoadingOverlay: Bool = true\n    ) {\n        _model = StateObject(wrappedValue: model)\n        self.result = result\n        self.showBottomButtons = showBottomButtons\n        self.showLoadingOverlay = showLoadingOverlay\n    }\n    \n    public var body: some View {\n        ZStack(alignment: .bottom) {\n            ScrollView(showsIndicators: false) {\n                mainContentView // Extracted for reuse in PDF\n            }\n            .ignoresSafeArea(edges: .top)\n            \n            if showBottomButtons {\n                ResultScreenButtons(result: result, onDownloadPDF: {\n                    exportToPDF()\n                },onPrint: {})\n                .background(Color(AppColors.white))\n                .shadow(radius: 4)\n            }\n        }\n        .onReceive(NotificationCenter.default.publisher(for: .screenDidChangeBounds)) { _ in\n            refreshTrigger.toggle()\n        }\n        .sheet(isPresented: $isSharing) {\n            if let url = pdfURL {\n                ShareSheet(activityItems: [url])\n            }\n        }\n    }\n    \n    // Extracted content view so we can render it without the ScrollView wrapper for PDF\n    private var mainContentView: some View {\n        VStack(spacing: 0) {\n            HeroHeader()\n            TitleBlock()\n            ResultsList(model: model)\n        }\n        .frame(maxWidth: .infinity)\n        .background(Color(AppColors.systemBackground))\n    }\n    \n    private func exportToPDF() {\n        // We render the raw content (without the ScrollView) to ensure we get the full length\n        let pdfView = mainContentView.frame(width: 595) // Fix width to A4\n        \n        if let url = PDFGenerator.generatePDF(view: pdfView, fileName: ResultScreenStrings.pdfFileName) {\n            self.pdfURL = url\n            self.isSharing = true\n        }\n    }\n}\n\n// MARK: - Subviews\nprivate struct HeroHeader: View {\n    var body: some View {\n        ZStack(alignment: .leading) {\n     VStack(alignment: .leading, spacing: 0) {\n                ResultToolbar()\n                Spacer(minLength: 20)\n                buildSemiBoldText(ResultScreenStrings.title, 50.sp, color: Color(AppColors.primary))\n                    .font(.system(size: 34, weight: .bold))\n                    .foregroundColor(Color(AppColors.white))\n                    .padding(.leading, 50.w)\n                Text(ResultScreenStrings.heroDescription)\n                    .foregroundColor(Color(AppColors.bodyTextMuted))\n                    .font(.system(size: 24.sp, weight: .light))\n                    .italic()\n                    .padding(.leading, 50.w)\n                    .padding(.bottom, 24.w)\n                    .padding(.trailing, 330.w)\n            }\n        }\n        .frame(maxWidth: .infinity)\n    }\n}\n\nprivate struct TitleBlock: View {\n    var body: some View {\n        ZStack {\n            Rectangle()\n                .fill(Color(AppColors.resultInfoBackground))\n                .frame(maxWidth: .infinity)\n                .frame(height: 120.h)\n            \n            buildMediumText(\n                ResultScreenStrings.titleBlockDescription,\n                18.sp,\n                color: Color(AppColors.primary)\n            )\n            .padding(.leading, 48.w)\n            .padding(.trailing, 120.w)\n        }\n    }\n}\n\nprivate struct InfoFooter: View {\n    var body: some View {\n        ZStack {\n            RoundedRectangle(cornerRadius: 8.r, style: .continuous)\n                .fill(Color(AppColors.resultAlertBackground))\n                .overlay(\n                    RoundedRectangle(cornerRadius: 8.r, style: .continuous)\n                        .stroke(Color(AppColors.resultAlertBorder), lineWidth: 1)\n                )\n                .frame(maxWidth: .infinity)\n                .frame(minHeight: 105.h, maxHeight: 105.h)\n            \n            HStack(spacing: 12.w) {\n                Image(systemName: AppIconNames.Symbol.infoCircle)\n                    .resizable()\n                    .frame(width: 24, height: 24)\n                    .foregroundColor(Color(AppColors.resultAlertBorder))\n                    .padding(.leading, 12.w)\n                \n                Text(ResultScreenStrings.infoFooter)\n                    .font(.system(size: 18.sp))\n                    .foregroundColor(Color(AppColors.resultAlertText))\n                    .italic()\n                    .padding(12.w)\n            }\n        }\n    }\n}\n\n\nstruct RoundedCorner: Shape {\n    var radius: CGFloat = .infinity\n    var corners: UIRectCorner = .allCorners\n\n    func path(in rect: CGRect) -> Path {\n        let path = UIBezierPath(\n            roundedRect: rect,\n            byRoundingCorners: corners,\n            cornerRadii: CGSize(width: radius, height: radius)\n        )\n        return Path(path.cgPath)\n    }\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/HH_Kiosk_B2B/Views/Screens/ResultScreen.swift b/HH_Kiosk_B2B/Views/Screens/ResultScreen.swift
+--- a/HH_Kiosk_B2B/Views/Screens/ResultScreen.swift	(revision e3774d58ed503b020fd1de0b59e6744e28437a38)
++++ b/HH_Kiosk_B2B/Views/Screens/ResultScreen.swift	(date 1776965232794)
+@@ -57,6 +57,7 @@
+     // PDF States
+     @State private var pdfURL: URL?
+     @State private var isSharing = false
++    @State private var guideStage: ResultGuideStage? = .bubble
+ 
+     private let showBottomButtons: Bool
+     private let showLoadingOverlay: Bool
+@@ -74,7 +75,8 @@
+     }
+     
+     public var body: some View {
+-        ZStack(alignment: .bottom) {
++        ZStack {
++            ZStack(alignment: .bottom) {
+             ScrollView(showsIndicators: false) {
+                 mainContentView // Extracted for reuse in PDF
+             }
+@@ -87,6 +89,17 @@
+                 .background(Color(AppColors.white))
+                 .shadow(radius: 4)
+             }
++            }
++
++            if let guideStage {
++                ResultGuideOverlay(stage: guideStage) { nextStage in
++                    withAnimation(.spring(response: 0.36, dampingFraction: 0.86)) {
++                        self.guideStage = nextStage
++                    }
++                }
++                .transition(.opacity.combined(with: .scale(scale: 0.98)))
++                .zIndex(2)
++            }
+         }
+         .onReceive(NotificationCenter.default.publisher(for: .screenDidChangeBounds)) { _ in
+             refreshTrigger.toggle()
+@@ -206,3 +219,304 @@
+         return Path(path.cgPath)
+     }
+ }
++
++private enum ResultGuideStage {
++    case bubble
++    case firstMessage
++    case secondMessage
++}
++
++private struct ResultGuideContent {
++    let page: String
++    let iconName: String
++    let title: String
++    let body: AttributedString
++}
++
++private struct ResultGuideOverlay: View {
++    let stage: ResultGuideStage
++    let onStageChange: (ResultGuideStage?) -> Void
++    @State private var bubbleOffset: CGSize = .zero
++    @GestureState private var bubbleDragOffset: CGSize = .zero
++
++    var body: some View {
++        ZStack {
++            if stage != .bubble {
++                Color(AppColors.primary)
++                    .opacity(0.66)
++                    .ignoresSafeArea()
++                    .transition(.opacity)
++            }
++
++            if stage != .bubble {
++                switch stage {
++                case .bubble:
++                    EmptyView()
++                case .firstMessage:
++                    ResultGuideModal(
++                        content: .first,
++                        characterAsset: AppIconNames.Asset.hibyLeft,
++                        characterAlignment: .leading,
++                        showsBackButton: false,
++                        onBack: {},
++                        onNext: { onStageChange(.secondMessage) },
++                        onClose: { onStageChange(.bubble) }
++                    )
++                case .secondMessage:
++                    ResultGuideModal(
++                        content: .second,
++                        characterAsset: AppIconNames.Asset.hibyRight,
++                        characterAlignment: .trailing,
++                        showsBackButton: true,
++                        onBack: { onStageChange(.firstMessage) },
++                        onNext: {},
++                        onClose: { onStageChange(.bubble) }
++                    )
++                }
++            }
++
++            ResultGuideBubble(
++                offset: CGSize(
++                    width: bubbleOffset.width + bubbleDragOffset.width,
++                    height: bubbleOffset.height + bubbleDragOffset.height
++                ),
++                onTap: {
++                    onStageChange(.firstMessage)
++                }
++            )
++            .gesture(
++                DragGesture(minimumDistance: 0)
++                    .updating($bubbleDragOffset) { value, state, _ in
++                        state = value.translation
++                    }
++                    .onEnded { value in
++                        bubbleOffset.width += value.translation.width
++                        bubbleOffset.height += value.translation.height
++                    }
++            )
++        }
++        .animation(.spring(response: 0.36, dampingFraction: 0.86), value: stage)
++    }
++}
++
++private struct ResultGuideBubble: View {
++    let offset: CGSize
++    let onTap: () -> Void
++
++    var body: some View {
++        VStack {
++            Spacer()
++            HStack {
++                Spacer()
++                Button(action: onTap) {
++                    ZStack(alignment: .topLeading) {
++                        Image(AppIconNames.Asset.hiby)
++                            .resizable()
++                            .scaledToFill()
++                            .frame(width: 138.w, height: 138.w)
++                            .clipShape(Circle())
++                            .overlay(
++                                Circle()
++                                    .stroke(Color(AppColors.primary), lineWidth: 6.w)
++                            )
++                            .shadow(color: Color(AppColors.black).opacity(0.26), radius: 18, x: 0, y: 8)
++
++                        Text("2")
++                            .font(.system(size: 25.sp, weight: .bold))
++                            .foregroundColor(Color(AppColors.black))
++                            .frame(width: 48.w, height: 48.w)
++                            .background(Color(AppColors.ctaGreen))
++                            .clipShape(Circle())
++                            .offset(x: -4.w, y: -8.h)
++                    }
++                }
++                .buttonStyle(.plain)
++                .padding(.trailing, 24.w)
++                .padding(.bottom, 275.h)
++                .offset(offset)
++            }
++        }
++        .ignoresSafeArea(edges: .bottom)
++    }
++}
++
++private struct ResultGuideModal: View {
++    let content: ResultGuideContent
++    let characterAsset: String
++    let characterAlignment: HorizontalAlignment
++    let showsBackButton: Bool
++    let onBack: () -> Void
++    let onNext: () -> Void
++    let onClose: () -> Void
++
++    var body: some View {
++        GeometryReader { proxy in
++            ZStack(alignment: characterAlignment == .leading ? .bottomLeading : .bottomTrailing) {
++                VStack(spacing: 0) {
++                    Spacer(minLength: 84.h)
++
++                    VStack(alignment: .leading, spacing: 0) {
++                        HStack(alignment: .top) {
++                            Image(systemName: content.iconName)
++                                .font(.system(size: 62.sp, weight: .regular))
++                                .foregroundColor(Color(AppColors.primary))
++                                .frame(width: 82.w, height: 82.w)
++
++                            Spacer()
++
++                            Text(content.page)
++                                .font(.system(size: 24.sp, weight: .medium))
++                                .foregroundColor(Color(AppColors.error))
++                        }
++
++                        buildBoldText(content.title, 24.sp, color: Color(AppColors.primary))
++                            .padding(.top, 22.h)
++
++                        Text(content.body)
++                            .font(.system(size: 18.sp))
++                            .foregroundColor(Color(AppColors.bodyText))
++                            .lineSpacing(9.h)
++                            .padding(.top, 14.h)
++                            .frame(maxWidth: .infinity, alignment: .leading)
++
++                        Spacer(minLength: 24.h)
++
++                        HStack(spacing: 16.w) {
++                            Spacer()
++
++                            if showsBackButton {
++                                ResultGuideActionButton(
++                                    title: ResultScreenStrings.Guide.back,
++                                    systemImage: "arrow.left",
++                                    style: .secondary,
++                                    imagePlacement: .leading,
++                                    action: onBack
++                                )
++                            }
++
++                            if showsBackButton {
++                                ResultGuideActionButton(
++                                    title: ResultScreenStrings.Guide.close,
++                                    systemImage: "arrow.right",
++                                    style: .destructive,
++                                    imagePlacement: .trailing,
++                                    action: onClose
++                                )
++                            } else {
++                                ResultGuideActionButton(
++                                    title: ResultScreenStrings.Guide.next,
++                                    systemImage: "arrow.right",
++                                    style: .secondary,
++                                    imagePlacement: .trailing,
++                                    action: onNext
++                                )
++                            }
++                        }
++                    }
++                    .padding(.horizontal, 38.w)
++                    .padding(.top, 48.h)
++                    .padding(.bottom, 30.h)
++                    .frame(width: min(proxy.size.width * 0.58, 610.w))
++                    .frame(minHeight: 510.h)
++                    .background(Color(AppColors.white))
++                    .clipShape(RoundedRectangle(cornerRadius: 28.r, style: .continuous))
++                    .overlay(alignment: .bottom) {
++                        Rectangle()
++                            .fill(Color(AppColors.primaryActionOrange))
++                            .frame(height: 7.h)
++                            .clipShape(RoundedCorner(radius: 28.r, corners: [.bottomLeft, .bottomRight]))
++                    }
++                    .shadow(color: Color(AppColors.black).opacity(0.18), radius: 24, x: 0, y: 16)
++
++                    Spacer(minLength: 260.h)
++                }
++                .frame(maxWidth: .infinity, maxHeight: .infinity)
++
++                Image(characterAsset)
++                    .resizable()
++                    .scaledToFit()
++                    .frame(width: min(proxy.size.width * 0.32, 360.w))
++                    .padding(.leading, characterAlignment == .leading ? 44.w : 0)
++                    .padding(.trailing, characterAlignment == .trailing ? 44.w : 0)
++                    .offset(y: 34.h)
++                    .allowsHitTesting(false)
++            }
++        }
++        .ignoresSafeArea(edges: .bottom)
++    }
++}
++
++private enum ResultGuideButtonStyle {
++    case secondary
++    case destructive
++
++    var background: Color {
++        switch self {
++        case .secondary:
++            return Color(AppColors.resultInfoBackground)
++        case .destructive:
++            return Color(AppColors.resultAlertBackground)
++        }
++    }
++
++    var foreground: Color {
++        switch self {
++        case .secondary:
++            return Color(AppColors.primary)
++        case .destructive:
++            return Color(AppColors.primaryActionOrange)
++        }
++    }
++}
++
++private enum ResultGuideImagePlacement {
++    case leading
++    case trailing
++}
++
++private struct ResultGuideActionButton: View {
++    let title: String
++    let systemImage: String
++    let style: ResultGuideButtonStyle
++    let imagePlacement: ResultGuideImagePlacement
++    let action: () -> Void
++
++    var body: some View {
++        Button(action: action) {
++            HStack(spacing: 10.w) {
++                if imagePlacement == .leading {
++                    Image(systemName: systemImage)
++                }
++
++                Text(title)
++                    .font(.system(size: 16.sp, weight: .bold))
++
++                if imagePlacement == .trailing {
++                    Image(systemName: systemImage)
++                }
++            }
++            .foregroundColor(style.foreground)
++            .frame(minWidth: 150.w, minHeight: 54.h)
++            .padding(.horizontal, 14.w)
++            .background(style.background)
++            .clipShape(RoundedRectangle(cornerRadius: 6.r, style: .continuous))
++        }
++        .buttonStyle(.plain)
++    }
++}
++
++private extension ResultGuideContent {
++    static let first = ResultGuideContent(
++        page: "1/2",
++        iconName: "doc.text.image",
++        title: ResultScreenStrings.Guide.firstTitle,
++        body: ResultScreenStrings.Guide.firstBody
++    )
++
++    static let second = ResultGuideContent(
++        page: "2/2",
++        iconName: "chart.line.uptrend.xyaxis.circle",
++        title: ResultScreenStrings.Guide.secondTitle,
++        body: ResultScreenStrings.Guide.secondBody
++    )
++}
+Index: HH_Kiosk_B2B/Controllers/ResultsViewController.swift
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import UIKit\nimport SwiftUI\nimport AnuraCore\n\nclass ResultsViewController: UIViewController {\n    private weak var appState: AppState?\n\n    // MARK: - Public Properties (required by MeasurementDelegate)\n    var results: [String: MeasurementResults.SignalResult] = [:] {\n        didSet {\n            handleNewResults()\n        }\n    }\n\n    var measurementID: String = \"\"\n    var dismissBlock: () -> () = {}\n\n    // MARK: - Private Properties\n    private var resultsModel = ResultsModel()\n    private var resultScreenHost: UIHostingController<AnyView>!\n    private var resultButtonsHost: UIHostingController<ResultScreenButtons>!\n    private var activityIndicator: UIActivityIndicatorView!\n    private var errorLabel: UILabel!\n    private var exitButton: UIButton!\n    private let submissionService: KioskSubmissionServiceProtocol = KioskSubmissionService()\n\n    private enum UIState {\n        case loading, success, failure\n    }\n\n    /// Keys we want to show in the UI for *real* results (the same six used for mock)\n    private let visibleKeys: [String] = [\n        \"BP_CVD\",\n        \"HBA1C_RISK_PROB\",\n        \"BP_SYSTOLIC\",\n        \"BP_DIASTOLIC\",\n        \"HDLTC_RISK_PROB\",\n        \"TG_RISK_PROB\"\n    ]\n\n    init(appState: AppState? = nil) {\n        self.appState = appState\n        super.init(nibName: nil, bundle: nil)\n    }\n\n    @available(*, unavailable)\n    required init?(coder: NSCoder) {\n        fatalError(\"init(coder:) has not been implemented\")\n    }\n\n    // MARK: - Lifecycle\n    override func viewDidLoad() {\n        super.viewDidLoad()\n        navigationController?.navigationBar.isHidden = true\n        view.backgroundColor = AppColors.systemBackground\n        setupSwiftUIScreen()\n        setupBottomButtons()\n        setupLoadingAndErrorViews()\n        setupConstraints()\n\n        updateUI(for: .loading)\n\n        // ⚙\uFE0F Uncomment this line to show mock data during testing\n        loadMockDataForDebug()\n    }\n\n    // MARK: - Mock Debug Data\n    /// Injects fake sample results to test UI quickly (useful during development)\n    private func loadMockDataForDebug() {\n        print(\"ResultsViewController: Injecting mock data into ResultsModel\")\n\n        let sample: ResultsMap = [\n            \"BP_CVD\": SignalResult(notes: [], value: 55),\n            \"HBA1C_RISK_PROB\": SignalResult(notes: [], value: 30.0),\n            \"BP_SYSTOLIC\": SignalResult(notes: [], value: 12),\n            \"BP_DIASTOLIC\": SignalResult(notes: [], value: 11.2),\n            \"HDLTC_RISK_PROB\": SignalResult(notes: [], value: 55.3),\n            \"TG_RISK_PROB\": SignalResult(notes: [], value: 47.1),\n        ]\n\n        resultsModel.update(with: sample)\n        resultButtonsHost.rootView = ResultScreenButtons(\n            result: [:],\n            onDownloadPDF: {},\n            onPrint: { [weak self] in self?.printResults() }\n        )\n        updateUI(for: .success)\n\n        print(\"✅ Mock data injected — check SwiftUI Results screen now.\")\n    }\n    \n    \n    private func exportPDF() {\n        // 1. Create the view\n        let pdfView = makeResultScreen(\n            model: self.resultsModel,\n            showBottomButtons: false,\n            showLoadingOverlay: false\n        )\n        .background(Color(AppColors.white))\n        .frame(width: 595.2)     // A4 Width\n        \n        // 2. Attempt generation\n        if let url = PDFGenerator.generatePDF(view: pdfView, fileName: \"HealthReport\") {\n            let activityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)\n            \n            if let popover = activityVC.popoverPresentationController {\n                popover.sourceView = self.resultButtonsHost.view\n            }\n            \n            self.present(activityVC, animated: true)\n        } else {\n            print(\"❌ Failed to generate PDF URL\")\n        }\n    }\n\n    // MARK: - Setup Views\n    private func setupSwiftUIScreen() {\n        let screen = makeResultScreen(model: resultsModel, showBottomButtons: false, showLoadingOverlay: false)\n        resultScreenHost = UIHostingController(rootView: screen)\n        addChild(resultScreenHost)\n        resultScreenHost.view.translatesAutoresizingMaskIntoConstraints = false\n        view.addSubview(resultScreenHost.view)\n        resultScreenHost.didMove(toParent: self)\n    }\n\n    private func setupBottomButtons() {\n        resultButtonsHost = UIHostingController(rootView: ResultScreenButtons(\n            result: [:],\n            onDownloadPDF: { [weak self] in\n                self?.exportPDF()\n            },\n            onPrint: { [weak self] in\n                self?.printResults()\n            }\n        ))\n        addChild(resultButtonsHost)\n        resultButtonsHost.view.translatesAutoresizingMaskIntoConstraints = false\n        view.addSubview(resultButtonsHost.view)\n        resultButtonsHost.didMove(toParent: self)\n    }\n\n    private func setupLoadingAndErrorViews() {\n        activityIndicator = UIActivityIndicatorView(style: .large)\n        activityIndicator.translatesAutoresizingMaskIntoConstraints = false\n        activityIndicator.hidesWhenStopped = true\n        view.addSubview(activityIndicator)\n\n        errorLabel = UILabel()\n        errorLabel.text = \"Measurement failed\"\n        errorLabel.textColor = AppColors.error\n        errorLabel.font = .boldSystemFont(ofSize: 18)\n        errorLabel.textAlignment = .center\n        errorLabel.translatesAutoresizingMaskIntoConstraints = false\n        errorLabel.isHidden = true\n        view.addSubview(errorLabel)\n\n        exitButton = UIButton(type: .system)\n        exitButton.setTitle(\"Exit\", for: .normal)\n        exitButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .semibold)\n        exitButton.setTitleColor(.white, for: .normal)\n        exitButton.backgroundColor = UIColor(red: 1.0, green: 0.63, blue: 0.58, alpha: 1.0)\n        exitButton.layer.cornerRadius = 10\n        exitButton.translatesAutoresizingMaskIntoConstraints = false\n        exitButton.isHidden = true\n        exitButton.addTarget(self, action: #selector(exitTapped), for: .touchUpInside)\n        view.addSubview(exitButton)\n    }\n\n    private func setupConstraints() {\n        NSLayoutConstraint.activate([\n            resultScreenHost.view.topAnchor.constraint(equalTo: view.topAnchor),\n            resultScreenHost.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),\n            resultScreenHost.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),\n            resultScreenHost.view.bottomAnchor.constraint(equalTo: resultButtonsHost.view.topAnchor),\n\n            resultButtonsHost.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),\n            resultButtonsHost.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),\n            resultButtonsHost.view.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),\n            resultButtonsHost.view.heightAnchor.constraint(equalToConstant: 80),\n\n            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),\n            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),\n\n            errorLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),\n            errorLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: 20),\n\n            exitButton.topAnchor.constraint(equalTo: errorLabel.bottomAnchor, constant: 12),\n            exitButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),\n            exitButton.widthAnchor.constraint(equalToConstant: 180),\n            exitButton.heightAnchor.constraint(equalToConstant: 44)\n        ])\n    }\n\n    // MARK: - State Updates\n    private func updateUI(for state: UIState) {\n        switch state {\n        case .loading:\n            activityIndicator.startAnimating()\n            errorLabel.isHidden = true\n            exitButton.isHidden = true\n            resultButtonsHost.view.isHidden = true\n            resultScreenHost.view.isHidden = true\n\n        case .success:\n            activityIndicator.stopAnimating()\n            errorLabel.isHidden = true\n            exitButton.isHidden = true\n            resultButtonsHost.view.isHidden = false\n            resultScreenHost.view.isHidden = false\n\n        case .failure:\n            activityIndicator.stopAnimating()\n            errorLabel.isHidden = false\n            exitButton.isHidden = false\n            resultButtonsHost.view.isHidden = true\n            resultScreenHost.view.isHidden = true\n        }\n    }\n\n    // MARK: - Public Methods (required by MeasurementDelegate)\n    func setLoadingMessage(currentChunk: Int, totalChunks: Int) {\n        DispatchQueue.main.async {\n            self.navigationItem.prompt = \"Loading (\\(currentChunk + 1) of \\(totalChunks))\"\n            self.updateUI(for: .loading)\n        }\n    }\n\n    func measurementDidCancel() {\n        DispatchQueue.main.async {\n            self.navigationItem.prompt = \"\"\n            Task {\n                await self.prepareDataForAPI(nil)\n            }\n            self.updateUI(for: .failure)\n        }\n    }\n\n    // MARK: - Handle Real SDK Results\n    private func handleNewResults() {\n        DispatchQueue.main.async {\n            guard self.results.isEmpty == false else { return }\n\n            // Convert and FILTER SDK results to SwiftUI SignalResults (only keep visibleKeys)\n            var converted: ResultsMap = [:]\n            for key in self.visibleKeys {\n                if let sdkResult = self.results[key] {\n                    converted[key] = SignalResult(notes: sdkResult.notes, value: sdkResult.value)\n                }\n            }\n\n            // If nothing from allowed keys is present, show failure / empty state\n            if converted.isEmpty {\n                // no relevant data\n                self.updateUI(for: .failure)\n                print(\"ResultsViewController: no visible keys present in SDK results -> showing failure.\")\n                return\n            }\n\n            // Update SwiftUI state with filtered data\n            self.resultsModel.update(with: converted)\n            self.resultButtonsHost.rootView = ResultScreenButtons(\n                result: self.results,\n                onDownloadPDF: { [weak self] in\n                    self?.exportPDF()\n                },\n            onPrint: { [weak self] in\n                self?.printResults()\n            }\n        )\n        Task {\n                await self.prepareDataForAPI(self.results)\n            }\n            self.updateUI(for: .success)\n            print(\"✅ Real SDK results displayed successfully (filtered to visible keys).\")\n        }\n    }\n\n    // MARK: - Printing\n    private func printResults() {\n        // Workaround: Render the SwiftUI view at the main screen width (matching in-app appearance), then scale the image to A4 width for the PDF.\n        // Effect: The PDF layout, font sizing, and paddings will match the on-screen appearance. Some loss of sharpness may occur due to scaling, but appearance will match.\n\n        // 1. Use current device screen width for content width to match on-screen appearance exactly\n        let screenWidth = UIScreen.main.bounds.width\n\n        // 2. Set A4 PDF target width/height in points\n        let pdfPageWidth: CGFloat = 595.2 // A4 width\n        let pdfPageHeight: CGFloat = 841.8 // A4 height\n\n        // 3. Create the SwiftUI ResultScreen view sized to screen width. We'll measure height dynamically.\n        let printView = makeResultScreen(\n            model: self.resultsModel,\n            showBottomButtons: false,\n            showLoadingOverlay: false\n        )\n        .background(Color(AppColors.white))\n        .frame(width: screenWidth)\n\n        // 4. Measure the actual required height for the SwiftUI view at the given width\n        let measured = measuredSize(for: printView, targetWidth: screenWidth)\n        let contentHeight: CGFloat = max(1, measured.height)\n\n        // 5. Render SwiftUI view to UIImage at device screen scale (for best fidelity)\n        guard let image = renderImage(from: printView, targetSize: CGSize(width: screenWidth, height: contentHeight)) else {\n            DispatchQueue.main.async {\n                let alert = UIAlertController(title: \"Error\", message: \"Failed to render results for printing.\", preferredStyle: .alert)\n                alert.addAction(UIAlertAction(title: \"OK\", style: .default))\n                self.present(alert, animated: true)\n            }\n            print(\"❌ Failed to render SwiftUI view for printing\")\n            return\n        }\n\n        // 6. Create paged PDF from the rendered image, scaling each slice horizontally to exactly fit A4 width\n        guard let pdfURL = createPagedPDF(from: image, pageSize: CGSize(width: pdfPageWidth, height: pdfPageHeight)) else {\n            DispatchQueue.main.async {\n                let alert = UIAlertController(title: \"Error\", message: \"Failed to generate PDF for printing.\", preferredStyle: .alert)\n                alert.addAction(UIAlertAction(title: \"OK\", style: .default))\n                self.present(alert, animated: true)\n            }\n            print(\"❌ Failed to create paged PDF from rendered image\")\n            return\n        }\n\n        // 7. Setup print controller with the generated PDF URL\n        let printInfo = UIPrintInfo(dictionary: nil)\n        printInfo.jobName = \"Health Report\"\n        printInfo.outputType = .general\n\n        let printController = UIPrintInteractionController.shared\n        printController.printInfo = printInfo\n        printController.showsNumberOfCopies = false\n        printController.printingItem = pdfURL\n\n        // 8. Present print controller anchored to buttons view (popover on iPad)\n        if UIDevice.current.userInterfaceIdiom == .pad {\n            printController.present(from: resultButtonsHost.view.bounds, in: resultButtonsHost.view, animated: true, completionHandler: nil)\n        } else {\n            printController.present(animated: true, completionHandler: nil)\n        }\n    }\n    \n    private func measuredSize<V: View>(for swiftUIView: V, targetWidth: CGFloat) -> CGSize {\n        // Host the SwiftUI view in a UIHostingController to allow Auto Layout sizing\n        let controller = UIHostingController(rootView: swiftUIView)\n        controller.view.translatesAutoresizingMaskIntoConstraints = false\n        controller.view.backgroundColor = .clear\n\n        // Constrain to the target width, let height be flexible\n        controller.view.bounds = CGRect(x: 0, y: 0, width: targetWidth, height: 10)\n\n        // Add temporarily to a key window so layout can occur correctly\n        let keyWindow = UIApplication.shared.connectedScenes\n            .compactMap { $0 as? UIWindowScene }\n            .flatMap { $0.windows }\n            .first { $0.isKeyWindow }\n\n        keyWindow?.addSubview(controller.view)\n\n        let widthConstraint = controller.view.widthAnchor.constraint(equalToConstant: targetWidth)\n        widthConstraint.isActive = true\n\n        controller.view.setNeedsLayout()\n        controller.view.layoutIfNeeded()\n\n        // Ask the hosting controller for the size that best fits the given width\n        let fittingSize = controller.sizeThatFits(in: CGSize(width: targetWidth, height: CGFloat.greatestFiniteMagnitude))\n\n        // Clean up\n        controller.view.removeFromSuperview()\n\n        // Return a ceilinged size to avoid fractional pixel rounding issues later\n        return CGSize(width: ceil(fittingSize.width), height: ceil(fittingSize.height))\n    }\n\n    private func makeResultScreen(\n        model: ResultsModel,\n        result: [String: MeasurementResults.SignalResult] = [:],\n        showBottomButtons: Bool,\n        showLoadingOverlay: Bool\n    ) -> AnyView {\n        let screen = ResultScreen(\n            model: model,\n            result: result,\n            showBottomButtons: showBottomButtons,\n            showLoadingOverlay: showLoadingOverlay\n        )\n\n        if let appState {\n            return AnyView(screen.environmentObject(appState))\n        } else {\n            return AnyView(screen)\n        }\n    }\n\n    // Helper: Render SwiftUI view into UIImage with device screen scale for best fidelity\n    private func renderImage<V: View>(from swiftUIView: V, targetSize: CGSize) -> UIImage? {\n        // Use UIHostingController to host the SwiftUI view\n        let controller = UIHostingController(rootView: swiftUIView)\n\n        // Set bounds to target size\n        controller.view.bounds = CGRect(origin: .zero, size: targetSize)\n\n        // Use device screen scale for high-fidelity rendering (will be downscaled when drawing PDF)\n        controller.view.contentScaleFactor = UIScreen.main.scale\n\n        controller.view.backgroundColor = .clear\n\n        // Add to view hierarchy to properly layout (required for layout updates)\n        let window = UIApplication.shared.windows.first\n        window?.addSubview(controller.view)\n        controller.view.setNeedsLayout()\n        controller.view.layoutIfNeeded()\n\n        // Configure UIGraphicsImageRenderer with device scale\n        let rendererFormat = UIGraphicsImageRendererFormat.default()\n        rendererFormat.scale = UIScreen.main.scale\n\n        let renderer = UIGraphicsImageRenderer(size: targetSize, format: rendererFormat)\n        let image = renderer.image { context in\n            // Fill white background to avoid transparency\n            UIColor.white.setFill()\n            context.fill(CGRect(origin: .zero, size: targetSize))\n\n            // Draw the view hierarchy into the context at device screen scale\n            controller.view.drawHierarchy(in: controller.view.bounds, afterScreenUpdates: true)\n        }\n\n        controller.view.removeFromSuperview()\n        return image\n    }\n    \n    /// Helper to create a multi-page PDF from a tall UIImage by slicing it into pages of given pageSize height.\n    ///\n    /// Each cropped slice is scaled horizontally to exactly fit PDF page width (A4 width),\n    /// maintaining the aspect ratio for height.\n    ///\n    /// This ensures the PDF matches the on-screen layout width.\n    ///\n    /// This method also pads the last page slice with a white background if it is shorter than the page height,\n    /// to prevent PDF viewers from vertically centering the last page content instead of aligning at top.\n    ///\n    /// - Parameters:\n    ///   - image: The tall image to slice and draw into PDF pages\n    ///   - pageSize: The CGSize of each PDF page (width and height in points)\n    /// - Returns: URL to the created PDF file in temporary directory or nil if failed\n    private func createPagedPDF(from image: UIImage, pageSize: CGSize) -> URL? {\n        let pdfData = NSMutableData()\n        let pdfConsumer = CGDataConsumer(data: pdfData as CFMutableData)!\n\n        var mediaBox = CGRect(origin: .zero, size: pageSize)\n        guard let pdfContext = CGContext(consumer: pdfConsumer, mediaBox: &mediaBox, nil) else {\n            return nil\n        }\n\n        // Use image.size (points) directly for accurate cropping without scale confusion\n        let imageSize = image.size\n        let imageScale = image.scale\n\n        // Calculate horizontal scale factor to fit image width exactly to PDF page width\n        // This scale factor will be applied to height proportionally\n        let scaleFactor = pageSize.width / imageSize.width\n\n        // Calculate number of pages by dividing the image height by page height scaled back to the original image height space\n        // Because each PDF page height corresponds to (pageHeight / scaleFactor) points of the original image height\n        let pageHeightInImageSpace = pageSize.height / scaleFactor\n        let pageCount = Int(ceil(imageSize.height / pageHeightInImageSpace))\n\n        // Draw each page by cropping the relevant slice of the image and drawing it scaled to PDF page size\n        for pageIndex in 0..<pageCount {\n            pdfContext.beginPage(mediaBox: &mediaBox)\n\n            // Crop rect in image points (not pixels)\n            let sliceOriginY = CGFloat(pageIndex) * pageHeightInImageSpace\n            let sliceHeight = min(pageHeightInImageSpace, imageSize.height - sliceOriginY)\n            let cropRect = CGRect(x: 0, y: sliceOriginY, width: imageSize.width, height: sliceHeight)\n\n            // Crop CGImage using pixels (points * scale)\n            guard let cgImage = image.cgImage?.cropping(to: CGRect(\n                x: cropRect.origin.x * imageScale,\n                y: cropRect.origin.y * imageScale,\n                width: cropRect.size.width * imageScale,\n                height: cropRect.size.height * imageScale\n            )) else {\n                pdfContext.endPage()\n                return nil\n            }\n\n            let croppedImage = UIImage(cgImage: cgImage, scale: imageScale, orientation: image.imageOrientation)\n\n            pdfContext.saveGState()\n            \n            // Fill page with white to avoid transparency that may cause last page content to not align top\n            pdfContext.setFillColor(UIColor.white.cgColor)\n            pdfContext.fill(mediaBox)\n\n            // Draw cropped image scaled horizontally to PDF page width, height scaled proportionally\n            // Always draw at origin (0,0) so last page content aligns top of page (no vertical centering)\n            let drawRect = CGRect(\n                x: 0,\n                y: 0,\n                width: pageSize.width,\n                height: sliceHeight * scaleFactor\n            )\n\n            if pageIndex == pageCount - 1 && (sliceHeight * scaleFactor) < pageSize.height {\n                // Last page content is shorter than full page height.\n                // To prevent PDF viewers from vertically centering the last page content, \n                // we create a new white-filled image of full page height and draw the cropped image at the top.\n\n                // Create a UIGraphicsImageRenderer to draw the padded last page image\n                let paddedRenderer = UIGraphicsImageRenderer(size: pageSize)\n                let paddedImage = paddedRenderer.image { ctx in\n                    // Fill background with white\n                    UIColor.white.setFill()\n                    ctx.fill(CGRect(origin: .zero, size: pageSize))\n\n                    // Draw the cropped image at the top (y: 0) with scaled size\n                    croppedImage.draw(in: drawRect)\n                }\n\n                // Draw the padded image into the PDF page rect\n                if let paddedCGImage = paddedImage.cgImage {\n                    pdfContext.draw(paddedCGImage, in: mediaBox)\n                }\n            } else {\n                // For all other pages, draw cropped image scaled to page rect directly\n                pdfContext.draw(croppedImage.cgImage!, in: drawRect)\n            }\n\n            pdfContext.restoreGState()\n            pdfContext.endPage()\n        }\n\n        pdfContext.closePDF()\n\n        // Write PDF to temp file\n        let tempDir = FileManager.default.temporaryDirectory\n        let fileURL = tempDir.appendingPathComponent(\"HealthReport_Print.pdf\")\n\n        do {\n            try pdfData.write(to: fileURL, options: .atomic)\n            return fileURL\n        } catch {\n            print(\"❌ Failed to write PDF file: \\(error)\")\n            return nil\n        }\n    }\n    \n    private func prepareDataForAPI(_ results: [String: MeasurementResults.SignalResult]?) async {\n\n        let defaults = UserDefaults.standard\n\n        if let results = results, !results.isEmpty {\n\n            var storedResults: [String: Double] = [:]\n\n            for (key, value) in results {\n                storedResults[key] = value.value\n            }\n\n            defaults.set(storedResults, forKey: \"measurement_results\")\n\n            print(\"\uD83D\uDCCA Saved measurement results:\", storedResults)\n\n        } else {\n\n            defaults.set([:], forKey: \"measurement_results\")\n\n            print(\"\uD83D\uDCCA Saved measurement result = NA\")\n        }\n\n        // ALWAYS call API\n        _ = await saveUserAndResultData(results: results)\n    }\n    \n    \n    func saveUserAndResultData(results: [String: MeasurementResults.SignalResult]?) async -> Bool {\n        do {\n            try await submissionService.saveUserVitals(results: results)\n            return true\n        } catch {\n            print(\"❌ Network error:\", error.localizedDescription)\n            return false\n        }\n    }\n\n    // MARK: - Exit\n    @objc private func exitTapped() {\n        dismiss(animated: true, completion: dismissBlock)\n    }\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/HH_Kiosk_B2B/Controllers/ResultsViewController.swift b/HH_Kiosk_B2B/Controllers/ResultsViewController.swift
+--- a/HH_Kiosk_B2B/Controllers/ResultsViewController.swift	(revision e3774d58ed503b020fd1de0b59e6744e28437a38)
++++ b/HH_Kiosk_B2B/Controllers/ResultsViewController.swift	(date 1777049939657)
+@@ -61,7 +61,7 @@
+         updateUI(for: .loading)
+ 
+         // ⚙️ Uncomment this line to show mock data during testing
+-        loadMockDataForDebug()
++//        loadMockDataForDebug()
+     }
+ 
+     // MARK: - Mock Debug Data
+Index: HH_Kiosk_B2B/App/MyApp.swift
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import SwiftUI\n\n\n@main\nstruct MyApp: App {\n    @StateObject private var orientation = OrientationManager()\n    init() {\n          Screen.startMonitoring()\n      }\n\n    var body: some Scene {\n        WindowGroup {\n            RootView()\n                .environmentObject(orientation)\n        }\n    }\n}\n\n\nstruct RootView: View {\n    @StateObject private var appState = AppState()\n    @State private var clientID = LocalUserStorage.loadClientID()\n\n    var body: some View {\n        ZStack {\n            if clientID == nil {\n                ClientIDEntryScreen { savedClientID in\n                    clientID = savedClientID\n                }\n                .environmentObject(appState)\n                .transition(.opacity)\n            } else if appState.isBrandingLoading {\n                ProgressView()\n                    .progressViewStyle(CircularProgressViewStyle())\n                    .scaleEffect(1.4)\n                    .tint(.white)\n                    .frame(maxWidth: .infinity, maxHeight: .infinity)\n                    .background(Color(AppColors.primary).ignoresSafeArea())\n                    .transition(.opacity)\n            } else {\n                if appState.showScreenSaver {\n                    ScreenSaver()\n                        .environmentObject(appState)\n                        .transition(.opacity)\n                        .zIndex(1)\n                } else {\n             ResultsViewWrapper()\n//                    HomeScreen()\n                        .environmentObject(appState)\n                        .transition(.opacity)\n                        .zIndex(0)\n                }\n            }\n        }\n        .animation(.easeInOut(duration: 0.5), value: appState.showScreenSaver)\n        .animation(.easeInOut(duration: 0.3), value: clientID == nil)\n        .task(id: clientID) {\n            if let clientID {\n                await appState.loadBrandingData(for: clientID)\n            } else {\n                appState.clearBrandingData()\n            }\n        }\n    }\n}\n\n\n\nstruct ResultsViewWrapper: UIViewControllerRepresentable {\n    func makeUIViewController(context: Context) -> ResultsViewController {\n        let controller = ResultsViewController(appState: nil)\n        // This will automatically call loadMockData() in viewDidLoad\n        return controller\n    }\n\n    func updateUIViewController(_ uiViewController: ResultsViewController, context: Context) {\n        // no-op\n    }\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/HH_Kiosk_B2B/App/MyApp.swift b/HH_Kiosk_B2B/App/MyApp.swift
+--- a/HH_Kiosk_B2B/App/MyApp.swift	(revision e3774d58ed503b020fd1de0b59e6744e28437a38)
++++ b/HH_Kiosk_B2B/App/MyApp.swift	(date 1777049939681)
+@@ -44,8 +44,8 @@
+                         .transition(.opacity)
+                         .zIndex(1)
+                 } else {
+-             ResultsViewWrapper()
+-//                    HomeScreen()
++//             ResultsViewWrapper()
++                    HomeScreen()
+                         .environmentObject(appState)
+                         .transition(.opacity)
+                         .zIndex(0)

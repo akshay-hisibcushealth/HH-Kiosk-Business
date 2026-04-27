@@ -28,9 +28,10 @@ class ResultsViewController: UIViewController {
         case loading, success, failure
     }
 
-    /// Keys we want to show in the UI for *real* results (the same six used for mock)
+    /// Keys we want to show in the UI for *real* results (the same set used for mock)
     private let visibleKeys: [String] = [
         "BP_CVD",
+        "HR_BPM",
         "HBA1C_RISK_PROB",
         "BP_SYSTOLIC",
         "BP_DIASTOLIC",
@@ -61,7 +62,7 @@ class ResultsViewController: UIViewController {
         updateUI(for: .loading)
 
         // ⚙️ Uncomment this line to show mock data during testing
-        loadMockDataForDebug()
+//        loadMockDataForDebug()
     }
 
     // MARK: - Mock Debug Data
@@ -71,6 +72,7 @@ class ResultsViewController: UIViewController {
 
         let sample: ResultsMap = [
             "BP_CVD": SignalResult(notes: [], value: 55),
+            "HR_BPM": SignalResult(notes: [], value: 72),
             "HBA1C_RISK_PROB": SignalResult(notes: [], value: 30.0),
             "BP_SYSTOLIC": SignalResult(notes: [], value: 12),
             "BP_DIASTOLIC": SignalResult(notes: [], value: 11.2),
@@ -177,7 +179,7 @@ class ResultsViewController: UIViewController {
             resultButtonsHost.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             resultButtonsHost.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             resultButtonsHost.view.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            resultButtonsHost.view.heightAnchor.constraint(equalToConstant: 80),
+            resultButtonsHost.view.heightAnchor.constraint(equalToConstant: 110),
 
             activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),

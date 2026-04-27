@@ -13,7 +13,7 @@ struct ResultsList: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 12) {
+            VStack(spacing: 28.h) {
                 ForEach(model.resultsArray, id: \.key) { pair in
                     ResultRow(
                         metricKey: pair.key,
@@ -35,6 +35,14 @@ struct ResultRow: View {
     let subtitle: String
     let value: Double
 
+    private var message: AttributedString {
+        attributedText(from: getTaggedMessage(metricKey: metricKey, value: value), fontSize: 24.sp)
+    }
+
+    private var indicatorColor: Color {
+        color(for: riskBucket(for: metricKey, value: value))
+    }
+
     // Color logic from Web (getResultsToDownload.tsx)
     private var gaugeColors: [Color] {
         switch metricKey {
@@ -52,38 +60,56 @@ struct ResultRow: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            // Header: Title + Subtitle (Preserving iOS Styles)
-            VStack(alignment: .leading, spacing: 6) {
-                buildBoldText(title, 24.sp, color: Color(AppColors.primary))
+        VStack(alignment: .leading, spacing: 24.h) {
+            VStack(alignment: .leading, spacing: 12.h) {
+                HStack(alignment: .center, spacing: 14.w) {
+                    Image(metricIconName(for: metricKey))
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 90.w, height: 90.h)
+
+                    buildBoldText(title, 36.sp, color: Color(AppColors.black))
+                }
+
                 Text(subtitle)
-                    .font(.system(size: 22.sp))
+                    .font(.system(size: 28.sp))
                     .foregroundColor(Color(AppColors.bodyText))
+                    .lineSpacing(8.h)
                     .multilineTextAlignment(.leading)
             }
 
-            // Meter + Value + Result Text
-            HStack(alignment: .center, spacing: 16) {
+            HStack(alignment: .center, spacing: 24.w) {
                 MeterBar(metricKey: metricKey, value: value, colors: gaugeColors)
-                    .frame(width: 310.w, height: 50.h)
-                
-                Spacer()
-                buildBoldText(formattedValue(value, for: metricKey), 34.sp, color: Color(AppColors.bodyText))
+                    .frame(width: Screen.width * 0.55, alignment: .leading)
+                    .frame(minHeight: 86.h, maxHeight: 86.h)
+                    .padding(.leading, 28.w)
+
                 Spacer()
 
-                let msg = getTaggedMessage(metricKey: metricKey, value: value)
-                let attr = attributedText(from: msg, fontSize: 20.sp)
-                buildMediumText(attr, 20.sp)
-                    .frame(width: 340.w, alignment: .leading)
-                    .padding(.trailing, 48.w)
+                buildBoldText(formattedValue(value, for: metricKey), 48.sp, color: Color(AppColors.black))
+                    .frame(minWidth: 130.w, alignment: .trailing)
+                    .padding(.trailing, 100.w)
             }
-            .padding(.horizontal, 32.h)
-            .padding(.bottom, 32.h)
+            .padding(.top, 6.h)
 
-            Divider().background(Color(AppColors.gray).opacity(0.3))
+            HStack(alignment: .center, spacing: 18.w) {
+                Circle()
+                    .fill(indicatorColor)
+                    .frame(width: 32.w, height: 32.h)
+
+                buildMediumText(message, 24.sp, color: Color(AppColors.black))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(.horizontal, 24.w)
+            .padding(.vertical, 22.h)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color(uiColor: .systemGray6))
+            .clipShape(RoundedRectangle(cornerRadius: 24.r, style: .continuous))
+            
+            Divider()
         }
-        .padding(.vertical, 6.h)
-        .padding(.horizontal, 24.w)
+        .padding(.horizontal, 20.w)
+        .padding(.vertical, 10.h)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
@@ -118,7 +144,7 @@ struct MeterBar: View {
     var body: some View {
         GeometryReader { geo in
             let totalWidth = geo.size.width
-            let thumbWidth: CGFloat = 15.w
+            let thumbWidth: CGFloat = 16.w
             let usableWidth = max(0, totalWidth - thumbWidth)
             let thumbX = CGFloat(fraction) * usableWidth
             
@@ -128,16 +154,13 @@ struct MeterBar: View {
                     startPoint: .leading,
                     endPoint: .trailing
                 )
-                .frame(height: 12.h)
+                .frame(height: 28.h)
                 .clipShape(Capsule())
                 
-                // Indicator (Thumb)
                 Rectangle()
-                    .fill(Color(AppColors.primary)) // Matching Web Indicator Color
-                    .frame(width: thumbWidth, height: 40.h)
-                    .cornerRadius(5.r)
-                    .offset(x: thumbX, y: (geo.size.height - 40.h) / 2)
-                    .shadow(radius: 1)
+                    .fill(Color(AppColors.black))
+                    .frame(width: thumbWidth, height: 68.h)
+                    .offset(x: thumbX)
             }
         }
     }
@@ -167,17 +190,33 @@ struct MeterBar: View {
 fileprivate func riskBucket(for key: String, value: Double) -> String {
     switch key {
     case "BP_CVD":
-        return value <= 7.25 ? "low" : (value < 10 ? "medium" : "high")
+        if value <= 5 { return "very_low" }
+        if value <= 7.25 { return "low" }
+        if value < 10 { return "moderate_low" }
+        if value < 20 { return "moderate" }
+        return "high"
+    case "HR_BPM":
+        if value < 60 { return "normal" }
+        if value < 73.3 { return "moderate" }
+        if value < 88 { return "slightly_high" }
+        if value < 100 { return "high" }
+        return "very_high"
     case "BP_SYSTOLIC":
-        if value >= 140 { return "critical" }
-        if (90..<130).contains(value) { return "healthy" }
-        return "warning"
+        if value < 90 { return "low" }
+        if value < 120 { return "healthy" }
+        if value < 140 { return "slightly_high" }
+        return "high"
     case "BP_DIASTOLIC":
-        if value >= 90 { return "critical" }
-        if (60..<80).contains(value) { return "healthy" }
-        return "warning"
+        if value < 60 { return "low" }
+        if value < 80 { return "healthy" }
+        if value < 90 { return "slightly_high" }
+        return "high"
     case "HBA1C_RISK_PROB", "HDLTC_RISK_PROB", "TG_RISK_PROB":
-        return value <= 45 ? "low" : (value <= 55 ? "medium" : "high")
+        if value <= 25 { return "very_low" }
+        if value <= 45 { return "low" }
+        if value <= 55 { return "moderate" }
+        if value <= 77.5 { return "high" }
+        return "very_high"
     default:
         return "low"
     }
@@ -206,9 +245,42 @@ fileprivate func displayTitle(for key: String) -> String {
     ResultScreenStrings.Metrics.displayTitle(for: key)
 }
 
+fileprivate func metricIconName(for key: String) -> String {
+    switch key {
+    case "BP_CVD":
+        return AppIconNames.Asset.cvdRiskIcon
+    case "BP_SYSTOLIC":
+        return AppIconNames.Asset.systolicBloodPressureIcon
+    case "BP_DIASTOLIC":
+        return AppIconNames.Asset.diastolicBloodPressureIcon
+    case "HBA1C_RISK_PROB":
+        return AppIconNames.Asset.hba1cIcon
+    case "HDLTC_RISK_PROB":
+        return AppIconNames.Asset.cholesterolIcon
+    case "TG_RISK_PROB":
+        return AppIconNames.Asset.triglyceridesIcon
+    default:
+        return AppIconNames.Asset.hrIcon
+    }
+}
 
 fileprivate func descriptionText(for key: String) -> String {
     ResultScreenStrings.Metrics.description(for: key)
+}
+
+fileprivate func color(for bucket: String) -> Color {
+    switch bucket {
+    case "healthy", "low", "very_low", "normal", "moderate":
+        return Color(AppColors.riskLow)
+    case "warning", "medium", "moderate_low", "slightly_high":
+        return Color(AppColors.riskWarning)
+    case "critical", "high":
+        return Color(AppColors.riskHigh)
+    case "very_high":
+        return Color(AppColors.riskHigh)
+    default:
+        return Color(AppColors.riskLow)
+    }
 }
 
 func scaleValueToRange(_ value: Double, _ stops: [Double]) -> Double {

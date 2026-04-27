@@ -54,19 +54,29 @@ private struct BrandedCompanyLogoView: View {
     var body: some View {
         if let logoURLString = appState.brandingData?.brandingInfo.logo,
            let logoURL = URL(string: logoURLString) {
-            CachedAsyncImage(
-                url: logoURL,
-                width: 280.w,
-                height: 110.h,
-                cornerRadius: 0
-            ) { image in
-                image
+            if let cachedUIImage = CachedImageLookup.image(for: logoURL) {
+                Image(uiImage: cachedUIImage)
                     .resizable()
                     .scaledToFit()
+                    .frame(width: 280.w, height: 110.h)
                     .padding(.horizontal, 12.w)
                     .padding(.vertical, 8.h)
+                    .background(Color.clear)
+            } else {
+                CachedAsyncImage(
+                    url: logoURL,
+                    width: 280.w,
+                    height: 110.h,
+                    cornerRadius: 0
+                ) { image in
+                    image
+                        .resizable()
+                        .scaledToFit()
+                        .padding(.horizontal, 12.w)
+                        .padding(.vertical, 8.h)
+                }
+                .background(Color.clear)
             }
-            .background(Color.clear)
         } else {
             Text(SharedViewStrings.Toolbar.companyLogoPlaceholder)
                 .font(.system(size: 24.sp, weight: .semibold))

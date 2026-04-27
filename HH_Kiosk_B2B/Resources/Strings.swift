@@ -85,7 +85,7 @@ enum PhysicalAttributesScreenStrings {
         static let missingEmail = "Please enter your email."
         static let invalidEmail = "Please enter a valid email."
         static let missingHeight = "Please select your height."
-        static let missingWeight = "Please select your weight."
+        static let missingWeight = "Weight cannot be empty."
         static let invalidWeight = "Weight cannot be less than 75 lbs."
         static let missingAge = "Please enter your age."
         static let invalidAge = "Age must be between 13 and 120 years."
@@ -155,6 +155,7 @@ enum ResultScreenStrings {
         static let emailMyResults = "Email my results"
         static let secureAndPrivate = "Secure and Private"
         static let print = "Print"
+        static let endSession = "End Session"
     }
 
     enum EmailPopup {
@@ -175,40 +176,58 @@ enum ResultScreenStrings {
     enum Metrics {
         static let interpretations: [String: [String: String]] = [
             "Cardiovascular Disease Risk": [
-                "low": "Your results indicate that you have a <tag color=\"\(AppColors.tagRiskLow)\">low risk</tag> of experiencing a heart attack or stroke in the next 10 years.",
-                "medium": "Your results indicate that you have a <tag color=\"\(AppColors.tagRiskMedium)\">medium risk</tag> of experiencing heart attack or stroke in the next 10 years.",
-                "high": "Your results indicate that you have a <tag color=\"\(AppColors.tagRiskHigh)\">high risk</tag> of experiencing heart attack or stroke in the next 10 years."
+                "very_low": "Your screening suggests a <tag color=\"\(AppColors.tagRiskLow)\">very low likelihood</tag> of a heart attack or stroke in the next 10 years.",
+                "low": "Your screening suggests a <tag color=\"\(AppColors.tagRiskLow)\">low likelihood</tag> of a heart attack or stroke in the next 10 years.",
+                "moderate_low": "Your screening suggests a <tag color=\"\(AppColors.tagRiskWarning)\">moderate-low likelihood</tag> of a heart attack or stroke in the next 10 years.",
+                "moderate": "Your screening suggests a <tag color=\"\(AppColors.tagRiskMedium)\">moderate likelihood</tag> of a heart attack or stroke in the next 10 years.",
+                "high": "Your screening suggests a <tag color=\"\(AppColors.tagRiskHigh)\">higher likelihood</tag> of a heart attack or stroke in the next 10 years."
             ],
             "Systolic Blood Pressure": [
-                "healthy": "Your results indicate that your systolic blood pressure falls within a <tag color=\"\(AppColors.tagRiskLow)\">healthy range</tag>.",
-                "warning": "Your results indicate that your systolic blood pressure is <tag color=\"\(AppColors.tagRiskMedium)\">either lower than normal or higher than normal</tag>.",
-                "critical": "Your results indicate that your systolic blood pressure is <tag color=\"\(AppColors.tagRiskHigh)\">much higher than normal</tag> and that you may have hypertension."
+                "healthy": "Your screening suggests your systolic blood pressure is <tag color=\"\(AppColors.tagRiskLow)\">within a healthy range</tag>.",
+                "low": "Your screening suggests your systolic blood pressure may be <tag color=\"\(AppColors.tagRiskWarning)\">lower than the healthy range</tag>.",
+                "slightly_high": "Your screening suggests your systolic blood pressure may be <tag color=\"\(AppColors.tagRiskWarning)\">slightly above the healthy range</tag>.",
+                "high": "Your screening suggests your systolic blood pressure may be <tag color=\"\(AppColors.tagRiskHigh)\">significantly elevated</tag>."
             ],
             "Diastolic Blood Pressure": [
-                "healthy": "Your results indicate that your diastolic blood pressure is <tag color=\"\(AppColors.tagRiskLow)\">within a healthy range</tag>.",
-                "warning": "Your results indicate that your diastolic blood pressure is <tag color=\"\(AppColors.tagRiskMedium)\">either lower than normal or higher than normal</tag>.",
-                "critical": "Your results indicate that your diastolic blood pressure is <tag color=\"\(AppColors.tagRiskHigh)\">much higher than normal</tag> and that you may have hypertension."
+                "healthy": "Your screening suggests your diastolic blood pressure is <tag color=\"\(AppColors.tagRiskLow)\">within a healthy range</tag>.",
+                "low": "Your screening suggests your diastolic blood pressure may be <tag color=\"\(AppColors.tagRiskWarning)\">lower than the healthy range</tag>.",
+                "slightly_high": "Your screening suggests your diastolic blood pressure may be <tag color=\"\(AppColors.tagRiskWarning)\">slightly above the healthy range</tag>.",
+                "high": "Your screening suggests your diastolic blood pressure may be <tag color=\"\(AppColors.tagRiskHigh)\">significantly elevated</tag>."
+            ],
+            "Heart Rate": [
+                "normal": "Your screening suggests your heart rate is <tag color=\"\(AppColors.tagRiskLow)\">within a normal resting range</tag>.",
+                "moderate": "Your screening suggests your heart rate is <tag color=\"\(AppColors.tagRiskLow)\">within a moderate resting range</tag>.",
+                "slightly_high": "Your screening suggests your heart rate is <tag color=\"\(AppColors.tagRiskWarning)\">slightly above the typical resting range</tag>.",
+                "high": "Your screening suggests your heart rate may be <tag color=\"\(AppColors.tagRiskMedium)\">higher than the typical resting range</tag>.",
+                "very_high": "Your screening suggests your heart rate may be <tag color=\"\(AppColors.tagRiskHigh)\">significantly higher than the typical resting range</tag>."
             ],
             "HbA1c Risk": [
-                "low": "Your results indicate that you likely have a <tag color=\"\(AppColors.tagRiskLow)\">HbA1c < 5.7%</tag>.",
-                "medium": "Your results indicate that there is a <tag color=\"\(AppColors.tagRiskWarning)\">medium risk</tag> that you may have an HbA1c > 5.7%, especially if your results are 51% or over.",
-                "high": "Your results indicate that it is <tag color=\"\(AppColors.tagRiskHigh)\">very likely</tag> that you have an HbA1c > 5.7%."
+                "very_low": "Your screening suggests your HbA1c markers are <tag color=\"\(AppColors.tagRiskLow)\">within a healthy, stable range</tag>.",
+                "low": "Your screening suggests your HbA1c is <tag color=\"\(AppColors.tagRiskLow)\">likely below the threshold for concern</tag>.",
+                "moderate": "Your screening suggests <tag color=\"\(AppColors.tagRiskWarning)\">slightly elevated glycemic markers</tag> compared to the ideal range.",
+                "high": "Your screening suggests that your blood sugar levels are <tag color=\"\(AppColors.tagRiskMedium)\">currently above the standard healthy range</tag>.",
+                "very_high": "Your screening suggests blood sugar markers that are <tag color=\"\(AppColors.tagRiskHigh)\">notably above the standard healthy range</tag>."
             ],
             "High Cholesterol Risk": [
-                "low": "Your results indicate that you are at a <tag color=\"\(AppColors.tagRiskLow)\">low risk</tag> of having abnormally high cholesterol.",
-                "medium": "Your results indicate that you are at a <tag color=\"\(AppColors.tagRiskWarning)\">medium risk</tag> of having abnormally high cholesterol.",
-                "high": "Your results indicate that you are at a <tag color=\"\(AppColors.tagRiskHigh)\">high risk</tag> of having abnormally high cholesterol."
+                "very_low": "Your screening suggests a <tag color=\"\(AppColors.tagRiskLow)\">very low probability</tag> of elevated cholesterol levels.",
+                "low": "Your screening suggests your cholesterol markers are <tag color=\"\(AppColors.tagRiskLow)\">within a standard, low-risk profile</tag>.",
+                "moderate": "Your screening suggests your cholesterol markers are <tag color=\"\(AppColors.tagRiskWarning)\">currently sitting in a moderate range</tag>.",
+                "high": "Your screening suggests cholesterol levels are <tag color=\"\(AppColors.tagRiskMedium)\">currently above the recommended healthy threshold</tag>.",
+                "very_high": "Your screening suggests indicators consistent with a <tag color=\"\(AppColors.tagRiskHigh)\">high concentration of cholesterol in the blood</tag>."
             ],
             "High Triglycerides Risk": [
-                "low": "Your results indicate that you are at a <tag color=\"\(AppColors.tagRiskLow)\">low risk</tag> of having abnormally high triglycerides.",
-                "medium": "Your results indicate that you are at a <tag color=\"\(AppColors.tagRiskWarning)\">medium risk</tag> of having abnormally high triglycerides.",
-                "high": "Your results indicate that you are at a <tag color=\"\(AppColors.tagRiskHigh)\">high risk</tag> of having abnormally high triglycerides."
+                "very_low": "Your screening suggests a <tag color=\"\(AppColors.tagRiskLow)\">very low probability</tag> of elevated triglyceride levels.",
+                "low": "Your screening suggests your triglyceride markers are <tag color=\"\(AppColors.tagRiskLow)\">within a standard, low-risk profile</tag>.",
+                "moderate": "Your screening suggests your triglyceride markers are <tag color=\"\(AppColors.tagRiskWarning)\">currently sitting in a moderate range</tag>.",
+                "high": "Your screening suggests triglyceride levels are <tag color=\"\(AppColors.tagRiskMedium)\">currently above the recommended healthy threshold</tag>.",
+                "very_high": "Your screening suggests indicators consistent with a <tag color=\"\(AppColors.tagRiskHigh)\">high concentration of triglyceride in the blood</tag>."
             ]
         ]
 
         static func displayTitle(for key: String) -> String {
             switch key {
             case "BP_CVD": return "Cardiovascular Disease Risk"
+            case "HR_BPM": return "Heart Rate"
             case "HBA1C_RISK_PROB": return "HbA1c Risk"
             case "BP_SYSTOLIC": return "Systolic Blood Pressure"
             case "BP_DIASTOLIC": return "Diastolic Blood Pressure"
@@ -229,7 +248,8 @@ enum ResultScreenStrings {
 
         static func description(for key: String) -> String {
             switch key {
-            case "BP_CVD": return "Cardiovascular Disease Risk is your likelihood of experiencing your first heart attack or stroke within the next 10 years, expressed as a percentage."
+            case "BP_CVD": return "Think of this as your heart's 10-year weather forecast. It estimates how likely you are to experience a heart attack or stroke based on signals from your face scan. The lower the number, the clearer the skies."
+            case "HR_BPM": return "Heart rate is the number of times your heart beats per minute."
             case "BP_SYSTOLIC": return "Systolic blood pressure is the peak pressure in your brachial arteries during the contraction of your heart muscle, measured in millimeters of mercury (mmHg)."
             case "BP_DIASTOLIC": return "Diastolic blood pressure is the amount of pressure in your brachial arteries when your heart muscle is relaxed, measured in millimeters of mercury (mmHg)."
             case "HBA1C_RISK_PROB": return "A hemoglobin A1C (HbA1C) test is a blood test that measures the amount of glucose (sugar) attached to the hemoglobin in your red blood cells."

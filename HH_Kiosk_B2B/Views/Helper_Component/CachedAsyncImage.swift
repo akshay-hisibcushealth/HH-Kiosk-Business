@@ -1,6 +1,32 @@
 import SwiftUI
 import UIKit
 
+enum CachedImageLookup {
+    static func image(for url: URL) -> UIImage? {
+        let request = URLRequest(url: url)
+
+        if let cachedResponse = URLCache.shared.cachedResponse(for: request),
+           let image = UIImage(data: cachedResponse.data) {
+            return image
+        }
+
+        let fileManager = FileManager.default
+        let baseDirectory = fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first
+            ?? fileManager.temporaryDirectory
+        let cacheDirectory = baseDirectory.appendingPathComponent("ScreenSaverImageCache", isDirectory: true)
+        let fileName = Data(url.absoluteString.utf8).base64EncodedString()
+            .replacingOccurrences(of: "/", with: "_")
+        let fileURL = cacheDirectory.appendingPathComponent(fileName)
+
+        guard let data = try? Data(contentsOf: fileURL),
+              let image = UIImage(data: data) else {
+            return nil
+        }
+
+        return image
+    }
+}
+
 actor ImageCacheStore {
     static let shared = ImageCacheStore()
 

@@ -8,94 +8,82 @@ struct ResultScreenButtons: View {
 
     @State private var showEmailPopUp = false
     var body: some View {
-        HStack(alignment: .top) {
-            Button(action: {
-                navigateToHome()
-            }) {
-                Text(ResultScreenStrings.Actions.closeResult)
-                    .font(.system(size: 20.sp))
-                    .fontWeight(.medium)
-                    .foregroundColor(Color(AppColors.black))
-                    .frame(maxWidth: .infinity, minHeight: 60.h)
-                    .background(Color(AppColors.mutedControlGray))
-                    .cornerRadius(10)
-            }
+        VStack(spacing: 16.h) {
+            HStack(alignment: .top, spacing: 20.w) {
+                HStack(spacing: 16.w) {
+                    footerButton(
+                        title: ResultScreenStrings.Actions.emailMyResults.uppercased(),
+                        image: Image(AppIconNames.Asset.email),
+                        action: {
+                            showEmailPopUp = true
+                        }
+                    )
 
+                    footerButton(
+                        title: ResultScreenStrings.Actions.print.uppercased(),
+                        image: Image(systemName: AppIconNames.Symbol.printerFill),
+                        action: {
+                            onPrint()
+                        }
+                    )
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
 
-
-            VStack {
                 Button(action: {
-                    showEmailPopUp = true
+                    navigateToHome()
                 }) {
-                    HStack {
-                        Image(AppIconNames.Asset.email)
-                            .resizable()
-                            .frame(width: 24.w, height: 24.w)
-                        Text(ResultScreenStrings.Actions.emailMyResults)
-                            .font(.system(size: 20.sp))
-                            .fontWeight(.medium)
-                            .foregroundColor(Color(AppColors.black))
-                    }
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(Color(AppColors.gray).opacity(0.2))
-                    .cornerRadius(10)
-                }
-                .frame(maxWidth: .infinity, minHeight: 60.h)
-                .background(Color(AppColors.ctaGreen))
-                .cornerRadius(10)
-
-                HStack(spacing: 8) {
-                    Image(AppIconNames.Asset.secureEmail)
-                        .resizable()
-                        .frame(width: 24.w, height: 24.sp)
-                        .foregroundColor(Color(AppColors.black))
-                    Text(ResultScreenStrings.Actions.secureAndPrivate)
-                        .foregroundColor(Color(AppColors.blue))
-                        .font(.system(size: 18.sp))
-                }
-                .padding(.bottom)
-                .sheet(isPresented: $showEmailPopUp) {
-                    EmailResultPopup(results: result)
-                        .presentationDetents([.fraction(0.8)])
+                    Text(ResultScreenStrings.Actions.endSession.uppercased())
+                        .font(.system(size: 20.sp, weight: .semibold))
+                        .foregroundColor(Color(AppColors.primaryActionOrange))
+                        .frame(width: 230.w)
+                        .frame(minHeight: 72.h)
+                        .background(Color(AppColors.resultAlertBackground).opacity(0.45))
+                        .clipShape(RoundedRectangle(cornerRadius: 12.r, style: .continuous))
                 }
             }
-            VStack {
-                Button(action: {
-                    onPrint()
 
-                }) {
-                    HStack {
-                        Image(systemName: AppIconNames.Symbol.printerFill)
-                            .resizable()
-                            .frame(width: 24.w, height: 24.w)
-                            .foregroundColor(Color(AppColors.black))
+            HStack(spacing: 8.w) {
+                Image(AppIconNames.Asset.secureEmail)
+                    .resizable()
+                    .frame(width: 24.w, height: 24.h)
 
-                        Text(ResultScreenStrings.Actions.print)
-                            .font(.system(size: 20.sp))
-                            .fontWeight(.medium)
-                            .foregroundColor(Color(AppColors.black))
-                    }
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(Color(AppColors.gray).opacity(0.2))
-                    .cornerRadius(10)
-                }
-                .frame(maxWidth: .infinity, minHeight: 60.h)
-                .background(Color(AppColors.ctaGreen))
-                .cornerRadius(10)
-
-                HStack(spacing: 8) {
-                   
-                }
-                .padding(.bottom)
-              
+                Text(ResultScreenStrings.Actions.secureAndPrivate)
+                    .foregroundColor(Color(AppColors.blue))
+                    .font(.system(size: 18.sp, weight: .semibold))
             }
-            .padding(.leading,2)
-            
+            .frame(maxWidth: .infinity, alignment: .center)
+            .sheet(isPresented: $showEmailPopUp) {
+                EmailResultPopup(results: result)
+                    .presentationDetents([.fraction(0.8)])
+            }
         }
-        .padding(.top, 30)
-        .padding(.horizontal, 30)
+        .padding(.top, 24.h)
+        .padding(.horizontal, 30.w)
+        .padding(.bottom, 18.h)
+    }
+
+    private func footerButton(title: String, image: Image, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 16.w) {
+                image
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 24.w, height: 24.h)
+                    .foregroundColor(Color(AppColors.black))
+
+                Text(title)
+                    .font(.system(size: 20.sp, weight: .semibold))
+                    .foregroundColor(Color(AppColors.black))
+            }
+            .frame(width: 270.w)
+            .frame(minHeight: 72.h)
+            .background(Color(AppColors.white))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12.r, style: .continuous)
+                    .stroke(Color(AppColors.black).opacity(0.7), lineWidth: 1)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 12.r, style: .continuous))
+        }
     }
 }
 

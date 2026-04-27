@@ -15,6 +15,7 @@ struct KioskBrandingInfo: Decodable {
     let onAccentColorHex: String?
     let highlightedDayBackgroundHex: String?
     let scheduleBackgroundHex: String?
+    let resultScreenDescription: String?
     let logo: String
 
     private enum CodingKeys: String, CodingKey {
@@ -24,6 +25,7 @@ struct KioskBrandingInfo: Decodable {
         case onAccentColorHex = "on_accent_color_hex"
         case highlightedDayBackgroundHex = "highlighted_day_background_hex"
         case scheduleBackgroundHex = "schedule_background_hex"
+        case resultScreenDescription = "result_screen_description"
         case logo
     }
 }

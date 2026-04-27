@@ -19,7 +19,8 @@ public final class ResultsModel: ObservableObject {
         "BP_DIASTOLIC",
         "HBA1C_RISK_PROB",
         "HDLTC_RISK_PROB",
-        "TG_RISK_PROB"
+        "TG_RISK_PROB",
+        "HR_BPM"
     ]
 
     public var resultsArray: [(key: String, value: SignalResult)] {
@@ -127,13 +128,14 @@ private struct HeroHeader: View {
      VStack(alignment: .leading, spacing: 0) {
                 ResultToolbar()
                 Spacer(minLength: 20)
-                buildSemiBoldText(ResultScreenStrings.title, 50.sp, color: Color(AppColors.primary))
+                buildSemiBoldText(ResultScreenStrings.title, 40.sp, color: Color(AppColors.primary))
                     .font(.system(size: 34, weight: .bold))
                     .foregroundColor(Color(AppColors.white))
                     .padding(.leading, 50.w)
+                    .padding(.top, 50.w)
                 Text(ResultScreenStrings.heroDescription)
                     .foregroundColor(Color(AppColors.bodyTextMuted))
-                    .font(.system(size: 24.sp, weight: .light))
+                    .font(.system(size: 20.sp, weight: .light))
                     .italic()
                     .padding(.leading, 50.w)
                     .padding(.bottom, 24.w)
@@ -145,21 +147,38 @@ private struct HeroHeader: View {
 }
 
 private struct TitleBlock: View {
-    var body: some View {
-        ZStack {
-            Rectangle()
-                .fill(Color(AppColors.resultInfoBackground))
-                .frame(maxWidth: .infinity)
-                .frame(height: 120.h)
-            
-            buildMediumText(
-                ResultScreenStrings.titleBlockDescription,
-                18.sp,
-                color: Color(AppColors.primary)
-            )
-            .padding(.leading, 48.w)
-            .padding(.trailing, 120.w)
+    @EnvironmentObject private var appState: AppState
+
+    private var titleBlockDescription: String {
+        let brandingDescription = appState.brandingData?.brandingInfo.resultScreenDescription?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if let brandingDescription, !brandingDescription.isEmpty {
+            return brandingDescription
         }
+
+        return ResultScreenStrings.titleBlockDescription
+    }
+
+    var body: some View {
+        buildMediumText(
+            titleBlockDescription,
+            18.sp,
+            color: Color(AppColors.primary)
+        )
+        .italic()
+        .lineSpacing(8.h)
+        .padding(.horizontal, 28.w)
+        .padding(.vertical, 22.h)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(uiColor: .systemGray6))
+        .overlay(
+            RoundedRectangle(cornerRadius: 10.r, style: .continuous)
+                .stroke(Color(AppColors.formBorder), lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
+        .padding(.horizontal, 18.w)
+        .padding(.vertical, 16.h)
     }
 }
 
