@@ -44,8 +44,8 @@ struct RootView: View {
                         .transition(.opacity)
                         .zIndex(1)
                 } else {
-//             ResultsViewWrapper()
-                    HomeScreen()
+             ResultsViewWrapper()
+//                    HomeScreen()
                         .environmentObject(appState)
                         .transition(.opacity)
                         .zIndex(0)

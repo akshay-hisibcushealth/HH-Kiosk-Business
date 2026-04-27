@@ -40,7 +40,7 @@ struct ResultRow: View {
     }
 
     private var indicatorColor: Color {
-        color(for: riskBucket(for: metricKey, value: value))
+        meterColor(for: metricKey, value: value, colors: gaugeColors)
     }
 
     // Color logic from Web (getResultsToDownload.tsx)
@@ -124,21 +124,7 @@ struct MeterBar: View {
     
     // Scale stops exactly matching Web (getResultsToDownload.tsx)
     private var fraction: Double {
-        switch metricKey {
-        case "BP_CVD": return scaleValueToRange(value, [0, 5, 7.25, 10, 20, 100])
-        case "BP_HEART_ATTACK": return scaleValueToRange(value, [0, 1.65, 2.39, 3.3, 6.6, 33])
-        case "BP_STROKE": return scaleValueToRange(value, [0, 3.3, 4.79, 6.6, 13.2, 66])
-        case "HR_BPM": return scaleValueToRange(value, [0, 60, 73.3, 88, 100, 140])
-        case "BR_BPM": return scaleValueToRange(value, [0, 12, 16, 21, 25, 35])
-        case "BP_SYSTOLIC": return scaleValueToRange(value, [0, 90, 120, 130, 140, 180])
-        case "BP_DIASTOLIC": return scaleValueToRange(value, [0, 60, 70, 80, 90, 120])
-        case "HRV_SDNN": return scaleValueToRange(value, [0, 10.8, 16.4, 35.5, 49.9, 80])
-        case "BP_RPP": return scaleValueToRange(value, [0, 3.8, 3.9, 4.08, 4.18, 4.28])
-        case "BP_TAU": return scaleValueToRange(value, [0, 0.79, 1.12, 1.78, 2.11, 3])
-        case "BMI_CALC": return scaleValueToRange(value, [0, 18.5, 25, 30, 35, 60])
-        case "WAIST_TO_HEIGHT": return scaleValueToRange(value, [0, 43, 53, 58, 63, 75])
-        default: return scaleValueToRange(value, [0, 25, 45, 55, 77.5, 100])
-        }
+        meterFraction(for: metricKey, value: value)
     }
     
     var body: some View {
@@ -268,6 +254,24 @@ fileprivate func descriptionText(for key: String) -> String {
     ResultScreenStrings.Metrics.description(for: key)
 }
 
+fileprivate func meterFraction(for key: String, value: Double) -> Double {
+    switch key {
+    case "BP_CVD": return scaleValueToRange(value, [0, 5, 7.25, 10, 20, 100])
+    case "BP_HEART_ATTACK": return scaleValueToRange(value, [0, 1.65, 2.39, 3.3, 6.6, 33])
+    case "BP_STROKE": return scaleValueToRange(value, [0, 3.3, 4.79, 6.6, 13.2, 66])
+    case "HR_BPM": return scaleValueToRange(value, [0, 60, 73.3, 88, 100, 140])
+    case "BR_BPM": return scaleValueToRange(value, [0, 12, 16, 21, 25, 35])
+    case "BP_SYSTOLIC": return scaleValueToRange(value, [0, 90, 120, 130, 140, 180])
+    case "BP_DIASTOLIC": return scaleValueToRange(value, [0, 60, 70, 80, 90, 120])
+    case "HRV_SDNN": return scaleValueToRange(value, [0, 10.8, 16.4, 35.5, 49.9, 80])
+    case "BP_RPP": return scaleValueToRange(value, [0, 3.8, 3.9, 4.08, 4.18, 4.28])
+    case "BP_TAU": return scaleValueToRange(value, [0, 0.79, 1.12, 1.78, 2.11, 3])
+    case "BMI_CALC": return scaleValueToRange(value, [0, 18.5, 25, 30, 35, 60])
+    case "WAIST_TO_HEIGHT": return scaleValueToRange(value, [0, 43, 53, 58, 63, 75])
+    default: return scaleValueToRange(value, [0, 25, 45, 55, 77.5, 100])
+    }
+}
+
 fileprivate func color(for bucket: String) -> Color {
     switch bucket {
     case "healthy", "low", "very_low", "normal", "moderate":
@@ -281,6 +285,45 @@ fileprivate func color(for bucket: String) -> Color {
     default:
         return Color(AppColors.riskLow)
     }
+}
+
+fileprivate func meterColor(for key: String, value: Double, colors: [Color]) -> Color {
+    guard !colors.isEmpty else { return Color(AppColors.riskLow) }
+    if colors.count == 1 { return colors[0] }
+
+    let fraction = min(max(meterFraction(for: key, value: value), 0), 1)
+    let scaled = fraction * Double(colors.count - 1)
+    let lowerIndex = Int(floor(scaled))
+    let upperIndex = min(lowerIndex + 1, colors.count - 1)
+    let localFraction = CGFloat(scaled - Double(lowerIndex))
+
+    return interpolateColor(from: colors[lowerIndex], to: colors[upperIndex], fraction: localFraction)
+}
+
+fileprivate func interpolateColor(from start: Color, to end: Color, fraction: CGFloat) -> Color {
+    let startColor = UIColor(start)
+    let endColor = UIColor(end)
+
+    var startRed: CGFloat = 0
+    var startGreen: CGFloat = 0
+    var startBlue: CGFloat = 0
+    var startAlpha: CGFloat = 0
+    var endRed: CGFloat = 0
+    var endGreen: CGFloat = 0
+    var endBlue: CGFloat = 0
+    var endAlpha: CGFloat = 0
+
+    guard startColor.getRed(&startRed, green: &startGreen, blue: &startBlue, alpha: &startAlpha),
+          endColor.getRed(&endRed, green: &endGreen, blue: &endBlue, alpha: &endAlpha) else {
+        return start
+    }
+
+    let red = startRed + (endRed - startRed) * fraction
+    let green = startGreen + (endGreen - startGreen) * fraction
+    let blue = startBlue + (endBlue - startBlue) * fraction
+    let alpha = startAlpha + (endAlpha - startAlpha) * fraction
+
+    return Color(uiColor: UIColor(red: red, green: green, blue: blue, alpha: alpha))
 }
 
 func scaleValueToRange(_ value: Double, _ stops: [Double]) -> Double {
