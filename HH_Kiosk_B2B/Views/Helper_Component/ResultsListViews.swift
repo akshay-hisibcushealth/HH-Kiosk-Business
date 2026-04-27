@@ -49,7 +49,7 @@ struct ResultRow: View {
         case "BP_SYSTOLIC", "BP_DIASTOLIC":
             return [Color(AppColors.riskWarning), Color(AppColors.riskLow), Color(AppColors.ctaGreen), Color(AppColors.riskWarning), Color(AppColors.riskHigh)]
         case "HR_BPM", "BR_BPM":
-            return [Color(AppColors.gaugePaleYellow), Color(AppColors.gaugeSoftGreen), Color(AppColors.gaugeSoftGreen), Color(AppColors.gaugeSoftGreen), Color(AppColors.gaugePaleYellow)]
+            return [Color(AppColors.riskWarning), Color(AppColors.riskLow), Color(AppColors.riskLow), Color(AppColors.riskLow), Color(AppColors.riskWarning)]
         case "HRV_SDNN", "BP_TAU":
             return [Color(AppColors.gaugeCoral), Color(AppColors.gaugeSoftCoral), Color(AppColors.gaugePaleYellow), Color(AppColors.gaugeSoftGreen), Color(AppColors.gaugeDeepGreen)]
         case "BMI_CALC", "WAIST_TO_HEIGHT":
