@@ -38,7 +38,7 @@ private struct TodayReadSection: View {
     var body: some View {
         VStack {
             SectionHeader(title: HomeScreenStrings.ReadSection.todaysReadTitle, isLeading: false)
-            NavigationLink(destination: ArticleScreen(imageUrl: today.image)) {
+            NavigationLink(destination: ArticleScreen(imageUrl: today.image,description: today.description)) {
                 HStack {
                     CachedAsyncImage(
                         url: URL(string: today.image),

@@ -3,10 +3,18 @@ import SwiftUI
 struct ArticleScreen: View {
     @State private var isNavigatingToScan = false
     let imageUrl: String
+    let description: String
     private let imageHeight = UIScreen.main.bounds.height * 0.4
     @StateObject private var faceManager = FaceScanManager()
     @State private var refreshTrigger = false
 
+    
+    private var formattedDescription: String {
+         description
+             .replacingOccurrences(of: "\\r\\n", with: "\n")
+             .replacingOccurrences(of: "\\n", with: "\n")
+             .replacingOccurrences(of: "\r\n", with: "\n")
+     }
     
     var body: some View {
         NavigationStack{
@@ -14,23 +22,18 @@ struct ArticleScreen: View {
                 Toolbar()
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
-                        AsyncImage(url: URL(string: imageUrl)) { image in
+                        CachedAsyncImage(
+                            url: URL(string: imageUrl),
+                            width: Screen.width - 32.w,
+                            height: imageHeight,
+                            cornerRadius: 10.r
+                        ) { image in
                             image
                                 .resizable()
                                 .scaledToFill()
-                                .frame(maxWidth: .infinity, minHeight: imageHeight, maxHeight: imageHeight)
-                                .clipped()
-                        } placeholder: {
-                            ZStack {
-                                Color(AppColors.gray).opacity(0.2)
-                                ProgressView(ArticleScreenStrings.imageLoading)
-                            }
-                            .frame(maxWidth: .infinity, minHeight: imageHeight, maxHeight: imageHeight)
-                            .clipped()
                         }
-                        .cornerRadius(10)
                         
-                        Text(ArticleScreenStrings.body)
+                        Text(formattedDescription)
                         .font(.title3)
                         .foregroundColor(Color(AppColors.textPrimary))
                     }
