@@ -6,20 +6,20 @@ struct Toolbar: View {
     private let timer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
 
     var body: some View {
-        HStack {
-            Image(AppIconNames.Asset.logo)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 200.w, height: 140.h)
-                .padding([.vertical], 16.h)
-
-            Spacer()
-
+        ZStack {
             BrandedCompanyLogoView()
 
-            Spacer()
+            HStack {
+                Image(AppIconNames.Asset.logo)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 200.w, height: 140.h)
+                    .padding([.vertical], 16.h)
 
-            DateTimeView()
+                Spacer()
+
+                DateTimeView()
+            }
         }
         .padding(.horizontal, 24.w)
         .padding(.vertical, 10.h)
@@ -32,15 +32,19 @@ struct Toolbar: View {
 
 struct ResultToolbar: View {
     var body: some View {
-        HStack {
+        ZStack {
             BrandedCompanyLogoView()
-            Spacer()
-            Image(AppIconNames.Asset.poweredByHHLogo)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 220.w, height: 140.h)
-                .padding(.vertical, 48.h)
-                .padding(.trailing, 32.h)
+
+            HStack {
+                Spacer()
+
+                Image(AppIconNames.Asset.poweredByHHLogo)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 220.w, height: 140.h)
+                    .padding(.vertical, 48.h)
+                    .padding(.trailing, 32.h)
+            }
         }
         .padding(.horizontal, 24.w)
         .background(Color(AppColors.primary))

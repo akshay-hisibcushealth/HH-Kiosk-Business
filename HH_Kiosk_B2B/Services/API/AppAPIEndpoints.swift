@@ -8,8 +8,8 @@ enum AppAPIEndpoints {
 
     static func screenSaverData(code: String) -> URL {
         appURL(
-            path: "/kiosk-custom-branding-screensaver/",
-            queryItems: [URLQueryItem(name: "code", value: code)]
+            path: "/kiosk-screensaver",
+//            queryItems: [URLQueryItem(name: "code", value: code)]
         )
     }
     static var emailResults: URL {

@@ -9,31 +9,39 @@ struct HealthJourneyButton: View {
     var icon: String = AppIconNames.SvgAsset.smile
     
     var body: some View {
-            Button(action: {
-                withAnimation {
-                    appState.dismissScreenSaver()
-                }
-            }) {
-                HStack {
-                    assetSVG(icon,tintColor: textColor)
-                        .scaledToFit()
-                        .frame(width: 48.w, height: 48.h)
-                        .foregroundColor(textColor)
-                        .padding(.leading, 64.w)
-                        .padding(.trailing, 32.w)
-                    
-                    Text(text)
-                        .font(.system(size: 32.sp, weight: .semibold))
-                        .foregroundColor(textColor)
-                        .padding(.trailing, 64.w)
-                }
-                .padding(.vertical, 32.h)
-                .background(backgroundColor)
-                .cornerRadius(200.r)
+        Button(action: {
+            withAnimation {
+                appState.dismissScreenSaver()
             }
-            .buttonStyle(.plain)
-            
-        
+        }) {
+            HStack(spacing: 24.w) {
+                assetSVG(icon, tintColor: textColor)
+                    .scaledToFit()
+                    .frame(width: 52.w, height: 52.h)
+                    .foregroundColor(textColor)
+
+                Text(text)
+                    .font(.system(size: 38.sp, weight: .bold))
+                    .foregroundColor(textColor)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+
+                Spacer(minLength: 24.w)
+
+                Image(systemName: AppIconNames.Symbol.arrowRight)
+                    .font(.system(size: 36.sp, weight: .regular))
+                    .foregroundColor(textColor)
+                    .frame(width: 82.w, height: 82.w)
+                    .background(textColor.opacity(0.18))
+                    .clipShape(Circle())
+            }
+            .padding(.leading, 70.w)
+            .padding(.trailing, 24.w)
+            .frame(width: 1050.w, height: 142.h)
+            .background(backgroundColor)
+            .clipShape(Capsule())
+        }
+        .buttonStyle(.plain)
     }
 }
 

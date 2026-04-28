@@ -14,7 +14,7 @@ struct HomeScreen: View {
     
     // Inactivity management
     @State private var inactivityTimer: Timer?
-    private let inactivityLimit: TimeInterval = 30 // seconds
+    private let inactivityLimit: TimeInterval = 0 // seconds
     
     var body: some View {
         NavigationStack {
@@ -76,11 +76,6 @@ struct HomeScreen: View {
             )
             .onAppear {
                 startInactivityTimer()
-            }
-            .task {
-                if let clientID = LocalUserStorage.loadClientID() {
-                    await appState.warmScreenSaverData(for: clientID, forceRefresh: true)
-                }
             }
             .onChange(of: appState.isScreenSaverSuppressed) { _, isSuppressed in
                 if isSuppressed {

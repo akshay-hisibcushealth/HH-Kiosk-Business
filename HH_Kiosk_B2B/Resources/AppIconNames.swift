@@ -34,13 +34,13 @@ enum AppIconNames {
         static let sun = "sun"
         static let systolicBloodPressureIcon = "sys_bp_icon"
         static let triglyceridesIcon = "trig_icon"
-        static let clientIdScreenBackground = "client_id_screen_background"
         static let hiby = "hiby_icon"
         static let hibyLeft = "hiby_left"
         static let hibyRight = "hiby_right"
     }
     
     enum Symbol {
+        static let arrowRight = "arrow.right"
         static let chevronRight = "chevron.right"
         static let envelopeFill = "envelope.fill"
         static let exclamationmarkTriangleFill = "exclamationmark.triangle.fill"

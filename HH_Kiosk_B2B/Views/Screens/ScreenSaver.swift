@@ -1,51 +1,12 @@
 import SwiftUI
 
 struct ScreenSaver: View {
-    @EnvironmentObject private var appState: AppState
+    @StateObject private var viewModel = ScreenSaverViewModel()
     @State private var refreshTrigger = false
 
-    private enum ScreenSaverAssetTitle {
-        static let qrImage = "kiosk-qr.jpg"
-    }
-
-    private var carouselImages: [String] {
-        guard let data = appState.screenSaverData else { return [] }
-
-        return data.carouselImages
-            .filter { $0.title.lowercased() != ScreenSaverAssetTitle.qrImage }
-            .sorted { lhs, rhs in
-                if lhs.order == rhs.order {
-                    return lhs.title.localizedCaseInsensitiveCompare(rhs.title) == .orderedAscending
-                }
-
-                return lhs.order < rhs.order
-            }
-            .map(\.imageURL)
-    }
-
-    private var qrImageURL: String? {
-        appState.screenSaverData?.carouselImages.first(where: {
-            $0.title.lowercased() == ScreenSaverAssetTitle.qrImage
-        })?.imageURL
-    }
-
-    private var welcomeText: String {
-        appState.screenSaverData?.welcomeText ?? ScreenSaverStrings.title
-    }
-
-    private var subtitle: String {
-        appState.screenSaverData?.subtitle ?? ScreenSaverStrings.subtitle
-    }
-
-    private var actionButtonText: String {
-        appState.screenSaverData?.actionButtonText ?? ScreenSaverStrings.actionButton
-    }
-
-    
     var body: some View {
         ZStack {
             // Background
-            //here we need to add a ractangle background that cover whole screen color will be AppColors.primary
             Rectangle()
                    .fill(Color(AppColors.primary))
                    .ignoresSafeArea()
@@ -54,7 +15,7 @@ struct ScreenSaver: View {
                 .scaledToFill()
                 .ignoresSafeArea()
             
-            if appState.isScreenSaverDataLoading && appState.screenSaverData == nil {
+            if viewModel.isLoading {
                 ProgressView(ScreenSaverStrings.loading)
                     .foregroundColor(Color(AppColors.white))
                     .font(.system(size: 28.sp))
@@ -70,9 +31,9 @@ struct ScreenSaver: View {
                     
                     // Title text
                     VStack(spacing: 24.h) {
-                        buildSemiBoldText(welcomeText,40.sp,color: Color(AppColors.white))
+                        buildSemiBoldText(ScreenSaverStrings.title,40.sp,color: Color(AppColors.white))
                         
-                        Text(subtitle)
+                        Text(ScreenSaverStrings.subtitle)
                             .foregroundColor(Color(AppColors.white))
                             .font(.system(size: 34.sp, weight: .regular))
                             .multilineTextAlignment(.center)
@@ -83,16 +44,16 @@ struct ScreenSaver: View {
                     Spacer(minLength: 80.h)
                     
                     // Dynamic carousel
-                    if !carouselImages.isEmpty {
-                        ImageCarouselView(imageURLs: carouselImages)
+                    if !viewModel.images.isEmpty {
+                        ImageCarouselView(imageURLs: viewModel.images)
                     }
                     
                     // Button
-                    HealthJourneyButton(text: actionButtonText)
+                    HealthJourneyButton()
                         .padding(.vertical, 100.h)
                     
                     // Dynamic QR code section
-                    if let qrURL = qrImageURL, let url = URL(string: qrURL) {
+                    if let qrURL = viewModel.qrImage, let url = URL(string: qrURL) {
                         VStack(spacing: 24.h) {
                             CachedAsyncImage(
                                 url: url,
@@ -118,12 +79,6 @@ struct ScreenSaver: View {
                 .onReceive(NotificationCenter.default.publisher(for: .screenDidChangeBounds)) { _ in
                            refreshTrigger.toggle()
                        }
-            }
-        }
-        .task {
-            if appState.screenSaverData == nil,
-               let clientID = LocalUserStorage.loadClientID() {
-                await appState.warmScreenSaverData(for: clientID)
             }
         }
     }

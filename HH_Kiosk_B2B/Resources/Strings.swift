@@ -1,25 +1,8 @@
 import Foundation
-
-enum ClientIDScreenStrings {
-    static let title = "Hibiscus Health Wellness Kiosk"
-    static let subtitle = "Take a few minutes to check in on your health."
-    static let cardTitle = "Client Login"
-    static let fieldLabel = "Company Client ID"
-    static let fieldPlaceholder = "Enter 8-digit code"
-    static let actionButton = "Start Your Health Journey"
-    static let formatValidationMessage = "Please enter a valid 8-character client ID."
-    static let fallbackInvalidCodeMessage = "Invalid company code"
-}
+import SwiftUI
 
 enum ArticleScreenStrings {
     static let imageLoading = "Loading Image..."
-    static let body = """
-    If you are feeling stiff and uncomfortable while working at a sedentary job, there are exercises you can do without even leaving your desk that will leave you feeling refreshed and healthier.
-
-    Work-related disorders aren’t just limited to heavy manufacturing or construction. They can occur in all types of industries and work environments, including office spaces. Research shows that repetitive motion, poor posture, and staying in the same position can cause or worsen musculoskeletal disorders.
-
-    Staying in one position while doing repetitive motions is typical of a desk job. An analysis of job industry trends over the past 50 years revealed that at least 8 in 10 American workers are desk potatoes. The habits we build at our desk, especially while sitting, can contribute to discomfort and health issues, including:
-    """
 }
 
 
@@ -158,6 +141,39 @@ enum ResultScreenStrings {
         static let endSession = "End Session"
     }
 
+    enum Guide {
+        static let next = "NEXT"
+        static let back = "BACK"
+        static let close = "CLOSE"
+        static let firstTitle = "User-friendly Face Scan Results"
+        static let secondTitle = "Easy Integration to Workflow"
+
+        static var firstBody: AttributedString {
+            var text = AttributedString("""
+            This is a sample member-facing report that highlights key areas where small changes can drive meaningful health improvements and financial outcomes.
+
+            Earlier risk identification can support shared savings, quality performance, CCM-related economics, preventive care revenue, and better performance under value-based contracts.
+            """)
+            emphasize("highlights key areas", in: &text)
+            return text
+        }
+
+        static var secondBody: AttributedString {
+            var text = AttributedString("""
+            We can also send the backend data file of the scan's outputs at a particular cadence into your EMR system, complementing your current workflows and reducing clinical burden.
+
+            [COPY ADD: ACO can decide if they want the report to go to patient directly, just copy to ACO, or backend data file.]
+            """)
+            emphasize("[COPY ADD: ACO can decide if they want the report to go to patient directly, just copy to ACO, or backend data file.]", in: &text)
+            return text
+        }
+
+        private static func emphasize(_ phrase: String, in text: inout AttributedString) {
+            guard let range = text.range(of: phrase) else { return }
+            text[range].font = .system(size: 18, weight: .bold)
+        }
+    }
+
     enum EmailPopup {
         static let inboxTitle = "Check your inbox!"
         static let inboxMessage = "Your result has been sent to your email!\nTell a colleague about our Kiosk!"
@@ -265,15 +281,15 @@ enum ResultScreenStrings {
 enum ScreenSaverStrings {
     static let loading = "Loading..."
     static let title = "Welcome to the Hibiscus Wellness Kiosk!"
-    static let subtitle = "Take a few minutes to check in on your health."
-    static let actionButton = "Start Your Health Journey"
-    static let qrPrompt = "Scan to try it on your smartphone!"
+    static let subtitle = "30-second face scan that identifies patient/member risk\nbefore, during, and between visits."
+    static let actionButton = "Start Patient/Member Demo Here"
+    static let qrPrompt = "Try on your smartphone"
 }
 
 
 enum SharedViewStrings {
     enum Toolbar {
-        static let companyLogoPlaceholder = "PUT YOUR COMPANY\nLOGO HERE"
+        static let companyLogoPlaceholder = "PUT YOUR CLINIC\nLOGO HERE"
         static let resultPartnerLogoPlaceholder = "Partner logo\ngoes here"
     }
 

@@ -2,7 +2,7 @@ import UIKit
 
 struct AppColors {
     private static let defaultPrimary = UIColor(hex: "#142A6D")
-    private static let defaultCTA = UIColor(hex: "#B8EB5E")
+    private static let defaultCTA = UIColor(hex: "#DA400D")
     private static let defaultCTAContent = UIColor.white
     private static let defaultHighlightedDayBackground = UIColor(hex: "#EE4B0E")
     private static let defaultScheduleBackground = UIColor(hex: "#1ACEA99B")
@@ -102,12 +102,6 @@ struct AppColors {
     static let resultAlertText = UIColor(hex: "#8A2600")
     static let mutedControlGray = UIColor(hex: "#C4C4C4")
     static let primaryActionOrange = UIColor(hex: "#EE4B0E")
-    static let clientIDDialogBackground = UIColor(hex: "#030F33")
-    static let clientIDFieldBackground = UIColor(hex: "#2C3868")
-    static let clientIDFieldBorder = UIColor(hex: "#9AA5CF")
-    static let clientIDFieldPlaceholder = UIColor(hex: "#A6B0D1")
-    static let clientIDValidationText = UIColor(hex: "#FFB4A0")
-
     static let gaugeGreen = UIColor(hex: "#5EC54C")
     static let gaugeLime = UIColor(hex: "#C2EA73")
     static let gaugeYellow = UIColor(hex: "#F7CD6C")

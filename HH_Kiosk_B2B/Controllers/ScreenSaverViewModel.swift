@@ -7,61 +7,31 @@
 
 import Foundation
 
-@MainActor
 class ScreenSaverViewModel: ObservableObject {
-    private enum ScreenSaverAssetTitle {
-        static let qrImage = "kiosk-qr.jpg"
-    }
-
     @Published var images: [String] = []
     @Published var qrImage: String?
-    @Published var welcomeText: String = ScreenSaverStrings.title
-    @Published var subtitle: String = ScreenSaverStrings.subtitle
-    @Published var actionButton: String = ScreenSaverStrings.actionButton
     @Published var isLoading = false
-    private let contentService: KioskContentServiceProtocol
 
-    init(contentService: KioskContentServiceProtocol = KioskContentService()) {
-        self.contentService = contentService
+    init() {
         fetchScreenSaverData()
     }
 
     func fetchScreenSaverData() {
-        guard let clientID = LocalUserStorage.loadClientID() else {
-            isLoading = false
-            return
-        }
-
         isLoading = true
 
-        Task {
-            do {
-                let data = try await contentService.fetchScreenSaverData(code: clientID)
-                let qrAsset = data.carouselImages.first(where: { image in
-                    image.title.lowercased() == ScreenSaverAssetTitle.qrImage
-                })
-                let carouselAssets = data.carouselImages
-                    .filter { image in
-                        image.title.lowercased() != ScreenSaverAssetTitle.qrImage
-                    }
-                    .sorted(by: { lhs, rhs in
-                        if lhs.order == rhs.order {
-                            return lhs.title.localizedCaseInsensitiveCompare(rhs.title) == .orderedAscending
-                        }
-
-                        return lhs.order < rhs.order
-                    })
-
+        NetworkManager.shared.fetchScreenSaverData { [weak self] result in
+            DispatchQueue.main.async {
+                guard let self = self else { return }
                 self.isLoading = false
-                self.welcomeText = data.welcomeText
-                self.subtitle = data.subtitle
-                self.actionButton = data.actionButtonText ?? ScreenSaverStrings.actionButton
-                self.qrImage = qrAsset?.imageURL
-                self.images = carouselAssets
-                    .map(\.imageURL)
-            } catch {
-                self.isLoading = false
-                print("Error fetching screensaver data:", error)
+
+                switch result {
+                case .success(let data):
+                    self.qrImage = data.first(where: { $0.title.lowercased().contains("qr") })?.image
+                    self.images = data.filter { !$0.title.lowercased().contains("qr") }.map { $0.image }
+
+                case .failure(let error):
+                    print("Error fetching screensaver data:", error)
+                }
             }
         }
     }
