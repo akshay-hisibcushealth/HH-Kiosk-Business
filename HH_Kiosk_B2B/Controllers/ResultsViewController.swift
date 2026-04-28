@@ -97,7 +97,8 @@ class ResultsViewController: UIViewController {
         let pdfView = makeResultScreen(
             model: self.resultsModel,
             showBottomButtons: false,
-            showLoadingOverlay: false
+            showLoadingOverlay: false,
+            showGuide: false
         )
         .background(Color(AppColors.white))
         .frame(width: 595.2)     // A4 Width
@@ -294,7 +295,8 @@ class ResultsViewController: UIViewController {
         let printView = makeResultScreen(
             model: self.resultsModel,
             showBottomButtons: false,
-            showLoadingOverlay: false
+            showLoadingOverlay: false,
+            showGuide: false
         )
         .background(Color(AppColors.white))
         .frame(width: screenWidth)
@@ -380,13 +382,15 @@ class ResultsViewController: UIViewController {
         model: ResultsModel,
         result: [String: MeasurementResults.SignalResult] = [:],
         showBottomButtons: Bool,
-        showLoadingOverlay: Bool
+        showLoadingOverlay: Bool,
+        showGuide: Bool = true
     ) -> AnyView {
         let screen = ResultScreen(
             model: model,
             result: result,
             showBottomButtons: showBottomButtons,
-            showLoadingOverlay: showLoadingOverlay
+            showLoadingOverlay: showLoadingOverlay,
+            showGuide: showGuide
         )
 
         if let appState {

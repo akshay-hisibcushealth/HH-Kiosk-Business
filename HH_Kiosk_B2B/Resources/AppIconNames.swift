@@ -32,6 +32,8 @@ enum AppIconNames {
         static let triglyceridesIcon = "trig_icon"
         static let hiby = "hiby_icon"
         static let hibyLeft = "hiby_left"
+        static let hibyMessageOne = "hiby_message_1"
+        static let hibyMessageTwo = "hiby_message_2"
         static let hibyRight = "hiby_right"
     }
     

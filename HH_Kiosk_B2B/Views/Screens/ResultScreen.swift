@@ -58,21 +58,25 @@ public struct ResultScreen: View {
     // PDF States
     @State private var pdfURL: URL?
     @State private var isSharing = false
-    @State private var guideStage: ResultGuideStage? = .bubble
+    @State private var guideStage: ResultGuideStage?
+    @State private var hasScheduledGuideReveal = false
 
     private let showBottomButtons: Bool
     private let showLoadingOverlay: Bool
+    private let showGuide: Bool
     
     public init(
         model: ResultsModel = ResultsModel(),
         result: [String: MeasurementResults.SignalResult] = [:],
         showBottomButtons: Bool = true,
-        showLoadingOverlay: Bool = true
+        showLoadingOverlay: Bool = true,
+        showGuide: Bool = true
     ) {
         _model = StateObject(wrappedValue: model)
         self.result = result
         self.showBottomButtons = showBottomButtons
         self.showLoadingOverlay = showLoadingOverlay
+        self.showGuide = showGuide
     }
     
     public var body: some View {
@@ -92,7 +96,7 @@ public struct ResultScreen: View {
             }
             }
 
-            if let guideStage {
+            if showGuide, let guideStage {
                 ResultGuideOverlay(stage: guideStage) { nextStage in
                     withAnimation(.spring(response: 0.36, dampingFraction: 0.86)) {
                         self.guideStage = nextStage
@@ -104,6 +108,12 @@ public struct ResultScreen: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .screenDidChangeBounds)) { _ in
             refreshTrigger.toggle()
+        }
+        .onAppear {
+            scheduleGuideRevealIfNeeded()
+        }
+        .onChange(of: model.results.count) { _, _ in
+            scheduleGuideRevealIfNeeded()
         }
         .sheet(isPresented: $isSharing) {
             if let url = pdfURL {
@@ -130,6 +140,19 @@ public struct ResultScreen: View {
         if let url = PDFGenerator.generatePDF(view: pdfView, fileName: ResultScreenStrings.pdfFileName) {
             self.pdfURL = url
             self.isSharing = true
+        }
+    }
+
+    private func scheduleGuideRevealIfNeeded() {
+        guard showGuide, guideStage == nil, hasScheduledGuideReveal == false else { return }
+        guard model.results.isEmpty == false || result.isEmpty == false else { return }
+
+        hasScheduledGuideReveal = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            guard guideStage == nil else { return }
+            withAnimation(.spring(response: 0.36, dampingFraction: 0.86)) {
+                guideStage = .bubble
+            }
         }
     }
 }
@@ -234,7 +257,7 @@ private enum ResultGuideStage {
 
 private struct ResultGuideContent {
     let page: String
-    let iconName: String
+    let iconAsset: String
     let title: String
     let body: AttributedString
 }
@@ -242,107 +265,147 @@ private struct ResultGuideContent {
 private struct ResultGuideOverlay: View {
     let stage: ResultGuideStage
     let onStageChange: (ResultGuideStage?) -> Void
-    @State private var bubbleOffset: CGSize = .zero
-    @GestureState private var bubbleDragOffset: CGSize = .zero
+    @State private var bubbleCenter: CGPoint?
+    @State private var dragStartCenter: CGPoint?
+
+    private let bubbleDiameter: CGFloat = 138.w
+    private let horizontalPadding: CGFloat = 24.w
+    private let bottomPadding: CGFloat = 275.h
 
     var body: some View {
-        ZStack {
-            if stage != .bubble {
-                Color(AppColors.primary)
-                    .opacity(0.66)
-                    .ignoresSafeArea()
-                    .transition(.opacity)
-            }
+        GeometryReader { proxy in
+            ZStack {
+                if stage != .bubble {
+                    Color(AppColors.primary)
+                        .opacity(0.66)
+                        .ignoresSafeArea()
+                        .transition(.opacity)
+                }
 
-            if stage != .bubble {
-                switch stage {
-                case .bubble:
-                    EmptyView()
-                case .firstMessage:
-                    ResultGuideModal(
-                        content: .first,
-                        characterAsset: AppIconNames.Asset.hibyLeft,
-                        characterAlignment: .leading,
-                        showsBackButton: false,
-                        onBack: {},
-                        onNext: { onStageChange(.secondMessage) },
-                        onClose: { onStageChange(.bubble) }
+                if stage != .bubble {
+                    switch stage {
+                    case .bubble:
+                        EmptyView()
+                    case .firstMessage:
+                        ResultGuideModal(
+                            content: .first,
+                            characterAsset: AppIconNames.Asset.hibyLeft,
+                            characterAlignment: .leading,
+                            showsBackButton: false,
+                            onBack: {},
+                            onNext: { onStageChange(.secondMessage) },
+                            onClose: { onStageChange(.bubble) }
+                        )
+                    case .secondMessage:
+                        ResultGuideModal(
+                            content: .second,
+                            characterAsset: AppIconNames.Asset.hibyRight,
+                            characterAlignment: .trailing,
+                            showsBackButton: true,
+                            onBack: { onStageChange(.firstMessage) },
+                            onNext: {},
+                            onClose: { onStageChange(.bubble) }
+                        )
+                    }
+                }
+
+                if stage == .bubble {
+                    ResultGuideBubble {
+                        onStageChange(.firstMessage)
+                    }
+                    .frame(width: bubbleDiameter, height: bubbleDiameter)
+                    .position(currentBubbleCenter(in: proxy.size))
+                    .gesture(
+                        DragGesture(minimumDistance: 1)
+                            .onChanged { value in
+                                if dragStartCenter == nil {
+                                    dragStartCenter = currentBubbleCenter(in: proxy.size)
+                                }
+
+                                guard let dragStartCenter else { return }
+                                bubbleCenter = clampedBubbleCenter(
+                                    CGPoint(
+                                        x: dragStartCenter.x + value.translation.width,
+                                        y: dragStartCenter.y + value.translation.height
+                                    ),
+                                    in: proxy.size
+                                )
+                            }
+                            .onEnded { _ in
+                                let currentCenter = currentBubbleCenter(in: proxy.size)
+                                let snappedX = currentCenter.x < proxy.size.width / 2
+                                    ? horizontalPadding + bubbleDiameter / 2
+                                    : proxy.size.width - horizontalPadding - bubbleDiameter / 2
+
+                                withAnimation(.spring(response: 0.32, dampingFraction: 0.82)) {
+                                    bubbleCenter = clampedBubbleCenter(
+                                        CGPoint(x: snappedX, y: currentCenter.y),
+                                        in: proxy.size
+                                    )
+                                }
+                                dragStartCenter = nil
+                            }
                     )
-                case .secondMessage:
-                    ResultGuideModal(
-                        content: .second,
-                        characterAsset: AppIconNames.Asset.hibyRight,
-                        characterAlignment: .trailing,
-                        showsBackButton: true,
-                        onBack: { onStageChange(.firstMessage) },
-                        onNext: {},
-                        onClose: { onStageChange(.bubble) }
-                    )
+                    .onAppear {
+                        if bubbleCenter == nil {
+                            bubbleCenter = defaultBubbleCenter(in: proxy.size)
+                        }
+                    }
+                    .transition(.opacity.combined(with: .scale(scale: 0.94)))
                 }
             }
-
-            ResultGuideBubble(
-                offset: CGSize(
-                    width: bubbleOffset.width + bubbleDragOffset.width,
-                    height: bubbleOffset.height + bubbleDragOffset.height
-                ),
-                onTap: {
-                    onStageChange(.firstMessage)
-                }
-            )
-            .gesture(
-                DragGesture(minimumDistance: 0)
-                    .updating($bubbleDragOffset) { value, state, _ in
-                        state = value.translation
-                    }
-                    .onEnded { value in
-                        bubbleOffset.width += value.translation.width
-                        bubbleOffset.height += value.translation.height
-                    }
-            )
         }
         .animation(.spring(response: 0.36, dampingFraction: 0.86), value: stage)
+    }
+
+    private func currentBubbleCenter(in size: CGSize) -> CGPoint {
+        bubbleCenter.map { clampedBubbleCenter($0, in: size) } ?? defaultBubbleCenter(in: size)
+    }
+
+    private func defaultBubbleCenter(in size: CGSize) -> CGPoint {
+        clampedBubbleCenter(
+            CGPoint(
+                x: size.width - horizontalPadding - bubbleDiameter / 2,
+                y: size.height - bottomPadding - bubbleDiameter / 2
+            ),
+            in: size
+        )
+    }
+
+    private func clampedBubbleCenter(_ center: CGPoint, in size: CGSize) -> CGPoint {
+        let minX = horizontalPadding + bubbleDiameter / 2
+        let maxX = size.width - horizontalPadding - bubbleDiameter / 2
+        let minY = bubbleDiameter / 2 + 20.h
+        let maxY = size.height - bubbleDiameter / 2 - 20.h
+
+        return CGPoint(
+            x: min(max(center.x, minX), maxX),
+            y: min(max(center.y, minY), maxY)
+        )
     }
 }
 
 private struct ResultGuideBubble: View {
-    let offset: CGSize
     let onTap: () -> Void
 
     var body: some View {
-        VStack {
-            Spacer()
-            HStack {
-                Spacer()
-                Button(action: onTap) {
-                    ZStack(alignment: .topLeading) {
-                        Image(AppIconNames.Asset.hiby)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 138.w, height: 138.w)
-                            .clipShape(Circle())
-                            .overlay(
-                                Circle()
-                                    .stroke(Color(AppColors.primary), lineWidth: 6.w)
-                            )
-                            .shadow(color: Color(AppColors.black).opacity(0.26), radius: 18, x: 0, y: 8)
+        ZStack(alignment: .topLeading) {
+            Image(AppIconNames.Asset.hiby)
+                .resizable()
+                .scaledToFill()
+                .frame(width: 138.w, height: 138.w)
+                .clipShape(Circle())
 
-                        Text("2")
-                            .font(.system(size: 25.sp, weight: .bold))
-                            .foregroundColor(Color(AppColors.black))
-                            .frame(width: 48.w, height: 48.w)
-                            .background(Color(AppColors.accent))
-                            .clipShape(Circle())
-                            .offset(x: -4.w, y: -8.h)
-                    }
-                }
-                .buttonStyle(.plain)
-                .padding(.trailing, 24.w)
-                .padding(.bottom, 275.h)
-                .offset(offset)
-            }
+            Text("2")
+                .font(.system(size: 25.sp, weight: .bold))
+                .foregroundColor(Color(AppColors.black))
+                .frame(width: 48.w, height: 48.w)
+                .background(Color(AppColors.ctaGreen))
+                .clipShape(Circle())
+                .offset(x: -4.w, y: -8.h)
         }
-        .ignoresSafeArea(edges: .bottom)
+        .contentShape(Rectangle())
+        .onTapGesture(perform: onTap)
     }
 }
 
@@ -354,38 +417,41 @@ private struct ResultGuideModal: View {
     let onBack: () -> Void
     let onNext: () -> Void
     let onClose: () -> Void
+    
+    private let cardWidth = 625.w
+    private let cardHeight = 600.h
 
     var body: some View {
         GeometryReader { proxy in
             ZStack(alignment: characterAlignment == .leading ? .bottomLeading : .bottomTrailing) {
                 VStack(spacing: 0) {
-                    Spacer(minLength: 84.h)
+                    Spacer(minLength: 120.h)
 
                     VStack(alignment: .leading, spacing: 0) {
                         HStack(alignment: .top) {
-                            Image(systemName: content.iconName)
-                                .font(.system(size: 62.sp, weight: .regular))
-                                .foregroundColor(Color(AppColors.primary))
-                                .frame(width: 82.w, height: 82.w)
+                            Image(content.iconAsset)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 72.w, height: 72.w)
 
                             Spacer()
 
                             Text(content.page)
-                                .font(.system(size: 24.sp, weight: .medium))
+                                .font(.system(size: 20.sp, weight: .medium))
                                 .foregroundColor(Color(AppColors.error))
                         }
 
-                        buildBoldText(content.title, 24.sp, color: Color(AppColors.primary))
-                            .padding(.top, 22.h)
+                        buildBoldText(content.title, 21.sp, color: Color(AppColors.primary))
+                            .padding(.top, 26.h)
 
                         Text(content.body)
-                            .font(.system(size: 18.sp))
+                            .font(.system(size: 15.sp))
                             .foregroundColor(Color(AppColors.bodyText))
-                            .lineSpacing(9.h)
-                            .padding(.top, 14.h)
+                            .lineSpacing(7.h)
+                            .padding(.top, 12.h)
                             .frame(maxWidth: .infinity, alignment: .leading)
 
-                        Spacer(minLength: 24.h)
+                        Spacer(minLength: 20.h)
 
                         HStack(spacing: 16.w) {
                             Spacer()
@@ -419,29 +485,29 @@ private struct ResultGuideModal: View {
                             }
                         }
                     }
-                    .padding(.horizontal, 38.w)
-                    .padding(.top, 48.h)
-                    .padding(.bottom, 30.h)
-                    .frame(width: min(proxy.size.width * 0.58, 610.w))
-                    .frame(minHeight: 510.h)
+                    .padding(.horizontal, 32.w)
+                    .padding(.top, 36.h)
+                    .padding(.bottom, 24.h)
+                    .frame(width: min(proxy.size.width - 96.w, cardWidth))
+                    .frame(height: cardHeight)
                     .background(Color(AppColors.white))
-                    .clipShape(RoundedRectangle(cornerRadius: 28.r, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: 22.r, style: .continuous))
                     .overlay(alignment: .bottom) {
                         Rectangle()
                             .fill(Color(AppColors.primaryActionOrange))
-                            .frame(height: 7.h)
-                            .clipShape(RoundedCorner(radius: 28.r, corners: [.bottomLeft, .bottomRight]))
+                            .frame(height: 6.h)
+                            .clipShape(RoundedCorner(radius: 22.r, corners: [.bottomLeft, .bottomRight]))
                     }
                     .shadow(color: Color(AppColors.black).opacity(0.18), radius: 24, x: 0, y: 16)
 
-                    Spacer(minLength: 260.h)
+                    Spacer(minLength: 300.h)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
                 Image(characterAsset)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: min(proxy.size.width * 0.32, 360.w))
+                    .frame(width: min(proxy.size.width * 0.29, 330.w))
                     .padding(.leading, characterAlignment == .leading ? 44.w : 0)
                     .padding(.trailing, characterAlignment == .trailing ? 44.w : 0)
                     .offset(y: 34.h)
@@ -502,8 +568,8 @@ private struct ResultGuideActionButton: View {
                 }
             }
             .foregroundColor(style.foreground)
-            .frame(minWidth: 150.w, minHeight: 54.h)
-            .padding(.horizontal, 14.w)
+            .frame(minWidth: 128.w, minHeight: 46.h)
+            .padding(.horizontal, 12.w)
             .background(style.background)
             .clipShape(RoundedRectangle(cornerRadius: 6.r, style: .continuous))
         }
@@ -514,14 +580,14 @@ private struct ResultGuideActionButton: View {
 private extension ResultGuideContent {
     static let first = ResultGuideContent(
         page: "1/2",
-        iconName: "doc.text.image",
+        iconAsset: AppIconNames.Asset.hibyMessageOne,
         title: ResultScreenStrings.Guide.firstTitle,
         body: ResultScreenStrings.Guide.firstBody
     )
 
     static let second = ResultGuideContent(
         page: "2/2",
-        iconName: "chart.line.uptrend.xyaxis.circle",
+        iconAsset: AppIconNames.Asset.hibyMessageTwo,
         title: ResultScreenStrings.Guide.secondTitle,
         body: ResultScreenStrings.Guide.secondBody
     )
