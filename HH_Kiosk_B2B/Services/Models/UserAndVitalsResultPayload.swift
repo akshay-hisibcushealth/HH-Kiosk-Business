@@ -1,5 +1,5 @@
 //
-//  ResultEntry+EmailResultPayload.swift
+//  UserAndVitalsResultPayload.swift
 //  HHKiosk
 //
 //  Created by Applite Solutions on 25/08/25.
@@ -10,9 +10,8 @@
 import Foundation
 
 struct VitalsResultPayload: Codable {
-    let email: String
-      let demographic: Demographic
-      let data: [String: ResultEntry]
+    let demographic: Demographic
+    let data: [String: ResultEntry]
 }
 
 

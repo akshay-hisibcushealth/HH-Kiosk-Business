@@ -4,6 +4,7 @@ struct AppColors {
     static let primary = UIColor(hex: "#142A6D")
     static let accent = UIColor(hex: "#DA400D")
     static let ctaContent = UIColor.white
+    static let ctaGreen = UIColor(hex: "#B8EB5E")
     static let highlightedDayBackground = UIColor(hex: "#EE4B0E")
     static let scheduleBackground = UIColor(hex: "#1ACEA99B")
 

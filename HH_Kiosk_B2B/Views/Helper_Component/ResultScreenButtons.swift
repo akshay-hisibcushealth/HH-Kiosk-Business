@@ -6,19 +6,10 @@ struct ResultScreenButtons: View {
     let onDownloadPDF: () -> Void
     let onPrint: () -> Void
 
-    @State private var showEmailPopUp = false
     var body: some View {
         VStack(spacing: 16.h) {
             HStack(alignment: .top, spacing: 20.w) {
                 HStack(spacing: 16.w) {
-                    footerButton(
-                        title: ResultScreenStrings.Actions.emailMyResults.uppercased(),
-                        image: Image(AppIconNames.Asset.email),
-                        action: {
-                            showEmailPopUp = true
-                        }
-                    )
-
                     footerButton(
                         title: ResultScreenStrings.Actions.print.uppercased(),
                         image: Image(systemName: AppIconNames.Symbol.printerFill),
@@ -38,23 +29,8 @@ struct ResultScreenButtons: View {
                         .frame(width: 230.w)
                         .frame(minHeight: 72.h)
                         .background(Color(AppColors.resultAlertBackground).opacity(0.45))
-                        .clipShape(RoundedRectangle(cornerRadius: 12.r, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: 12.r, style: .continuous))
                 }
-            }
-
-            HStack(spacing: 8.w) {
-                Image(AppIconNames.Asset.secureEmail)
-                    .resizable()
-                    .frame(width: 24.w, height: 24.h)
-
-                Text(ResultScreenStrings.Actions.secureAndPrivate)
-                    .foregroundColor(Color(AppColors.blue))
-                    .font(.system(size: 18.sp, weight: .semibold))
-            }
-            .frame(maxWidth: .infinity, alignment: .center)
-            .sheet(isPresented: $showEmailPopUp) {
-                EmailResultPopup(results: result)
-                    .presentationDetents([.fraction(0.8)])
             }
         }
         .padding(.top, 24.h)

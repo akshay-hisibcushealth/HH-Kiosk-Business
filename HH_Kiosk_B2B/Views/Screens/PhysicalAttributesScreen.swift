@@ -6,7 +6,6 @@ struct PhysicalAttributesScreen: View {
     private let validAgeRange = 13...120
     
     private enum DeveloperAutofill {
-        static let email = "akshay@hibiscushealth.com"
         static let heightFeet = 5
         static let heightInches = 11
         static let weightLbs = 185
@@ -22,7 +21,6 @@ struct PhysicalAttributesScreen: View {
     @State private var weight: Int? = nil   // Make optional
     @State private var age: Int? = nil      // Make optional
     @State private var gender: String = ""  // Empty initially
-    @State private var email: String? = nil
     @State private var showSettings = false
     @State private var refreshTrigger = false
 
@@ -74,7 +72,7 @@ struct PhysicalAttributesScreen: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     // Dynamic height based on keyboard state
-                    .frame(width: 260.w, height: keyboard.isKeyboardVisible ? 0 : 370.h)
+                    .frame(width: 260.w, height: keyboard.isKeyboardVisible ? 0 : 470.h)
                     .opacity(keyboard.isKeyboardVisible ? 0 : 1)
                     .clipped() // Ensures it doesn't bleed out when height is 0
                     .frame(maxWidth: .infinity, alignment: .center)
@@ -110,9 +108,6 @@ struct PhysicalAttributesScreen: View {
                 HStack(spacing: 42.w) {
                     VStack(spacing: 24.h) {
                         HStack {
-                            ProfileEmailSection(email: $email)
-                        }
-                        HStack {
                             ProfileHeightSection(selectedHeight: $height)
                             ProfileWeightSection(selectedWeight: $weight)
                         }
@@ -128,45 +123,50 @@ struct PhysicalAttributesScreen: View {
                 Spacer()
                 
                 // Action buttons
-                HStack(spacing: 20) {
-                    Button(action: {
-                        hideKeyboard()
-                        showWebView = true
-                    }) {
-                        HStack {
-                            Image(systemName: AppIconNames.Symbol.playCircleFill)
-                            Text(PhysicalAttributesScreenStrings.watchQuickDemo)
-                                .font(.system(size: 30.sp,weight: .semibold))
-
+                GeometryReader { proxy in
+                    let spacing = 20.w
+                    let availableWidth = proxy.size.width - spacing
+                    HStack(spacing: spacing) {
+                        Button(action: {
+                            hideKeyboard()
+                            showWebView = true
+                        }) {
+                            HStack {
+                                Image(systemName: AppIconNames.Symbol.playCircleFill)
+                                Text(PhysicalAttributesScreenStrings.watchQuickDemo)
+                                    .font(.system(size: 30.sp,weight: .semibold))
+                            }
+                            .foregroundColor(Color(AppColors.black))
+                            .padding()
+                            .frame(width: availableWidth * 0.29)
+                            .background(Color(AppColors.gray).opacity(0.2))
+                            .cornerRadius(10)
                         }
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color(AppColors.gray).opacity(0.2))
+                        
+                        Button(action: {
+                            hideKeyboard()
+                            if validateInputs() {
+                               proceedToScan()
+                            }
+                        }) {
+                            if isLoading {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle(tint: Color(AppColors.white)))
+                                    .padding()
+                                    .frame(width: availableWidth * 0.71)
+                            } else {
+                                Text(PhysicalAttributesScreenStrings.proceedToScan)
+                                    .font(.system(size: 30.sp,weight: .semibold))
+                                    .foregroundColor(Color(AppColors.black))
+                                    .padding()
+                                    .frame(width: availableWidth * 0.71)
+                            }
+                        }
+                        .background(Color(AppColors.ctaGreen))
                         .cornerRadius(10)
                     }
-                    
-                    Button(action: {
-                        hideKeyboard()
-                        if validateInputs() {
-                           proceedToScan()
-                        }
-                    }) {
-                        if isLoading {
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle(tint: Color(AppColors.white)))
-                                .padding()
-                                .frame(maxWidth: .infinity)
-                        } else {
-                            Text(PhysicalAttributesScreenStrings.proceedToScan)
-                                .font(.system(size: 30.sp,weight: .semibold))
-                                .foregroundColor(Color(AppColors.black))
-                                .padding()
-                                .frame(maxWidth: .infinity)
-                        }
-                    }
-                    .background(Color(AppColors.accent))
-                    .cornerRadius(10)
                 }
+                .frame(height: 74.h)
                 .padding(.top, 30)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -227,12 +227,6 @@ struct PhysicalAttributesScreen: View {
     private func validateInputs() -> Bool {
 
         switch true {
-        case email == nil || email!.isEmpty:
-            validationMessage = PhysicalAttributesScreenStrings.Validation.missingEmail
-
-        case !isValidEmail(email!):
-            validationMessage = PhysicalAttributesScreenStrings.Validation.invalidEmail
-
         case height == nil:
             validationMessage = PhysicalAttributesScreenStrings.Validation.missingHeight
 
@@ -259,26 +253,12 @@ struct PhysicalAttributesScreen: View {
         return false
     }
     
-    private func isValidEmail(_ email: String) -> Bool {
-
-        let emailRegex =
-        #"^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$"#
-
-        let predicate = NSPredicate(
-            format: "SELF MATCHES[c] %@",
-            emailRegex
-        )
-
-        return predicate.evaluate(with: email)
-    }
-    
     private func proceedToScan() {
         isLoading = true
         faceManager.appState = appState
 
         // Save user locally
         LocalUserStorage.saveUser(
-            email: email!,
             height: height!,
             weight: weight!,
             age: age!,
@@ -309,7 +289,6 @@ struct PhysicalAttributesScreen: View {
     }
     
     private func applyDeveloperAutofill() {
-        email = DeveloperAutofill.email
         height = Self.heightInCentimeters(feet: DeveloperAutofill.heightFeet, inches: DeveloperAutofill.heightInches)
         weight = Int(Double(DeveloperAutofill.weightLbs) / 2.20462)
         age = DeveloperAutofill.age

@@ -5,12 +5,8 @@ struct ScheduleView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 24.h) {
-            buildSemiBoldText(
-                HomeScreenStrings.Schedule.sectionTitle,
-                34.sp,
-                color: Color(AppColors.resultAlertText)
-            )
-            .padding(.top, 28.h)
+            SectionHeader(title: HomeScreenStrings.Schedule.sectionTitle, isLeading: false)
+            .padding(.top, 12.h)
             .padding(.horizontal, 30.w)
 
             VStack(spacing: 24.h) {

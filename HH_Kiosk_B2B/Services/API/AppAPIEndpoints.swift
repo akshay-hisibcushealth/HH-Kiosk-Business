@@ -5,11 +5,6 @@ enum AppAPIEndpoints {
         appURL(path: "/kiosk-data")
     }
 
-
-    static var emailResults: URL {
-        appURL(path: "/kiosk-email/")
-    }
-
     static var saveKioskHealth: URL {
         appURL(path: "/save-kiosk-health/")
     }
@@ -45,5 +40,4 @@ enum AppAPIEndpoints {
         return components.url!
     }
 }
-
 

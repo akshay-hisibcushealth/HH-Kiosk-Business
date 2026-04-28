@@ -29,7 +29,7 @@ enum HomeScreenStrings {
         static let failedToLoadPrefix = "Failed to load:"
         static let todaysReadTitle = "Today's Read"
         static let articleBadge = "Article"
-        static let hrDeskTitle = "From HR Desk"
+        static let fromYourProvider = "From your Provider"
     }
 
     enum Schedule {
@@ -44,17 +44,15 @@ enum HomeScreenStrings {
 
 
 enum PhysicalAttributesScreenStrings {
-    static let title = "Physical Attributes"
-    static let subtitle = "For best accuracy, kindly complete the form below."
-    static let privacyMessage = "We value your privacy. Your information will NOT be shared externally."
-    static let watchQuickDemo = "Watch Quick Demo"
+    static let title = "Tell us about yourself"
+    static let subtitle = "We use these details to ensure your scan results are as accurate as possible."
+    static let privacyMessage = "We prioritize your privacy. Your information will NOT be stored during this process and will only be used for calculations."
+    static let watchQuickDemo = "Watch Demo"
     static let proceedToScan = "Proceed to Scan"
     static let alertDismiss = "OK"
     static let demoURL = "https://drive.google.com/file/d/1dPJs1A6aptEh3yTCVxR5BUlRfyLWa3rL/view?usp=sharing"
 
     enum Validation {
-        static let missingEmail = "Please enter your email."
-        static let invalidEmail = "Please enter a valid email."
         static let missingHeight = "Please select your height."
         static let missingWeight = "Weight cannot be empty."
         static let invalidWeight = "Weight cannot be less than 75 lbs."
@@ -64,21 +62,18 @@ enum PhysicalAttributesScreenStrings {
     }
 
     enum Form {
-        static let emailLabel = "Email"
-        static let emailPlaceholder = "Enter email"
-        static let emailInlineError = "Enter a valid email address"
-        static let ageLabel = "Age (years)"
-        static let agePlaceholder = "Select age"
-        static let heightLabel = "Height (ft/in)"
-        static let heightPlaceholder = "Select height"
+        static let ageLabel = "Age"
+        static let agePlaceholder = "Year"
+        static let heightLabel = "Height"
+        static let heightPlaceholder = "Feet / Inches"
         static let heightSheetTitle = "Select Height"
         static let feetUnit = "ft"
         static let inchesUnit = "in"
         static let doneButton = "Done"
-        static let weightLabel = "Weight (lbs)"
-        static let weightPlaceholder = "Select weight"
-        static let genderLabel = "Gender (at birth)"
-        static let genderPlaceholder = "Select Gender"
+        static let weightLabel = "Weight"
+        static let weightPlaceholder = "Lbs"
+        static let genderLabel = "Sex (at birth)"
+        static let genderPlaceholder = "Male / Female"
         static let genderOptions = ["Male", "Female"]
     }
 
@@ -123,8 +118,6 @@ enum ResultScreenStrings {
 
     enum Actions {
         static let closeResult = "Close result"
-        static let emailMyResults = "Email my results"
-        static let secureAndPrivate = "Secure and Private"
         static let print = "Print"
         static let endSession = "End Session"
     }
@@ -160,21 +153,6 @@ enum ResultScreenStrings {
             guard let range = text.range(of: phrase) else { return }
             text[range].font = .system(size: 18, weight: .bold)
         }
-    }
-
-    enum EmailPopup {
-        static let inboxTitle = "Check your inbox!"
-        static let inboxMessage = "Your result has been sent to your email!\nTell a colleague about our Kiosk!"
-        static let returnHome = "Return to Home Screen"
-        static let title = "Send result to your mail"
-        static let emailAddress = "Email address"
-        static let emailPlaceholder = "Email"
-        static let pinTitle = "Create a 4-digit secret key"
-        static let pinPlaceholder = "* * * *"
-        static let pinHelp = "This will be used to view your result"
-        static let sendMail = "Send mail"
-        static let emailFailure = "Failed to send email. Please try again."
-        static let secureAndPrivate = "Secure and Private"
     }
 
     enum Metrics {

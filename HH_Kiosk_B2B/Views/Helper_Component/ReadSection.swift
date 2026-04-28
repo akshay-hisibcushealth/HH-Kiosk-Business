@@ -89,7 +89,7 @@ private struct HRDeskSection: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            SectionHeader(title: HomeScreenStrings.ReadSection.hrDeskTitle, isLeading: false)
+            SectionHeader(title: HomeScreenStrings.ReadSection.fromYourProvider, isLeading: false)
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 24.w) {
                     ForEach(items) { item in

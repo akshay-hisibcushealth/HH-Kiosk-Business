@@ -12,11 +12,7 @@ struct SectionHeader: View {
                     .foregroundColor(Color(AppColors.sectionHeaderText))
             }
             buildSemiBoldText(title, 28.sp,color: Color(AppColors.resultAlertText))
-            if !isLeading {
-                Image(systemName: AppIconNames.Symbol.chevronRight)
-                    .font(.system(size: 24.sp))
-                    .foregroundColor(Color(AppColors.sectionHeaderText))
-            }
+          
             Spacer(minLength: 0)
         }
         .padding(.horizontal, 16.w) } }
