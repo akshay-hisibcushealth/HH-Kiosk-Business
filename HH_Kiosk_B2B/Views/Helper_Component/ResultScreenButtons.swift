@@ -5,11 +5,20 @@ struct ResultScreenButtons: View {
     let result: [String: MeasurementResults.SignalResult]
     let onDownloadPDF: () -> Void
     let onPrint: () -> Void
+    @State private var showEmailPopUp = false
 
     var body: some View {
         VStack(spacing: 16.h) {
             HStack(alignment: .top, spacing: 20.w) {
                 HStack(spacing: 16.w) {
+                    footerButton(
+                        title: ResultScreenStrings.Actions.emailMyResults.uppercased(),
+                        image: Image(systemName: AppIconNames.Symbol.envelopeFill),
+                        action: {
+                            showEmailPopUp = true
+                        }
+                    )
+
                     footerButton(
                         title: ResultScreenStrings.Actions.print.uppercased(),
                         image: Image(systemName: AppIconNames.Symbol.printerFill),
@@ -32,6 +41,18 @@ struct ResultScreenButtons: View {
                     .clipShape(RoundedRectangle(cornerRadius: 12.r, style: .continuous))
                 }
             }
+
+            HStack(spacing: 8.w) {
+                Image(systemName: AppIconNames.Symbol.lockShield)
+                    .foregroundColor(Color(AppColors.blue))
+                Text(ResultScreenStrings.Actions.secureAndPrivate)
+                    .font(.system(size: 16.sp, weight: .medium))
+                    .foregroundColor(Color(AppColors.blue))
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .sheet(isPresented: $showEmailPopUp) {
+            EmailResultPopup(results: result)
         }
         .padding(.top, 24.h)
         .padding(.horizontal, 30.w)

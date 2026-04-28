@@ -5,14 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="69d70bab-ae17-4888-9c12-3f3dde572849" name="Changes" comment="Added: Print Functionality">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/HH_Kiosk_B2B/App/MyApp.swift" beforeDir="false" afterPath="$PROJECT_DIR$/HH_Kiosk_B2B/App/MyApp.swift" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/HH_Kiosk_B2B/Resources/AppColors.swift" beforeDir="false" afterPath="$PROJECT_DIR$/HH_Kiosk_B2B/Resources/AppColors.swift" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/HH_Kiosk_B2B/Resources/AppIconNames.swift" beforeDir="false" afterPath="$PROJECT_DIR$/HH_Kiosk_B2B/Resources/AppIconNames.swift" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/HH_Kiosk_B2B/Resources/Assets.xcassets/client_id_screen_background.imageset/Contents.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/HH_Kiosk_B2B/Resources/Assets.xcassets/client_id_screen_background.imageset/Image.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/HH_Kiosk_B2B/Controllers/ResultsViewController.swift" beforeDir="false" afterPath="$PROJECT_DIR$/HH_Kiosk_B2B/Controllers/ResultsViewController.swift" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/HH_Kiosk_B2B/Resources/Strings.swift" beforeDir="false" afterPath="$PROJECT_DIR$/HH_Kiosk_B2B/Resources/Strings.swift" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/HH_Kiosk_B2B/Views/Screens/ClientIDEntryScreen.swift" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/HH_Kiosk_B2B/Views/Screens/ResultScreen.swift" beforeDir="false" afterPath="$PROJECT_DIR$/HH_Kiosk_B2B/Views/Screens/ResultScreen.swift" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/HH_Kiosk_B2B/Services/API/AppAPIEndpoints.swift" beforeDir="false" afterPath="$PROJECT_DIR$/HH_Kiosk_B2B/Services/API/AppAPIEndpoints.swift" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/HH_Kiosk_B2B/Services/API/KioskSubmissionService.swift" beforeDir="false" afterPath="$PROJECT_DIR$/HH_Kiosk_B2B/Services/API/KioskSubmissionService.swift" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/HH_Kiosk_B2B/Services/Models/ResultEntry.swift" beforeDir="false" afterPath="$PROJECT_DIR$/HH_Kiosk_B2B/Services/Models/ResultEntry.swift" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/HH_Kiosk_B2B/Views/Helper_Component/ResultScreenButtons.swift" beforeDir="false" afterPath="$PROJECT_DIR$/HH_Kiosk_B2B/Views/Helper_Component/ResultScreenButtons.swift" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

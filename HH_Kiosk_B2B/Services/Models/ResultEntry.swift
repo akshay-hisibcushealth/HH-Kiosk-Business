@@ -13,3 +13,9 @@ struct ResultEntry: Codable {
     let value: Double
     let notes: [String]
 }
+
+struct EmailResultPayload: Codable {
+    let email: String
+    let pin: String
+    let data: [String: ResultEntry]
+}

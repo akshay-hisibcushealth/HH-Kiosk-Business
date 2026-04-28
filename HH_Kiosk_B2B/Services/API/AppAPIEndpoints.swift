@@ -9,6 +9,10 @@ enum AppAPIEndpoints {
         appURL(path: "/save-kiosk-health/")
     }
 
+    static var emailResults: URL {
+        appURL(path: "/kiosk-email/")
+    }
+
     static func currentWeather(lat: Double, lon: Double) -> URL {
         weatherURL(path: "/data/2.5/weather", queryItems: [
             URLQueryItem(name: "lat", value: String(lat)),
@@ -40,4 +44,3 @@ enum AppAPIEndpoints {
         return components.url!
     }
 }
-

@@ -118,8 +118,25 @@ enum ResultScreenStrings {
 
     enum Actions {
         static let closeResult = "Close result"
+        static let emailMyResults = "Email my results"
+        static let secureAndPrivate = "Secure and Private"
         static let print = "Print"
         static let endSession = "End Session"
+    }
+
+    enum EmailPopup {
+        static let inboxTitle = "Check your inbox!"
+        static let inboxMessage = "Your result has been sent to your email!\nTell a colleague about our Kiosk!"
+        static let returnHome = "Return to Home Screen"
+        static let title = "Send your result to your email"
+        static let emailAddress = "Email address"
+        static let emailPlaceholder = "Email"
+        static let pinTitle = "Create a 4-digit secret key"
+        static let pinPlaceholder = "* * * *"
+        static let pinHelp = "This will be used to view your result"
+        static let sendMail = "Send mail"
+        static let emailFailure = "Failed to send email. Please try again."
+        static let secureAndPrivate = "Secure and Private"
     }
 
     enum Guide {
