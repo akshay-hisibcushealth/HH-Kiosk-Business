@@ -111,7 +111,7 @@ struct EmailResultPopup: View {
                 .fontWeight(.bold)
                 .padding()
                 .frame(maxWidth: .infinity)
-                .background(Color(AppColors.ctaGreen))
+                .background(Color(AppColors.accent))
                 .cornerRadius(10)
         }
         .padding(.horizontal)
@@ -212,7 +212,7 @@ struct EmailResultPopup: View {
             }
             .padding()
             .frame(maxWidth: .infinity)
-            .background((isEmailValid && isPinValid) ? Color(AppColors.ctaGreen) : Color(AppColors.ctaGreen).opacity(0.5))
+            .background((isEmailValid && isPinValid) ? Color(AppColors.accent) : Color(AppColors.accent).opacity(0.5))
             .cornerRadius(10.r)
         }
         .disabled(!(isEmailValid && isPinValid))

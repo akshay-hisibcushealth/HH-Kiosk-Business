@@ -4,8 +4,8 @@ struct HealthJourneyButton: View {
     @EnvironmentObject var appState: AppState
     // MARK: - Parameters with default values
     var text: String = ScreenSaverStrings.actionButton
-    var backgroundColor: Color = Color(AppColors.ctaGreen)
-    var textColor: Color = Color(AppColors.ctaContent)
+    var backgroundColor: Color = Color(AppColors.accent)
+    var textColor: Color = Color(AppColors.white)
     var icon: String = AppIconNames.SvgAsset.smile
     
     var body: some View {
@@ -50,7 +50,7 @@ struct HealthJourneyButtonFaceScanPromoView: View {
     // MARK: - Parameters with default values
     var text: String = HomeScreenStrings.Promo.tryFaceScan
     var backgroundColor: Color = Color(AppColors.white)
-    var textColor: Color = Color(AppColors.primary)
+    var textColor: Color = Color(AppColors.accent)
     var icon: String = AppIconNames.SvgAsset.smile
     let action: () -> Void
     

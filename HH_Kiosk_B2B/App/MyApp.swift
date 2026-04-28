@@ -36,11 +36,6 @@ struct RootView: View {
             }
         }
         .animation(.easeInOut(duration: 0.5), value: appState.showScreenSaver)
-        .task {
-            if let clientID = LocalUserStorage.loadClientID() {
-                await appState.loadBrandingData(for: clientID)
-            }
-        }
     }
 }
 

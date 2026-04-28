@@ -11,7 +11,7 @@ struct SectionHeader: View {
                     .frame(width: 48.w, height: 48.h)
                     .foregroundColor(Color(AppColors.sectionHeaderText))
             }
-            buildSemiBoldText(title, 28.sp,color: Color(AppColors.sectionHeaderText))
+            buildSemiBoldText(title, 28.sp,color: Color(AppColors.resultAlertText))
             if !isLeading {
                 Image(systemName: AppIconNames.Symbol.chevronRight)
                     .font(.system(size: 24.sp))

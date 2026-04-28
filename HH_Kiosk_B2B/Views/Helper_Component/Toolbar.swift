@@ -53,44 +53,15 @@ struct ResultToolbar: View {
 }
 
 private struct BrandedCompanyLogoView: View {
-    @EnvironmentObject private var appState: AppState
-
     var body: some View {
-        if let logoURLString = appState.brandingData?.brandingInfo.logo,
-           let logoURL = URL(string: logoURLString) {
-            if let cachedUIImage = CachedImageLookup.image(for: logoURL) {
-                Image(uiImage: cachedUIImage)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 280.w, height: 110.h)
-                    .padding(.horizontal, 12.w)
-                    .padding(.vertical, 8.h)
-                    .background(Color.clear)
-            } else {
-                CachedAsyncImage(
-                    url: logoURL,
-                    width: 280.w,
-                    height: 110.h,
-                    cornerRadius: 0
-                ) { image in
-                    image
-                        .resizable()
-                        .scaledToFit()
-                        .padding(.horizontal, 12.w)
-                        .padding(.vertical, 8.h)
-                }
-                .background(Color.clear)
-            }
-        } else {
-            Text(SharedViewStrings.Toolbar.companyLogoPlaceholder)
-                .font(.system(size: 24.sp, weight: .semibold))
-                .foregroundColor(Color(AppColors.white))
-                .multilineTextAlignment(.center)
-                .padding(.all, 24.w)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 0)
-                        .stroke(Color(AppColors.white), lineWidth: 5.w)
-                )
-        }
+        Text(SharedViewStrings.Toolbar.companyLogoPlaceholder)
+            .font(.system(size: 24.sp, weight: .semibold))
+            .foregroundColor(Color(AppColors.white))
+            .multilineTextAlignment(.center)
+            .padding(.all, 24.w)
+            .overlay(
+                RoundedRectangle(cornerRadius: 0)
+                    .stroke(Color(AppColors.white), lineWidth: 5.w)
+            )
     }
 }

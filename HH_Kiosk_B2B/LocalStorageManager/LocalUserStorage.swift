@@ -18,65 +18,11 @@ struct StoredUser {
 
 struct LocalUserStorage {
 
-    private static let clientIDKey = "client_id"
-    private static let screenSaverDataKey = "screen_saver_data"
-    private static let screenSaverClientIDKey = "screen_saver_client_id"
     private static let emailKey = "user_email"
     private static let heightKey = "user_height"
     private static let weightKey = "user_weight"
     private static let ageKey = "user_age"
     private static let genderKey = "user_gender"
-
-    static func saveClientID(_ clientID: String) {
-        let trimmedClientID = clientID.trimmingCharacters(in: .whitespacesAndNewlines)
-        UserDefaults.standard.set(trimmedClientID, forKey: clientIDKey)
-    }
-
-    static func loadClientID() -> String? {
-        guard let clientID = UserDefaults.standard.string(forKey: clientIDKey)?
-            .trimmingCharacters(in: .whitespacesAndNewlines),
-            !clientID.isEmpty else {
-            return nil
-        }
-
-        return clientID
-    }
-
-    static func clearClientID() {
-        UserDefaults.standard.removeObject(forKey: clientIDKey)
-        clearScreenSaverData()
-    }
-
-    static func saveScreenSaverData(_ data: KioskBrandingScreenSaverData, for clientID: String) {
-        let trimmedClientID = clientID.trimmingCharacters(in: .whitespacesAndNewlines)
-
-        guard !trimmedClientID.isEmpty,
-              let encoded = try? JSONEncoder().encode(data) else {
-            return
-        }
-
-        let defaults = UserDefaults.standard
-        defaults.set(encoded, forKey: screenSaverDataKey)
-        defaults.set(trimmedClientID, forKey: screenSaverClientIDKey)
-    }
-
-    static func loadScreenSaverData(for clientID: String) -> KioskBrandingScreenSaverData? {
-        let trimmedClientID = clientID.trimmingCharacters(in: .whitespacesAndNewlines)
-        let defaults = UserDefaults.standard
-
-        guard defaults.string(forKey: screenSaverClientIDKey) == trimmedClientID,
-              let data = defaults.data(forKey: screenSaverDataKey) else {
-            return nil
-        }
-
-        return try? JSONDecoder().decode(KioskBrandingScreenSaverData.self, from: data)
-    }
-
-    static func clearScreenSaverData() {
-        let defaults = UserDefaults.standard
-        defaults.removeObject(forKey: screenSaverDataKey)
-        defaults.removeObject(forKey: screenSaverClientIDKey)
-    }
 
     static func saveUser(
         email: String,

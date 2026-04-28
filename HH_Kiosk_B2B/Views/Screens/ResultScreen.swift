@@ -160,22 +160,9 @@ private struct HeroHeader: View {
 }
 
 private struct TitleBlock: View {
-    @EnvironmentObject private var appState: AppState
-
-    private var titleBlockDescription: String {
-        let brandingDescription = appState.brandingData?.brandingInfo.resultScreenDescription?
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-
-        if let brandingDescription, !brandingDescription.isEmpty {
-            return brandingDescription
-        }
-
-        return ResultScreenStrings.titleBlockDescription
-    }
-
     var body: some View {
         buildMediumText(
-            titleBlockDescription,
+            ResultScreenStrings.titleBlockDescription,
             18.sp,
             color: Color(AppColors.primary)
         )
@@ -344,7 +331,7 @@ private struct ResultGuideBubble: View {
                             .font(.system(size: 25.sp, weight: .bold))
                             .foregroundColor(Color(AppColors.black))
                             .frame(width: 48.w, height: 48.w)
-                            .background(Color(AppColors.ctaGreen))
+                            .background(Color(AppColors.accent))
                             .clipShape(Circle())
                             .offset(x: -4.w, y: -8.h)
                     }

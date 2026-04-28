@@ -6,10 +6,8 @@ class DashboardViewModel: ObservableObject {
     @Published var hrDeskItems: [HRDeskItem] = []
     @Published var isLoading = false
     @Published var errorMessage: String?
-    private let contentService: KioskContentServiceProtocol
 
-    init(contentService: KioskContentServiceProtocol = KioskContentService()) {
-        self.contentService = contentService
+    init() {
         fetchData()
     }
 
@@ -17,15 +15,19 @@ class DashboardViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
 
-        Task {
-            do {
-                let response = try await contentService.fetchDashboardData()
+        NetworkManager.shared.fetchDashboardData { [weak self] result in
+            Task { @MainActor in
+                guard let self else { return }
+
                 self.isLoading = false
-                self.todayRead = response.today_read.first
-                self.hrDeskItems = response.hrdesk
-            } catch {
-                self.isLoading = false
-                self.errorMessage = error.localizedDescription
+
+                switch result {
+                case .success(let response):
+                    self.todayRead = response.today_read.first
+                    self.hrDeskItems = response.hrdesk
+                case .failure(let error):
+                    self.errorMessage = error.localizedDescription
+                }
             }
         }
     }

@@ -47,7 +47,7 @@ struct ResultRow: View {
     private var gaugeColors: [Color] {
         switch metricKey {
         case "BP_SYSTOLIC", "BP_DIASTOLIC":
-            return [Color(AppColors.riskWarning), Color(AppColors.riskLow), Color(AppColors.ctaGreen), Color(AppColors.riskWarning), Color(AppColors.riskHigh)]
+            return [Color(AppColors.riskWarning), Color(AppColors.riskLow), Color(AppColors.accent), Color(AppColors.riskWarning), Color(AppColors.riskHigh)]
         case "HR_BPM", "BR_BPM":
             return [Color(AppColors.riskWarning), Color(AppColors.riskLow), Color(AppColors.riskLow), Color(AppColors.riskLow), Color(AppColors.riskWarning)]
         case "HRV_SDNN", "BP_TAU":
@@ -55,7 +55,7 @@ struct ResultRow: View {
         case "BMI_CALC", "WAIST_TO_HEIGHT":
             return [Color(AppColors.gaugePaleYellow), Color(AppColors.gaugeSoftGreen), Color(AppColors.gaugePaleYellow), Color(AppColors.gaugeSoftCoral), Color(AppColors.gaugeCoral)]
         default:
-            return [Color(AppColors.riskLow), Color(AppColors.ctaGreen), Color(AppColors.riskWarning), Color(AppColors.riskMedium), Color(AppColors.riskHigh)]
+            return [Color(AppColors.riskLow), Color(AppColors.accent), Color(AppColors.riskWarning), Color(AppColors.riskMedium), Color(AppColors.riskHigh)]
         }
     }
 

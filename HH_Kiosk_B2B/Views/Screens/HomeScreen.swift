@@ -14,7 +14,7 @@ struct HomeScreen: View {
     
     // Inactivity management
     @State private var inactivityTimer: Timer?
-    private let inactivityLimit: TimeInterval = 0 // seconds
+    private let inactivityLimit: TimeInterval = 30 // seconds
     
     var body: some View {
         NavigationStack {
@@ -48,11 +48,11 @@ struct HomeScreen: View {
                         .frame(height: 650.h)
                         .padding(.horizontal, 24.w)
 
-//                        Image(AppIconNames.Asset.customizedImage)
-//                            .resizable()
-//                            .scaledToFill()
-//                            .frame(width: 700.w,height: 80.h)
-//                            .padding(.top,48.h)
+                        Image(AppIconNames.Asset.customizedImage)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 700.w,height: 80.h)
+                            .padding(.top,48.h)
                     }
                 }
                 .frame(maxHeight: .infinity, alignment: .top)
@@ -143,19 +143,14 @@ struct HomeScreen: View {
     }
 }
 private struct WeatherContentView: View {
-    @EnvironmentObject private var appState: AppState
     @ObservedObject var viewModel: WeatherViewModel
-
-    private var companyName: String {
-        appState.brandingData?.brandingInfo.companyName ?? HomeScreenStrings.Weather.companyName
-    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12.h) {
             HStack{
-                buildSemiBoldText(HomeScreenStrings.Weather.welcomePrefix, 36.sp)
-                buildSemiBoldText(companyName, 36.sp,color: Color(AppColors.primary))
-                buildSemiBoldText(HomeScreenStrings.Weather.kioskSuffix, 36.sp)
+                buildSemiBoldText(HomeScreenStrings.Weather.welcomePrefix, 32.sp)
+                buildSemiBoldText(HomeScreenStrings.Weather.companyName, 32.sp,color: Color(AppColors.accent))
+                buildSemiBoldText(HomeScreenStrings.Weather.kioskSuffix, 32.sp)
             }
             .padding(.leading,40.w)
             .padding(.top,16.w)

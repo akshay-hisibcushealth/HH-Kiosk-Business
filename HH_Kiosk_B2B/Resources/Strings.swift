@@ -12,8 +12,8 @@ enum HomeScreenStrings {
         static let errorTitle = "Error:"
         static let fetchingLocation = "Fetching location..."
         static let welcomePrefix = "Welcome to the"
-        static let companyName = "[ABC Company]"
-        static let kioskSuffix = "Kiosk"
+        static let companyName = "[Clinic Name]"
+        static let kioskSuffix = "Kiosk!"
     }
 
     enum Promo {
@@ -33,23 +33,11 @@ enum HomeScreenStrings {
     }
 
     enum Schedule {
-        static let sectionTitle = "Today's Schedule"
-        static let noSchedule = "No Schedule"
-        static let dailyStandupTitle = "Daily Stand-Up"
-        static let dailyStandupDescription = "A stand-up meeting is a meeting in which attendees typically participate while standing."
-
-        static let eventPool: [(title: String, description: String)] = [
-            ("Quarterly Town Hall Meeting", "To discuss about the upcoming project & organization of units"),
-            ("Q3 Wellness Challenge begins", "To discuss about the upcoming project & organization of units"),
-            ("Diversity, Equity & Inclusion (DEI) Awareness Days", "Panels, training, and celebration of heritage months or cultural milestones."),
-            ("Wellness Week / Health Fair", "Activities focused on physical and mental well-being."),
-            ("Hackathons / Innovation Days", "Creative sprints where teams develop solutions, tools, or prototypes."),
-            ("Team-Building Retreat", "A full-day or overnight program to boost collaboration and morale."),
-            ("Company Anniversary", "Celebration of the organization's founding and journey."),
-            ("Open Enrollment / Benefits Fair", "Informational sessions on employee benefits, insurance, and perks."),
-            ("Community Service / Volunteer Day", "Team-led initiatives supporting local organizations."),
-            ("Mid-Year Review", "Alignment on key metrics, shifting priorities, and future plans."),
-            ("New Employee Welcome Sessions", "Monthly or quarterly onboarding experiences with leadership meet-and-greets.")
+        static let sectionTitle = "Announcements"
+        static let announcements = [
+            "Smoking Cessation Class on Wednesdays",
+            "Reminder to Wear your Seatbelt",
+            "Get your Annual Flu Shot!"
         ]
     }
 }

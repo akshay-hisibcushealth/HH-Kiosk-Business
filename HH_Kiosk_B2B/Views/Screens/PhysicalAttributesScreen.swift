@@ -164,7 +164,7 @@ struct PhysicalAttributesScreen: View {
                                 .frame(maxWidth: .infinity)
                         }
                     }
-                    .background(Color(AppColors.ctaGreen))
+                    .background(Color(AppColors.accent))
                     .cornerRadius(10)
                 }
                 .padding(.top, 30)
