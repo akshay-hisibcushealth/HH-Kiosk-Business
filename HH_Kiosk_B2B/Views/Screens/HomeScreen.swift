@@ -43,7 +43,7 @@ struct HomeScreen: View {
                         
                         HStack(alignment: .top) {
                             ReadSection()
-                            ScheduleView()
+                            ScheduleView(onInteraction: resetInactivityTimer)
                         }
                         .frame(height: 650.h)
                         .padding(.horizontal, 24.w)
@@ -66,13 +66,14 @@ struct HomeScreen: View {
             .onReceive(NotificationCenter.default.publisher(for: .screenDidChangeBounds)) { _ in
                        refreshTrigger.toggle()
                    }
-            .gesture(
+            .simultaneousGesture(
                 DragGesture(minimumDistance: 0)
                     .onChanged { _ in resetInactivityTimer() }
             )
-            .onTapGesture {
-                resetInactivityTimer()
-            }
+            .simultaneousGesture(
+                TapGesture()
+                    .onEnded { resetInactivityTimer() }
+            )
             .onAppear {
                 startInactivityTimer()
             }

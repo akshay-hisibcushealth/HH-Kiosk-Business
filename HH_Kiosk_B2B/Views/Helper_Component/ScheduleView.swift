@@ -78,6 +78,7 @@ class ScheduleViewModel: ObservableObject {
 struct ScheduleView: View {
     @StateObject private var viewModel = ScheduleViewModel()
     @State private var selectedDate = Date()
+    var onInteraction: (() -> Void)? = nil
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -112,6 +113,7 @@ struct ScheduleView: View {
                     .contentShape(Rectangle())
                     .frame(maxWidth: .infinity)
                     .onTapGesture {
+                        onInteraction?()
                         selectedDate = date
                     }
                 }
@@ -154,6 +156,10 @@ struct ScheduleView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .background(Color(AppColors.scheduleBackground))
                             .clipShape(RoundedRectangle(cornerRadius: 20.r))
+                            .contentShape(RoundedRectangle(cornerRadius: 20.r))
+                            .onTapGesture {
+                                onInteraction?()
+                            }
                             
                         }
                     }
@@ -161,6 +167,10 @@ struct ScheduleView: View {
                 .padding(.horizontal)
             }
         }
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { _ in onInteraction?() }
+        )
     
         .background(Color(AppColors.overlayMint))
         .clipShape(RoundedRectangle(cornerRadius: 24.r))
