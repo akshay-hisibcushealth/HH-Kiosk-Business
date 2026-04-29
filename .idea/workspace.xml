@@ -5,14 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="69d70bab-ae17-4888-9c12-3f3dde572849" name="Changes" comment="Added: Print Functionality">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/HH_Kiosk_B2B/App/MyApp.swift" beforeDir="false" afterPath="$PROJECT_DIR$/HH_Kiosk_B2B/App/MyApp.swift" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/HH_Kiosk_B2B/Controllers/ResultsViewController.swift" beforeDir="false" afterPath="$PROJECT_DIR$/HH_Kiosk_B2B/Controllers/ResultsViewController.swift" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/HH_Kiosk_B2B/Resources/Strings.swift" beforeDir="false" afterPath="$PROJECT_DIR$/HH_Kiosk_B2B/Resources/Strings.swift" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/HH_Kiosk_B2B/Services/API/AppAPIEndpoints.swift" beforeDir="false" afterPath="$PROJECT_DIR$/HH_Kiosk_B2B/Services/API/AppAPIEndpoints.swift" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/HH_Kiosk_B2B/Services/API/KioskSubmissionService.swift" beforeDir="false" afterPath="$PROJECT_DIR$/HH_Kiosk_B2B/Services/API/KioskSubmissionService.swift" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/HH_Kiosk_B2B/Services/Models/ResultEntry.swift" beforeDir="false" afterPath="$PROJECT_DIR$/HH_Kiosk_B2B/Services/Models/ResultEntry.swift" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/HH_Kiosk_B2B/Views/Helper_Component/ResultScreenButtons.swift" beforeDir="false" afterPath="$PROJECT_DIR$/HH_Kiosk_B2B/Views/Helper_Component/ResultScreenButtons.swift" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/HH_Kiosk_B2B/Views/Screens/ResultScreen.swift" beforeDir="false" afterPath="$PROJECT_DIR$/HH_Kiosk_B2B/Views/Screens/ResultScreen.swift" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,22 +40,22 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.cidr.known.project.marker": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.readMode.enableVisualFormatting": "true",
-    "cf.first.check.clang-format": "false",
-    "cidr.known.project.marker": "true",
-    "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "kiosk-aco",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/Users/applitesolutions/SwiftProject/HH_Kiosk_B2B",
-    "show.migrate.to.gradle.popup": "false"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
+    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;kiosk-aco&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/applitesolutions/SwiftProject/HH_Kiosk_B2B&quot;,
+    &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;
   }
-}]]></component>
+}</component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="69d70bab-ae17-4888-9c12-3f3dde572849" name="Changes" comment="" />

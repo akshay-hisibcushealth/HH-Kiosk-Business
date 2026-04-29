@@ -109,6 +109,18 @@ public struct ResultScreen: View {
         .onReceive(NotificationCenter.default.publisher(for: .screenDidChangeBounds)) { _ in
             refreshTrigger.toggle()
         }
+        .onReceive(NotificationCenter.default.publisher(for: .resultGuideShouldHide)) { _ in
+            withAnimation(.spring(response: 0.36, dampingFraction: 0.86)) {
+                guideStage = nil
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .resultGuideShouldShow)) { _ in
+            guard showGuide, model.results.isEmpty == false || result.isEmpty == false else { return }
+            hasScheduledGuideReveal = true
+            withAnimation(.spring(response: 0.36, dampingFraction: 0.86)) {
+                guideStage = .bubble
+            }
+        }
         .onAppear {
             scheduleGuideRevealIfNeeded()
         }
@@ -155,6 +167,11 @@ public struct ResultScreen: View {
             }
         }
     }
+}
+
+extension Notification.Name {
+    static let resultGuideShouldHide = Notification.Name("resultGuideShouldHide")
+    static let resultGuideShouldShow = Notification.Name("resultGuideShouldShow")
 }
 
 // MARK: - Subviews

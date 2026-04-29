@@ -311,6 +311,7 @@ class ResultsViewController: UIViewController {
                 let alert = UIAlertController(title: "Error", message: "Failed to render results for printing.", preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "OK", style: .default))
                 self.present(alert, animated: true)
+                NotificationCenter.default.post(name: .resultGuideShouldShow, object: nil)
             }
             print("❌ Failed to render SwiftUI view for printing")
             return
@@ -322,6 +323,7 @@ class ResultsViewController: UIViewController {
                 let alert = UIAlertController(title: "Error", message: "Failed to generate PDF for printing.", preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "OK", style: .default))
                 self.present(alert, animated: true)
+                NotificationCenter.default.post(name: .resultGuideShouldShow, object: nil)
             }
             print("❌ Failed to create paged PDF from rendered image")
             return
@@ -338,10 +340,14 @@ class ResultsViewController: UIViewController {
         printController.printingItem = pdfURL
 
         // 8. Present print controller anchored to buttons view (popover on iPad)
+        let completionHandler: UIPrintInteractionController.CompletionHandler = { _, _, _ in
+            NotificationCenter.default.post(name: .resultGuideShouldShow, object: nil)
+        }
+
         if UIDevice.current.userInterfaceIdiom == .pad {
-            printController.present(from: resultButtonsHost.view.bounds, in: resultButtonsHost.view, animated: true, completionHandler: nil)
+            printController.present(from: resultButtonsHost.view.bounds, in: resultButtonsHost.view, animated: true, completionHandler: completionHandler)
         } else {
-            printController.present(animated: true, completionHandler: nil)
+            printController.present(animated: true, completionHandler: completionHandler)
         }
     }
     

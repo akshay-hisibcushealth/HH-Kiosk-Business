@@ -15,6 +15,7 @@ struct ResultScreenButtons: View {
                         title: ResultScreenStrings.Actions.emailMyResults.uppercased(),
                         image: Image(systemName: AppIconNames.Symbol.envelopeFill),
                         action: {
+                            dismissResultGuide()
                             showEmailPopUp = true
                         }
                     )
@@ -23,6 +24,7 @@ struct ResultScreenButtons: View {
                         title: ResultScreenStrings.Actions.print.uppercased(),
                         image: Image(systemName: AppIconNames.Symbol.printerFill),
                         action: {
+                            dismissResultGuide()
                             onPrint()
                         }
                     )
@@ -51,7 +53,9 @@ struct ResultScreenButtons: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .sheet(isPresented: $showEmailPopUp) {
+        .sheet(isPresented: $showEmailPopUp, onDismiss: {
+            showResultGuide()
+        }) {
             EmailResultPopup(results: result)
         }
         .padding(.top, 24.h)
@@ -81,6 +85,14 @@ struct ResultScreenButtons: View {
             )
             .clipShape(RoundedRectangle(cornerRadius: 12.r, style: .continuous))
         }
+    }
+
+    private func dismissResultGuide() {
+        NotificationCenter.default.post(name: .resultGuideShouldHide, object: nil)
+    }
+
+    private func showResultGuide() {
+        NotificationCenter.default.post(name: .resultGuideShouldShow, object: nil)
     }
 }
 
