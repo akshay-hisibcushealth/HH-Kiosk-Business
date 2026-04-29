@@ -74,7 +74,7 @@ struct PhysicalAttributesScreen: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     // Dynamic height based on keyboard state
-                    .frame(width: 260.w, height: keyboard.isKeyboardVisible ? 0 : 470.h)
+                    .frame(width: 260.w, height: keyboard.isKeyboardVisible ? 0 : 370.h)
                     .opacity(keyboard.isKeyboardVisible ? 0 : 1)
                     .clipped() // Ensures it doesn't bleed out when height is 0
                     .frame(maxWidth: .infinity, alignment: .center)
