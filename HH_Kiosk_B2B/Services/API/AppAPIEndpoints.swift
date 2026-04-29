@@ -6,11 +6,11 @@ enum AppAPIEndpoints {
     }
 
     static var saveKioskHealth: URL {
-        appURL(path: "/save-kiosk-health/")
+        appURL(path: "/save-ACO-kiosk-health/")
     }
 
     static var emailResults: URL {
-        appURL(path: "/kiosk-email/")
+        appURL(path: "/ACO-kiosk-email/")
     }
 
     static func currentWeather(lat: Double, lon: Double) -> URL {

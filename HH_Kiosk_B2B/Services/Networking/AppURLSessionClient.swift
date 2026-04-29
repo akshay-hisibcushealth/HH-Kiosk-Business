@@ -17,6 +17,12 @@ enum AppAPIError: LocalizedError {
     }
 }
 
+enum APIEndpointLogger {
+    static func log(method: String, url: URL) {
+        print("API Endpoint: \(method.uppercased()) \(url.absoluteString)")
+    }
+}
+
 protocol AppURLSessionClientProtocol {
     func get<T: Decodable>(_ type: T.Type, from url: URL) async throws -> T
     func send<Body: Encodable>(_ body: Body, to url: URL, method: String) async throws
@@ -43,6 +49,7 @@ struct AppURLSessionClient: AppURLSessionClientProtocol {
     }
 
     func get<T: Decodable>(_ type: T.Type, from url: URL) async throws -> T {
+        APIEndpointLogger.log(method: "GET", url: url)
         let (data, response) = try await session.data(from: url)
         try validate(response: response, data: data)
         return try decoder.decode(type, from: data)
@@ -54,6 +61,7 @@ struct AppURLSessionClient: AppURLSessionClientProtocol {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try encoder.encode(body)
 
+        APIEndpointLogger.log(method: method, url: url)
         let (data, response) = try await session.data(for: request)
         try validate(response: response, data: data)
     }

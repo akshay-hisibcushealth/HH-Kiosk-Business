@@ -118,6 +118,9 @@ public class WebService: WebServiceProtocol {
             
             self.networkActivity.increment()
             
+            if let url = request.url {
+                APIEndpointLogger.log(method: request.httpMethod ?? endpoint.httpMethod.rawValue, url: url)
+            }
             let task = self.urlSession.dataTask(with: request) { (data, response, error) in
                 self.networkActivity.decrement()
                 

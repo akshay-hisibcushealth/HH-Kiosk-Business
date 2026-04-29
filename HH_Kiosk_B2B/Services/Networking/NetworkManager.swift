@@ -5,11 +5,12 @@ class NetworkManager {
     private init() {}
     
     func fetchDashboardData(completion: @escaping (Result<APIResponse, Error>) -> Void) {
-        guard let url = URL(string: "\(AppConfig.baseURL)/kiosk-data") else {
+        guard let url = URL(string: "\(AppConfig.baseURL)/aco/kiosk-data/") else {
             completion(.failure(NetworkError.invalidURL))
             return
         }
         
+        APIEndpointLogger.log(method: "GET", url: url)
         URLSession.shared.dataTask(with: url) { data, _, error in
             if let error = error {
                 completion(.failure(error))
@@ -36,6 +37,7 @@ class NetworkManager {
             return
         }
         
+        APIEndpointLogger.log(method: "GET", url: url)
         URLSession.shared.dataTask(with: url) { data, _, error in
             if let error = error {
                 completion(.failure(error))
