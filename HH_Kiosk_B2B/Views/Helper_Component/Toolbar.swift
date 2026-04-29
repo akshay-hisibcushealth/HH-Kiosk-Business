@@ -33,9 +33,9 @@ struct Toolbar: View {
 struct ResultToolbar: View {
     var body: some View {
         ZStack {
-            BrandedCompanyLogoView()
-
             HStack {
+                BrandedCompanyLogoView()
+
                 Spacer()
 
                 Image(AppIconNames.Asset.poweredByHHLogo)
