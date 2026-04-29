@@ -509,12 +509,10 @@ private struct ResultGuideModal: View {
                     .frame(height: cardHeight)
                     .background(Color(AppColors.white))
                     .clipShape(RoundedRectangle(cornerRadius: 22.r, style: .continuous))
-                    .overlay(alignment: .bottom) {
-                        Capsule(style: .continuous)
+                    .background(alignment: .bottom) {
+                        RoundedRectangle(cornerRadius: 22.r, style: .continuous)
                             .fill(Color(AppColors.primaryActionOrange))
-                            .frame(height: 5.h)
-                            .padding(.horizontal, 10.w)
-                            .padding(.bottom, 1.h)
+                            .offset(y: 10.h)
                     }
                     .shadow(color: Color(AppColors.black).opacity(0.18), radius: 24, x: 0, y: 16)
 
