@@ -9,6 +9,7 @@
 import Foundation
 
 struct StoredUser {
+    let email: String
     let height: Int
     let weight: Int
     let age: Int
@@ -17,12 +18,14 @@ struct StoredUser {
 
 struct LocalUserStorage {
 
+    private static let emailKey = "user_email"
     private static let heightKey = "user_height"
     private static let weightKey = "user_weight"
     private static let ageKey = "user_age"
     private static let genderKey = "user_gender"
 
     static func saveUser(
+        email: String,
         height: Int,
         weight: Int,
         age: Int,
@@ -31,6 +34,7 @@ struct LocalUserStorage {
 
         let defaults = UserDefaults.standard
 
+        defaults.set(email, forKey: emailKey)
         defaults.set(height, forKey: heightKey)
         defaults.set(weight, forKey: weightKey)
         defaults.set(age, forKey: ageKey)
@@ -42,6 +46,7 @@ struct LocalUserStorage {
     static func clearUser() {
         let defaults = UserDefaults.standard
 
+        defaults.removeObject(forKey: emailKey)
         defaults.removeObject(forKey: heightKey)
         defaults.removeObject(forKey: weightKey)
         defaults.removeObject(forKey: ageKey)
@@ -50,11 +55,13 @@ struct LocalUserStorage {
 
     static func loadUser() -> StoredUser? {
         let defaults = UserDefaults.standard
-        guard let gender = defaults.string(forKey: genderKey) else {
+        guard let email = defaults.string(forKey: emailKey),
+              let gender = defaults.string(forKey: genderKey) else {
             return nil
         }
 
         return StoredUser(
+            email: email,
             height: defaults.integer(forKey: heightKey),
             weight: defaults.integer(forKey: weightKey),
             age: defaults.integer(forKey: ageKey),

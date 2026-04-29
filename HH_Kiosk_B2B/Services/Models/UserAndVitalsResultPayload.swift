@@ -10,6 +10,7 @@
 import Foundation
 
 struct VitalsResultPayload: Codable {
+    let email: String
     let demographic: Demographic
     let data: [String: ResultEntry]
 }

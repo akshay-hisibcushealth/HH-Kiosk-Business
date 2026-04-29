@@ -6,6 +6,7 @@ struct PhysicalAttributesScreen: View {
     private let validAgeRange = 13...120
     
     private enum DeveloperAutofill {
+        static let email = "akshay@hibiscushealth.com"
         static let heightFeet = 5
         static let heightInches = 11
         static let weightLbs = 185
@@ -21,6 +22,7 @@ struct PhysicalAttributesScreen: View {
     @State private var weight: Int? = nil   // Make optional
     @State private var age: Int? = nil      // Make optional
     @State private var gender: String = ""  // Empty initially
+    @State private var email: String? = nil
     @State private var showSettings = false
     @State private var refreshTrigger = false
 
@@ -107,6 +109,10 @@ struct PhysicalAttributesScreen: View {
                 // Form sections
                 HStack(spacing: 42.w) {
                     VStack(spacing: 24.h) {
+                        HStack {
+                            ProfileEmailSection(email: $email)
+                        }
+
                         HStack {
                             ProfileHeightSection(selectedHeight: $height)
                             ProfileWeightSection(selectedWeight: $weight)
@@ -227,6 +233,12 @@ struct PhysicalAttributesScreen: View {
     private func validateInputs() -> Bool {
 
         switch true {
+        case email == nil || email!.isEmpty:
+            validationMessage = PhysicalAttributesScreenStrings.Validation.missingEmail
+
+        case !isValidEmail(email!):
+            validationMessage = PhysicalAttributesScreenStrings.Validation.invalidEmail
+
         case height == nil:
             validationMessage = PhysicalAttributesScreenStrings.Validation.missingHeight
 
@@ -252,6 +264,12 @@ struct PhysicalAttributesScreen: View {
         showValidationAlert = true
         return false
     }
+
+    private func isValidEmail(_ email: String) -> Bool {
+        let emailRegex = #"^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$"#
+        let predicate = NSPredicate(format: "SELF MATCHES[c] %@", emailRegex)
+        return predicate.evaluate(with: email)
+    }
     
     private func proceedToScan() {
         isLoading = true
@@ -259,6 +277,7 @@ struct PhysicalAttributesScreen: View {
 
         // Save user locally
         LocalUserStorage.saveUser(
+            email: email!,
             height: height!,
             weight: weight!,
             age: age!,
@@ -289,6 +308,7 @@ struct PhysicalAttributesScreen: View {
     }
     
     private func applyDeveloperAutofill() {
+        email = DeveloperAutofill.email
         height = Self.heightInCentimeters(feet: DeveloperAutofill.heightFeet, inches: DeveloperAutofill.heightInches)
         weight = Int(Double(DeveloperAutofill.weightLbs) / 2.20462)
         age = DeveloperAutofill.age

@@ -53,6 +53,8 @@ enum PhysicalAttributesScreenStrings {
     static let demoURL = "https://drive.google.com/file/d/1dPJs1A6aptEh3yTCVxR5BUlRfyLWa3rL/view?usp=sharing"
 
     enum Validation {
+        static let missingEmail = "Please enter your email."
+        static let invalidEmail = "Please enter a valid email."
         static let missingHeight = "Please select your height."
         static let missingWeight = "Weight cannot be empty."
         static let invalidWeight = "Weight cannot be less than 75 lbs."
@@ -62,6 +64,9 @@ enum PhysicalAttributesScreenStrings {
     }
 
     enum Form {
+        static let emailLabel = "Email"
+        static let emailPlaceholder = "Enter email"
+        static let emailInlineError = "Enter a valid email address"
         static let ageLabel = "Age"
         static let agePlaceholder = "Year"
         static let heightLabel = "Height"

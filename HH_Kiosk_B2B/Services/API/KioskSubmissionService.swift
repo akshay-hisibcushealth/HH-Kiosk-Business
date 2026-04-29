@@ -28,6 +28,7 @@ struct KioskSubmissionService: KioskSubmissionServiceProtocol {
         }
 
         let payload = VitalsResultPayload(
+            email: user.email,
             demographic: Demographic(
                 age: user.age,
                 height: user.height,
