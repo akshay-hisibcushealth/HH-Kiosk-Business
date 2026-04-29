@@ -157,23 +157,22 @@ enum ResultScreenStrings {
 
             Earlier risk identification can support shared savings, quality performance, CCM-related economics, preventive care revenue, and better performance under value-based contracts.
             """)
-            emphasize("highlights key areas", in: &text)
+            emphasize("sample member-facing report", in: &text)
             return text
         }
 
         static var secondBody: AttributedString {
             var text = AttributedString("""
-            We can also send the backend data file of the scan's outputs at a particular cadence into your EMR system, complementing your current workflows and reducing clinical burden.
+            We can also send the backend data file of the scan's outputs on a regular cadence directly into your EMR system, complementing your existing workflows and reducing clinical burden.
 
-            [COPY ADD: ACO can decide if they want the report to go to patient directly, just copy to ACO, or backend data file.]
+            As an ACO, you can choose whether the report is sent directly to the patient, shared only with your care team, or delivered as a backend data file to your EMR.
             """)
-            emphasize("[COPY ADD: ACO can decide if they want the report to go to patient directly, just copy to ACO, or backend data file.]", in: &text)
             return text
         }
 
         private static func emphasize(_ phrase: String, in text: inout AttributedString) {
             guard let range = text.range(of: phrase) else { return }
-            text[range].font = .system(size: 18, weight: .bold)
+            text[range].font = .system(size: 24.sp, weight: .bold)
         }
     }
 

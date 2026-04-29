@@ -435,8 +435,8 @@ private struct ResultGuideModal: View {
     let onNext: () -> Void
     let onClose: () -> Void
     
-    private let cardWidth = 625.w
-    private let cardHeight = 600.h
+    private let cardWidth = 700.w
+    private let cardHeight = 700.h
 
     var body: some View {
         GeometryReader { proxy in
@@ -458,14 +458,14 @@ private struct ResultGuideModal: View {
                                 .foregroundColor(Color(AppColors.error))
                         }
 
-                        buildBoldText(content.title, 21.sp, color: Color(AppColors.primary))
+                        buildBoldText(content.title, 32.sp, color: Color(AppColors.primary))
                             .padding(.top, 26.h)
 
                         Text(content.body)
-                            .font(.system(size: 15.sp))
+                            .font(.system(size: 24.sp))
                             .foregroundColor(Color(AppColors.bodyText))
                             .lineSpacing(7.h)
-                            .padding(.top, 12.h)
+                            .padding(.top, 32.h)
                             .frame(maxWidth: .infinity, alignment: .leading)
 
                         Spacer(minLength: 20.h)
@@ -510,10 +510,11 @@ private struct ResultGuideModal: View {
                     .background(Color(AppColors.white))
                     .clipShape(RoundedRectangle(cornerRadius: 22.r, style: .continuous))
                     .overlay(alignment: .bottom) {
-                        Rectangle()
+                        Capsule(style: .continuous)
                             .fill(Color(AppColors.primaryActionOrange))
-                            .frame(height: 6.h)
-                            .clipShape(RoundedCorner(radius: 22.r, corners: [.bottomLeft, .bottomRight]))
+                            .frame(height: 5.h)
+                            .padding(.horizontal, 10.w)
+                            .padding(.bottom, 1.h)
                     }
                     .shadow(color: Color(AppColors.black).opacity(0.18), radius: 24, x: 0, y: 16)
 
