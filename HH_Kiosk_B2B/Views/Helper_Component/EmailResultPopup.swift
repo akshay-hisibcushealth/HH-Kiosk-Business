@@ -16,10 +16,12 @@ struct EmailResultPopup: View {
 
     init(
         results: [String: MeasurementResults.SignalResult],
+        initialEmail: String? = LocalUserStorage.loadUser()?.email,
         submissionService: KioskSubmissionServiceProtocol = KioskSubmissionService()
     ) {
         self.results = results
         self.submissionService = submissionService
+        _email = State(initialValue: initialEmail ?? "")
     }
 
     private var isEmailValid: Bool {

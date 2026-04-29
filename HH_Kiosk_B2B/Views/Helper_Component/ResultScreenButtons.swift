@@ -45,11 +45,14 @@ struct ResultScreenButtons: View {
             }
 
             HStack(spacing: 8.w) {
+                Spacer()
                 Image(systemName: AppIconNames.Symbol.lockShield)
                     .foregroundColor(Color(AppColors.blue))
                 Text(ResultScreenStrings.Actions.secureAndPrivate)
                     .font(.system(size: 16.sp, weight: .medium))
                     .foregroundColor(Color(AppColors.blue))
+                Spacer()
+
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }

@@ -123,7 +123,7 @@ enum ResultScreenStrings {
 
     enum Actions {
         static let closeResult = "Close result"
-        static let emailMyResults = "Email my results"
+        static let emailMyResults = "Mail Results"
         static let secureAndPrivate = "Secure and Private"
         static let print = "Print"
         static let endSession = "End Session"
