@@ -39,7 +39,7 @@ struct EmailResultPopup: View {
                 .ignoresSafeArea()
 
             ZStack(alignment: .topTrailing) {
-                if !isEmailSent {
+                if !isEmailSent && !isLoading {
                     Button(action: { dismiss() }) {
                         Image(systemName: AppIconNames.Symbol.xmark)
                             .font(.system(size: 36.sp, weight: .light))
@@ -74,17 +74,17 @@ struct EmailResultPopup: View {
     }
 
     private var emailSentView: some View {
-        VStack(spacing: 22.h) {
+        VStack(spacing: 32.h) {
             Image(systemName: AppIconNames.Symbol.envelopeFill)
-                .font(.system(size: 72.sp, weight: .semibold))
+                .font(.system(size: 172.sp, weight: .semibold))
                 .foregroundColor(Color(AppColors.ctaGreen))
 
             Text(ResultScreenStrings.EmailPopup.inboxTitle)
-                .font(.system(size: 32.sp, weight: .bold))
+                .font(.system(size: 42.sp, weight: .bold))
                 .foregroundColor(Color(AppColors.black))
 
             Text(ResultScreenStrings.EmailPopup.inboxMessage)
-                .font(.system(size: 20.sp, weight: .medium))
+                .font(.system(size: 32.sp, weight: .medium))
                 .foregroundColor(Color(AppColors.black))
                 .multilineTextAlignment(.center)
 
