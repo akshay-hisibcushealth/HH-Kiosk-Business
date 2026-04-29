@@ -72,7 +72,7 @@ struct EmailResultPopup: View {
             .background(Color(AppColors.white))
             .clipShape(RoundedRectangle(cornerRadius: 22.r, style: .continuous))
         }
-        .presentationBackground(Color(AppColors.primary).opacity(0.65))
+        .presentationBackground(Color.clear)
     }
 
     private var emailSentView: some View {
