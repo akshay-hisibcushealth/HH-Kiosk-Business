@@ -7,6 +7,7 @@ struct HomeScreen: View {
     @StateObject private var viewModel = WeatherViewModel()
     @StateObject private var locationManager = LocationManager()
     @StateObject private var faceManager = FaceScanManager()
+    @StateObject private var screenSaverPreloader = ScreenSaverViewModel()
     
     // Toolbar time state
     @State private var currentTime: String = HomeScreen.getCurrentTime()

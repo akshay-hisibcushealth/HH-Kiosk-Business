@@ -31,7 +31,7 @@ class NetworkManager {
     }
     
     func fetchScreenSaverData(completion: @escaping (Result<[ScreenSaverItem], Error>) -> Void) {
-        guard let url = URL(string: "\(AppConfig.baseURL)/kiosk-screensaver/") else {
+        guard let url = URL(string: "\(AppConfig.baseURL)/aco/screensaver/") else {
             completion(.failure(NetworkError.invalidURL))
             return
         }

@@ -63,7 +63,7 @@ struct ScreenSaver: View {
                             ) { image in
                                 image
                                     .resizable()
-                                    .scaledToFill()
+                                    .scaledToFit()
                             }
                             .padding(.trailing, 12.w)
                             .padding(.bottom, 12.w)
