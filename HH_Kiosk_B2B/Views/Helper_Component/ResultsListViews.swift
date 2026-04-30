@@ -85,9 +85,11 @@ struct ResultRow: View {
 
     private var heartRateMeterBarColors: [Color] {
         [
-            Color(AppColors.meterBarYellow),
             Color(AppColors.meterBarGreen),
-            Color(AppColors.meterBarYellow)
+            Color(AppColors.meterBarLime),
+            Color(AppColors.meterBarYellow),
+            Color(AppColors.meterBarCoral),
+            Color(AppColors.meterBarRed)
         ]
     }
 
@@ -214,10 +216,10 @@ fileprivate func riskBucket(for key: String, value: Double) -> String {
         if value <= 20 { return "moderate" }
         return "high"
     case "HR_BPM":
-        if value <= 60 { return "moderate" }
-        if value <= 100 { return "normal" }
-        if value <= 120 { return "slightly_high" }
-        if value <= 140 { return "high" }
+        if value <= 75 { return "normal" }
+        if value <= 89 { return "moderate" }
+        if value <= 100 { return "slightly_high" }
+        if value <= 120 { return "high" }
         return "very_high"
     case "BP_SYSTOLIC":
         if value <= 90 { return "low" }
@@ -296,7 +298,7 @@ fileprivate func meterStops(for key: String) -> [Double] {
     case "BP_CVD": return [0, 5, 7.25, 10, 20, 100]
     case "BP_HEART_ATTACK": return [0, 1.65, 2.39, 3.3, 6.6, 33]
     case "BP_STROKE": return [0, 3.3, 4.79, 6.6, 13.2, 66]
-    case "HR_BPM": return [0, 60, 100, 140]
+    case "HR_BPM": return [0, 75, 89, 100, 120, 180]
     case "BR_BPM": return [0, 12, 16, 21, 25, 35]
     case "BP_SYSTOLIC": return [0, 90, 120, 130, 140, 180]
     case "BP_DIASTOLIC": return [0, 60, 70, 80, 90, 120]
