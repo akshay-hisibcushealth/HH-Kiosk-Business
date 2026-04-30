@@ -13,7 +13,7 @@ struct ResultsGrid: View {
             ForEach(model.resultsArray, id: \.key) { pair in
                 ResultCardView(
                     title: displayTitle(for: pair.key),
-                    valueText: formattedValue(pair.value.value),
+                    valueText: formattedValue(pair.value.value, for: pair.key),
                     unit: unitForMetric(pair.key)
                 )
                 .frame(maxWidth: .infinity, minHeight: 100)
@@ -36,7 +36,11 @@ struct ResultsGrid: View {
         }
     }
 
-    private func formattedValue(_ value: Double) -> String {
+    private func formattedValue(_ value: Double, for key: String) -> String {
+        if key == "HR_BPM" {
+            return String(format: "%.0f", floor(value))
+        }
+
         if value.truncatingRemainder(dividingBy: 1) == 0 {
             return String(format: "%.0f", value)
         } else {

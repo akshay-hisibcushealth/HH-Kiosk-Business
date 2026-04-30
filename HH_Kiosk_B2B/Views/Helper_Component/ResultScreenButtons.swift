@@ -64,6 +64,24 @@ struct ResultScreenButtons: View {
         .padding(.top, 24.h)
         .padding(.horizontal, 30.w)
         .padding(.bottom, 18.h)
+        .background(
+            Color(AppColors.white)
+                .shadow(color: Color(AppColors.black).opacity(0.18), radius: 14, x: 0, y: -4)
+        )
+        .overlay(alignment: .top) {
+            LinearGradient(
+                colors: [
+                    Color.clear,
+                    Color(AppColors.black).opacity(0.08),
+                    Color(AppColors.black).opacity(0.18)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .frame(height: 28.h)
+            .offset(y: -28.h)
+            .allowsHitTesting(false)
+        }
     }
 
     private func footerButton(title: String, image: Image, action: @escaping () -> Void) -> some View {
