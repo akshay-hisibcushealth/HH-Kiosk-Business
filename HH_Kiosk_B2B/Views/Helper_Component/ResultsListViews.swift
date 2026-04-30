@@ -59,7 +59,7 @@ struct ResultRow: View {
         case "BMI_CALC", "WAIST_TO_HEIGHT":
             return [Color(AppColors.gaugePaleYellow), Color(AppColors.gaugeSoftGreen), Color(AppColors.gaugePaleYellow), Color(AppColors.gaugeSoftCoral), Color(AppColors.gaugeCoral)]
         default:
-            return [Color(AppColors.riskLow), Color(AppColors.ctaGreen), Color(AppColors.riskWarning), Color(AppColors.riskMedium), Color(AppColors.riskHigh)]
+            return [Color(AppColors.riskLow), Color(AppColors.accent), Color(AppColors.riskWarning), Color(AppColors.riskMedium), Color(AppColors.riskHigh)]
         }
     }
 

@@ -5,14 +5,14 @@ struct ScreenSaver: View {
     @State private var refreshTrigger = false
 
     private enum ScreenSaverAssetTitle {
-        static let qrImage = "kiosk-qr.jpg"
+        static let qrImage = "qr"
     }
 
     private var carouselImages: [String] {
         guard let data = appState.screenSaverData else { return [] }
 
         return data.carouselImages
-            .filter { $0.title.lowercased() != ScreenSaverAssetTitle.qrImage }
+            .filter { !$0.title.lowercased().contains(ScreenSaverAssetTitle.qrImage) }
             .sorted { lhs, rhs in
                 if lhs.order == rhs.order {
                     return lhs.title.localizedCaseInsensitiveCompare(rhs.title) == .orderedAscending
@@ -25,7 +25,7 @@ struct ScreenSaver: View {
 
     private var qrImageURL: String? {
         appState.screenSaverData?.carouselImages.first(where: {
-            $0.title.lowercased() == ScreenSaverAssetTitle.qrImage
+            $0.title.lowercased().contains(ScreenSaverAssetTitle.qrImage)
         })?.imageURL
     }
 
@@ -121,9 +121,8 @@ struct ScreenSaver: View {
             }
         }
         .task {
-            if appState.screenSaverData == nil,
-               let clientID = LocalUserStorage.loadClientID() {
-                await appState.warmScreenSaverData(for: clientID)
+            if appState.screenSaverData == nil {
+                await appState.warmScreenSaverData()
             }
         }
     }

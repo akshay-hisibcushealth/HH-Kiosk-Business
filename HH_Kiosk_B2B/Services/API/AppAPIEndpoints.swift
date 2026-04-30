@@ -5,33 +5,16 @@ enum AppAPIEndpoints {
         appURL(path: "/kiosk-data")
     }
 
-
-    static func screenSaverData(code: String) -> URL {
-        appURL(
-            path: "/kiosk-custom-branding-screensaver/",
-            queryItems: [URLQueryItem(name: "code", value: code)]
-        )
+    static var screenSaverData: URL {
+        appURL(path: "/kiosk-screensaver/")
     }
+
     static var emailResults: URL {
         appURL(path: "/kiosk-email/")
     }
 
     static var saveKioskHealth: URL {
         appURL(path: "/save-kiosk-health/")
-    }
-
-    static func validateClientCode(_ code: String) -> URL {
-        appURL(
-            path: "/kiosk-custom-branding-validate/",
-            queryItems: [URLQueryItem(name: "code", value: code)]
-        )
-    }
-
-    static func kioskBranding(code: String) -> URL {
-        appURL(
-            path: "/kiosk-custom-branding/",
-            queryItems: [URLQueryItem(name: "code", value: code)]
-        )
     }
 
     static func currentWeather(lat: Double, lon: Double) -> URL {
@@ -71,6 +54,4 @@ enum AppAPIEndpoints {
         return components.url!
     }
 }
-
-
 

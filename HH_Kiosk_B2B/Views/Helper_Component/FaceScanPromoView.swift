@@ -11,9 +11,9 @@ struct FaceScanPromoView: View {
         HStack(alignment: .center) {
             VStack(alignment: .leading) {
                 Text(HomeScreenStrings.Promo.title)
-                    .foregroundColor(Color(AppColors.primary))
+                    .foregroundColor(Color(AppColors.white))
                     .font(.system(size: 32.sp, weight: .semibold))
-                buildSemiBoldText(HomeScreenStrings.Promo.subtitle,36.sp,color: Color(AppColors.primary))
+                buildSemiBoldText(HomeScreenStrings.Promo.subtitle,36.sp,color: Color(AppColors.white))
 
 
             }
@@ -31,11 +31,11 @@ struct FaceScanPromoView: View {
                 }) {
                     HStack(spacing: 8) {
                         Image(systemName: AppIconNames.Symbol.playCircleFill)
-                            .foregroundColor(Color(AppColors.ctaContent))
+                            .foregroundColor(Color(AppColors.white))
                             .font(.title3)
                         Text(HomeScreenStrings.Promo.demoButtonTitle)
                             .font(.system(size: 25.sp, weight: .semibold))
-                            .foregroundColor(Color(AppColors.ctaContent))
+                            .foregroundColor(Color(AppColors.white))
                             .underline()
                     }
                 }
@@ -44,7 +44,7 @@ struct FaceScanPromoView: View {
         }
         .padding()
         .frame(height: 240.h)
-        .background(Color(AppColors.ctaGreen))
+        .background(Color(AppColors.accent))
         .clipShape(RoundedRectangle(cornerRadius: 24.r))
         .sheet(isPresented: $showWebView) {
             WebViewSheetView(url: URL(string: HomeScreenStrings.Promo.demoURL)!)

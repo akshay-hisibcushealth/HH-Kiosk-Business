@@ -1,16 +1,5 @@
 import Foundation
 
-enum ClientIDScreenStrings {
-    static let title = "Hibiscus Health Wellness Kiosk"
-    static let subtitle = "Take a few minutes to check in on your health."
-    static let cardTitle = "Client Login"
-    static let fieldLabel = "Company Client ID"
-    static let fieldPlaceholder = "Enter 8-digit code"
-    static let actionButton = "Start Your Health Journey"
-    static let formatValidationMessage = "Please enter a valid 8-character client ID."
-    static let fallbackInvalidCodeMessage = "Invalid company code"
-}
-
 enum ArticleScreenStrings {
     static let imageLoading = "Loading Image..."
     static let body = """

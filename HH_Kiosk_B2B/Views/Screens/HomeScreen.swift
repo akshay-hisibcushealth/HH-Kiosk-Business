@@ -48,11 +48,11 @@ struct HomeScreen: View {
                         .frame(height: 650.h)
                         .padding(.horizontal, 24.w)
 
-//                        Image(AppIconNames.Asset.customizedImage)
-//                            .resizable()
-//                            .scaledToFill()
-//                            .frame(width: 700.w,height: 80.h)
-//                            .padding(.top,48.h)
+                        Image(AppIconNames.Asset.customizedImage)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 700.w,height: 80.h)
+                            .padding(.top,48.h)
                     }
                 }
                 .frame(maxHeight: .infinity, alignment: .top)
@@ -78,9 +78,7 @@ struct HomeScreen: View {
                 startInactivityTimer()
             }
             .task {
-                if let clientID = LocalUserStorage.loadClientID() {
-                    await appState.warmScreenSaverData(for: clientID, forceRefresh: true)
-                }
+                await appState.warmScreenSaverData(forceRefresh: true)
             }
             .onChange(of: appState.isScreenSaverSuppressed) { _, isSuppressed in
                 if isSuppressed {
@@ -148,18 +146,17 @@ struct HomeScreen: View {
     }
 }
 private struct WeatherContentView: View {
-    @EnvironmentObject private var appState: AppState
     @ObservedObject var viewModel: WeatherViewModel
 
     private var companyName: String {
-        appState.brandingData?.brandingInfo.companyName ?? HomeScreenStrings.Weather.companyName
+        HomeScreenStrings.Weather.companyName
     }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12.h) {
             HStack{
                 buildSemiBoldText(HomeScreenStrings.Weather.welcomePrefix, 36.sp)
-                buildSemiBoldText(companyName, 36.sp,color: Color(AppColors.primary))
+                buildSemiBoldText(companyName, 36.sp,color: Color(AppColors.accent))
                 buildSemiBoldText(HomeScreenStrings.Weather.kioskSuffix, 36.sp)
             }
             .padding(.leading,40.w)

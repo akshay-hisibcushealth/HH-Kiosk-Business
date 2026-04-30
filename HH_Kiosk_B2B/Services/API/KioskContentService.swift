@@ -2,7 +2,7 @@ import Foundation
 
 protocol KioskContentServiceProtocol {
     func fetchDashboardData() async throws -> APIResponse
-    func fetchScreenSaverData(code: String) async throws -> KioskBrandingScreenSaverData
+    func fetchScreenSaverData() async throws -> ScreenSaverData
 }
 
 struct KioskContentService: KioskContentServiceProtocol {
@@ -16,25 +16,25 @@ struct KioskContentService: KioskContentServiceProtocol {
         try await client.get(APIResponse.self, from: AppAPIEndpoints.dashboardData)
     }
 
-    func fetchScreenSaverData(code: String) async throws -> KioskBrandingScreenSaverData {
+    func fetchScreenSaverData() async throws -> ScreenSaverData {
         let response = try await client.get(
-            KioskScreenSaverResponse.self,
-            from: AppAPIEndpoints.screenSaverData(code: code)
+            ScreenSaverResponse.self,
+            from: AppAPIEndpoints.screenSaverData
         )
 
-        print(
-            """
-            [KioskContentService] Screen saver response received:
-            code=\(code)
-            welcomeText=\(response.screensaverData.welcomeText)
-            subtitle=\(response.screensaverData.subtitle)
-            actionButtonText=\(response.screensaverData.actionButtonText ?? "nil")
-            carouselImageCount=\(response.screensaverData.carouselImages.count)
-            imageTitles=\(response.screensaverData.carouselImages.map(\.title))
-            imageURLs=\(response.screensaverData.carouselImages.map(\.imageURL))
-            """
-        )
+        let carouselImages = response.Data.map { item in
+            ScreenSaverCarouselImage(
+                imageURL: item.image,
+                title: item.title,
+                order: item.id
+            )
+        }
 
-        return response.screensaverData
+        return ScreenSaverData(
+            welcomeText: ScreenSaverStrings.title,
+            subtitle: ScreenSaverStrings.subtitle,
+            actionButtonText: ScreenSaverStrings.actionButton,
+            carouselImages: carouselImages
+        )
     }
 }

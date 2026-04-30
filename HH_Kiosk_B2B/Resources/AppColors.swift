@@ -1,68 +1,18 @@
 import UIKit
 
 struct AppColors {
-    private static let defaultPrimary = UIColor(hex: "#142A6D")
-    private static let defaultCTA = UIColor(hex: "#B8EB5E")
-    private static let defaultCTAContent = UIColor.white
-    private static let defaultHighlightedDayBackground = UIColor(hex: "#EE4B0E")
-    private static let defaultScheduleBackground = UIColor(hex: "#1ACEA99B")
-    private static var primaryOverrideHex: String?
-    private static var accentOverrideHex: String?
-    private static var ctaContentOverrideHex: String?
-    private static var highlightedDayBackgroundOverrideHex: String?
-    private static var scheduleBackgroundOverrideHex: String?
-
-    static var primary: UIColor {
-        guard let primaryOverrideHex,
-              isValidHexColor(primaryOverrideHex) else {
-            return defaultPrimary
-        }
-
-        return UIColor(hex: primaryOverrideHex)
-    }
-
-    static var ctaGreen: UIColor {
-        guard let accentOverrideHex,
-              isValidHexColor(accentOverrideHex) else {
-            return defaultCTA
-        }
-
-        return UIColor(hex: accentOverrideHex)
-    }
-
-    static var ctaContent: UIColor {
-        guard let ctaContentOverrideHex,
-              isValidHexColor(ctaContentOverrideHex) else {
-            return defaultCTAContent
-        }
-
-        return UIColor(hex: ctaContentOverrideHex)
-    }
-
-    static var highlightedDayBackground: UIColor {
-        guard let highlightedDayBackgroundOverrideHex,
-              isValidHexColor(highlightedDayBackgroundOverrideHex) else {
-            return defaultHighlightedDayBackground
-        }
-
-        return UIColor(hex: highlightedDayBackgroundOverrideHex)
-    }
-
-    static var scheduleBackground: UIColor {
-        guard let scheduleBackgroundOverrideHex,
-              isValidHexColor(scheduleBackgroundOverrideHex) else {
-            return defaultScheduleBackground
-        }
-
-        return UIColor(hex: scheduleBackgroundOverrideHex)
-    }
+    static let primary = UIColor(hex: "#142A6D")
+    static let accent = UIColor(hex: "#DA400D")
+    static let ctaContent = UIColor.white
+    static let ctaGreen = UIColor(hex: "#B8EB5E")
+    static let highlightedDayBackground = UIColor(hex: "#EE4B0E")
+    static let scheduleBackground = UIColor(hex: "#FBDBCF")
 
     static let secondary = UIColor(hex: "#F2C800")
     static let weatherBack = UIColor(hex: "#2EAEDD")
     static let grayB3 = UIColor(red: 179 / 255, green: 179 / 255, blue: 179 / 255, alpha: 0.09)
 
     static let background = UIColor(white: 0.95, alpha: 1.0)
-    static let accent = UIColor.systemOrange
     static let error = UIColor.systemRed
     static let white = UIColor.white
     static let black = UIColor.black
@@ -97,17 +47,11 @@ struct AppColors {
     static let toolbarLogoBackground = UIColor(hex: "#D7F3FF")
     static let infoPanelBackground = UIColor(hex: "#DFEEF7")
     static let resultInfoBackground = UIColor(hex: "#B8E2F5")
-    static let resultAlertBackground = UIColor(hex: "#FFE7DE")
+    static let resultAlertBackground = UIColor(hex: "#FBDBCF")
     static let resultAlertBorder = UIColor(hex: "#A92E00")
-    static let resultAlertText = UIColor(hex: "#8A2600")
+    static let resultAlertText = UIColor(hex: "#992F0C")
     static let mutedControlGray = UIColor(hex: "#C4C4C4")
     static let primaryActionOrange = UIColor(hex: "#EE4B0E")
-    static let clientIDDialogBackground = UIColor(hex: "#030F33")
-    static let clientIDFieldBackground = UIColor(hex: "#2C3868")
-    static let clientIDFieldBorder = UIColor(hex: "#9AA5CF")
-    static let clientIDFieldPlaceholder = UIColor(hex: "#A6B0D1")
-    static let clientIDValidationText = UIColor(hex: "#FFB4A0")
-
     static let gaugeGreen = UIColor(hex: "#5EC54C")
     static let gaugeLime = UIColor(hex: "#C2EA73")
     static let gaugeYellow = UIColor(hex: "#F7CD6C")
@@ -135,28 +79,4 @@ struct AppColors {
     static let tagRiskHigh = "#B32D0C"
     static let tagRiskWarning = "#FFCB59"
 
-    static func applyPrimaryOverride(hex: String?) {
-        primaryOverrideHex = hex
-    }
-
-    static func applyAccentOverride(hex: String?) {
-        accentOverrideHex = hex
-    }
-
-    static func applyCTAContentOverride(hex: String?) {
-        ctaContentOverrideHex = hex
-    }
-
-    static func applyHighlightedDayBackgroundOverride(hex: String?) {
-        highlightedDayBackgroundOverrideHex = hex
-    }
-
-    static func applyScheduleBackgroundOverride(hex: String?) {
-        scheduleBackgroundOverrideHex = hex
-    }
-
-    private static func isValidHexColor(_ hex: String) -> Bool {
-        let cleanedHex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
-        return cleanedHex.count == 6 || cleanedHex.count == 8
-    }
 }

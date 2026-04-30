@@ -10,7 +10,7 @@ import Foundation
 @MainActor
 class ScreenSaverViewModel: ObservableObject {
     private enum ScreenSaverAssetTitle {
-        static let qrImage = "kiosk-qr.jpg"
+        static let qrImage = "qr"
     }
 
     @Published var images: [String] = []
@@ -27,22 +27,17 @@ class ScreenSaverViewModel: ObservableObject {
     }
 
     func fetchScreenSaverData() {
-        guard let clientID = LocalUserStorage.loadClientID() else {
-            isLoading = false
-            return
-        }
-
         isLoading = true
 
         Task {
             do {
-                let data = try await contentService.fetchScreenSaverData(code: clientID)
+                let data = try await contentService.fetchScreenSaverData()
                 let qrAsset = data.carouselImages.first(where: { image in
-                    image.title.lowercased() == ScreenSaverAssetTitle.qrImage
+                    image.title.lowercased().contains(ScreenSaverAssetTitle.qrImage)
                 })
                 let carouselAssets = data.carouselImages
                     .filter { image in
-                        image.title.lowercased() != ScreenSaverAssetTitle.qrImage
+                        !image.title.lowercased().contains(ScreenSaverAssetTitle.qrImage)
                     }
                     .sorted(by: { lhs, rhs in
                         if lhs.order == rhs.order {
