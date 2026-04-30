@@ -85,8 +85,6 @@ public struct ResultScreen: View {
                 ResultScreenButtons(result: result, onDownloadPDF: {
                     exportToPDF()
                 },onPrint: {})
-                .background(Color(AppColors.white))
-                .shadow(radius: 4)
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .screenDidChangeBounds)) { _ in
