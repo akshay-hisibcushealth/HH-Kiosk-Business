@@ -267,8 +267,8 @@ enum ResultScreenStrings {
 
 enum ScreenSaverStrings {
     static let loading = "Loading..."
-    static let title = "Welcome to the Hibiscus Wellness Kiosk!"
-    static let subtitle = "30-second face scan that identifies patient/member risk\nbefore, during, and between visits."
+    static let title = "Welcome to the Hibiscus Health Kiosk!"
+    static let subtitle = "30-second face scan that identifies patient/member risk before, during, and between visits."
     static let actionButton = "Start Patient/Member Demo Here"
     static let qrPrompt = "Try on your smartphone"
 }
