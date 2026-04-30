@@ -46,7 +46,7 @@ enum HomeScreenStrings {
 enum PhysicalAttributesScreenStrings {
     static let title = "Tell us about yourself"
     static let subtitle = "We use these details to ensure your scan results are as accurate as possible."
-    static let privacyMessage = "We prioritize your privacy. Your information will NOT be stored during this process and will only be used for calculations."
+    static let privacyMessage = "We value your privacy. Your information will NOT be shared externally."
     static let watchQuickDemo = "Watch Demo"
     static let proceedToScan = "Proceed to Scan"
     static let alertDismiss = "OK"
