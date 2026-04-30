@@ -40,14 +40,16 @@ struct ResultRow: View {
     }
 
     private var indicatorColor: Color {
-        meterColor(for: metricKey, value: value, colors: gaugeColors)
+        meterBandColor(for: metricKey, value: value, colors: gaugeColors)
     }
 
     // Color logic from Web (getResultsToDownload.tsx)
     private var gaugeColors: [Color] {
         switch metricKey {
-        case "BP_CVD", "HBA1C_RISK_PROB", "HDLTC_RISK_PROB", "TG_RISK_PROB", "HR_BPM":
+        case "BP_CVD", "HBA1C_RISK_PROB", "HDLTC_RISK_PROB", "TG_RISK_PROB":
             return meterBarColors
+        case "HR_BPM":
+            return heartRateMeterBarColors
         case "BP_SYSTOLIC", "BP_DIASTOLIC":
             return bloodPressureMeterBarColors
         case "BR_BPM":
@@ -78,6 +80,14 @@ struct ResultRow: View {
             Color(AppColors.meterBarLime),
             Color(AppColors.meterBarYellow),
             Color(AppColors.meterBarRed)
+        ]
+    }
+
+    private var heartRateMeterBarColors: [Color] {
+        [
+            Color(AppColors.meterBarYellow),
+            Color(AppColors.meterBarGreen),
+            Color(AppColors.meterBarYellow)
         ]
     }
 
@@ -198,32 +208,33 @@ struct MeterBar: View {
 fileprivate func riskBucket(for key: String, value: Double) -> String {
     switch key {
     case "BP_CVD":
-        if value <= 5 { return "very_low" }
-        if value <= 7.25 { return "low" }
+        if value < 5 { return "very_low" }
+        if value < 7.25 { return "low" }
         if value < 10 { return "moderate_low" }
         if value < 20 { return "moderate" }
         return "high"
     case "HR_BPM":
-        if value < 60 { return "normal" }
-        if value < 73.3 { return "moderate" }
-        if value < 88 { return "slightly_high" }
-        if value < 100 { return "high" }
+        if value < 60 { return "moderate" }
+        if value < 100 { return "normal" }
+        if value < 120 { return "slightly_high" }
+        if value < 140 { return "high" }
         return "very_high"
     case "BP_SYSTOLIC":
         if value < 90 { return "low" }
-        if value < 120 { return "healthy" }
+        if value < 130 { return "healthy" }
         if value < 140 { return "slightly_high" }
         return "high"
     case "BP_DIASTOLIC":
         if value < 60 { return "low" }
+        if value < 70 { return "slightly_low" }
         if value < 80 { return "healthy" }
         if value < 90 { return "slightly_high" }
         return "high"
     case "HBA1C_RISK_PROB", "HDLTC_RISK_PROB", "TG_RISK_PROB":
-        if value <= 25 { return "very_low" }
-        if value <= 45 { return "low" }
-        if value <= 55 { return "moderate" }
-        if value <= 77.5 { return "high" }
+        if value < 25 { return "very_low" }
+        if value < 45 { return "low" }
+        if value < 55 { return "moderate" }
+        if value < 77.5 { return "high" }
         return "very_high"
     default:
         return "low"
@@ -277,20 +288,24 @@ fileprivate func descriptionText(for key: String) -> String {
 }
 
 fileprivate func meterFraction(for key: String, value: Double) -> Double {
+    scaleValueToRange(value, meterStops(for: key))
+}
+
+fileprivate func meterStops(for key: String) -> [Double] {
     switch key {
-    case "BP_CVD": return scaleValueToRange(value, [0, 5, 7.25, 10, 20, 100])
-    case "BP_HEART_ATTACK": return scaleValueToRange(value, [0, 1.65, 2.39, 3.3, 6.6, 33])
-    case "BP_STROKE": return scaleValueToRange(value, [0, 3.3, 4.79, 6.6, 13.2, 66])
-    case "HR_BPM": return scaleValueToRange(value, [0, 60, 73.3, 88, 100, 140])
-    case "BR_BPM": return scaleValueToRange(value, [0, 12, 16, 21, 25, 35])
-    case "BP_SYSTOLIC": return scaleValueToRange(value, [0, 90, 120, 130, 140, 180])
-    case "BP_DIASTOLIC": return scaleValueToRange(value, [0, 60, 70, 80, 90, 120])
-    case "HRV_SDNN": return scaleValueToRange(value, [0, 10.8, 16.4, 35.5, 49.9, 80])
-    case "BP_RPP": return scaleValueToRange(value, [0, 3.8, 3.9, 4.08, 4.18, 4.28])
-    case "BP_TAU": return scaleValueToRange(value, [0, 0.79, 1.12, 1.78, 2.11, 3])
-    case "BMI_CALC": return scaleValueToRange(value, [0, 18.5, 25, 30, 35, 60])
-    case "WAIST_TO_HEIGHT": return scaleValueToRange(value, [0, 43, 53, 58, 63, 75])
-    default: return scaleValueToRange(value, [0, 25, 45, 55, 77.5, 100])
+    case "BP_CVD": return [0, 5, 7.25, 10, 20, 100]
+    case "BP_HEART_ATTACK": return [0, 1.65, 2.39, 3.3, 6.6, 33]
+    case "BP_STROKE": return [0, 3.3, 4.79, 6.6, 13.2, 66]
+    case "HR_BPM": return [0, 60, 100, 140]
+    case "BR_BPM": return [0, 12, 16, 21, 25, 35]
+    case "BP_SYSTOLIC": return [0, 90, 120, 130, 140, 180]
+    case "BP_DIASTOLIC": return [0, 60, 70, 80, 90, 120]
+    case "HRV_SDNN": return [0, 10.8, 16.4, 35.5, 49.9, 80]
+    case "BP_RPP": return [0, 3.8, 3.9, 4.08, 4.18, 4.28]
+    case "BP_TAU": return [0, 0.79, 1.12, 1.78, 2.11, 3]
+    case "BMI_CALC": return [0, 18.5, 25, 30, 35, 60]
+    case "WAIST_TO_HEIGHT": return [0, 43, 53, 58, 63, 75]
+    default: return [0, 25, 45, 55, 77.5, 100]
     }
 }
 
@@ -320,6 +335,25 @@ fileprivate func meterColor(for key: String, value: Double, colors: [Color]) -> 
     let localFraction = CGFloat(scaled - Double(lowerIndex))
 
     return interpolateColor(from: colors[lowerIndex], to: colors[upperIndex], fraction: localFraction)
+}
+
+fileprivate func meterBandColor(for key: String, value: Double, colors: [Color]) -> Color {
+    guard !colors.isEmpty else { return Color(AppColors.riskLow) }
+    if colors.count == 1 { return colors[0] }
+
+    let stops = meterStops(for: key)
+    guard stops.count >= 2 else { return colors[0] }
+
+    if value < stops[0] { return colors[0] }
+
+    let segmentCount = stops.count - 1
+    for index in 0..<segmentCount {
+        if value >= stops[index] && value < stops[index + 1] {
+            return colors[min(index, colors.count - 1)]
+        }
+    }
+
+    return colors[min(segmentCount - 1, colors.count - 1)]
 }
 
 fileprivate func interpolateColor(from start: Color, to end: Color, fraction: CGFloat) -> Color {

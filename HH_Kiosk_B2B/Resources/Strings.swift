@@ -194,6 +194,7 @@ enum ResultScreenStrings {
             "Diastolic Blood Pressure": [
                 "healthy": "Your screening suggests your diastolic blood pressure is within a healthy range.",
                 "low": "Your screening suggests your diastolic blood pressure may be lower than the healthy range.",
+                "slightly_low": "Your screening suggests your diastolic blood pressure may be slightly lower the healthy range.",
                 "slightly_high": "Your screening suggests your diastolic blood pressure may be slightly above the healthy range.",
                 "high": "Your screening suggests your diastolic blood pressure may be significantly elevated."
             ],
