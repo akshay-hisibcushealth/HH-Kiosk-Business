@@ -68,6 +68,12 @@ struct AppColors {
     static let riskHigh = UIColor(hex: "#B32D0C")
     static let formBorder = UIColor(hex: "#B4CBED")
 
+    static let meterBarGreen = UIColor(hex: "#1DC833")
+    static let meterBarLime = UIColor(hex: "#B8EB5E")
+    static let meterBarYellow = UIColor(hex: "#FFCB59")
+    static let meterBarCoral = UIColor(hex: "#EF8F8C")
+    static let meterBarRed = UIColor(hex: "#B32D0C")
+
     static let tagRiskLow = "#1DC833"
     static let tagRiskMedium = "#FD895A"
     static let tagRiskHigh = "#B32D0C"

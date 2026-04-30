@@ -46,9 +46,11 @@ struct ResultRow: View {
     // Color logic from Web (getResultsToDownload.tsx)
     private var gaugeColors: [Color] {
         switch metricKey {
+        case "BP_CVD", "HBA1C_RISK_PROB", "HDLTC_RISK_PROB", "TG_RISK_PROB", "HR_BPM":
+            return meterBarColors
         case "BP_SYSTOLIC", "BP_DIASTOLIC":
-            return [Color(AppColors.riskWarning), Color(AppColors.riskLow), Color(AppColors.accent), Color(AppColors.riskWarning), Color(AppColors.riskHigh)]
-        case "HR_BPM", "BR_BPM":
+            return bloodPressureMeterBarColors
+        case "BR_BPM":
             return [Color(AppColors.riskWarning), Color(AppColors.riskLow), Color(AppColors.riskLow), Color(AppColors.riskLow), Color(AppColors.riskWarning)]
         case "HRV_SDNN", "BP_TAU":
             return [Color(AppColors.gaugeCoral), Color(AppColors.gaugeSoftCoral), Color(AppColors.gaugePaleYellow), Color(AppColors.gaugeSoftGreen), Color(AppColors.gaugeDeepGreen)]
@@ -57,6 +59,26 @@ struct ResultRow: View {
         default:
             return [Color(AppColors.riskLow), Color(AppColors.accent), Color(AppColors.riskWarning), Color(AppColors.riskMedium), Color(AppColors.riskHigh)]
         }
+    }
+
+    private var meterBarColors: [Color] {
+        [
+            Color(AppColors.meterBarGreen),
+            Color(AppColors.meterBarLime),
+            Color(AppColors.meterBarYellow),
+            Color(AppColors.meterBarCoral),
+            Color(AppColors.meterBarRed)
+        ]
+    }
+
+    private var bloodPressureMeterBarColors: [Color] {
+        [
+            Color(AppColors.meterBarYellow),
+            Color(AppColors.meterBarGreen),
+            Color(AppColors.meterBarLime),
+            Color(AppColors.meterBarYellow),
+            Color(AppColors.meterBarRed)
+        ]
     }
 
     var body: some View {
@@ -340,32 +362,9 @@ func scaleValueToRange(_ value: Double, _ stops: [Double]) -> Double {
     return 1.0
 }
 
-fileprivate func attributedText(from taggedString: String, fontSize: CGFloat = 16) -> AttributedString {
-    var result = AttributedString()
-    var remaining = taggedString
-    while let startRange = remaining.range(of: "<tag color=\""),
-          let colorEndIdx = remaining[startRange.upperBound...].firstIndex(of: "\""),
-          let tagCloseStart = remaining.range(of: "\">", range: colorEndIdx..<remaining.endIndex),
-          let tagEndRange = remaining.range(of: "</tag>") {
-        let before = String(remaining[..<startRange.lowerBound])
-        if !before.isEmpty {
-            var a = AttributedString(before)
-            a.font = .custom("NewSpirit-Medium", size: fontSize)
-            a.foregroundColor = Color(AppColors.bodyText)
-            result.append(a)
-        }
-        let content = String(remaining[tagCloseStart.upperBound..<tagEndRange.lowerBound])
-        var boldText = AttributedString(content)
-        boldText.font = .custom("NewSpirit-Medium", size: fontSize).weight(.bold)
-        boldText.foregroundColor = Color(AppColors.bodyText)
-        result.append(boldText)
-        remaining = String(remaining[tagEndRange.upperBound...])
-    }
-    if !remaining.isEmpty {
-        var a = AttributedString(remaining)
-        a.font = .custom("NewSpirit-Medium", size: fontSize)
-        a.foregroundColor = Color(AppColors.bodyText)
-        result.append(a)
-    }
+fileprivate func attributedText(from text: String, fontSize: CGFloat = 16) -> AttributedString {
+    var result = AttributedString(text)
+    result.font = .custom("NewSpirit-Bold", size: fontSize)
+    result.foregroundColor = Color(AppColors.bodyText)
     return result
 }

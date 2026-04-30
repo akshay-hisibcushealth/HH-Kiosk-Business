@@ -72,28 +72,28 @@ class ResultCardCell: UICollectionViewCell {
         switch type {
         case .risk:
             configureCell(icon: icon,title: title, value: value,unit: unit, segments: [
-                (AppColors.gaugeGreen, 0.2),
-                (AppColors.gaugeLime, 0.2),
-                (AppColors.gaugeYellow, 0.2),
-                (AppColors.gaugeOrange, 0.2),
-                (AppColors.gaugeRed, 0.2)
+                (AppColors.meterBarGreen, 0.2),
+                (AppColors.meterBarLime, 0.2),
+                (AppColors.meterBarYellow, 0.2),
+                (AppColors.meterBarCoral, 0.2),
+                (AppColors.meterBarRed, 0.2)
             ] ,minValue: minValue, maxValue: maxValue
             )
         case .bloodPressure:
             configureCell(icon: icon,title: title, value: value, unit: unit,segments: [
-                (AppColors.gaugeYellow, 0.2),
-                (AppColors.gaugeGreen, 0.2),
-                (AppColors.gaugeGreen, 0.2),
-                (AppColors.gaugeYellow, 0.2),
-                (AppColors.gaugeRed, 0.2)
+                (AppColors.meterBarYellow, 0.2),
+                (AppColors.meterBarGreen, 0.2),
+                (AppColors.meterBarLime, 0.2),
+                (AppColors.meterBarYellow, 0.2),
+                (AppColors.meterBarRed, 0.2)
             ]  ,minValue: minValue, maxValue: maxValue)
         case .heartRate:
             configureCell(icon: icon,title: title, value: value, unit: unit,segments: [
-                (AppColors.gaugeYellow, 0.2),
-                (AppColors.gaugeGreen, 0.2),
-                (AppColors.gaugeGreen, 0.2),
-                (AppColors.gaugeGreen, 0.2),
-                (AppColors.gaugeYellow, 0.2)
+                (AppColors.meterBarGreen, 0.2),
+                (AppColors.meterBarLime, 0.2),
+                (AppColors.meterBarYellow, 0.2),
+                (AppColors.meterBarCoral, 0.2),
+                (AppColors.meterBarRed, 0.2)
             ] ,minValue: minValue, maxValue: maxValue  )
         }
     }
