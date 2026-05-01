@@ -71,7 +71,7 @@ class ResultCardCell: UICollectionViewCell {
         let type = getResultType(for: title)
         switch type {
         case .risk:
-            configureCell(icon: icon,title: title, value: value,unit: unit, segments: [
+            configureCell(icon: icon,title: title, value: value,unit: unit, type: type, segments: [
                 (AppColors.meterBarGreen, 0.2),
                 (AppColors.meterBarLime, 0.2),
                 (AppColors.meterBarYellow, 0.2),
@@ -80,7 +80,7 @@ class ResultCardCell: UICollectionViewCell {
             ] ,minValue: minValue, maxValue: maxValue
             )
         case .bloodPressure:
-            configureCell(icon: icon,title: title, value: value, unit: unit,segments: [
+            configureCell(icon: icon,title: title, value: value, unit: unit, type: type, segments: [
                 (AppColors.meterBarYellow, 0.2),
                 (AppColors.meterBarGreen, 0.2),
                 (AppColors.meterBarLime, 0.2),
@@ -88,12 +88,10 @@ class ResultCardCell: UICollectionViewCell {
                 (AppColors.meterBarRed, 0.2)
             ]  ,minValue: minValue, maxValue: maxValue)
         case .heartRate:
-            configureCell(icon: icon,title: title, value: value, unit: unit,segments: [
-                (AppColors.meterBarGreen, 0.2),
-                (AppColors.meterBarLime, 0.2),
-                (AppColors.meterBarYellow, 0.2),
-                (AppColors.meterBarCoral, 0.2),
-                (AppColors.meterBarRed, 0.2)
+            configureCell(icon: icon,title: title, value: value, unit: unit, type: type, segments: [
+                (AppColors.meterBarYellow, 1.0 / 3.0),
+                (AppColors.meterBarGreen, 1.0 / 3.0),
+                (AppColors.meterBarYellow, 1.0 / 3.0)
             ] ,minValue: minValue, maxValue: maxValue  )
         }
     }
@@ -111,7 +109,7 @@ class ResultCardCell: UICollectionViewCell {
     
     // MARK: - UI Templates
     
-    func configureCell(icon: UIImage?, title: String, value: String, unit: String?, segments: [(UIColor, CGFloat)], minValue: Int, maxValue: Int) {
+    func configureCell(icon: UIImage?, title: String, value: String, unit: String?, type: ResultType, segments: [(UIColor, CGFloat)], minValue: Int, maxValue: Int) {
         self.contentView.subviews.forEach { $0.removeFromSuperview() } // clean old views
         
         let iconView = UIImageView(image: icon)
@@ -151,14 +149,18 @@ class ResultCardCell: UICollectionViewCell {
         // Map value to color based on cumulative segment ranges
         var cumulative: Float = 0
         var matchedColor: UIColor = AppColors.textPrimary
-        
-        for segment in segments {
-            let range = segment.1 * CGFloat(maxValue)
-            if numericValue <= cumulative + Float(range) {
-                matchedColor = segment.0
-                break
+
+        if type == .heartRate {
+            matchedColor = numericValue <= 60 || numericValue >= 100 ? AppColors.meterBarYellow : AppColors.meterBarGreen
+        } else {
+            for segment in segments {
+                let range = segment.1 * CGFloat(maxValue)
+                if numericValue <= cumulative + Float(range) {
+                    matchedColor = segment.0
+                    break
+                }
+                cumulative += Float(range)
             }
-            cumulative += Float(range)
         }
         
         valueLabel.textColor = matchedColor
@@ -195,7 +197,7 @@ class ResultCardCell: UICollectionViewCell {
             
             arrow.topAnchor.constraint(equalTo: barContainer.bottomAnchor, constant: 6),
             arrow.centerXAnchor.constraint(equalTo: barContainer.leadingAnchor, constant:
-                                            16 + computeArrowOffset(value: value, minValue: minValue, maxValue: maxValue, totalWidth: container.bounds.width - 32 - 32)
+                                            16 + computeArrowOffset(value: value, type: type, minValue: minValue, maxValue: maxValue, totalWidth: container.bounds.width - 32 - 32)
                                           ),
             
             arrow.widthAnchor.constraint(equalToConstant: 10),
@@ -207,9 +209,24 @@ class ResultCardCell: UICollectionViewCell {
     }
     
     
-    func computeArrowOffset(value: String, minValue: Int, maxValue: Int, totalWidth: CGFloat) -> CGFloat {
+    func computeArrowOffset(value: String, type: ResultType, minValue: Int, maxValue: Int, totalWidth: CGFloat) -> CGFloat {
         let cleaned = value.replacingOccurrences(of: "%", with: "").trimmingCharacters(in: .whitespaces)
         guard let numericValue = Float(cleaned) else { return 0 }
+
+        if type == .heartRate {
+            let fraction: Float
+            switch numericValue {
+            case ...60:
+                let clamped = Swift.min(Swift.max(numericValue, 0), 60)
+                fraction = (clamped / 60.0) / 3.0
+            case ..<100:
+                fraction = (1.0 / 3.0) + (((numericValue - 60.0) / 40.0) / 3.0)
+            default:
+                let clamped = Swift.min(Swift.max(numericValue, 100), 140)
+                fraction = (2.0 / 3.0) + (((clamped - 100.0) / 40.0) / 3.0)
+            }
+            return CGFloat(fraction) * totalWidth
+        }
         
         let clamped = Swift.min(Swift.max(numericValue, Float(minValue)), Float(maxValue))
         let normalized = (clamped - Float(minValue)) / Float(maxValue - minValue) // 0 to 1

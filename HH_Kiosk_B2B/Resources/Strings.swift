@@ -199,11 +199,9 @@ enum ResultScreenStrings {
                 "high": "Your screening suggests your diastolic blood pressure may be significantly elevated."
             ],
             "Heart Rate": [
+                "low": "Your screening suggests your heart rate is below a normal resting range.",
                 "normal": "Your screening suggests your heart rate is within a normal resting range.",
-                "moderate": "Your screening suggests your heart rate is within a moderate resting range.",
-                "slightly_high": "Your screening suggests your heart rate is slightly above the typical resting range.",
-                "high": "Your screening suggests your heart rate may be higher than the typical resting range.",
-                "very_high": "Your screening suggests your heart rate may be significantly higher than the typical resting range."
+                "high": "Your screening suggests your heart rate is higher than the typical resting range."
             ],
             "HbA1c Risk": [
                 "very_low": "Your screening suggests your HbA1c markers are within a healthy, stable range.",

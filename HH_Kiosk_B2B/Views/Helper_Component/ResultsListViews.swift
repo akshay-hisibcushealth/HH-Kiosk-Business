@@ -85,11 +85,9 @@ struct ResultRow: View {
 
     private var heartRateMeterBarColors: [Color] {
         [
-            Color(AppColors.meterBarGreen),
-            Color(AppColors.meterBarLime),
             Color(AppColors.meterBarYellow),
-            Color(AppColors.meterBarCoral),
-            Color(AppColors.meterBarRed)
+            Color(AppColors.meterBarGreen),
+            Color(AppColors.meterBarYellow)
         ]
     }
 
@@ -216,11 +214,9 @@ fileprivate func riskBucket(for key: String, value: Double) -> String {
         if value <= 20 { return "moderate" }
         return "high"
     case "HR_BPM":
-        if value <= 75 { return "normal" }
-        if value <= 89 { return "moderate" }
-        if value <= 100 { return "slightly_high" }
-        if value <= 120 { return "high" }
-        return "very_high"
+        if value <= 60 { return "low" }
+        if value < 100 { return "normal" }
+        return "high"
     case "BP_SYSTOLIC":
         if value <= 90 { return "low" }
         if value <= 130 { return "healthy" }
@@ -290,7 +286,22 @@ fileprivate func descriptionText(for key: String) -> String {
 }
 
 fileprivate func meterFraction(for key: String, value: Double) -> Double {
-    scaleValueToRange(value, meterStops(for: key))
+    if key == "HR_BPM" {
+        return heartRateMeterFraction(for: value)
+    }
+
+    return scaleValueToRange(value, meterStops(for: key))
+}
+
+fileprivate func heartRateMeterFraction(for value: Double) -> Double {
+    switch value {
+    case ...60:
+        return scaleValueToRange(value, [0, 60]) / 3.0
+    case ..<100:
+        return (1.0 / 3.0) + (scaleValueToRange(value, [60, 100]) / 3.0)
+    default:
+        return (2.0 / 3.0) + (scaleValueToRange(value, [100, 140]) / 3.0)
+    }
 }
 
 fileprivate func meterStops(for key: String) -> [Double] {
@@ -298,7 +309,7 @@ fileprivate func meterStops(for key: String) -> [Double] {
     case "BP_CVD": return [0, 5, 7.25, 10, 20, 100]
     case "BP_HEART_ATTACK": return [0, 1.65, 2.39, 3.3, 6.6, 33]
     case "BP_STROKE": return [0, 3.3, 4.79, 6.6, 13.2, 66]
-    case "HR_BPM": return [0, 75, 89, 100, 120, 180]
+    case "HR_BPM": return [0, 60, 100, 140]
     case "BR_BPM": return [0, 12, 16, 21, 25, 35]
     case "BP_SYSTOLIC": return [0, 90, 120, 130, 140, 180]
     case "BP_DIASTOLIC": return [0, 60, 70, 80, 90, 120]
@@ -340,6 +351,12 @@ fileprivate func meterColor(for key: String, value: Double, colors: [Color]) -> 
 }
 
 fileprivate func meterBandColor(for key: String, value: Double, colors: [Color]) -> Color {
+    if key == "HR_BPM" {
+        if value <= 60 { return Color(AppColors.meterBarYellow) }
+        if value <= 100 { return Color(AppColors.meterBarGreen) }
+        return Color(AppColors.meterBarYellow)
+    }
+
     guard !colors.isEmpty else { return Color(AppColors.riskLow) }
     if colors.count == 1 { return colors[0] }
 
