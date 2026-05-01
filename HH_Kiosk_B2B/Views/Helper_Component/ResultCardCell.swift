@@ -89,11 +89,9 @@ class ResultCardCell: UICollectionViewCell {
             ]  ,minValue: minValue, maxValue: maxValue)
         case .heartRate:
             configureCell(icon: icon,title: title, value: value, unit: unit,segments: [
-                (AppColors.meterBarGreen, 0.2),
-                (AppColors.meterBarLime, 0.2),
-                (AppColors.meterBarYellow, 0.2),
-                (AppColors.meterBarCoral, 0.2),
-                (AppColors.meterBarRed, 0.2)
+                (AppColors.meterBarYellow, 0.43),
+                (AppColors.meterBarGreen, 0.29),
+                (AppColors.meterBarYellow, 0.28)
             ] ,minValue: minValue, maxValue: maxValue  )
         }
     }
