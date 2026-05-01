@@ -215,7 +215,7 @@ fileprivate func riskBucket(for key: String, value: Double) -> String {
         return "high"
     case "HR_BPM":
         if value <= 60 { return "low" }
-        if value < 100 { return "normal" }
+        if value <= 100 { return "normal" }
         return "high"
     case "BP_SYSTOLIC":
         if value <= 90 { return "low" }
@@ -341,7 +341,7 @@ fileprivate func meterBandColor(for key: String, value: Double, colors: [Color])
 
     if key == "HR_BPM", colors.count >= 3 {
         if value <= 60 { return colors[0] }
-        if value < 100 { return colors[1] }
+        if value <= 100 { return colors[1] }
         return colors[2]
     }
 
