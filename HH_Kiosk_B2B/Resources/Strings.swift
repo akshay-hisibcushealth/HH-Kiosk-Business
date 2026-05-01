@@ -237,12 +237,12 @@ enum ResultScreenStrings {
         static func description(for key: String) -> String {
             switch key {
             case "BP_CVD": return "Think of this as your heart's 10-year weather forecast. It estimates how likely you are to experience a heart attack or stroke based on signals from your face scan. The lower the number, the clearer the skies."
-            case "HR_BPM": return "Heart rate is the number of times your heart beats per minute."
-            case "BP_SYSTOLIC": return "Systolic blood pressure is the peak pressure in your brachial arteries during the contraction of your heart muscle, measured in millimeters of mercury (mmHg)."
-            case "BP_DIASTOLIC": return "Diastolic blood pressure is the amount of pressure in your brachial arteries when your heart muscle is relaxed, measured in millimeters of mercury (mmHg)."
-            case "HBA1C_RISK_PROB": return "A hemoglobin A1C (HbA1C) test is a blood test that measures the amount of glucose (sugar) attached to the hemoglobin in your red blood cells."
-            case "HDLTC_RISK_PROB": return "Hypercholesterolemia is when you have high amounts of cholesterol in the blood. High cholesterol can limit blood flow, increasing the risk of a heart attack or stroke."
-            case "TG_RISK_PROB": return "Hypertriglyceridemia is when you have an abnormally high level of a certain type of fat (triglycerides) in the blood, defined above 1.7 mmol/L or 150 mg/dL."
+            case "BP_SYSTOLIC": return "This is the pressure your heart creates when it pumps blood out. Too high over time and it puts extra strain on your arteries. A normal reading is usually around 90–120 mmHg."
+            case "BP_DIASTOLIC": return "This is the pressure in your arteries when your heart is resting between beats. It tells us how hard your cardiovascular system is working even when it's taking a breather. A normal reading is usually around 60–80 mmHg."
+            case "HBA1C_RISK_PROB": return "This gives you a sense of your long-term blood sugar patterns. High blood sugar over time is linked to pre-diabetes and type 2 diabetes. Think of it less like a snapshot and more like a three-month average of how your body handles sugar."
+            case "HDLTC_RISK_PROB": return "Too much cholesterol in your blood can quietly clog your arteries over time. This screening gives you an early signal of whether your cholesterol levels may be in a healthy range."
+            case "TG_RISK_PROB": return "Triglycerides are a type of fat your body stores for energy. When there's too much of it in your blood, it can quietly raise your risk of heart disease and inflammation. This score flags whether your levels may be worth a closer look."
+            case "HR_BPM": return "This is the pressure in your arteries when your heart is resting between beats. It tells us how hard your cardiovascular system is working even when it's taking a breather. A normal reading is usually around 60–80 mmHg."
             default: return ""
             }
         }
