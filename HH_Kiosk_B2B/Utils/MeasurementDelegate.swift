@@ -72,6 +72,7 @@ class MeasurementDelegate : AnuraMeasurementDelegate {
     func anuraMeasurementControllerDidDisappear(_ controller: AnuraMeasurementViewController) {
         print("***** anuraMeasurementControllerDidDisappear")
         measurementBanner.teardown()
+        setMeasurementScreenSaverSuppressed(false)
         return
     }
     
@@ -194,6 +195,7 @@ class MeasurementDelegate : AnuraMeasurementDelegate {
     func anuraMeasurementControllerDidCancelMeasurement(_ controller: AnuraMeasurementViewController, status: FaceConstraintsStatus) {
         print("***** anuraMeasurementControllerDidCancelMeasurement: \(status.identifier)")
         measurementBanner.clear()
+        setMeasurementScreenSaverSuppressed(false)
         
         resultsController?.measurementDidCancel()
         
@@ -210,6 +212,15 @@ class MeasurementDelegate : AnuraMeasurementDelegate {
         // Example:
         // print(info.currentLightingQuality)
         // print(info.state)
+    }
+
+    private func setMeasurementScreenSaverSuppressed(_ suppressed: Bool) {
+        DispatchQueue.main.async { [weak self] in
+            self?.appState?.setScreenSaverSuppressed(
+                suppressed,
+                reason: ScreenSaverSuppressionReason.faceMeasurement
+            )
+        }
     }
 }
 
