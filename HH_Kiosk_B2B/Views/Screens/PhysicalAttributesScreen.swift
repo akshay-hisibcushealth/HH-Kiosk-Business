@@ -43,6 +43,7 @@ struct PhysicalAttributesScreen: View {
     private let demoSheetSuppressionReason = "physicalAttributes.quickDemoSheet"
     private let settingsSheetSuppressionReason = "physicalAttributes.settingsSheet"
     private let validationAlertSuppressionReason = "physicalAttributes.validationAlert"
+    private let screenSuppressionReason = ScreenSaverSuppressionReason.physicalAttributesScreen
     
     var body: some View {
         VStack(spacing: 0) {
@@ -179,6 +180,7 @@ struct PhysicalAttributesScreen: View {
             .padding()
         }
         .onAppear {
+            appState.setScreenSaverSuppressed(true, reason: screenSuppressionReason)
             previewOrientation = Self.loadSavedPreviewOrientation()
 //         DispatchQueue.main.async { applyDeveloperAutofill() }
             detectExternalCameraConfiguration()
@@ -220,6 +222,7 @@ struct PhysicalAttributesScreen: View {
             appState.setScreenSaverSuppressed(false, reason: demoSheetSuppressionReason)
             appState.setScreenSaverSuppressed(false, reason: settingsSheetSuppressionReason)
             appState.setScreenSaverSuppressed(false, reason: validationAlertSuppressionReason)
+            appState.setScreenSaverSuppressed(false, reason: screenSuppressionReason)
         }
         // ALERT
         .alert(isPresented: $showValidationAlert) {

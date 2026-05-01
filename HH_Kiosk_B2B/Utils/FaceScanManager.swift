@@ -62,6 +62,7 @@ class FaceScanManager: ObservableObject{
                print("❌ API or delegate not initialized. Call initMethods() first.")
                return
            }
+        setScreenSaverSuppressed(true)
         user = currentUser
         cameraPreset = currentCameraPreset
         previewOrientation = currentPreviewOrientation
@@ -80,6 +81,7 @@ class FaceScanManager: ObservableObject{
                 self.requestCameraPermissionsAndDisplayAnuraViewController(with: sdkConfig)
                 onMeasurementStart?()
             case .failure(let error):
+                self.setScreenSaverSuppressed(false)
                 self.startupFlowError(error)
             }
         }
@@ -92,6 +94,7 @@ class FaceScanManager: ObservableObject{
                 if granted {
                     self.presentAnuraMeasurementViewController(sdkConfig: sdkConfig)
                 } else {
+                    self.setScreenSaverSuppressed(false)
                     self.handleCameraPermissionError()
                 }
             }
@@ -177,9 +180,18 @@ class FaceScanManager: ObservableObject{
                 }
             }
         } else {
+            setScreenSaverSuppressed(false)
             print("❌ Could not find top UIViewController to present from.")
         }
     }
 
+    private func setScreenSaverSuppressed(_ suppressed: Bool) {
+        DispatchQueue.main.async { [weak self] in
+            self?.appState?.setScreenSaverSuppressed(
+                suppressed,
+                reason: ScreenSaverSuppressionReason.faceMeasurement
+            )
+        }
+    }
     
 }

@@ -1,6 +1,11 @@
 import SwiftUI
 import Combine
 
+enum ScreenSaverSuppressionReason {
+    static let physicalAttributesScreen = "physicalAttributes.screen"
+    static let faceMeasurement = "faceScan.measurement"
+}
+
 @MainActor
 class AppState: ObservableObject {
     @Published var showScreenSaver = false
