@@ -256,7 +256,7 @@ enum ResultScreenStrings {
             case "HBA1C_RISK_PROB": return "This gives you a sense of your long-term blood sugar patterns. High blood sugar over time is linked to pre-diabetes and type 2 diabetes. Think of it less like a snapshot and more like a three-month average of how your body handles sugar."
             case "HDLTC_RISK_PROB": return "Too much cholesterol in your blood can quietly clog your arteries over time. This screening gives you an early signal of whether your cholesterol levels may be in a healthy range."
             case "TG_RISK_PROB": return "Triglycerides are a type of fat your body stores for energy. When there's too much of it in your blood, it can quietly raise your risk of heart disease and inflammation. This score flags whether your levels may be worth a closer look."
-            case "HR_BPM": return "This is the pressure in your arteries when your heart is resting between beats. It tells us how hard your cardiovascular system is working even when it's taking a breather. A normal reading is usually around 60–80 mmHg."
+            case "HR_BPM": return "how many times your heart beats in a minute. Most healthy adults land between 60–100 bpm at rest. Too high or too low consistently can be worth discussing with your doctor."
             default: return ""
             }
         }
