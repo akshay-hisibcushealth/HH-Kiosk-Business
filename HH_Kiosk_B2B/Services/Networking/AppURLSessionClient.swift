@@ -10,7 +10,13 @@ enum AppAPIError: LocalizedError {
         case .invalidResponse:
             return "Invalid server response."
         case let .unexpectedStatusCode(code, message):
-            return message.isEmpty ? "Request failed with status code \(code)." : message
+            if !message.isEmpty {
+                return message
+            }
+
+            return (500..<600).contains(code)
+                ? "We’re having trouble loading this information right now. Please try again shortly."
+                : "Unable to load this information right now. Please try again."
         case .missingSavedUser:
             return "Missing saved user information."
         }
@@ -76,6 +82,20 @@ struct AppURLSessionClient: AppURLSessionClientProtocol {
             return message
         }
 
-        return String(data: data, encoding: .utf8) ?? ""
+        guard let body = String(data: data, encoding: .utf8)?
+            .trimmingCharacters(in: .whitespacesAndNewlines),
+              !body.isEmpty else {
+            return ""
+        }
+
+        let lowercasedBody = body.lowercased()
+        if lowercasedBody.contains("<html")
+            || lowercasedBody.contains("<body")
+            || lowercasedBody.contains("<head")
+            || lowercasedBody.contains("<!doctype") {
+            return ""
+        }
+
+        return body
     }
 }
