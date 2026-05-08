@@ -90,6 +90,51 @@ class ResultsViewController: UIViewController {
 
         print("✅ Mock backend data injected — check SwiftUI Results screen now.")
     }
+
+    #if DEBUG
+    func submitMockScanResultsForBackendDebug() {
+        print("ResultsViewController: Skipping face scan and submitting mock scan results to backend")
+        updateUI(for: .loading)
+
+        Task {
+            guard let backendResults = await self.prepareTestDataForAPI(Self.mockScanResults) else {
+                await MainActor.run {
+                    self.errorLabel.text = "Unable to load results. Please try again."
+                    self.updateUI(for: .failure)
+                }
+                return
+            }
+
+            await MainActor.run {
+                self.resultsModel.update(with: backendResults)
+                self.resultButtonsHost.rootView = ResultScreenButtons(
+                    result: [:],
+                    onDownloadPDF: { [weak self] in
+                        self?.exportPDF()
+                    },
+                    onPrint: { [weak self] in
+                        self?.printResults()
+                    }
+                )
+                self.updateUI(for: .success)
+                print("✅ Mock scan results submitted and backend results displayed successfully.")
+            }
+        }
+    }
+
+    private static let mockScanResults: ResultsMap = [
+        "BP_CVD": SignalResult(notes: [], value: 0.2024),
+        "HR_BPM": SignalResult(notes: [], value: 70.4494),
+        "HBA1C_RISK_PROB": SignalResult(notes: [], value: 26.295),
+        "BP_SYSTOLIC": SignalResult(notes: [], value: 112.4425),
+        "BP_DIASTOLIC": SignalResult(notes: [], value: 83.7584),
+        "HDLTC_RISK_PROB": SignalResult(notes: [], value: 54.1508),
+        "TG_RISK_PROB": SignalResult(notes: [], value: 47.1745),
+        "BMI_CALC": SignalResult(notes: [], value: 27.6816),
+        "BR_BPM": SignalResult(notes: [], value: 12),
+        "HEALTH_SCORE": SignalResult(notes: [], value: 72.5714)
+    ]
+    #endif
     
     
     private func exportPDF() {
@@ -597,6 +642,31 @@ class ResultsViewController: UIViewController {
             return nil
         }
     }
+
+    #if DEBUG
+    private func prepareTestDataForAPI(_ results: ResultsMap?) async -> ResultsMap? {
+        let defaults = UserDefaults.standard
+
+        if let results = results, !results.isEmpty {
+            let storedResults = results.mapValues(\.value)
+            defaults.set(storedResults, forKey: "measurement_results")
+            print("📊 Saved mock measurement results:", storedResults)
+        } else {
+            defaults.set([:], forKey: "measurement_results")
+            print("📊 Saved mock measurement result = NA")
+        }
+
+        do {
+            let backendResults = try await submissionService.saveUserVitals(testResults: results)
+            print("✅ Saved mock user vitals and received backend results.")
+            let visibleResults = filterVisibleResults(backendResults)
+            return visibleResults.isEmpty ? nil : visibleResults
+        } catch {
+            print("❌ Network error:", error.localizedDescription)
+            return nil
+        }
+    }
+    #endif
 
     private func filterVisibleResults(_ results: ResultsMap) -> ResultsMap {
         var filtered: ResultsMap = [:]

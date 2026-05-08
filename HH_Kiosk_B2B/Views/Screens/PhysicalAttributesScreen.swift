@@ -169,6 +169,26 @@ struct PhysicalAttributesScreen: View {
                     .cornerRadius(10)
                 }
                 .padding(.top, 30)
+
+                #if DEBUG
+                Button(action: {
+                    hideKeyboard()
+                    skipFaceScanForTesting()
+                }) {
+                    Text("Skip Face Scan (Testing)")
+                        .font(.system(size: 22.sp, weight: .semibold))
+                        .foregroundColor(Color(AppColors.primary))
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color(AppColors.secondarySystemBackground))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10.r)
+                                .stroke(Color(AppColors.primary).opacity(0.35), lineWidth: 1)
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 10.r))
+                }
+                .padding(.top, 12.h)
+                #endif
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .padding()
@@ -176,7 +196,6 @@ struct PhysicalAttributesScreen: View {
         .onAppear {
             appState.setScreenSaverSuppressed(true, reason: screenSuppressionReason)
             previewOrientation = Self.loadSavedPreviewOrientation()
-//         DispatchQueue.main.async { applyDeveloperAutofill() }
             detectExternalCameraConfiguration()
         }
         .onChange(of: previewOrientation) { _, newValue in
@@ -309,6 +328,58 @@ struct PhysicalAttributesScreen: View {
         ) {
             isLoading = false
         }
+    }
+
+    #if DEBUG
+    private func skipFaceScanForTesting() {
+        saveDeveloperTestUser()
+
+        let controller = ResultsViewController(appState: appState)
+        controller.modalPresentationStyle = .fullScreen
+
+        if let topVC = UIApplication.topViewController() {
+            topVC.present(controller, animated: true) {
+                controller.submitMockScanResultsForBackendDebug()
+            }
+        } else {
+            validationMessage = "Unable to open results screen."
+            showValidationAlert = true
+        }
+    }
+
+    private func saveDeveloperTestUser() {
+        let testHeight = Self.heightInCentimeters(
+            feet: DeveloperAutofill.heightFeet,
+            inches: DeveloperAutofill.heightInches
+        )
+        let testWeight = Int(Double(DeveloperAutofill.weightLbs) / 2.20462)
+
+        email = DeveloperAutofill.email
+        height = testHeight
+        weight = testWeight
+        age = DeveloperAutofill.age
+        gender = DeveloperAutofill.gender
+
+        LocalUserStorage.saveUser(
+            email: DeveloperAutofill.email,
+            height: testHeight,
+            weight: testWeight,
+            age: DeveloperAutofill.age,
+            gender: DeveloperAutofill.gender
+        )
+
+        print("🧪 Saved developer test user for skip face scan flow.")
+    }
+    #endif
+
+    private func saveCurrentUser() {
+        LocalUserStorage.saveUser(
+            email: email!,
+            height: height!,
+            weight: weight!,
+            age: age!,
+            gender: gender
+        )
     }
     
     private func applyDeveloperAutofill() {

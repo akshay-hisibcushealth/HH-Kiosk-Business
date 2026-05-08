@@ -4,6 +4,9 @@ import AnuraCore
 protocol KioskSubmissionServiceProtocol {
     func sendEmailResults(email: String, pin: String, results: [String: MeasurementResults.SignalResult]) async throws
     func saveUserVitals(results: [String: MeasurementResults.SignalResult]?) async throws -> ResultsMap
+    #if DEBUG
+    func saveUserVitals(testResults: ResultsMap?) async throws -> ResultsMap
+    #endif
 }
 
 struct KioskSubmissionService: KioskSubmissionServiceProtocol {
@@ -23,6 +26,16 @@ struct KioskSubmissionService: KioskSubmissionServiceProtocol {
     }
 
     func saveUserVitals(results: [String: MeasurementResults.SignalResult]?) async throws -> ResultsMap {
+        try await saveUserVitalsPayload(data: mapResults(results ?? [:]))
+    }
+
+    #if DEBUG
+    func saveUserVitals(testResults: ResultsMap?) async throws -> ResultsMap {
+        try await saveUserVitalsPayload(data: mapResults(testResults ?? [:]))
+    }
+    #endif
+
+    private func saveUserVitalsPayload(data: [String: ResultEntry]) async throws -> ResultsMap {
         guard let user = LocalUserStorage.loadUser() else {
             throw AppAPIError.missingSavedUser
         }
@@ -35,7 +48,7 @@ struct KioskSubmissionService: KioskSubmissionServiceProtocol {
                 weight: user.weight,
                 gender: user.gender
             ),
-            data: mapResults(results ?? [:])
+            data: data
         )
         let responseData = try await client.sendAndReturnData(payload, to: AppAPIEndpoints.saveKioskHealth, method: "POST")
         printBackendResponse(responseData)
@@ -43,6 +56,10 @@ struct KioskSubmissionService: KioskSubmissionServiceProtocol {
     }
 
     private func mapResults(_ results: [String: MeasurementResults.SignalResult]) -> [String: ResultEntry] {
+        results.mapValues { ResultEntry(value: $0.value, notes: $0.notes) }
+    }
+
+    private func mapResults(_ results: ResultsMap) -> [String: ResultEntry] {
         results.mapValues { ResultEntry(value: $0.value, notes: $0.notes) }
     }
 
