@@ -12,20 +12,18 @@ struct ResultsList: View {
     @ObservedObject var model: ResultsModel
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 28.h) {
-                ForEach(model.resultsArray, id: \.key) { pair in
-                    ResultRow(
-                        metricKey: pair.key,
-                        title: displayTitle(for: pair.key),
-                        subtitle: descriptionText(for: pair.key),
-                        value: pair.value.value
-                    )
-                    .padding(.horizontal, 20)
-                }
+        VStack(spacing: 28.h) {
+            ForEach(model.resultsArray, id: \.key) { pair in
+                ResultRow(
+                    metricKey: pair.key,
+                    title: displayTitle(for: pair.key),
+                    subtitle: descriptionText(for: pair.key),
+                    value: pair.value.value
+                )
+                .padding(.horizontal, 20)
             }
-            .padding(.vertical, 16)
         }
+        .padding(.vertical, 16)
     }
 }
 

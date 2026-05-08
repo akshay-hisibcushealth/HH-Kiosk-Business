@@ -83,6 +83,7 @@ public struct ResultScreen: View {
         ZStack(alignment: .bottom) {
             ScrollView(showsIndicators: false) {
                 mainContentView // Extracted for reuse in PDF
+                    .padding(.bottom, showBottomButtons ? 150.h : 0)
             }
             .ignoresSafeArea(edges: .top)
             
