@@ -66,9 +66,9 @@ class ResultsViewController: UIViewController {
     }
 
     // MARK: - Mock Debug Data
-    /// Injects fake sample results to test UI quickly (useful during development)
+    /// Injects fake sample backend results to test UI quickly (useful during development)
     private func loadMockDataForDebug() {
-        print("ResultsViewController: Injecting mock data into ResultsModel")
+        print("ResultsViewController: Injecting mock backend data into ResultsModel")
 
         let sample: ResultsMap = [
             "BP_CVD": SignalResult(notes: [], value: 55),
@@ -88,7 +88,7 @@ class ResultsViewController: UIViewController {
         )
         updateUI(for: .success)
 
-        print("✅ Mock data injected — check SwiftUI Results screen now.")
+        print("✅ Mock backend data injected — check SwiftUI Results screen now.")
     }
     
     
@@ -259,22 +259,31 @@ class ResultsViewController: UIViewController {
                 return
             }
 
-            // Update SwiftUI state with filtered data
-            self.resultsModel.update(with: converted)
-            self.resultButtonsHost.rootView = ResultScreenButtons(
-                result: self.results,
-                onDownloadPDF: { [weak self] in
-                    self?.exportPDF()
-                },
-            onPrint: { [weak self] in
-                self?.printResults()
+            self.updateUI(for: .loading)
+            Task {
+                guard let backendResults = await self.prepareDataForAPI(self.results) else {
+                    await MainActor.run {
+                        self.errorLabel.text = "Unable to load results. Please try again."
+                        self.updateUI(for: .failure)
+                    }
+                    return
+                }
+
+                await MainActor.run {
+                    self.resultsModel.update(with: backendResults)
+                    self.resultButtonsHost.rootView = ResultScreenButtons(
+                        result: self.results,
+                        onDownloadPDF: { [weak self] in
+                            self?.exportPDF()
+                        },
+                        onPrint: { [weak self] in
+                            self?.printResults()
+                        }
+                    )
+                    self.updateUI(for: .success)
+                    print("✅ Backend results displayed successfully.")
+                }
             }
-        )
-        Task {
-                await self.prepareDataForAPI(self.results)
-            }
-            self.updateUI(for: .success)
-            print("✅ Real SDK results displayed successfully (filtered to visible keys).")
         }
     }
 
@@ -550,7 +559,7 @@ class ResultsViewController: UIViewController {
         }
     }
     
-    private func prepareDataForAPI(_ results: [String: MeasurementResults.SignalResult]?) async {
+    private func prepareDataForAPI(_ results: [String: MeasurementResults.SignalResult]?) async -> ResultsMap? {
 
         let defaults = UserDefaults.standard
 
@@ -573,19 +582,30 @@ class ResultsViewController: UIViewController {
             print("📊 Saved measurement result = NA")
         }
 
-        // ALWAYS call API
-        _ = await saveUserAndResultData(results: results)
+        return await saveUserAndResultData(results: results)
     }
     
     
-    func saveUserAndResultData(results: [String: MeasurementResults.SignalResult]?) async -> Bool {
+    func saveUserAndResultData(results: [String: MeasurementResults.SignalResult]?) async -> ResultsMap? {
         do {
-            try await submissionService.saveUserVitals(results: results)
-            return true
+            let backendResults = try await submissionService.saveUserVitals(results: results)
+            print("✅ Saved user vitals and received backend results.")
+            let visibleResults = filterVisibleResults(backendResults)
+            return visibleResults.isEmpty ? nil : visibleResults
         } catch {
             print("❌ Network error:", error.localizedDescription)
-            return false
+            return nil
         }
+    }
+
+    private func filterVisibleResults(_ results: ResultsMap) -> ResultsMap {
+        var filtered: ResultsMap = [:]
+        for key in visibleKeys {
+            if let result = results[key] {
+                filtered[key] = result
+            }
+        }
+        return filtered
     }
 
     // MARK: - Exit

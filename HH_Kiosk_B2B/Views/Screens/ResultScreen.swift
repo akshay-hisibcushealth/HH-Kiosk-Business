@@ -6,6 +6,11 @@ import AnuraCore
 public struct SignalResult: Decodable {
     public let notes: [String]
     public let value: Double
+
+    public init(notes: [String], value: Double) {
+        self.notes = notes
+        self.value = value
+    }
 }
 
 public typealias ResultsMap = [String: SignalResult]
