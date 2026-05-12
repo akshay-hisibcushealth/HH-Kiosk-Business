@@ -12,6 +12,7 @@ struct StoredUser {
     let email: String
     let height: Int
     let weight: Int
+    let weightInPounds: Int
     let age: Int
     let gender: String
 }
@@ -21,6 +22,7 @@ struct LocalUserStorage {
     private static let emailKey = "user_email"
     private static let heightKey = "user_height"
     private static let weightKey = "user_weight"
+    private static let weightInPoundsKey = "user_weight_lbs"
     private static let ageKey = "user_age"
     private static let genderKey = "user_gender"
 
@@ -28,6 +30,7 @@ struct LocalUserStorage {
         email: String,
         height: Int,
         weight: Int,
+        weightInPounds: Int,
         age: Int,
         gender: String
     ) {
@@ -37,6 +40,7 @@ struct LocalUserStorage {
         defaults.set(email, forKey: emailKey)
         defaults.set(height, forKey: heightKey)
         defaults.set(weight, forKey: weightKey)
+        defaults.set(weightInPounds, forKey: weightInPoundsKey)
         defaults.set(age, forKey: ageKey)
         defaults.set(gender, forKey: genderKey)
 
@@ -49,6 +53,7 @@ struct LocalUserStorage {
         defaults.removeObject(forKey: emailKey)
         defaults.removeObject(forKey: heightKey)
         defaults.removeObject(forKey: weightKey)
+        defaults.removeObject(forKey: weightInPoundsKey)
         defaults.removeObject(forKey: ageKey)
         defaults.removeObject(forKey: genderKey)
     }
@@ -60,10 +65,14 @@ struct LocalUserStorage {
             return nil
         }
 
+        let weight = defaults.integer(forKey: weightKey)
+        let savedWeightInPounds = defaults.integer(forKey: weightInPoundsKey)
+
         return StoredUser(
             email: email,
             height: defaults.integer(forKey: heightKey),
-            weight: defaults.integer(forKey: weightKey),
+            weight: weight,
+            weightInPounds: savedWeightInPounds > 0 ? savedWeightInPounds : Int(Double(weight) * 2.20462),
             age: defaults.integer(forKey: ageKey),
             gender: gender
         )

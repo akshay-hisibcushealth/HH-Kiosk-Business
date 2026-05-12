@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ProfileWeightSection: View {
     @Binding var selectedWeight: Int?  // Stored in kg
+    @Binding var selectedWeightInPounds: Int?
     @State private var weightInput: String = "" // Local input in lbs
 
     private let weightRange = 75...400
@@ -33,14 +34,16 @@ struct ProfileWeightSection: View {
                     var finalValue = String(filtered.prefix(3))
                     
                     // 3. Apply Range Guard (75-400)
-                    if let lbs = Int(finalValue) {
-                        // If they've typed 3 digits and it's over 400, clear it
-                        if finalValue.count == 3 && lbs > 400 {
-                            finalValue = ""
-                        }
-                        
-                        // Sync with the actual weight binding
+                    if let lbs = Int(finalValue), finalValue.count == 3, lbs > weightRange.upperBound {
+                        finalValue = ""
+                    }
+
+                    if let lbs = Int(finalValue), weightRange.contains(lbs) {
                         selectedWeight = Int(Double(lbs) / 2.20462)
+                        selectedWeightInPounds = lbs
+                    } else {
+                        selectedWeight = nil
+                        selectedWeightInPounds = nil
                     }
                     
                     // 4. Update the text field state
@@ -51,7 +54,7 @@ struct ProfileWeightSection: View {
                 // 🔹 Pre-fill (Kg -> Lbs)
                 .onAppear {
                     if let kg = selectedWeight, kg > 0 {
-                        let lbs = Int(Double(kg) * 2.20462)
+                        let lbs = selectedWeightInPounds ?? Int(Double(kg) * 2.20462)
                         weightInput = String(lbs)
                     }
                 }

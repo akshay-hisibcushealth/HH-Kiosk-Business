@@ -20,6 +20,7 @@ struct PhysicalAttributesScreen: View {
     @State private var showWebView = false
     @State private var height: Int? = nil   // Make optional
     @State private var weight: Int? = nil   // Make optional
+    @State private var weightInPounds: Int? = nil
     @State private var age: Int? = nil      // Make optional
     @State private var gender: String = ""  // Empty initially
     @State private var email: String? = nil
@@ -115,7 +116,7 @@ struct PhysicalAttributesScreen: View {
                         }
                         HStack {
                             ProfileHeightSection(selectedHeight: $height)
-                            ProfileWeightSection(selectedWeight: $weight)
+                            ProfileWeightSection(selectedWeight: $weight, selectedWeightInPounds: $weightInPounds)
                         }
                         
                         HStack {
@@ -303,6 +304,7 @@ struct PhysicalAttributesScreen: View {
             email: email!,
             height: height!,
             weight: weight!,
+            weightInPounds: weightInPounds!,
             age: age!,
             gender: gender
         )
@@ -357,6 +359,7 @@ struct PhysicalAttributesScreen: View {
         email = DeveloperAutofill.email
         height = testHeight
         weight = testWeight
+        weightInPounds = DeveloperAutofill.weightLbs
         age = DeveloperAutofill.age
         gender = DeveloperAutofill.gender
 
@@ -364,6 +367,7 @@ struct PhysicalAttributesScreen: View {
             email: DeveloperAutofill.email,
             height: testHeight,
             weight: testWeight,
+            weightInPounds: DeveloperAutofill.weightLbs,
             age: DeveloperAutofill.age,
             gender: DeveloperAutofill.gender
         )
@@ -377,6 +381,7 @@ struct PhysicalAttributesScreen: View {
             email: email!,
             height: height!,
             weight: weight!,
+            weightInPounds: weightInPounds!,
             age: age!,
             gender: gender
         )

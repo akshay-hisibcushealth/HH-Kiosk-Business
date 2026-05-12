@@ -196,14 +196,14 @@ enum ResultScreenStrings {
                 "high": "Your screening suggests that your blood sugar levels are currently above the standard healthy range.",
                 "very_high": "Your screening suggests blood sugar markers that are notably above the standard healthy range."
             ],
-            "High Cholesterol Risk": [
+            "High Risk of Cholesterol": [
                 "very_low": "Your screening suggests a very low probability of elevated cholesterol levels.",
                 "low": "Your screening suggests your cholesterol markers are within a standard, low-risk profile.",
                 "moderate": "Your screening suggests your cholesterol markers are currently sitting in a moderate range.",
                 "high": "Your screening suggests cholesterol levels are currently above the recommended healthy threshold.",
                 "very_high": "Your screening suggests indicators consistent with a high concentration of cholesterol in the blood."
             ],
-            "High Triglycerides Risk": [
+            "High Risk of Triglycerides": [
                 "very_low": "Your screening suggests a very low probability of elevated triglyceride levels.",
                 "low": "Your screening suggests your triglyceride markers are within a standard, low-risk profile.",
                 "moderate": "Your screening suggests your triglyceride markers are currently sitting in a moderate range.",
@@ -219,8 +219,8 @@ enum ResultScreenStrings {
             case "HBA1C_RISK_PROB": return "HbA1c Risk"
             case "BP_SYSTOLIC": return "Systolic Blood Pressure"
             case "BP_DIASTOLIC": return "Diastolic Blood Pressure"
-            case "HDLTC_RISK_PROB": return "High Cholesterol Risk"
-            case "TG_RISK_PROB": return "High Triglycerides Risk"
+            case "HDLTC_RISK_PROB": return "High Risk of Cholesterol"
+            case "TG_RISK_PROB": return "High Risk of Triglycerides"
             default: return key.replacingOccurrences(of: "_", with: " ")
             }
         }
@@ -242,7 +242,7 @@ enum ResultScreenStrings {
             case "HBA1C_RISK_PROB": return "This gives you a sense of your long-term blood sugar patterns. High blood sugar over time is linked to pre-diabetes and type 2 diabetes. Think of it less like a snapshot and more like a three-month average of how your body handles sugar."
             case "HDLTC_RISK_PROB": return "Too much cholesterol in your blood can quietly clog your arteries over time. This screening gives you an early signal of whether your cholesterol levels may be in a healthy range."
             case "TG_RISK_PROB": return "Triglycerides are a type of fat your body stores for energy. When there's too much of it in your blood, it can quietly raise your risk of heart disease and inflammation. This score flags whether your levels may be worth a closer look."
-            case "HR_BPM": return "how many times your heart beats in a minute. Most healthy adults land between 60–100 bpm at rest. Too high or too low consistently can be worth discussing with your doctor."
+            case "HR_BPM": return "How many times your heart beats in a minute. Most healthy adults land between 60–100 bpm at rest. Being consistently too high or too low can be worth discussing with your doctor."
             default: return ""
             }
         }
