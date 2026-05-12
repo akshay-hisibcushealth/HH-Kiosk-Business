@@ -250,7 +250,7 @@ fileprivate func formattedValue(_ value: Double, for metricKey: String) -> Strin
     case "BP_SYSTOLIC", "BP_DIASTOLIC":
         return String(format: "%.0f mmHg", value)
     case "HR_BPM":
-        return String(format: "%.0f bpm", floor(value))
+        return String(format: "%.0f bpm", value.rounded())
     default:
         return String(format: "%.2f", value)
     }
