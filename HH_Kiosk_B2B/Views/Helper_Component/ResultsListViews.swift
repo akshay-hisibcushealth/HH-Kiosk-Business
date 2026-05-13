@@ -351,6 +351,22 @@ fileprivate func meterBandColor(for key: String, value: Double, colors: [Color])
         return colors[4]
     }
 
+    if key == "HBA1C_RISK_PROB", colors.count >= 5 {
+        if value < 25 { return colors[0] }
+        if value < 45 { return colors[1] }
+        if value < 55 { return colors[2] }
+        if value < 77.5 { return colors[3] }
+        return colors[4]
+    }
+
+    if key == "BP_SYSTOLIC", colors.count >= 5 {
+        if value < 90 { return colors[0] }
+        if value < 120 { return colors[1] }
+        if value < 130 { return colors[2] }
+        if value < 140 { return colors[3] }
+        return colors[4]
+    }
+
     if key == "BP_DIASTOLIC", colors.count >= 5 {
         if value < 60 { return colors[0] }
         if value < 70 { return colors[1] }
