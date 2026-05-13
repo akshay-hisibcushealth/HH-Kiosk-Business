@@ -351,7 +351,7 @@ fileprivate func meterBandColor(for key: String, value: Double, colors: [Color])
         return colors[4]
     }
 
-    if key == "HBA1C_RISK_PROB", colors.count >= 5 {
+    if key == "HBA1C_RISK_PROB" || key == "HDLTC_RISK_PROB", colors.count >= 5 {
         if value < 25 { return colors[0] }
         if value < 45 { return colors[1] }
         if value < 55 { return colors[2] }
