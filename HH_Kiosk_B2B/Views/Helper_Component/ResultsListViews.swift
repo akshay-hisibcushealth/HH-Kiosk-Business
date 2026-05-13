@@ -342,13 +342,22 @@ fileprivate func meterBandColor(for key: String, value: Double, colors: [Color])
         if value < 100 { return colors[1] }
         return colors[2]
     }
+
+    if key == "BP_CVD", colors.count >= 5 {
+        if value < 5 { return colors[0] }
+        if value < 7.25 { return colors[1] }
+        if value < 10 { return colors[2] }
+        if value < 20 { return colors[3] }
+        return colors[4]
+    }
+
     if key == "BP_DIASTOLIC", colors.count >= 5 {
-         if value < 60 { return colors[0] }
-         if value < 70 { return colors[1] }
-         if value < 80 { return colors[2] }
-         if value < 90 { return colors[3] }
-         return colors[4]
-     }
+        if value < 60 { return colors[0] }
+        if value < 70 { return colors[1] }
+        if value < 80 { return colors[2] }
+        if value < 90 { return colors[3] }
+        return colors[4]
+    }
     
     let stops = meterStops(for: key)
     guard stops.count >= 2 else { return colors[0] }
