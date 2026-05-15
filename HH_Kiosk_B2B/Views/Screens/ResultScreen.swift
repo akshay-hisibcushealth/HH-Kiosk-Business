@@ -158,10 +158,14 @@ public struct ResultScreen: View {
         guard model.results.isEmpty == false || result.isEmpty == false else { return }
 
         hasScheduledGuideReveal = true
+        withAnimation(.spring(response: 0.36, dampingFraction: 0.86)) {
+            guideStage = .bubble
+        }
+
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            guard guideStage == nil else { return }
+            guard guideStage == .bubble else { return }
             withAnimation(.spring(response: 0.36, dampingFraction: 0.86)) {
-                guideStage = .bubble
+                guideStage = .firstMessage
             }
         }
     }
