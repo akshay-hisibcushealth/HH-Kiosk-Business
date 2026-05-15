@@ -208,31 +208,31 @@ struct MeterBar: View {
 fileprivate func riskBucket(for key: String, value: Double) -> String {
     switch key {
     case "BP_CVD":
-        if value <= 5 { return "very_low" }
-        if value <= 7.25 { return "low" }
-        if value <= 10 { return "moderate_low" }
-        if value <= 20 { return "moderate" }
+        if value < 5 { return "very_low" }
+        if value < 7.25 { return "low" }
+        if value < 10 { return "moderate_low" }
+        if value < 20 { return "moderate" }
         return "high"
     case "HR_BPM":
-        if value <= 60 { return "low" }
+        if value < 60 { return "low" }
         if value < 100 { return "normal" }
         return "high"
     case "BP_SYSTOLIC":
-        if value <= 90 { return "low" }
-        if value <= 130 { return "healthy" }
-        if value <= 140 { return "slightly_high" }
+        if value < 90 { return "low" }
+        if value < 130 { return "healthy" }
+        if value < 140 { return "slightly_high" }
         return "high"
     case "BP_DIASTOLIC":
-        if value <= 60 { return "low" }
-        if value <= 70 { return "slightly_low" }
-        if value <= 80 { return "healthy" }
-        if value <= 90 { return "slightly_high" }
+        if value < 60 { return "low" }
+        if value < 70 { return "slightly_low" }
+        if value < 80 { return "healthy" }
+        if value < 90 { return "slightly_high" }
         return "high"
     case "HBA1C_RISK_PROB", "HDLTC_RISK_PROB", "TG_RISK_PROB":
-        if value <= 25 { return "very_low" }
-        if value <= 45 { return "low" }
-        if value <= 55 { return "moderate" }
-        if value <= 77.5 { return "high" }
+        if value < 25 { return "very_low" }
+        if value < 45 { return "low" }
+        if value < 55 { return "moderate" }
+        if value < 77.5 { return "high" }
         return "very_high"
     default:
         return "low"
@@ -252,7 +252,7 @@ fileprivate func formattedValue(_ value: Double, for metricKey: String) -> Strin
     case "BP_SYSTOLIC", "BP_DIASTOLIC":
         return String(format: "%.0f mmHg", value)
     case "HR_BPM":
-        return String(format: "%.0f bpm", floor(value))
+        return String(format: "%.0f bpm", value.rounded())
     default:
         return String(format: "%.2f", value)
     }
@@ -286,22 +286,7 @@ fileprivate func descriptionText(for key: String) -> String {
 }
 
 fileprivate func meterFraction(for key: String, value: Double) -> Double {
-    if key == "HR_BPM" {
-        return heartRateMeterFraction(for: value)
-    }
-
-    return scaleValueToRange(value, meterStops(for: key))
-}
-
-fileprivate func heartRateMeterFraction(for value: Double) -> Double {
-    switch value {
-    case ...60:
-        return scaleValueToRange(value, [0, 60]) / 3.0
-    case ..<100:
-        return (1.0 / 3.0) + (scaleValueToRange(value, [60, 100]) / 3.0)
-    default:
-        return (2.0 / 3.0) + (scaleValueToRange(value, [100, 140]) / 3.0)
-    }
+    scaleValueToRange(value, meterStops(for: key))
 }
 
 fileprivate func meterStops(for key: String) -> [Double] {
@@ -351,14 +336,46 @@ fileprivate func meterColor(for key: String, value: Double, colors: [Color]) -> 
 }
 
 fileprivate func meterBandColor(for key: String, value: Double, colors: [Color]) -> Color {
-    if key == "HR_BPM" {
-        if value <= 60 { return Color(AppColors.meterBarYellow) }
-        if value <= 100 { return Color(AppColors.meterBarGreen) }
-        return Color(AppColors.meterBarYellow)
-    }
-
     guard !colors.isEmpty else { return Color(AppColors.riskLow) }
     if colors.count == 1 { return colors[0] }
+
+    if key == "HR_BPM", colors.count >= 3 {
+        if value < 60 { return colors[0] }
+        if value < 100 { return colors[1] }
+        return colors[2]
+    }
+
+    if key == "BP_CVD", colors.count >= 5 {
+        if value < 5 { return colors[0] }
+        if value < 7.25 { return colors[1] }
+        if value < 10 { return colors[2] }
+        if value < 20 { return colors[3] }
+        return colors[4]
+    }
+
+    if key == "HBA1C_RISK_PROB" || key == "HDLTC_RISK_PROB" || key == "TG_RISK_PROB", colors.count >= 5 {
+        if value < 25 { return colors[0] }
+        if value < 45 { return colors[1] }
+        if value < 55 { return colors[2] }
+        if value < 77.5 { return colors[3] }
+        return colors[4]
+    }
+
+    if key == "BP_SYSTOLIC", colors.count >= 5 {
+        if value < 90 { return colors[0] }
+        if value < 120 { return colors[1] }
+        if value < 130 { return colors[2] }
+        if value < 140 { return colors[3] }
+        return colors[4]
+    }
+
+    if key == "BP_DIASTOLIC", colors.count >= 5 {
+        if value < 60 { return colors[0] }
+        if value < 70 { return colors[1] }
+        if value < 80 { return colors[2] }
+        if value < 90 { return colors[3] }
+        return colors[4]
+    }
 
     let stops = meterStops(for: key)
     guard stops.count >= 2 else { return colors[0] }

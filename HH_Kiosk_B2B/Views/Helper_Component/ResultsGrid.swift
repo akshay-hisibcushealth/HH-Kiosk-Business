@@ -38,7 +38,7 @@ struct ResultsGrid: View {
 
     private func formattedValue(_ value: Double, for key: String) -> String {
         if key == "HR_BPM" {
-            return String(format: "%.0f", floor(value))
+            return String(format: "%.0f", value.rounded())
         }
 
         if value.truncatingRemainder(dividingBy: 1) == 0 {
