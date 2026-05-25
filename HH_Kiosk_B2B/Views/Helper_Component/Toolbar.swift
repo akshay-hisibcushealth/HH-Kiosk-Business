@@ -6,20 +6,20 @@ struct Toolbar: View {
     private let timer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
 
     var body: some View {
-        HStack {
-            Image(AppIconNames.Asset.logo)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 200.w, height: 140.h)
-                .padding([.vertical], 16.h)
-
-            Spacer()
-
+        ZStack {
             BrandedCompanyLogoView()
 
-            Spacer()
+            HStack {
+                Image(AppIconNames.Asset.logo)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 200.w, height: 140.h)
+                    .padding([.vertical], 16.h)
 
-            DateTimeView()
+                Spacer()
+
+                DateTimeView()
+            }
         }
         .padding(.horizontal, 24.w)
         .padding(.vertical, 10.h)

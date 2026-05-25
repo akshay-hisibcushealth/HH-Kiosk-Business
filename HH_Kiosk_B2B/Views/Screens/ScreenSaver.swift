@@ -76,6 +76,9 @@ struct ScreenSaver: View {
                             .foregroundColor(Color(AppColors.white))
                             .font(.system(size: 34.sp, weight: .regular))
                             .multilineTextAlignment(.center)
+                            .lineLimit(nil)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .frame(maxWidth: 920.w)
                             .padding(.top, -15.h)
                     }
                     .padding(.horizontal, 60.w)
@@ -102,7 +105,7 @@ struct ScreenSaver: View {
                             ) { image in
                                 image
                                     .resizable()
-                                    .scaledToFill()
+                                    .scaledToFit()
                             }
                             .padding(.trailing, 12.w)
                             .padding(.bottom, 12.w)
