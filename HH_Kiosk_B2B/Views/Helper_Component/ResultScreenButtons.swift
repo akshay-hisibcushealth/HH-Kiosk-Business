@@ -8,6 +8,7 @@ struct ResultScreenButtons: View {
 
     private let submissionService: KioskSubmissionServiceProtocol = KioskSubmissionService()
     @State private var showEmailPopUp = false
+    @State private var showEmailPromptSelectionLayout = false
     @State private var showEndSessionPrompt = false
     var body: some View {
         VStack(spacing: 16.h) {
@@ -17,6 +18,7 @@ struct ResultScreenButtons: View {
                         title: ResultScreenStrings.Actions.emailMyResults.uppercased(),
                         image: Image(AppIconNames.Asset.email),
                         action: {
+                            showEmailPromptSelectionLayout = false
                             showEmailPopUp = true
                         }
                     )
@@ -55,13 +57,16 @@ struct ResultScreenButtons: View {
             }
             .frame(maxWidth: .infinity, alignment: .center)
             .fullScreenCover(isPresented: $showEmailPopUp) {
-                ResultPromptOverlay {
-                    EmailResultPopup(results: result)
+                ResultPromptOverlay(layout: showEmailPromptSelectionLayout ? .promptSelection : .emailEntry) {
+                    EmailResultPopup(
+                        results: result,
+                        usesPromptSelectionLayout: $showEmailPromptSelectionLayout
+                    )
                 }
                 .presentationBackground(Color.clear)
             }
             .fullScreenCover(isPresented: $showEndSessionPrompt) {
-                ResultPromptOverlay {
+                ResultPromptOverlay(layout: .promptSelection) {
                     NextStepsPromptView(
                         mode: .endSession,
                         closeAction: {
@@ -147,10 +152,35 @@ struct ResultScreenButtons: View {
     }
 }
 
+private enum ResultPromptOverlayLayout {
+    case emailEntry
+    case promptSelection
+
+    func width(in proxy: GeometryProxy) -> CGFloat {
+        switch self {
+        case .emailEntry:
+            return min(proxy.size.width * 0.79, 1088.w)
+        case .promptSelection:
+            return min(proxy.size.width * 0.82, 960.w)
+        }
+    }
+
+    func height(in proxy: GeometryProxy) -> CGFloat {
+        switch self {
+        case .emailEntry:
+            return min(proxy.size.height * 0.53, 1040.h)
+        case .promptSelection:
+            return min(proxy.size.height * 0.76, 1280.h)
+        }
+    }
+}
+
 private struct ResultPromptOverlay<Content: View>: View {
+    let layout: ResultPromptOverlayLayout
     let content: () -> Content
 
-    init(@ViewBuilder content: @escaping () -> Content) {
+    init(layout: ResultPromptOverlayLayout = .promptSelection, @ViewBuilder content: @escaping () -> Content) {
+        self.layout = layout
         self.content = content
     }
 
@@ -163,8 +193,8 @@ private struct ResultPromptOverlay<Content: View>: View {
 
                 content()
                     .frame(
-                        width: min(proxy.size.width * 0.82, 960.w),
-                        height: min(proxy.size.height * 0.76, 1280.h)
+                        width: layout.width(in: proxy),
+                        height: layout.height(in: proxy)
                     )
                     .background(Color(AppColors.white))
                     .clipShape(RoundedRectangle(cornerRadius: 54.r, style: .continuous))

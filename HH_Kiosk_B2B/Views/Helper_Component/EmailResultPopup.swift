@@ -7,6 +7,7 @@ struct EmailResultPopup: View {
     let results: [String: MeasurementResults.SignalResult]
     @Environment(\.dismiss) var dismiss
     private let submissionService: KioskSubmissionServiceProtocol
+    @Binding private var usesPromptSelectionLayout: Bool
     @State private var email: String = UserDefaults.standard.string(forKey: "user_email") ?? ""
     @State private var pin: String = ""
     @State private var isLoading: Bool = false
@@ -16,10 +17,12 @@ struct EmailResultPopup: View {
 
     init(
         results: [String: MeasurementResults.SignalResult],
-        submissionService: KioskSubmissionServiceProtocol = KioskSubmissionService()
+        submissionService: KioskSubmissionServiceProtocol = KioskSubmissionService(),
+        usesPromptSelectionLayout: Binding<Bool> = .constant(false)
     ) {
         self.results = results
         self.submissionService = submissionService
+        self._usesPromptSelectionLayout = usesPromptSelectionLayout
     }
 
 
@@ -40,23 +43,28 @@ struct EmailResultPopup: View {
 
     
     var body: some View {
-        if isEmailSent {
-            emailSentView
-        } else {
-            ZStack(alignment: .topTrailing) {
-                closeButton
-                    .padding(.top, 16.h)
-                    .padding(.trailing, 16.w)
+        Group {
+            if isEmailSent {
+                emailSentView
+            } else {
+                ZStack(alignment: .topTrailing) {
+                    closeButton
+                        .padding(.top, 16.h)
+                        .padding(.trailing, 16.w)
 
-                VStack(spacing: 16.h) {
-                    if isLoading {
-                        loadingView
-                    } else {
-                        emailFormView
+                    VStack(spacing: 16.h) {
+                        if isLoading {
+                            loadingView
+                        } else {
+                            emailFormView
+                        }
                     }
+                    .padding(.top, 20.h)
                 }
-                .padding(.top, 20.h)
             }
+        }
+        .onAppear {
+            usesPromptSelectionLayout = isEmailSent
         }
     }
 
@@ -179,6 +187,7 @@ struct EmailResultPopup: View {
                 let success = await submitEmailResults()
                 isLoading = false
                 if success {
+                    usesPromptSelectionLayout = true
                     isEmailSent = true
                 } else {
                     // Trigger failure message
