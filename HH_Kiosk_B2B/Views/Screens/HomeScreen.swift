@@ -7,6 +7,7 @@ struct HomeScreen: View {
     @StateObject private var viewModel = WeatherViewModel()
     @StateObject private var locationManager = LocationManager()
     @StateObject private var faceManager = FaceScanManager()
+    @State private var showResponseReceivedToast = false
     
     // Toolbar time state
     @State private var currentTime: String = HomeScreen.getCurrentTime()
@@ -75,6 +76,7 @@ struct HomeScreen: View {
                     .onEnded { resetInactivityTimer() }
             )
             .onAppear {
+                presentResponseReceivedToastIfNeeded()
                 startInactivityTimer()
             }
             .task {
@@ -96,6 +98,29 @@ struct HomeScreen: View {
             }
             .onDisappear {
                 stopInactivityTimer()
+            }
+            .overlay(alignment: .top) {
+                if showResponseReceivedToast {
+                    ResponseReceivedToast()
+                        .padding(.top, 214.h)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                        .zIndex(2)
+                }
+            }
+        }
+    }
+
+    private func presentResponseReceivedToastIfNeeded() {
+        guard UserDefaults.standard.bool(forKey: AppStorageKeys.responseReceivedToastPending) else { return }
+        UserDefaults.standard.removeObject(forKey: AppStorageKeys.responseReceivedToastPending)
+
+        withAnimation(.easeOut(duration: 0.25)) {
+            showResponseReceivedToast = true
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            withAnimation(.easeIn(duration: 0.2)) {
+                showResponseReceivedToast = false
             }
         }
     }
@@ -145,6 +170,33 @@ struct HomeScreen: View {
         }
     }
 }
+
+private struct ResponseReceivedToast: View {
+    var body: some View {
+        HStack(spacing: 18.w) {
+            ZStack {
+                Circle()
+                    .fill(Color(AppColors.white))
+                    .frame(width: 44.w, height: 44.w)
+
+                Image(systemName: "checkmark")
+                    .font(.system(size: 26.sp, weight: .bold))
+                    .foregroundColor(Color(red: 0.39, green: 0.76, blue: 0.0))
+            }
+
+            Text(HomeScreenStrings.responseReceivedToast)
+                .font(.system(size: 28.sp, weight: .bold))
+                .foregroundColor(Color(AppColors.white))
+
+            Spacer()
+        }
+        .padding(.horizontal, 34.w)
+        .frame(width: 980.w, height: 88.h)
+        .background(Color(red: 0.39, green: 0.76, blue: 0.0))
+        .clipShape(RoundedRectangle(cornerRadius: 8.r, style: .continuous))
+    }
+}
+
 private struct WeatherContentView: View {
     @ObservedObject var viewModel: WeatherViewModel
 

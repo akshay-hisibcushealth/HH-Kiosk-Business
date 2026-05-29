@@ -77,4 +77,8 @@ struct LocalUserStorage {
             gender: gender
         )
     }
+
+    static func loadEmail() -> String? {
+        UserDefaults.standard.string(forKey: emailKey)
+    }
 }
