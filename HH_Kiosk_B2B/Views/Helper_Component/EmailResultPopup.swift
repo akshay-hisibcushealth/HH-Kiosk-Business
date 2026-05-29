@@ -8,6 +8,7 @@ struct EmailResultPopup: View {
     @Environment(\.dismiss) var dismiss
     private let submissionService: KioskSubmissionServiceProtocol
     @Binding private var usesPromptSelectionLayout: Bool
+    @Binding private var hasShownPromptSelection: Bool
     @State private var email: String = UserDefaults.standard.string(forKey: "user_email") ?? ""
     @State private var pin: String = ""
     @State private var isLoading: Bool = false
@@ -18,11 +19,13 @@ struct EmailResultPopup: View {
     init(
         results: [String: MeasurementResults.SignalResult],
         submissionService: KioskSubmissionServiceProtocol = KioskSubmissionService(),
-        usesPromptSelectionLayout: Binding<Bool> = .constant(false)
+        usesPromptSelectionLayout: Binding<Bool> = .constant(false),
+        hasShownPromptSelection: Binding<Bool> = .constant(false)
     ) {
         self.results = results
         self.submissionService = submissionService
         self._usesPromptSelectionLayout = usesPromptSelectionLayout
+        self._hasShownPromptSelection = hasShownPromptSelection
     }
 
 
@@ -188,6 +191,7 @@ struct EmailResultPopup: View {
                 isLoading = false
                 if success {
                     usesPromptSelectionLayout = true
+                    hasShownPromptSelection = true
                     isEmailSent = true
                 } else {
                     // Trigger failure message

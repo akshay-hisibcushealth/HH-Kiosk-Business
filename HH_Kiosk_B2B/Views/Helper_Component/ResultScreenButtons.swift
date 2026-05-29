@@ -10,6 +10,7 @@ struct ResultScreenButtons: View {
     @State private var showEmailPopUp = false
     @State private var showEmailPromptSelectionLayout = false
     @State private var showEndSessionPrompt = false
+    @State private var hasShownPromptSelection = false
     var body: some View {
         VStack(spacing: 16.h) {
             HStack(alignment: .top, spacing: 20.w) {
@@ -34,7 +35,12 @@ struct ResultScreenButtons: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
                 Button(action: {
-                    showEndSessionPrompt = true
+                    if hasShownPromptSelection {
+                        navigateToHome()
+                    } else {
+                        hasShownPromptSelection = true
+                        showEndSessionPrompt = true
+                    }
                 }) {
                     Text(ResultScreenStrings.Actions.endSession.uppercased())
                         .font(.system(size: 20.sp, weight: .semibold))
@@ -60,7 +66,8 @@ struct ResultScreenButtons: View {
                 ResultPromptOverlay(layout: showEmailPromptSelectionLayout ? .promptSelection : .emailEntry) {
                     EmailResultPopup(
                         results: result,
-                        usesPromptSelectionLayout: $showEmailPromptSelectionLayout
+                        usesPromptSelectionLayout: $showEmailPromptSelectionLayout,
+                        hasShownPromptSelection: $hasShownPromptSelection
                     )
                 }
                 .presentationBackground(Color.clear)
