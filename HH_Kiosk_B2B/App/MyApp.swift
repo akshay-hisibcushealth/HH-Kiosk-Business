@@ -20,6 +20,7 @@ struct MyApp: App {
 struct RootView: View {
     @StateObject private var appState = AppState()
     @State private var clientID = LocalUserStorage.loadClientID()
+    @State private var showResponseReceivedToast = false
 
     var body: some View {
         ZStack {
@@ -51,14 +52,54 @@ struct RootView: View {
                         .zIndex(0)
                 }
             }
+
+        }
+        .overlay(alignment: .top) {
+            if showResponseReceivedToast {
+                ResponseReceivedToast()
+                    .padding(.top, 214.h)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .zIndex(3)
+            }
         }
         .animation(.easeInOut(duration: 0.5), value: appState.showScreenSaver)
         .animation(.easeInOut(duration: 0.3), value: clientID == nil)
+        .onAppear {
+            presentResponseReceivedToastIfReady()
+        }
+        .onChange(of: appState.isBrandingLoading) { _, _ in
+            presentResponseReceivedToastIfReady()
+        }
+        .onChange(of: appState.showScreenSaver) { _, _ in
+            presentResponseReceivedToastIfReady()
+        }
         .task(id: clientID) {
             if let clientID {
                 await appState.loadBrandingData(for: clientID)
             } else {
                 appState.clearBrandingData()
+            }
+        }
+    }
+
+    private func presentResponseReceivedToastIfReady() {
+        guard clientID != nil,
+              !appState.isBrandingLoading,
+              appState.brandingData != nil || appState.brandingErrorMessage != nil,
+              !appState.showScreenSaver,
+              UserDefaults.standard.bool(forKey: AppStorageKeys.responseReceivedToastPending) else {
+            return
+        }
+
+        UserDefaults.standard.removeObject(forKey: AppStorageKeys.responseReceivedToastPending)
+
+        withAnimation(.easeOut(duration: 0.25)) {
+            showResponseReceivedToast = true
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            withAnimation(.easeIn(duration: 0.2)) {
+                showResponseReceivedToast = false
             }
         }
     }
