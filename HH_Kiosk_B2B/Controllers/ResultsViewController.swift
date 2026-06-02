@@ -67,7 +67,8 @@ class ResultsViewController: UIViewController {
 
     // MARK: - Mock Debug Data
     /// Injects fake sample results to test UI quickly (useful during development)
-    private func loadMockDataForDebug() {
+    #if DEBUG
+    func loadMockDataForDebug() {
         print("ResultsViewController: Injecting mock data into ResultsModel")
 
         let sample: ResultsMap = [
@@ -90,6 +91,7 @@ class ResultsViewController: UIViewController {
 
         print("✅ Mock data injected — check SwiftUI Results screen now.")
     }
+    #endif
     
     
     private func exportPDF() {

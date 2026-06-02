@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 import AnuraCore
 
 struct PhysicalAttributesScreen: View {
@@ -25,6 +26,9 @@ struct PhysicalAttributesScreen: View {
     @State private var email: String? = nil
     @State private var showSettings = false
     @State private var refreshTrigger = false
+    #if DEBUG
+    @State private var showDebugResults = false
+    #endif
 
     
     // EXTERNAL CAMERA VARIABLES
@@ -166,6 +170,21 @@ struct PhysicalAttributesScreen: View {
                     }
                     .background(Color(AppColors.ctaGreen))
                     .cornerRadius(10)
+
+                    #if DEBUG
+                    Button(action: {
+                        hideKeyboard()
+                        showDebugResults = true
+                    }) {
+                        Text(PhysicalAttributesScreenStrings.debugProceedToResults)
+                            .font(.system(size: 30.sp,weight: .semibold))
+                            .foregroundColor(Color(AppColors.white))
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                    }
+                    .background(Color(AppColors.primary))
+                    .cornerRadius(10)
+                    #endif
                 }
                 .padding(.top, 30)
             }
@@ -201,6 +220,12 @@ struct PhysicalAttributesScreen: View {
                 useExternalCameraOnly: $useOnlyExternalCamera
             )
         }
+        #if DEBUG
+        .fullScreenCover(isPresented: $showDebugResults) {
+            DebugResultsViewController(appState: appState)
+                .ignoresSafeArea()
+        }
+        #endif
         .onChange(of: showWebView) { _, isPresented in
             appState.setScreenSaverSuppressed(isPresented, reason: demoSheetSuppressionReason)
         }
@@ -395,6 +420,23 @@ struct PhysicalAttributesScreen: View {
     }
 
 }
+
+#if DEBUG
+private struct DebugResultsViewController: UIViewControllerRepresentable {
+    let appState: AppState
+
+    func makeUIViewController(context: Context) -> UINavigationController {
+        let resultsController = ResultsViewController(appState: appState)
+        let navigationController = UINavigationController(rootViewController: resultsController)
+        navigationController.modalPresentationStyle = .fullScreen
+        resultsController.loadViewIfNeeded()
+        resultsController.loadMockDataForDebug()
+        return navigationController
+    }
+
+    func updateUIViewController(_ uiViewController: UINavigationController, context: Context) {}
+}
+#endif
 
 // Helper Binding (so optional Int works with your subviews)
 extension Binding where Value == Int? {
