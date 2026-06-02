@@ -20,6 +20,10 @@ enum AppAPIEndpoints {
         appURL(path: "/save-kiosk-health/")
     }
 
+    static var kioskUserResponse: URL {
+        appURL(path: "/kiosk-user-response/")
+    }
+
     static func validateClientCode(_ code: String) -> URL {
         appURL(
             path: "/kiosk-custom-branding-validate/",
@@ -71,6 +75,5 @@ enum AppAPIEndpoints {
         return components.url!
     }
 }
-
 
 

@@ -20,6 +20,7 @@ enum AppAPIError: LocalizedError {
 protocol AppURLSessionClientProtocol {
     func get<T: Decodable>(_ type: T.Type, from url: URL) async throws -> T
     func send<Body: Encodable>(_ body: Body, to url: URL, method: String) async throws
+    func sendAndReturnData<Body: Encodable>(_ body: Body, to url: URL, method: String) async throws -> Data
 }
 
 struct AppURLSessionClient: AppURLSessionClientProtocol {
@@ -49,6 +50,10 @@ struct AppURLSessionClient: AppURLSessionClientProtocol {
     }
 
     func send<Body: Encodable>(_ body: Body, to url: URL, method: String = "POST") async throws {
+        _ = try await sendAndReturnData(body, to: url, method: method)
+    }
+
+    func sendAndReturnData<Body: Encodable>(_ body: Body, to url: URL, method: String = "POST") async throws -> Data {
         var request = URLRequest(url: url)
         request.httpMethod = method
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -56,6 +61,7 @@ struct AppURLSessionClient: AppURLSessionClientProtocol {
 
         let (data, response) = try await session.data(for: request)
         try validate(response: response, data: data)
+        return data
     }
 
     private func validate(response: URLResponse, data: Data) throws {

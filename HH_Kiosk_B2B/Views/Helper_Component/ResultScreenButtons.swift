@@ -6,7 +6,11 @@ struct ResultScreenButtons: View {
     let onDownloadPDF: () -> Void
     let onPrint: () -> Void
 
+    private let submissionService: KioskSubmissionServiceProtocol = KioskSubmissionService()
     @State private var showEmailPopUp = false
+    @State private var showEmailPromptSelectionLayout = false
+    @State private var showEndSessionPrompt = false
+    @State private var hasShownPromptSelection = false
     var body: some View {
         VStack(spacing: 16.h) {
             HStack(alignment: .top, spacing: 20.w) {
@@ -15,6 +19,7 @@ struct ResultScreenButtons: View {
                         title: ResultScreenStrings.Actions.emailMyResults.uppercased(),
                         image: Image(AppIconNames.Asset.email),
                         action: {
+                            showEmailPromptSelectionLayout = false
                             showEmailPopUp = true
                         }
                     )
@@ -30,7 +35,12 @@ struct ResultScreenButtons: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
                 Button(action: {
-                    navigateToHome()
+                    if hasShownPromptSelection {
+                        navigateToHome()
+                    } else {
+                        hasShownPromptSelection = true
+                        showEndSessionPrompt = true
+                    }
                 }) {
                     Text(ResultScreenStrings.Actions.endSession.uppercased())
                         .font(.system(size: 20.sp, weight: .semibold))
@@ -52,9 +62,30 @@ struct ResultScreenButtons: View {
                     .font(.system(size: 18.sp, weight: .semibold))
             }
             .frame(maxWidth: .infinity, alignment: .center)
-            .sheet(isPresented: $showEmailPopUp) {
-                EmailResultPopup(results: result)
-                    .presentationDetents([.fraction(0.8)])
+            .fullScreenCover(isPresented: $showEmailPopUp) {
+                ResultPromptOverlay(layout: showEmailPromptSelectionLayout ? .promptSelection : .emailEntry) {
+                    EmailResultPopup(
+                        results: result,
+                        usesPromptSelectionLayout: $showEmailPromptSelectionLayout,
+                        hasShownPromptSelection: $hasShownPromptSelection
+                    )
+                }
+                .presentationBackground(Color.clear)
+            }
+            .fullScreenCover(isPresented: $showEndSessionPrompt) {
+                ResultPromptOverlay(layout: .promptSelection) {
+                    NextStepsPromptView(
+                        mode: .endSession,
+                        closeAction: {
+                            showEndSessionPrompt = false
+                            navigateToHome()
+                        },
+                        confirmAction: { title, description in
+                            await submitUserResponse(title: title, description: description)
+                        }
+                    )
+                }
+                .presentationBackground(Color.clear)
             }
         }
         .padding(.top, 24.h)
@@ -103,11 +134,91 @@ struct ResultScreenButtons: View {
             .clipShape(RoundedRectangle(cornerRadius: 12.r, style: .continuous))
         }
     }
+
+    private func submitUserResponse(title: String, description: String) async -> Bool {
+        guard let email = LocalUserStorage.loadEmail(),
+              !email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return false
+        }
+
+        do {
+            _ = try await submissionService.sendUserResponse(
+                email: email,
+                title: title,
+                description: description
+            )
+            await MainActor.run {
+                showEndSessionPrompt = false
+                navigateToHome(showResponseToast: true)
+            }
+            return true
+        } catch {
+            print("❌ Kiosk user response error:", error.localizedDescription)
+            return false
+        }
+    }
 }
 
-func navigateToHome(animated: Bool = true) {
+private enum ResultPromptOverlayLayout {
+    case emailEntry
+    case promptSelection
+
+    func width(in proxy: GeometryProxy) -> CGFloat {
+        switch self {
+        case .emailEntry:
+            return min(proxy.size.width * 0.79, 1088.w)
+        case .promptSelection:
+            return min(proxy.size.width * 0.82, 960.w)
+        }
+    }
+
+    func height(in proxy: GeometryProxy) -> CGFloat {
+        switch self {
+        case .emailEntry:
+            return min(proxy.size.height * 0.53, 1040.h)
+        case .promptSelection:
+            return min(proxy.size.height * 0.76, 1280.h)
+        }
+    }
+}
+
+private struct ResultPromptOverlay<Content: View>: View {
+    let layout: ResultPromptOverlayLayout
+    let content: () -> Content
+
+    init(layout: ResultPromptOverlayLayout = .promptSelection, @ViewBuilder content: @escaping () -> Content) {
+        self.layout = layout
+        self.content = content
+    }
+
+    var body: some View {
+        GeometryReader { proxy in
+            ZStack {
+                Color(AppColors.black)
+                    .opacity(0.28)
+                    .ignoresSafeArea()
+
+                content()
+                    .frame(
+                        width: layout.width(in: proxy),
+                        height: layout.height(in: proxy)
+                    )
+                    .background(Color(AppColors.white))
+                    .clipShape(RoundedRectangle(cornerRadius: 54.r, style: .continuous))
+                    .shadow(color: Color(AppColors.black).opacity(0.16), radius: 28, x: 0, y: 22)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+    }
+}
+
+func navigateToHome(animated: Bool = true, showResponseToast: Bool = false) {
     guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
           let window = windowScene.windows.first else { return }
+
+    if showResponseToast {
+        UserDefaults.standard.set(true, forKey: AppStorageKeys.responseReceivedToastPending)
+    }
 
     let rootView = RootView()
     let hostingController = UIHostingController(rootView: rootView)

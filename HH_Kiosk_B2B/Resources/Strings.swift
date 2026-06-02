@@ -24,6 +24,8 @@ enum ArticleScreenStrings {
 
 
 enum HomeScreenStrings {
+    static let responseReceivedToast = "Response Received"
+
     enum Weather {
         static let loading = "Loading Weather..."
         static let errorTitle = "Error:"
@@ -159,9 +161,12 @@ enum ResultScreenStrings {
     }
 
     enum EmailPopup {
-        static let inboxTitle = "Check your inbox!"
-        static let inboxMessage = "Your result has been sent to your email!\nTell a colleague about our Kiosk!"
-        static let returnHome = "Return to Home Screen"
+        static let emailSentConfirmation = "Your result has been sent to your email!"
+        static let whatNextTitle = "What next?"
+        static let oneLastThingTitle = "One last thing before you leave,"
+        static let supportSubtitle = "How can we support you from here?"
+        static let close = "Close"
+        static let confirm = "Confirm"
         static let title = "Send result to your mail"
         static let emailAddress = "Email address"
         static let emailPlaceholder = "Email"
@@ -171,6 +176,22 @@ enum ResultScreenStrings {
         static let sendMail = "Send mail"
         static let emailFailure = "Failed to send email. Please try again."
         static let secureAndPrivate = "Secure and Private"
+
+        enum NextSteps {
+            static let talkToDoctorTitle = "Talk to a Hibiscus Doctor"
+            static let talkToDoctorSubtitle = "Connect with a Hibiscus Health physician to review your results."
+            static let talkToDoctorBodyPrefix = "Your results are in -- and a Hibiscus Health physician is ready to walk you through them. Schedule at this link: "
+            static let talkToDoctorLink = "https://calendly.com/david-hibiscushealth/30min"
+            static let talkToDoctorBodySuffix = ". Alternatively, the scheduling link will be emailed to you if you emailed your results."
+            static let dietitianTitle = "Explore Hibiscus Dietitian Care"
+            static let dietitianSubtitle = "Get personalized nutrition guidance from a registered dietitian."
+            static let dietitianBody = "Turn your data into a plan. A Registered Dietitian can review your results and build a nutrition plan around your specific needs to improve your health. A scheduling link will be sent to your email."
+            static let monitoringTitle = "Keep monitoring my health"
+            static let monitoringSubtitle = "Schedule regular scans to track my biomarkers over time."
+            static let monitoringBodyPrefix = "One scan is a snapshot. Regular scans show the full picture. Download the mobile app by scanning the appropriate QR code and use dietitian code "
+            static let monitoringCode = "\"KIRKLAND\""
+            static let monitoringBodySuffix = " to sign-up. Take a picture of this pop-up to remember the code later on."
+        }
     }
 
     enum Metrics {
