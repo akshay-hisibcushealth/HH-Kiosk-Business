@@ -45,7 +45,7 @@ enum HomeScreenStrings {
 
     enum ReadSection {
         static let loading = "Loading..."
-        static let failedToLoadPrefix = "Failed to load:"
+        static let unavailableTitle = "Content Temporarily Unavailable"
         static let todaysReadTitle = "Today's Read"
         static let articleBadge = "Article"
         static let hrDeskTitle = "From HR Desk"

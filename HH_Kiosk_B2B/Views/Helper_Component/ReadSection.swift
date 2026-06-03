@@ -11,9 +11,7 @@ struct ReadSection: View {
                         .frame(maxWidth: .infinity, alignment: .center)
                         .padding()
                 } else if let error = viewModel.errorMessage {
-                    Text("\(HomeScreenStrings.ReadSection.failedToLoadPrefix) \(error)")
-                        .foregroundColor(Color(AppColors.error))
-                        .padding()
+                    ReadSectionErrorView(message: error)
                 } else {
                     // Today’s Read
                     if let today = viewModel.todayRead {
@@ -29,6 +27,34 @@ struct ReadSection: View {
             .frame(height: 650.h)
             .padding(.horizontal, 16.w)
         }
+    }
+}
+
+private struct ReadSectionErrorView: View {
+    let message: String
+
+    var body: some View {
+        VStack(spacing: 14.h) {
+            Image(systemName: "wifi.exclamationmark")
+                .font(.system(size: 36.sp, weight: .semibold))
+                .foregroundColor(Color(AppColors.companyAccentText))
+
+            Text(HomeScreenStrings.ReadSection.unavailableTitle)
+                .font(.system(size: 26.sp, weight: .semibold))
+                .foregroundColor(Color(AppColors.sectionHeaderText))
+                .multilineTextAlignment(.center)
+
+            Text(message)
+                .font(.system(size: 20.sp, weight: .regular))
+                .foregroundColor(Color(AppColors.bodyTextMuted))
+                .multilineTextAlignment(.center)
+                .lineLimit(3)
+                .padding(.horizontal, 20.w)
+        }
+        .frame(maxWidth: .infinity, minHeight: 250.h)
+        .padding()
+        .background(Color(AppColors.overlayMint))
+        .clipShape(RoundedRectangle(cornerRadius: 24.r))
     }
 }
 
