@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct ProfileHeightSection: View {
     @Binding var selectedHeight: Int?
@@ -19,8 +20,8 @@ struct ProfileHeightSection: View {
     var body: some View {
         VStack(alignment: .leading) {
             Text(PhysicalAttributesScreenStrings.Form.heightLabel)
-                .font(.body)
-                .fontWeight(.bold)
+                .font(.system(size: 24.sp, weight: .bold))
+                .foregroundColor(Color(AppColors.black))
 
             Button {
                 // Initialize temp values when opening picker
@@ -44,39 +45,31 @@ struct ProfileHeightSection: View {
                             .foregroundColor(Color(AppColors.black))
                     } else {
                         Text(PhysicalAttributesScreenStrings.Form.heightPlaceholder)
-                            .foregroundColor(Color(AppColors.gray))
+                            .foregroundColor(Color(AppColors.physicalAttributeFieldPlaceholder))
                     }
                     Spacer()
                 }
-                .padding(.vertical, 20.h)
-                .padding(.horizontal, 16.w)
-                .background(Color(AppColors.white))
+                .font(.system(size: 28.sp, weight: .regular))
+                .padding(.vertical, 26.h)
+                .padding(.horizontal, 28.w)
+                .frame(maxWidth: .infinity, minHeight: 94.h)
+                .background(heightFieldBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 12.r, style: .continuous))
                 .overlay(
                     RoundedRectangle(cornerRadius: 12.r)
-                        .stroke(Color(AppColors.black), lineWidth: 1)
+                        .stroke(Color(AppColors.physicalAttributeFieldBorder), lineWidth: 1.5)
                 )
             }
-            .popover(isPresented: $showPicker) {
-                VStack {
-                    Text(PhysicalAttributesScreenStrings.Form.heightSheetTitle)
-                        .font(.headline)
-                        .padding(.top, 12)
-
-                    HStack(spacing: 16) {
-                        WheelSelector(
-                            items: feetRange,
-                            selection: $tempFeet,
-                            label: PhysicalAttributesScreenStrings.Form.feetUnit
-                        )
-
-                        WheelSelector(
-                            items: inchRange,
-                            selection: $tempInches,
-                            label: PhysicalAttributesScreenStrings.Form.inchesUnit
-                        )
-                    }
-
-                    Button(PhysicalAttributesScreenStrings.Form.doneButton) {
+            .fullScreenCover(isPresented: $showPicker) {
+                HeightSelectionDialog(
+                    tempFeet: $tempFeet,
+                    tempInches: $tempInches,
+                    feetRange: feetRange,
+                    inchRange: inchRange,
+                    onDismiss: {
+                        showPicker = false
+                    },
+                    onProceed: {
                         // ✅ COMMIT ONLY HERE
                         committedFeet = tempFeet
                         committedInches = tempInches
@@ -87,9 +80,8 @@ struct ProfileHeightSection: View {
                         showPicker = false
                         UIDevice.current.playInputClick()
                     }
-                    .padding(.bottom, 12)
-                }
-                .frame(width: 320.w, height: 300.h)
+                )
+                .presentationBackground(.clear)
             }
         }
         .onAppear {
@@ -111,8 +103,335 @@ struct ProfileHeightSection: View {
         committedFeet = totalInches / 12
         committedInches = totalInches % 12
     }
+
+    private var heightFieldBackground: Color {
+        committedFeet == nil || committedInches == nil
+            ? Color(AppColors.physicalAttributeFieldBackground)
+            : Color(AppColors.white)
+    }
 }
 
+private struct HeightSelectionDialog: View {
+    @Binding var tempFeet: Int
+    @Binding var tempInches: Int
+
+    let feetRange: [Int]
+    let inchRange: [Int]
+    let onDismiss: () -> Void
+    let onProceed: () -> Void
+
+    private var selectedTotalInches: Int {
+        tempFeet * 12 + tempInches
+    }
+
+    private var totalInchesRange: [Int] {
+        guard let minFeet = feetRange.min(), let maxFeet = feetRange.max() else {
+            return []
+        }
+
+        return Array((minFeet * 12)...((maxFeet * 12) + 11))
+    }
+
+    var body: some View {
+        ZStack {
+            Color.black.opacity(0.28)
+                .ignoresSafeArea()
+                .onTapGesture {
+                    onDismiss()
+                }
+
+            VStack(spacing: 0) {
+                Text("Scroll to select your height")
+                    .font(.system(size: 26.sp, weight: .bold))
+                    .foregroundColor(Color(AppColors.primary))
+                    .padding(.top, 36.h)
+
+                HStack(alignment: .center, spacing: 34.w) {
+                    heightRuler
+
+                    HStack(alignment: .firstTextBaseline, spacing: 6.w) {
+                        Text("\(tempFeet)'\(tempInches)")
+                            .font(.system(size: 36.sp, weight: .bold))
+                            .foregroundColor(Color(AppColors.black))
+                        Text(PhysicalAttributesScreenStrings.Form.feetUnit)
+                            .font(.system(size: 18.sp, weight: .regular))
+                            .foregroundColor(Color(AppColors.gray))
+                    }
+                    .frame(width: 130.w, alignment: .leading)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.top, 72.h)
+
+                Spacer(minLength: 46.h)
+
+                Button(action: onProceed) {
+                    HStack(spacing: 8.w) {
+                        Text("Proceed")
+                            .font(.system(size: 20.sp, weight: .semibold))
+                        Image(systemName: "arrow.right.circle")
+                            .font(.system(size: 20.sp, weight: .semibold))
+                    }
+                    .foregroundColor(Color(AppColors.black))
+                    .frame(maxWidth: .infinity, minHeight: 72.h)
+                    .background(Color(AppColors.ctaGreen))
+                    .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
+                }
+                .buttonStyle(.plain)
+                .padding(.horizontal, 42.w)
+                .padding(.bottom, 42.h)
+            }
+            .frame(width: 520.w, height: 760.h)
+            .background(Color(AppColors.white))
+            .clipShape(RoundedRectangle(cornerRadius: 28.r, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 28.r, style: .continuous)
+                    .stroke(Color(AppColors.primary).opacity(0.18), lineWidth: 2.w)
+            )
+            .shadow(color: Color.black.opacity(0.18), radius: 30.w, y: 12.h)
+        }
+    }
+
+    private var heightRuler: some View {
+        HeightRulerScrollPicker(
+            selectedTotalInches: Binding(
+                get: { selectedTotalInches },
+                set: { totalInches in
+                    tempFeet = totalInches / 12
+                    tempInches = totalInches % 12
+                }
+            ),
+            totalInchesRange: totalInchesRange
+        )
+        .frame(width: 170.w, height: 430.h)
+        .background(Color(AppColors.white))
+        .clipShape(RoundedRectangle(cornerRadius: 14.r, style: .continuous))
+        .shadow(color: Color.black.opacity(0.08), radius: 18.w, y: 8.h)
+        .overlay(alignment: .center) {
+            RoundedRectangle(cornerRadius: 2.r, style: .continuous)
+                .fill(Color(AppColors.primary))
+                .frame(width: 108.w, height: 4.h)
+                .offset(x: 18.w)
+        }
+    }
+}
+
+struct HeightRulerScrollPicker: UIViewRepresentable {
+    @Binding var selectedTotalInches: Int
+
+    let totalInchesRange: [Int]
+
+    func makeUIView(context: Context) -> SnappingHeightRulerView {
+        let view = SnappingHeightRulerView()
+        view.onSelectionSettled = { selectedTotalInches = $0 }
+        return view
+    }
+
+    func updateUIView(_ uiView: SnappingHeightRulerView, context: Context) {
+        uiView.configure(
+            totalInchesRange: totalInchesRange,
+            selectedTotalInches: selectedTotalInches,
+            rowHeight: 12.h,
+            selectedColor: AppColors.primary,
+            nearbyColor: AppColors.ctaGreen,
+            mutedColor: AppColors.gray
+        )
+    }
+}
+
+final class SnappingHeightRulerView: UIView, UIScrollViewDelegate {
+    var onSelectionSettled: ((Int) -> Void)?
+
+    private let scrollView = UIScrollView()
+    private let rulerContentView = HeightRulerContentView()
+    private var totalInchesRange: [Int] = []
+    private var selectedTotalInches = 0
+    private var rowHeight: CGFloat = 12
+    private var didInitialScroll = false
+    private var isApplyingSelection = false
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setup()
+    }
+
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        setup()
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        scrollView.frame = bounds
+        updateContentSize()
+
+        if !didInitialScroll {
+            didInitialScroll = true
+            scrollToSelected(animated: false)
+        }
+    }
+
+    func configure(
+        totalInchesRange: [Int],
+        selectedTotalInches: Int,
+        rowHeight: CGFloat,
+        selectedColor: UIColor,
+        nearbyColor: UIColor,
+        mutedColor: UIColor
+    ) {
+        let previousSelected = self.selectedTotalInches
+        let rangeChanged = self.totalInchesRange != totalInchesRange
+
+        self.totalInchesRange = totalInchesRange
+        self.selectedTotalInches = selectedTotalInches
+        self.rowHeight = rowHeight
+
+        rulerContentView.configure(
+            totalInchesRange: totalInchesRange,
+            selectedTotalInches: selectedTotalInches,
+            rowHeight: rowHeight,
+            selectedColor: selectedColor,
+            nearbyColor: nearbyColor,
+            mutedColor: mutedColor
+        )
+
+        updateContentSize()
+
+        if rangeChanged {
+            didInitialScroll = false
+        } else if previousSelected != selectedTotalInches && !isApplyingSelection {
+            scrollToSelected(animated: true)
+        }
+    }
+
+    private func setup() {
+        backgroundColor = .clear
+        scrollView.backgroundColor = .clear
+        scrollView.showsVerticalScrollIndicator = false
+        scrollView.decelerationRate = .fast
+        scrollView.delegate = self
+        scrollView.addSubview(rulerContentView)
+        addSubview(scrollView)
+    }
+
+    private func updateContentSize() {
+        guard !totalInchesRange.isEmpty else { return }
+
+        let contentHeight = CGFloat(max(totalInchesRange.count - 1, 0)) * rowHeight
+        rulerContentView.frame = CGRect(x: 0, y: 0, width: bounds.width, height: contentHeight)
+        scrollView.contentSize = CGSize(width: bounds.width, height: contentHeight)
+        let inset = max(bounds.height / 2, 0)
+        scrollView.contentInset = UIEdgeInsets(top: inset, left: 0, bottom: inset, right: 0)
+    }
+
+    private func scrollToSelected(animated: Bool) {
+        guard let index = totalInchesRange.firstIndex(of: selectedTotalInches) else { return }
+
+        let targetY = (CGFloat(index) * rowHeight) - scrollView.contentInset.top
+        scrollView.setContentOffset(CGPoint(x: 0, y: targetY), animated: animated)
+    }
+
+    private func snappedOffsetY(for proposedOffsetY: CGFloat) -> CGFloat {
+        guard !totalInchesRange.isEmpty else { return proposedOffsetY }
+
+        let rawIndex = (proposedOffsetY + scrollView.contentInset.top) / rowHeight
+        let snappedIndex = min(max(Int(round(rawIndex)), 0), totalInchesRange.count - 1)
+        return (CGFloat(snappedIndex) * rowHeight) - scrollView.contentInset.top
+    }
+
+    private func settleSelection() {
+        guard !totalInchesRange.isEmpty else { return }
+
+        let snappedY = snappedOffsetY(for: scrollView.contentOffset.y)
+        if abs(scrollView.contentOffset.y - snappedY) > 0.5 {
+            scrollView.setContentOffset(CGPoint(x: 0, y: snappedY), animated: true)
+        }
+
+        let index = min(max(Int(round((snappedY + scrollView.contentInset.top) / rowHeight)), 0), totalInchesRange.count - 1)
+        let totalInches = totalInchesRange[index]
+        selectedTotalInches = totalInches
+        rulerContentView.selectedTotalInches = totalInches
+
+        isApplyingSelection = true
+        onSelectionSettled?(totalInches)
+        isApplyingSelection = false
+    }
+
+    func scrollViewWillEndDragging(
+        _ scrollView: UIScrollView,
+        withVelocity velocity: CGPoint,
+        targetContentOffset: UnsafeMutablePointer<CGPoint>
+    ) {
+        targetContentOffset.pointee.y = snappedOffsetY(for: targetContentOffset.pointee.y)
+    }
+
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        if !decelerate {
+            settleSelection()
+        }
+    }
+
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        settleSelection()
+    }
+
+    func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+        settleSelection()
+    }
+}
+
+final class HeightRulerContentView: UIView {
+    var totalInchesRange: [Int] = []
+    var selectedTotalInches: Int = 0 {
+        didSet { setNeedsDisplay() }
+    }
+    var rowHeight: CGFloat = 12
+    var selectedColor: UIColor = AppColors.primary
+    var nearbyColor: UIColor = AppColors.ctaGreen
+    var mutedColor: UIColor = AppColors.gray
+
+    func configure(
+        totalInchesRange: [Int],
+        selectedTotalInches: Int,
+        rowHeight: CGFloat,
+        selectedColor: UIColor,
+        nearbyColor: UIColor,
+        mutedColor: UIColor
+    ) {
+        self.totalInchesRange = totalInchesRange
+        self.selectedTotalInches = selectedTotalInches
+        self.rowHeight = rowHeight
+        self.selectedColor = selectedColor
+        self.nearbyColor = nearbyColor
+        self.mutedColor = mutedColor
+        backgroundColor = .clear
+        setNeedsDisplay()
+    }
+
+    override func draw(_ rect: CGRect) {
+        guard let context = UIGraphicsGetCurrentContext() else { return }
+        context.setLineCap(.round)
+
+        for (index, totalInches) in totalInchesRange.enumerated() {
+            let y = CGFloat(index) * rowHeight
+            let isSelected = totalInches == selectedTotalInches
+            let isNearby = abs(totalInches - selectedTotalInches) <= 8
+            let isFoot = totalInches % 12 == 0
+            let isHalfFoot = totalInches % 6 == 0
+            let tickWidth: CGFloat = {
+                if isSelected || isFoot { return 96.w }
+                if isHalfFoot { return 72.w }
+                return 38.w
+            }()
+
+            let color = isNearby ? nearbyColor : mutedColor.withAlphaComponent(0.22)
+            context.setStrokeColor((isSelected ? selectedColor : color).cgColor)
+            context.setLineWidth(isSelected ? 4.h : 2.h)
+            context.move(to: CGPoint(x: bounds.maxX - tickWidth - 18.w, y: y))
+            context.addLine(to: CGPoint(x: bounds.maxX - 18.w, y: y))
+            context.strokePath()
+        }
+    }
+}
 
 struct WheelSelector<T: Hashable & CustomStringConvertible>: View {
     let items: [T]

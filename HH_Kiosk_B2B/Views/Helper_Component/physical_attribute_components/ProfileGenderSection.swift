@@ -9,8 +9,7 @@ struct ProfileGenderSection: View {
     var body: some View {
         VStack(alignment: .leading) {
             Text(PhysicalAttributesScreenStrings.Form.genderLabel)
-                .font(.body)
-                .fontWeight(.bold)
+                .font(.system(size: 24.sp, weight: .bold))
                 .foregroundColor(Color(AppColors.black))
 
             HStack {
@@ -27,17 +26,23 @@ struct ProfileGenderSection: View {
                                 .foregroundColor(Color(AppColors.black))
                         } else {
                             Text(PhysicalAttributesScreenStrings.Form.genderPlaceholder)
-                                .foregroundColor(Color(AppColors.gray))
+                                .foregroundColor(Color(AppColors.physicalAttributeFieldPlaceholder))
                         }
                         Spacer()
                     }
-                    .padding(.vertical, 20.h)
-                    .padding(.horizontal, 16.w)
-                    .frame(maxWidth: .infinity)
-                    .background(Color(AppColors.white))
+                    .font(.system(size: 28.sp, weight: .regular))
+                    .padding(.vertical, 26.h)
+                    .padding(.horizontal, 28.w)
+                    .frame(maxWidth: .infinity, minHeight: 94.h)
+                    .background(
+                        localGender == nil
+                            ? Color(AppColors.physicalAttributeFieldBackground)
+                            : Color(AppColors.white)
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 12.r, style: .continuous))
                     .overlay(
                         RoundedRectangle(cornerRadius: 12.r)
-                            .stroke(Color(AppColors.black), lineWidth: 1)
+                            .stroke(Color(AppColors.physicalAttributeFieldBorder), lineWidth: 1.5)
                     )
                 }
                 .popover(isPresented: $showPicker) {

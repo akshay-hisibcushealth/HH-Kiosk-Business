@@ -75,10 +75,10 @@ enum HomeScreenStrings {
 
 
 enum PhysicalAttributesScreenStrings {
-    static let title = "Physical Attributes"
-    static let subtitle = "For best accuracy, kindly complete the form below."
-    static let privacyMessage = "We value your privacy. Your information will NOT be shared externally."
-    static let watchQuickDemo = "Watch Quick Demo"
+    static let title = "Tell us about yourself"
+    static let subtitle = "We use these details to ensure your scan results are as accurate as possible."
+    static let privacyMessage = "Your privacy is protected. Your information will NOT be stored during this process and will only be used for calculations."
+    static let watchQuickDemo = "Watch Demo"
     static let proceedToScan = "Proceed to Scan"
     #if DEBUG
     static let debugProceedToResults = "Skip to Results"
@@ -101,18 +101,18 @@ enum PhysicalAttributesScreenStrings {
         static let emailLabel = "Email"
         static let emailPlaceholder = "Enter email"
         static let emailInlineError = "Enter a valid email address"
-        static let ageLabel = "Age (years)"
-        static let agePlaceholder = "Select age"
-        static let heightLabel = "Height (ft/in)"
-        static let heightPlaceholder = "Select height"
+        static let ageLabel = "Age"
+        static let agePlaceholder = "Year"
+        static let heightLabel = "Height"
+        static let heightPlaceholder = "Feet / Inches"
         static let heightSheetTitle = "Select Height"
         static let feetUnit = "ft"
         static let inchesUnit = "in"
         static let doneButton = "Done"
-        static let weightLabel = "Weight (lbs)"
-        static let weightPlaceholder = "Select weight"
-        static let genderLabel = "Gender (at birth)"
-        static let genderPlaceholder = "Select Gender"
+        static let weightLabel = "Weight"
+        static let weightPlaceholder = "Lbs"
+        static let genderLabel = "Sex (at birth)"
+        static let genderPlaceholder = "Male / Female"
         static let genderOptions = ["Male", "Female"]
     }
 

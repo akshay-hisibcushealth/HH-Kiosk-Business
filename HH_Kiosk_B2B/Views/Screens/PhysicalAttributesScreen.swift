@@ -17,6 +17,7 @@ struct PhysicalAttributesScreen: View {
 
     @EnvironmentObject private var appState: AppState
     @EnvironmentObject private var faceManager: FaceScanManager
+    @Environment(\.dismiss) private var dismiss
     @State private var isLoading = false
     @State private var showWebView = false
     @State private var height: Int? = nil   // Make optional
@@ -51,145 +52,55 @@ struct PhysicalAttributesScreen: View {
     var body: some View {
         VStack(spacing: 0) {
             Toolbar()
-            VStack(alignment: .leading) {
-                // Header
-                HStack {
-                    VStack(alignment: .leading) {
-                        buildSemiBoldText(PhysicalAttributesScreenStrings.title, 44.sp) .padding(.top,60.h)
-                     
+            VStack(alignment: .leading, spacing: 0) {
+                HStack(alignment: .top) {
+                    VStack(alignment: .leading, spacing: 0) {
+                        buildSemiBoldText(PhysicalAttributesScreenStrings.title, 42.sp, color: Color(AppColors.bodyTextMuted))
+
                         Text(PhysicalAttributesScreenStrings.subtitle)
                             .font(.system(size: 24.sp, weight: .regular))
                             .foregroundColor(Color(AppColors.physicalAttributeText))
+                            .padding(.top, 16.h)
                     }
+
                     Spacer()
+
                     Button(action: {
                         showSettings = true
                     }) {
                         Image(systemName: AppIconNames.Symbol.gearshapeFill)
                             .font(.system(size: 40.w))
                             .foregroundColor(.black.opacity(0.5))
-                            .padding(.top,60.h)
-                            .padding(.trailing,36.w)
+                            .padding(.top, 8.h)
+                            .padding(.trailing, 36.w)
                     }
+                    .buttonStyle(.plain)
                 }
-                
-                // Avatar
-                Image(AppIconNames.Asset.avatarImage)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    // Dynamic height based on keyboard state
-                    .frame(width: 260.w, height: keyboard.isKeyboardVisible ? 0 : 370.h)
-                    .opacity(keyboard.isKeyboardVisible ? 0 : 1)
-                    .clipped() // Ensures it doesn't bleed out when height is 0
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.top, keyboard.isKeyboardVisible ? 0 : 100.h) // Reduce padding when hidden
-                    .animation(.easeInOut(duration: 0.3), value: keyboard.isKeyboardVisible)
-                
-                // Privacy info
-                HStack {
-                    Image(AppIconNames.Asset.lock)
-                        .resizable()
-                        .foregroundColor(Color(AppColors.blue))
-                        .frame(width: 45.w,height: 45.w)
-                    Text(PhysicalAttributesScreenStrings.privacyMessage)
-                        .font(.system(size: 24.sp, weight: .regular))
-                        .italic()
-                        .foregroundColor(Color(AppColors.supportLinkText))
-                        .lineLimit(2)
-                        .padding(.leading,16.w)
-                        .padding(.trailing,120.w)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading) 
-                .padding(.all, 20.w)
-                .background(Color(AppColors.infoPanelBackground))
-                .cornerRadius(8) // must come before overlay
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12.r)
-                        .stroke(Color(AppColors.formBorder), lineWidth: 1)
-                )
-                .padding(.vertical, 24.h)
-                
-                // Form sections
-                HStack(spacing: 42.w) {
-                    VStack(spacing: 24.h) {
-                        HStack {
-                            ProfileEmailSection(email: $email)
-                        }
-                        HStack {
-                            ProfileHeightSection(selectedHeight: $height)
-                            ProfileWeightSection(selectedWeight: $weight)
-                        }
-                        
-                        HStack {
-                            ProfileAgeSection(selectedAge: $age)
-                            ProfileGenderSection(selectedGender: $gender)
-                        }
-                    }
-                    .padding(.top, 12)
-                }
-                
-                Spacer()
-                
-                // Action buttons
-                HStack(spacing: 20) {
-                    Button(action: {
-                        hideKeyboard()
-                        showWebView = true
-                    }) {
-                        HStack {
-                            Image(systemName: AppIconNames.Symbol.playCircleFill)
-                            Text(PhysicalAttributesScreenStrings.watchQuickDemo)
-                                .font(.system(size: 30.sp,weight: .semibold))
+                .padding(.top, 28.h)
 
-                        }
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color(AppColors.gray).opacity(0.2))
-                        .cornerRadius(10)
-                    }
-                    
-                    Button(action: {
-                        hideKeyboard()
-                        if validateInputs() {
-                           proceedToScan()
-                        }
-                    }) {
-                        if isLoading {
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle(tint: Color(AppColors.white)))
-                                .padding()
-                                .frame(maxWidth: .infinity)
-                        } else {
-                            Text(PhysicalAttributesScreenStrings.proceedToScan)
-                                .font(.system(size: 30.sp,weight: .semibold))
-                                .foregroundColor(Color(AppColors.black))
-                                .padding()
-                                .frame(maxWidth: .infinity)
-                        }
-                    }
-                    .background(Color(AppColors.ctaGreen))
-                    .cornerRadius(10)
+                privacyBanner
+                    .padding(.top, 38.h)
 
-                    #if DEBUG
-                    Button(action: {
-                        hideKeyboard()
-                        showDebugResults = true
-                    }) {
-                        Text(PhysicalAttributesScreenStrings.debugProceedToResults)
-                            .font(.system(size: 30.sp,weight: .semibold))
-                            .foregroundColor(Color(AppColors.white))
-                            .padding()
-                            .frame(maxWidth: .infinity)
-                    }
-                    .background(Color(AppColors.primary))
-                    .cornerRadius(10)
-                    #endif
+                HStack(alignment: .top, spacing: 88.w) {
+                    bodyImage
+                        .frame(width: 380.w, height: keyboard.isKeyboardVisible ? 0 : 800.h)
+                        .opacity(keyboard.isKeyboardVisible ? 0 : 1)
+                        .clipped()
+                        .animation(.easeInOut(duration: 0.3), value: keyboard.isKeyboardVisible)
+
+                    formColumn
+                        .frame(maxWidth: 560.w)
+                        .padding(.top, 28.h)
                 }
-                .padding(.top, 30)
+                .padding(.top, 72.h)
+
+                Spacer(minLength: 24.h)
+
+                actionButtons
+                    .padding(.bottom, 36.h)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .padding()
+            .padding(.horizontal, 50.w)
         }
         .onAppear {
             previewOrientation = Self.loadSavedPreviewOrientation()
@@ -246,6 +157,114 @@ struct PhysicalAttributesScreen: View {
                 title: Text(validationMessage),
                 dismissButton: .default(Text(PhysicalAttributesScreenStrings.alertDismiss))
             )
+        }
+    }
+
+    private var privacyBanner: some View {
+        HStack(alignment: .center, spacing: 22.w) {
+            Image(AppIconNames.Asset.lock)
+                .resizable()
+                .frame(width: 42.w, height: 42.w)
+
+            Text(privacyAttributedText)
+                .font(.system(size: 22.sp, weight: .regular))
+                .foregroundColor(Color(AppColors.supportLinkText))
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 28.w)
+        .padding(.vertical, 22.h)
+        .background(Color(AppColors.infoPanelBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 10.r, style: .continuous)
+                .stroke(Color(AppColors.formBorder), lineWidth: 1)
+        )
+    }
+
+    private var privacyAttributedText: AttributedString {
+        var text = AttributedString(PhysicalAttributesScreenStrings.privacyMessage)
+        if let range = text.range(of: "Your privacy is protected.") {
+            text[range].font = .system(size: 22.sp, weight: .bold)
+        }
+        return text
+    }
+
+    private var bodyImage: some View {
+        ZStack {
+            Color.white
+
+            AnimatedGIFView(assetName: AppIconNames.Asset.bodyAnimation)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+    }
+
+    private var formColumn: some View {
+        VStack(alignment: .leading, spacing: 52.h) {
+            ProfileEmailSection(email: $email)
+            ProfileHeightSection(selectedHeight: $height)
+            ProfileWeightSection(selectedWeight: $weight)
+            ProfileAgeSection(selectedAge: $age)
+            ProfileGenderSection(selectedGender: $gender)
+        }
+    }
+
+    private var actionButtons: some View {
+        HStack(spacing: 18.w) {
+            Button(action: {
+                hideKeyboard()
+                showWebView = true
+            }) {
+                HStack(spacing: 18.w) {
+                    Image(systemName: AppIconNames.Symbol.playCircleFill)
+                        .font(.system(size: 34.sp, weight: .semibold))
+                    Text(PhysicalAttributesScreenStrings.watchQuickDemo)
+                        .font(.system(size: 28.sp, weight: .bold))
+                }
+                .foregroundColor(Color(AppColors.sectionHeaderText))
+                .frame(maxWidth: .infinity, minHeight: 88.h)
+                .background(Color(AppColors.gray).opacity(0.18))
+                .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
+            }
+            .buttonStyle(.plain)
+            .frame(width: 305.w)
+
+            Button(action: {
+                hideKeyboard()
+                if validateInputs() {
+                    proceedToScan()
+                }
+            }) {
+                if isLoading {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: Color(AppColors.black)))
+                        .frame(maxWidth: .infinity, minHeight: 88.h)
+                } else {
+                    Text(PhysicalAttributesScreenStrings.proceedToScan)
+                        .font(.system(size: 28.sp, weight: .bold))
+                        .foregroundColor(Color(AppColors.clientIDDialogBackground))
+                        .frame(maxWidth: .infinity, minHeight: 88.h)
+                }
+            }
+            .background(Color(AppColors.ctaGreen))
+            .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
+            .buttonStyle(.plain)
+
+            #if DEBUG
+            Button(action: {
+                hideKeyboard()
+                showDebugResults = true
+            }) {
+                Text(PhysicalAttributesScreenStrings.debugProceedToResults)
+                    .font(.system(size: 28.sp, weight: .bold))
+                    .foregroundColor(Color(AppColors.white))
+                    .frame(maxWidth: .infinity, minHeight: 88.h)
+                    .background(Color(AppColors.primary))
+                    .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
+            }
+            .buttonStyle(.plain)
+            #endif
         }
     }
     

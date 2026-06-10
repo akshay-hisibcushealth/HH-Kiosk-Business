@@ -1,64 +1,86 @@
 import SwiftUI
+import UIKit
 
 struct ProfileAgeSection: View {
     @Binding var selectedAge: Int?
     @State private var ageInput: String = ""
-    
-    // 🔹 1. Add FocusState to control keyboard visibility
-    @FocusState private var isInputActive: Bool
+    @State private var tempAge: Int = 30
+    @State private var showPicker = false
     
     private let ageRange = 13...120
 
     var body: some View {
         VStack(alignment: .leading) {
             Text(PhysicalAttributesScreenStrings.Form.ageLabel)
-                .font(.body)
-                .fontWeight(.bold)
+                .font(.system(size: 24.sp, weight: .bold))
                 .foregroundColor(Color(AppColors.black))
 
-            TextField(PhysicalAttributesScreenStrings.Form.agePlaceholder, text: $ageInput)
-                .focused($isInputActive) // 🔹 2. Bind the text field to the focus state
-                .textFieldStyle(.plain)
-                .foregroundColor(Color(AppColors.black))
-                .padding(.vertical, 20.h)
-                .padding(.horizontal, 16.w)
-                .frame(maxWidth: .infinity)
-                .background(Color(AppColors.white))
+            Button {
+                tempAge = selectedAge ?? currentAgeInput ?? 30
+                showPicker = true
+            } label: {
+                HStack {
+                    if ageInput.isEmpty {
+                        Text(PhysicalAttributesScreenStrings.Form.agePlaceholder)
+                            .foregroundColor(Color(AppColors.physicalAttributeFieldPlaceholder))
+                    } else {
+                        Text(ageInput)
+                            .foregroundColor(Color(AppColors.black))
+                    }
+                    Spacer()
+                }
+                .font(.system(size: 28.sp, weight: .regular))
+                .padding(.vertical, 26.h)
+                .padding(.horizontal, 28.w)
+                .frame(maxWidth: .infinity, minHeight: 94.h)
+                .background(ageInput.isEmpty ? Color(AppColors.physicalAttributeFieldBackground) : Color(AppColors.white))
+                .clipShape(RoundedRectangle(cornerRadius: 12.r, style: .continuous))
                 .overlay(
                     RoundedRectangle(cornerRadius: 12.r)
-                        .stroke(Color(AppColors.black), lineWidth: 1)
+                        .stroke(Color(AppColors.physicalAttributeFieldBorder), lineWidth: 1.5)
                 )
-                // Logic to filter input and handle range
-                .onChange(of: ageInput) { newValue, _ in
-                    // 1. Filter numeric digits only
-                    let filtered = newValue.filter { "0123456789".contains($0) }
-                    
-                    // 2. Limit to 3 digits (since max age is 120)
-                    var finalValue = String(filtered.prefix(3))
-                    
-                    // 3. Apply range guard (13-120)
-                    if let age = Int(finalValue) {
-                        // If the value exceeds the supported range, clear it immediately.
-                        if age > ageRange.upperBound {
-                            finalValue = ""
-                        }
-                        
-                        selectedAge = Int(finalValue)
-                    
-                    } else {
-                        selectedAge = nil // Clear binding if field is empty
+            }
+            .buttonStyle(.plain)
+            .fullScreenCover(isPresented: $showPicker) {
+                PhysicalAttributeNumberSelectionDialog(
+                    title: "Scroll to select your age",
+                    value: $tempAge,
+                    valueRange: Array(ageRange),
+                    unit: "years",
+                    onDismiss: {
+                        showPicker = false
+                    },
+                    onProceed: {
+                        commitAge(tempAge)
+                        showPicker = false
+                        UIDevice.current.playInputClick()
                     }
-                    
-                    // 4. Update the text field state to stay in sync
-                    if ageInput != finalValue {
-                        ageInput = finalValue
-                    }
-                }
-                .onAppear {
-                    if let age = selectedAge {
-                        ageInput = String(age)
-                    }
-                }
+                )
+                .presentationBackground(.clear)
+            }
+            .onAppear {
+                syncAgeInput()
+            }
+            .onChange(of: selectedAge) { _, _ in
+                syncAgeInput()
+            }
         }
+    }
+
+    private var currentAgeInput: Int? {
+        Int(ageInput)
+    }
+
+    private func syncAgeInput() {
+        if let selectedAge {
+            ageInput = String(selectedAge)
+        } else {
+            ageInput = ""
+        }
+    }
+
+    private func commitAge(_ age: Int) {
+        ageInput = String(age)
+        selectedAge = age
     }
 }

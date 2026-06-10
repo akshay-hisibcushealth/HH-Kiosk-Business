@@ -6,6 +6,7 @@ enum AppIconNames {
         static let articleFaceScan = "article_face_scan"
         static let articleIcon = "article_icon"
         static let avatarImage = "avatar_image"
+        static let bodyAnimation = "body_animation"
         static let cholesterolIcon = "chol_icon"
         static let clouds = "clouds"
         static let customizedImage = "customized_image"
