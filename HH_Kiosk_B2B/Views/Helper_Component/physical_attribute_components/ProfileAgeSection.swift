@@ -17,7 +17,7 @@ struct ProfileAgeSection: View {
 
             Button {
                 tempAge = selectedAge ?? currentAgeInput ?? 30
-                showPicker = true
+                openPickerAfterDismissingKeyboard()
             } label: {
                 HStack {
                     if ageInput.isEmpty {
@@ -44,6 +44,7 @@ struct ProfileAgeSection: View {
             .fullScreenCover(isPresented: $showPicker) {
                 PhysicalAttributeNumberSelectionDialog(
                     title: "Scroll to select your age",
+                    confirmTitle: "Confirm Age",
                     value: $tempAge,
                     valueRange: Array(ageRange),
                     unit: "years",
@@ -82,5 +83,14 @@ struct ProfileAgeSection: View {
     private func commitAge(_ age: Int) {
         ageInput = String(age)
         selectedAge = age
+    }
+
+    private func openPickerAfterDismissingKeyboard() {
+        NotificationCenter.default.post(name: .physicalAttributesDismissInputFocus, object: nil)
+        hideKeyboard()
+
+        DispatchQueue.main.async {
+            showPicker = true
+        }
     }
 }

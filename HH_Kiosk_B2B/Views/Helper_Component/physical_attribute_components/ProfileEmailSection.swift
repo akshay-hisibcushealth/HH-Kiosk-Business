@@ -14,6 +14,7 @@ struct ProfileEmailSection: View {
 
     @State private var localEmail: String = ""
     @State private var showError = false
+    @FocusState private var isEmailFocused: Bool
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -28,6 +29,7 @@ struct ProfileEmailSection: View {
                 .submitLabel(.done)
                 .autocapitalization(.none)
                 .disableAutocorrection(true)
+                .focused($isEmailFocused)
                 .foregroundColor(Color(AppColors.black))
                 .font(.system(size: 28.sp, weight: .regular))
                 .padding(.vertical, 26.h)
@@ -65,6 +67,10 @@ struct ProfileEmailSection: View {
                     if localEmail != resolvedEmail {
                         localEmail = resolvedEmail
                     }
+                }
+                .onReceive(NotificationCenter.default.publisher(for: .physicalAttributesDismissInputFocus)) { _ in
+                    isEmailFocused = false
+                    hideKeyboard()
                 }
 
             if showError {

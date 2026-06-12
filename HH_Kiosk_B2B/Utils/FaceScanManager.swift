@@ -8,6 +8,7 @@
 import Foundation
 import class AVFoundation.AVCaptureDevice
 import AnuraCore
+import UIKit
 
 class FaceScanManager: ObservableObject{
     @Published var isPresentingMeasurementView = false
@@ -17,6 +18,7 @@ class FaceScanManager: ObservableObject{
     var api : DeepAffexMiniAPIClient!
     var measurementDelegate : MeasurementDelegate!
     var user : AnuraUser = .empty
+    private var measurementPreviewPresentationDelegate: MeasurementPreviewPresentationDelegate?
     
     // EXTERNAL CAMERA VARIABLES
     var cameraPreset: AnuraCore.CameraPreset = .hd1920x1080
@@ -162,14 +164,21 @@ class FaceScanManager: ObservableObject{
         viewController.delegate = measurementDelegate
         measurementDelegate.user = user
 
-        // 🧠 Present from the top UIViewController
         if let topVC = UIApplication.topViewController() {
             let screenBounds = UIScreen.main.bounds
-            let targetWidth = screenBounds.width * 0.8
-            let targetHeight = screenBounds.height * 0.7
+            let targetSize = CGSize(
+                width: screenBounds.width ,
+                height: screenBounds.height 
+            )
+            let previewPresentationDelegate = MeasurementPreviewPresentationDelegate(
+                preferredSize: targetSize,
+                topOffset: max(topVC.view.safeAreaInsets.top , screenBounds.height * 0.0)
+            )
             
-            viewController.modalPresentationStyle = .formSheet
-            viewController.preferredContentSize = CGSize(width: targetWidth, height: targetHeight)
+            measurementPreviewPresentationDelegate = previewPresentationDelegate
+            viewController.modalPresentationStyle = .custom
+            viewController.transitioningDelegate = previewPresentationDelegate
+            viewController.preferredContentSize = targetSize
             
             topVC.present(viewController, animated: true) {
                 DispatchQueue.main.async {
@@ -182,4 +191,115 @@ class FaceScanManager: ObservableObject{
     }
 
     
+}
+
+private final class MeasurementPreviewPresentationDelegate: NSObject, UIViewControllerTransitioningDelegate {
+    private let preferredSize: CGSize
+    private let topOffset: CGFloat
+
+    init(preferredSize: CGSize, topOffset: CGFloat) {
+        self.preferredSize = preferredSize
+        self.topOffset = topOffset
+    }
+
+    func presentationController(
+        forPresented presented: UIViewController,
+        presenting: UIViewController?,
+        source: UIViewController
+    ) -> UIPresentationController? {
+        MeasurementPreviewPresentationController(
+            presentedViewController: presented,
+            presenting: presenting,
+            preferredSize: preferredSize,
+            topOffset: topOffset
+        )
+    }
+}
+
+private final class MeasurementPreviewPresentationController: UIPresentationController {
+    private let preferredSize: CGSize
+    private let topOffset: CGFloat
+    private let dimmingView = UIView()
+
+    init(
+        presentedViewController: UIViewController,
+        presenting presentingViewController: UIViewController?,
+        preferredSize: CGSize,
+        topOffset: CGFloat
+    ) {
+        self.preferredSize = preferredSize
+        self.topOffset = topOffset
+        super.init(presentedViewController: presentedViewController, presenting: presentingViewController)
+
+        dimmingView.backgroundColor = UIColor.black.withAlphaComponent(0.45)
+        dimmingView.alpha = 0
+    }
+
+    override var shouldPresentInFullscreen: Bool {
+        false
+    }
+
+    override var shouldRemovePresentersView: Bool {
+        false
+    }
+
+    override var frameOfPresentedViewInContainerView: CGRect {
+        guard let containerView else { return .zero }
+
+        let bounds = containerView.bounds
+        let horizontalInset: CGFloat = 48
+        let bottomInset: CGFloat = 32
+        let width = min(preferredSize.width, bounds.width - horizontalInset)
+        let height = min(preferredSize.height, bounds.height - topOffset - bottomInset)
+        let x = (bounds.width - width) / 2
+
+        return CGRect(x: x, y: topOffset, width: width, height: height)
+    }
+
+    override func presentationTransitionWillBegin() {
+        guard let containerView else { return }
+
+        dimmingView.frame = containerView.bounds
+        containerView.insertSubview(dimmingView, at: 0)
+
+        presentedViewController.transitionCoordinator?.animate { [weak self] _ in
+            self?.dimmingView.alpha = 1
+        } completion: { [weak self] context in
+            if context.isCancelled {
+                self?.dimmingView.alpha = 0
+            }
+        }
+    }
+
+    override func dismissalTransitionWillBegin() {
+        presentedViewController.transitionCoordinator?.animate { [weak self] _ in
+            self?.dimmingView.alpha = 0
+        }
+    }
+
+    override func presentationTransitionDidEnd(_ completed: Bool) {
+        super.presentationTransitionDidEnd(completed)
+        refreshPresentedDialogLayout()
+    }
+
+    override func containerViewWillLayoutSubviews() {
+        super.containerViewWillLayoutSubviews()
+        refreshPresentedDialogLayout()
+    }
+
+    override func containerViewDidLayoutSubviews() {
+        super.containerViewDidLayoutSubviews()
+        refreshPresentedDialogLayout()
+
+        DispatchQueue.main.async { [weak self] in
+            self?.refreshPresentedDialogLayout()
+        }
+    }
+
+    private func refreshPresentedDialogLayout() {
+        dimmingView.frame = containerView?.bounds ?? .zero
+        presentedView?.frame = frameOfPresentedViewInContainerView
+        presentedView?.layer.cornerRadius = 32
+        presentedView?.layer.masksToBounds = true
+    }
 }

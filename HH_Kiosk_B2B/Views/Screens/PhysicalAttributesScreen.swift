@@ -23,7 +23,7 @@ struct PhysicalAttributesScreen: View {
     @State private var height: Int? = nil   // Make optional
     @State private var weight: Int? = nil   // Make optional
     @State private var age: Int? = nil      // Make optional
-    @State private var gender: String = ""  // Empty initially
+    @State private var gender: String = ""
     @State private var email: String? = nil
     @State private var showSettings = false
     @State private var refreshTrigger = false
@@ -38,9 +38,6 @@ struct PhysicalAttributesScreen: View {
     @State private var mirrorExternalCameraPreview: Bool = true
     @State private var useOnlyExternalCamera: Bool = false
     
-    //KEYBOARD OBSERVER
-    @StateObject private var keyboard = KeyboardObserver()
-    
     // ALERT
     @State private var showValidationAlert = false
     @State private var validationMessage: String = ""
@@ -52,6 +49,7 @@ struct PhysicalAttributesScreen: View {
     var body: some View {
         VStack(spacing: 0) {
             Toolbar()
+
             VStack(alignment: .leading, spacing: 0) {
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 0) {
@@ -60,7 +58,7 @@ struct PhysicalAttributesScreen: View {
                         Text(PhysicalAttributesScreenStrings.subtitle)
                             .font(.system(size: 24.sp, weight: .regular))
                             .foregroundColor(Color(AppColors.physicalAttributeText))
-                            .padding(.top, 16.h)
+                            .padding(.top, 18.h)
                     }
 
                     Spacer()
@@ -71,37 +69,38 @@ struct PhysicalAttributesScreen: View {
                         Image(systemName: AppIconNames.Symbol.gearshapeFill)
                             .font(.system(size: 40.w))
                             .foregroundColor(.black.opacity(0.5))
-                            .padding(.top, 8.h)
-                            .padding(.trailing, 36.w)
+                            .padding(.top, 4.h)
+                            .padding(.trailing, 6.w)
                     }
                     .buttonStyle(.plain)
                 }
-                .padding(.top, 28.h)
+                .padding(.top, 54.h)
+                .padding(.horizontal, 50.w)
 
                 privacyBanner
-                    .padding(.top, 38.h)
+                    .padding(.top, 34.h)
+                    .padding(.horizontal, 58.w)
 
-                HStack(alignment: .top, spacing: 88.w) {
+                HStack(alignment: .top, spacing: 90.w) {
                     bodyImage
-                        .frame(width: 380.w, height: keyboard.isKeyboardVisible ? 0 : 800.h)
-                        .opacity(keyboard.isKeyboardVisible ? 0 : 1)
+                        .frame(width: 410.w, height: 700.h)
                         .clipped()
-                        .animation(.easeInOut(duration: 0.3), value: keyboard.isKeyboardVisible)
 
                     formColumn
-                        .frame(maxWidth: 560.w)
-                        .padding(.top, 28.h)
+                        .frame(maxWidth: 548.w)
                 }
-                .padding(.top, 72.h)
+                .padding(.top, 26.h)
+                .padding(.horizontal, 96.w)
 
                 Spacer(minLength: 24.h)
 
                 actionButtons
-                    .padding(.bottom, 36.h)
+                    .padding(.horizontal, 58.w)
+                    .padding(.bottom, 44.h)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .padding(.horizontal, 50.w)
         }
+        .background(Color(AppColors.white))
         .onAppear {
             previewOrientation = Self.loadSavedPreviewOrientation()
 //         DispatchQueue.main.async { applyDeveloperAutofill() }
@@ -164,7 +163,7 @@ struct PhysicalAttributesScreen: View {
         HStack(alignment: .center, spacing: 22.w) {
             Image(AppIconNames.Asset.lock)
                 .resizable()
-                .frame(width: 42.w, height: 42.w)
+                .frame(width: 38.w, height: 38.w)
 
             Text(privacyAttributedText)
                 .font(.system(size: 22.sp, weight: .regular))
@@ -173,8 +172,8 @@ struct PhysicalAttributesScreen: View {
                 .fixedSize(horizontal: false, vertical: true)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 28.w)
-        .padding(.vertical, 22.h)
+        .padding(.horizontal, 24.w)
+        .padding(.vertical, 18.h)
         .background(Color(AppColors.infoPanelBackground))
         .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
         .overlay(
@@ -201,7 +200,7 @@ struct PhysicalAttributesScreen: View {
     }
 
     private var formColumn: some View {
-        VStack(alignment: .leading, spacing: 52.h) {
+        VStack(alignment: .leading, spacing: 42.h) {
             ProfileEmailSection(email: $email)
             ProfileHeightSection(selectedHeight: $height)
             ProfileWeightSection(selectedWeight: $weight)
@@ -211,59 +210,61 @@ struct PhysicalAttributesScreen: View {
     }
 
     private var actionButtons: some View {
-        HStack(spacing: 18.w) {
-            Button(action: {
-                hideKeyboard()
-                showWebView = true
-            }) {
-                HStack(spacing: 18.w) {
-                    Image(systemName: AppIconNames.Symbol.playCircleFill)
-                        .font(.system(size: 34.sp, weight: .semibold))
-                    Text(PhysicalAttributesScreenStrings.watchQuickDemo)
-                        .font(.system(size: 28.sp, weight: .bold))
+        VStack(alignment: .trailing, spacing: 14.h) {
+            HStack(spacing: 18.w) {
+                Button(action: {
+                    hideKeyboard()
+                    showWebView = true
+                }) {
+                    HStack(spacing: 18.w) {
+                        Image(systemName: AppIconNames.Symbol.playCircleFill)
+                            .font(.system(size: 34.sp, weight: .semibold))
+                        Text(PhysicalAttributesScreenStrings.watchQuickDemo)
+                            .font(.system(size: 28.sp, weight: .bold))
+                    }
+                    .foregroundColor(Color(AppColors.sectionHeaderText))
+                    .frame(maxWidth: .infinity, minHeight: 88.h)
+                    .background(Color(AppColors.gray).opacity(0.18))
+                    .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
                 }
-                .foregroundColor(Color(AppColors.sectionHeaderText))
-                .frame(maxWidth: .infinity, minHeight: 88.h)
-                .background(Color(AppColors.gray).opacity(0.18))
-                .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
-            }
-            .buttonStyle(.plain)
-            .frame(width: 305.w)
+                .buttonStyle(.plain)
+                .frame(width: 305.w)
 
-            Button(action: {
-                hideKeyboard()
-                if validateInputs() {
-                    proceedToScan()
+                Button(action: {
+                    hideKeyboard()
+                    if validateInputs() {
+                        proceedToScan()
+                    }
+                }) {
+                    if isLoading {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: Color(AppColors.black)))
+                            .frame(maxWidth: .infinity, minHeight: 88.h)
+                    } else {
+                        Text(PhysicalAttributesScreenStrings.proceedToScan)
+                            .font(.system(size: 28.sp, weight: .bold))
+                            .foregroundColor(Color(AppColors.clientIDDialogBackground))
+                            .frame(maxWidth: .infinity, minHeight: 88.h)
+                    }
                 }
-            }) {
-                if isLoading {
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: Color(AppColors.black)))
-                        .frame(maxWidth: .infinity, minHeight: 88.h)
-                } else {
-                    Text(PhysicalAttributesScreenStrings.proceedToScan)
-                        .font(.system(size: 28.sp, weight: .bold))
-                        .foregroundColor(Color(AppColors.clientIDDialogBackground))
-                        .frame(maxWidth: .infinity, minHeight: 88.h)
-                }
+                .background(Color(AppColors.ctaGreen))
+                .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
+                .buttonStyle(.plain)
             }
-            .background(Color(AppColors.ctaGreen))
-            .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
-            .buttonStyle(.plain)
 
             #if DEBUG
-            Button(action: {
-                hideKeyboard()
-                showDebugResults = true
-            }) {
-                Text(PhysicalAttributesScreenStrings.debugProceedToResults)
-                    .font(.system(size: 28.sp, weight: .bold))
-                    .foregroundColor(Color(AppColors.white))
-                    .frame(maxWidth: .infinity, minHeight: 88.h)
-                    .background(Color(AppColors.primary))
-                    .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
-            }
-            .buttonStyle(.plain)
+//            Button(action: {
+//                hideKeyboard()
+//                showDebugResults = true
+//            }) {
+//                Text(PhysicalAttributesScreenStrings.debugProceedToResults)
+//                    .font(.system(size: 18.sp, weight: .bold))
+//                    .foregroundColor(Color(AppColors.white))
+//                    .frame(width: 190.w, height: 46.h)
+//                    .background(Color(AppColors.primary))
+//                    .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
+//            }
+//            .buttonStyle(.plain)
             #endif
         }
     }
