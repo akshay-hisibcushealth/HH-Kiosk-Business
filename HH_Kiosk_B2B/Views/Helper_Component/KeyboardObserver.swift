@@ -1,5 +1,9 @@
 import SwiftUI
 
+extension Notification.Name {
+    static let physicalAttributesDismissInputFocus = Notification.Name("physicalAttributesDismissInputFocus")
+}
+
 final class KeyboardObserver: ObservableObject {
     @Published var height: CGFloat = 0
     @Published var isKeyboardVisible: Bool = false // Now SwiftUI will watch this directly

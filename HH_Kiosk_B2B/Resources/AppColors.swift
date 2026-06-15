@@ -52,6 +52,12 @@ struct AppColors {
     static let resultAlertText = UIColor(hex: "#992F0C")
     static let mutedControlGray = UIColor(hex: "#C4C4C4")
     static let primaryActionOrange = UIColor(hex: "#EE4B0E")
+    static let clientIDDialogBackground = UIColor(hex: "#030F33")
+    static let clientIDFieldBackground = UIColor(hex: "#2C3868")
+    static let clientIDFieldBorder = UIColor(hex: "#9AA5CF")
+    static let clientIDFieldPlaceholder = UIColor(hex: "#A6B0D1")
+    static let clientIDValidationText = UIColor(hex: "#FFB4A0")
+
     static let gaugeGreen = UIColor(hex: "#5EC54C")
     static let gaugeLime = UIColor(hex: "#C2EA73")
     static let gaugeYellow = UIColor(hex: "#F7CD6C")
@@ -67,6 +73,9 @@ struct AppColors {
     static let riskWarning = UIColor(hex: "#FFCB59")
     static let riskHigh = UIColor(hex: "#B32D0C")
     static let formBorder = UIColor(hex: "#B4CBED")
+    static let physicalAttributeFieldBackground = UIColor(hex: "#F4F6FE")
+    static let physicalAttributeFieldBorder = UIColor(hex: "#C2CFFF")
+    static let physicalAttributeFieldPlaceholder = UIColor(hex: "#6F849D")
 
     static let meterBarGreen = UIColor(hex: "#1DC833")
     static let meterBarLime = UIColor(hex: "#B8EB5E")

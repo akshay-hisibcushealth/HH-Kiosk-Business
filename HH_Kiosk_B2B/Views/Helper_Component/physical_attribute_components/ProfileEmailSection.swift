@@ -14,29 +14,43 @@ struct ProfileEmailSection: View {
 
     @State private var localEmail: String = ""
     @State private var showError = false
+    @FocusState private var isEmailFocused: Bool
 
     var body: some View {
         VStack(alignment: .leading) {
 
             Text(PhysicalAttributesScreenStrings.Form.emailLabel)
-                .font(.body)
-                .fontWeight(.bold)
+                .font(.system(size: 24.sp, weight: .bold))
+                .foregroundColor(Color(AppColors.black))
 
-            TextField(PhysicalAttributesScreenStrings.Form.emailPlaceholder, text: $localEmail)
+            TextField(
+                "",
+                text: $localEmail,
+                prompt: Text(PhysicalAttributesScreenStrings.Form.emailPlaceholder)
+                    .foregroundColor(Color(AppColors.physicalAttributeFieldPlaceholder))
+            )
                 .keyboardType(.emailAddress)
                 .textContentType(.emailAddress)
                 .submitLabel(.done)
                 .autocapitalization(.none)
                 .disableAutocorrection(true)
+                .focused($isEmailFocused)
                 .foregroundColor(Color(AppColors.black))
-                .padding(.vertical, 20.h)
-                .padding(.horizontal, 16.w)
-                .background(Color(AppColors.white))
+                .font(.system(size: 28.sp, weight: .regular))
+                .padding(.vertical, 26.h)
+                .padding(.horizontal, 28.w)
+                .frame(maxWidth: .infinity, minHeight: 94.h)
+                .background(
+                    localEmail.isEmpty
+                        ? Color(AppColors.physicalAttributeFieldBackground)
+                        : Color(AppColors.white)
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 12.r, style: .continuous))
                 .overlay(
                     RoundedRectangle(cornerRadius: 12.r)
                         .stroke(
-                            showError ? Color.red : Color(AppColors.black),
-                            lineWidth: 1
+                            showError ? Color.red : Color(AppColors.physicalAttributeFieldBorder),
+                            lineWidth: 1.5
                         )
                 )
                 .onChange(of: localEmail) { _, newVal in
@@ -59,10 +73,14 @@ struct ProfileEmailSection: View {
                         localEmail = resolvedEmail
                     }
                 }
+                .onReceive(NotificationCenter.default.publisher(for: .physicalAttributesDismissInputFocus)) { _ in
+                    isEmailFocused = false
+                    hideKeyboard()
+                }
 
             if showError {
                 Text(PhysicalAttributesScreenStrings.Form.emailInlineError)
-                    .font(.caption)
+                    .font(.system(size: 16.sp, weight: .regular))
                     .foregroundColor(.red)
             }
         }

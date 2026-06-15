@@ -3,87 +3,47 @@ import SwiftUI
 
 struct ProfileGenderSection: View {
     @Binding var selectedGender: String
-    @State private var showPicker: Bool = false
-    @State private var localGender: String? = nil   // 🔹 optional local state
 
     var body: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 22.h) {
             Text(PhysicalAttributesScreenStrings.Form.genderLabel)
-                .font(.body)
-                .fontWeight(.bold)
+                .font(.system(size: 24.sp, weight: .bold))
                 .foregroundColor(Color(AppColors.black))
 
-            HStack {
-                Button {
-                    // preload if already set
-                    if !selectedGender.isEmpty {
-                        localGender = selectedGender
-                    }
-                    showPicker = true
-                } label: {
-                    HStack {
-                        if let gender = localGender, !gender.isEmpty {
-                            Text(gender)
-                                .foregroundColor(Color(AppColors.black))
-                        } else {
-                            Text(PhysicalAttributesScreenStrings.Form.genderPlaceholder)
-                                .foregroundColor(Color(AppColors.gray))
-                        }
-                        Spacer()
-                    }
-                    .padding(.vertical, 20.h)
-                    .padding(.horizontal, 16.w)
-                    .frame(maxWidth: .infinity)
-                    .background(Color(AppColors.white))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12.r)
-                            .stroke(Color(AppColors.black), lineWidth: 1)
-                    )
+            HStack(spacing: 28.w) {
+                ForEach(PhysicalAttributesScreenStrings.Form.genderOptions, id: \.self) { gender in
+                    genderButton(gender)
                 }
-                .popover(isPresented: $showPicker) {
-                    VStack {
-                        Text(PhysicalAttributesScreenStrings.Form.genderPlaceholder)
-                            .font(.body)
-                            .fontWeight(.medium)
-                            .foregroundColor(Color(AppColors.black))
-                            .padding(.top, 12.h)
-                            .padding(.horizontal, 32.w)
-
-                        ScrollView {
-                            LazyVStack(spacing: 0) {
-                                ForEach(PhysicalAttributesScreenStrings.Form.genderOptions, id: \.self) { gender in
-                                    Text(gender)
-                                        .font(.body)
-                                        .foregroundColor(Color(AppColors.textPrimary))
-                                        .frame(maxWidth: .infinity)
-                                        .padding(.top, 4.h)
-                                        .padding(.bottom, 4.h)
-                                        .background(localGender == gender ? Color(AppColors.gray).opacity(0.2) : Color(AppColors.clear))
-                                        .cornerRadius(8.r)
-                                        .onTapGesture {
-                                            localGender = gender
-                                            selectedGender = gender
-                                            showPicker = false
-                                            HapticFeedback.light()
-                                        }
-                                }
-                            }
-                            .padding()
-                        }
-                    }
-                }
-                .buttonStyle(PlainButtonStyle())
             }
         }
-        .onAppear {
-            syncLocalGender()
-        }
-        .onChange(of: selectedGender) { _, _ in
-            syncLocalGender()
-        }
     }
-    
-    private func syncLocalGender() {
-        localGender = selectedGender.isEmpty ? nil : selectedGender
+
+    private func genderButton(_ gender: String) -> some View {
+        let isSelected = selectedGender == gender
+
+        return Button {
+            selectedGender = gender
+            HapticFeedback.light()
+        } label: {
+            HStack(spacing: 18.w) {
+                if isSelected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 32.sp, weight: .bold))
+                        .foregroundColor(Color(AppColors.white))
+                }
+
+                Text(gender)
+                    .font(.system(size: 28.sp, weight: .bold))
+                    .foregroundColor(isSelected ? Color(AppColors.white) : Color(AppColors.physicalAttributeText))
+            }
+            .frame(maxWidth: .infinity, minHeight: 90.h)
+            .background(isSelected ? Color(AppColors.primary) : Color(AppColors.physicalAttributeFieldBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 14.r, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 14.r, style: .continuous)
+                    .stroke(isSelected ? Color(AppColors.clientIDDialogBackground) : Color(AppColors.physicalAttributeFieldBorder), lineWidth: isSelected ? 2 : 1.5)
+            )
+        }
+        .buttonStyle(.plain)
     }
 }
