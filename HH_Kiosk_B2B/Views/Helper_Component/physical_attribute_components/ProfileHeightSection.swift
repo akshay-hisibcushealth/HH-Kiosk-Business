@@ -219,6 +219,8 @@ struct HeightRulerScrollPicker: UIViewRepresentable {
     @Binding var selectedTotalInches: Int
 
     let totalInchesRange: [Int]
+    var majorTickInterval: Int = 12
+    var minorTickInterval: Int? = 6
 
     func makeUIView(context: Context) -> SnappingHeightRulerView {
         let view = SnappingHeightRulerView()
@@ -233,7 +235,9 @@ struct HeightRulerScrollPicker: UIViewRepresentable {
             rowHeight: 18.h,
             selectedColor: AppColors.primary,
             nearbyColor: AppColors.ctaGreen,
-            mutedColor: AppColors.gray
+            mutedColor: AppColors.gray,
+            majorTickInterval: majorTickInterval,
+            minorTickInterval: minorTickInterval
         )
     }
 }
@@ -246,6 +250,8 @@ final class SnappingHeightRulerView: UIView, UIScrollViewDelegate {
     private var totalInchesRange: [Int] = []
     private var selectedTotalInches = 0
     private var rowHeight: CGFloat = 12
+    private var majorTickInterval = 12
+    private var minorTickInterval: Int? = 6
     private var didInitialScroll = false
     private var isApplyingSelection = false
 
@@ -276,7 +282,9 @@ final class SnappingHeightRulerView: UIView, UIScrollViewDelegate {
         rowHeight: CGFloat,
         selectedColor: UIColor,
         nearbyColor: UIColor,
-        mutedColor: UIColor
+        mutedColor: UIColor,
+        majorTickInterval: Int,
+        minorTickInterval: Int?
     ) {
         let previousSelected = self.selectedTotalInches
         let rangeChanged = self.totalInchesRange != totalInchesRange
@@ -284,6 +292,8 @@ final class SnappingHeightRulerView: UIView, UIScrollViewDelegate {
         self.totalInchesRange = totalInchesRange
         self.selectedTotalInches = selectedTotalInches
         self.rowHeight = rowHeight
+        self.majorTickInterval = majorTickInterval
+        self.minorTickInterval = minorTickInterval
 
         rulerContentView.configure(
             totalInchesRange: totalInchesRange,
@@ -291,7 +301,9 @@ final class SnappingHeightRulerView: UIView, UIScrollViewDelegate {
             rowHeight: rowHeight,
             selectedColor: selectedColor,
             nearbyColor: nearbyColor,
-            mutedColor: mutedColor
+            mutedColor: mutedColor,
+            majorTickInterval: majorTickInterval,
+            minorTickInterval: minorTickInterval
         )
 
         updateContentSize()
@@ -388,6 +400,8 @@ final class HeightRulerContentView: UIView {
     var selectedColor: UIColor = AppColors.primary
     var nearbyColor: UIColor = AppColors.ctaGreen
     var mutedColor: UIColor = AppColors.gray
+    var majorTickInterval = 12
+    var minorTickInterval: Int? = 6
 
     func configure(
         totalInchesRange: [Int],
@@ -395,7 +409,9 @@ final class HeightRulerContentView: UIView {
         rowHeight: CGFloat,
         selectedColor: UIColor,
         nearbyColor: UIColor,
-        mutedColor: UIColor
+        mutedColor: UIColor,
+        majorTickInterval: Int,
+        minorTickInterval: Int?
     ) {
         self.totalInchesRange = totalInchesRange
         self.selectedTotalInches = selectedTotalInches
@@ -403,6 +419,8 @@ final class HeightRulerContentView: UIView {
         self.selectedColor = selectedColor
         self.nearbyColor = nearbyColor
         self.mutedColor = mutedColor
+        self.majorTickInterval = majorTickInterval
+        self.minorTickInterval = minorTickInterval
         backgroundColor = .clear
         setNeedsDisplay()
     }
@@ -415,11 +433,11 @@ final class HeightRulerContentView: UIView {
             let y = CGFloat(index) * rowHeight
             let isSelected = totalInches == selectedTotalInches
             let isNearby = abs(totalInches - selectedTotalInches) <= 8
-            let isFoot = totalInches % 12 == 0
-            let isHalfFoot = totalInches % 6 == 0
+            let isMajorTick = majorTickInterval > 0 && totalInches % majorTickInterval == 0
+            let isMinorTick = minorTickInterval.map { $0 > 0 && totalInches % $0 == 0 } ?? false
             let tickWidth: CGFloat = {
-                if isSelected || isFoot { return 96.w }
-                if isHalfFoot { return 72.w }
+                if isSelected || isMajorTick { return 96.w }
+                if isMinorTick { return 72.w }
                 return 38.w
             }()
 

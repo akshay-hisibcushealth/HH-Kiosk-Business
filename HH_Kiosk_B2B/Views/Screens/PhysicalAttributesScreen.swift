@@ -160,7 +160,7 @@ struct PhysicalAttributesScreen: View {
                 .resizable()
                 .frame(width: 38.w, height: 38.w)
 
-            Text(privacyAttributedText)
+            Text(PhysicalAttributesScreenStrings.privacyMessage)
                 .font(.system(size: 22.sp, weight: .regular))
                 .foregroundColor(Color(AppColors.supportLinkText))
                 .lineLimit(2)
@@ -177,13 +177,7 @@ struct PhysicalAttributesScreen: View {
         )
     }
 
-    private var privacyAttributedText: AttributedString {
-        var text = AttributedString(PhysicalAttributesScreenStrings.privacyMessage)
-        if let range = text.range(of: "Your privacy is protected.") {
-            text[range].font = .system(size: 22.sp, weight: .bold)
-        }
-        return text
-    }
+
 
     private var bodyImage: some View {
         ZStack {

@@ -169,7 +169,9 @@ struct PhysicalAttributeNumberSelectionDialog: View {
     private var numberRuler: some View {
         HeightRulerScrollPicker(
             selectedTotalInches: $value,
-            totalInchesRange: valueRange
+            totalInchesRange: valueRange,
+            majorTickInterval: 5,
+            minorTickInterval: nil
         )
         .frame(width: 460.w, height: 590.h)
         .background(Color(AppColors.white))
