@@ -3,7 +3,7 @@ import AnuraCore
 
 protocol KioskSubmissionServiceProtocol {
     func sendEmailResults(email: String, pin: String, results: [String: MeasurementResults.SignalResult]) async throws
-    func sendUserResponse(email: String, title: String, description: String) async throws -> KioskUserResponseResult
+    func sendUserResponse(email: String, nextSteps: [KioskNextStepResponse], npsScore: Int?) async throws -> KioskUserResponseResult
     func saveUserVitals(results: [String: MeasurementResults.SignalResult]?) async throws -> ResultsMap
     #if DEBUG
     func saveUserVitals(testResults: ResultsMap?) async throws -> ResultsMap
@@ -17,11 +17,23 @@ struct KioskUserResponseResult: Decodable {
     let message: String?
 }
 
+struct KioskNextStepResponse: Encodable, Equatable, Identifiable {
+    let id: String
+    let title: String
+    let description: String
+}
+
 struct KioskSubmissionService: KioskSubmissionServiceProtocol {
     private struct KioskUserResponsePayload: Encodable {
         let email: String
-        let title: String
-        let description: String
+        let selectedNextSteps: [KioskNextStepResponse]
+        let npsScore: Int?
+
+        enum CodingKeys: String, CodingKey {
+            case email
+            case selectedNextSteps = "selected_next_steps"
+            case npsScore = "nps_score"
+        }
     }
 
     private let client: AppURLSessionClientProtocol
@@ -39,11 +51,11 @@ struct KioskSubmissionService: KioskSubmissionServiceProtocol {
         try await client.send(payload, to: AppAPIEndpoints.emailResults, method: "POST")
     }
 
-    func sendUserResponse(email: String, title: String, description: String) async throws -> KioskUserResponseResult {
+    func sendUserResponse(email: String, nextSteps: [KioskNextStepResponse], npsScore: Int?) async throws -> KioskUserResponseResult {
         let payload = KioskUserResponsePayload(
             email: email,
-            title: title,
-            description: description
+            selectedNextSteps: nextSteps,
+            npsScore: npsScore
         )
         let responseData = try await client.sendAndReturnData(payload, to: AppAPIEndpoints.kioskUserResponse, method: "POST")
         let result = try JSONDecoder().decode(KioskUserResponseResult.self, from: responseData)

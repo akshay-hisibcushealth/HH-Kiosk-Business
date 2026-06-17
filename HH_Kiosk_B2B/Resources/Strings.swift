@@ -186,6 +186,30 @@ enum ResultScreenStrings {
         }
     }
 
+    enum PostSession {
+        static let nextStepsHeading = "Thank you for taking the time to complete this important scan"
+        static let nextStepsSubtitle = "Based on your results, here are some common next steps"
+        static let continueTitle = "Continue"
+        static let allDoneTitle = "All done. Thank you!"
+        static let emailSentBody = "Your wellness report and selected next steps have been sent to your email."
+        static let completionBody = "Your selected next steps have been saved."
+        static let completionSubtitle = "We hope you found this experience valuable."
+        static let npsEyebrow = "ONE QUICK QUESTION"
+        static let npsQuestion = "Would you recommend this experience to others?"
+        static let notLikely = "Not at all likely"
+        static let extremelyLikely = "Extremely likely"
+        static let skip = "SKIP"
+        static let submitAndReturnHome = "Submit and return home"
+        static let submitFailure = "Failed to submit response. Please try again."
+
+        enum NextSteps {
+            static let annualPhysical = "Schedule an annual physical with my primary care provider for a comprehensive health exam"
+            static let biometricScreening = "Schedule a biometric screening or other follow-up labs (i.e. HBA1c for blood sugar)"
+            static let nutritionCounseling = "Sign up for nutrition counseling with a registered dietitian"
+            static let ongoingMonitoring = "Keep monitoring my health - complete scans ongoing to track my biomarkers over time"
+        }
+    }
+
     enum Metrics {
         static let interpretations: [String: [String: String]] = [
             "Cardiovascular Disease Risk": [

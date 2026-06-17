@@ -244,18 +244,18 @@ struct PhysicalAttributesScreen: View {
             }
 
             #if DEBUG
-//            Button(action: {
-//                hideKeyboard()
-//                skipFaceScanForTesting()
-//            }) {
-//                Text(PhysicalAttributesScreenStrings.debugProceedToResults)
-//                    .font(.system(size: 18.sp, weight: .bold))
-//                    .foregroundColor(Color(AppColors.white))
-//                    .frame(width: 190.w, height: 46.h)
-//                    .background(Color(AppColors.primary))
-//                    .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
-//            }
-//            .buttonStyle(.plain)
+            Button(action: {
+                hideKeyboard()
+                skipFaceScanForTesting()
+            }) {
+                Text(PhysicalAttributesScreenStrings.debugProceedToResults)
+                    .font(.system(size: 18.sp, weight: .bold))
+                    .foregroundColor(Color(AppColors.white))
+                    .frame(width: 190.w, height: 46.h)
+                    .background(Color(AppColors.primary))
+                    .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
+            }
+            .buttonStyle(.plain)
             #endif
         }
     }

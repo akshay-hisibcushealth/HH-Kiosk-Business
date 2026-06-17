@@ -6,11 +6,7 @@ struct ResultScreenButtons: View {
     let onDownloadPDF: () -> Void
     let onPrint: () -> Void
 
-    private let submissionService: KioskSubmissionServiceProtocol = KioskSubmissionService()
     @State private var showEmailPopUp = false
-    @State private var showEmailPromptSelectionLayout = false
-    @State private var showEndSessionPrompt = false
-    @State private var hasShownPromptSelection = false
     var body: some View {
         VStack(spacing: 16.h) {
             HStack(alignment: .top, spacing: 20.w) {
@@ -19,7 +15,6 @@ struct ResultScreenButtons: View {
                         title: ResultScreenStrings.Actions.emailMyResults.uppercased(),
                         image: Image(AppIconNames.Asset.email),
                         action: {
-                            showEmailPromptSelectionLayout = false
                             showEmailPopUp = true
                         }
                     )
@@ -35,12 +30,7 @@ struct ResultScreenButtons: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
                 Button(action: {
-                    if hasShownPromptSelection {
-                        navigateToHome()
-                    } else {
-                        hasShownPromptSelection = true
-                        showEndSessionPrompt = true
-                    }
+                    navigateToPostSessionFlow()
                 }) {
                     Text(ResultScreenStrings.Actions.endSession.uppercased())
                         .font(.system(size: 20.sp, weight: .semibold))
@@ -63,26 +53,9 @@ struct ResultScreenButtons: View {
             }
             .frame(maxWidth: .infinity, alignment: .center)
             .fullScreenCover(isPresented: $showEmailPopUp) {
-                ResultPromptOverlay(layout: showEmailPromptSelectionLayout ? .promptSelection : .emailEntry) {
+                ResultPromptOverlay(layout: .emailEntry) {
                     EmailResultPopup(
-                        results: result,
-                        usesPromptSelectionLayout: $showEmailPromptSelectionLayout,
-                        hasShownPromptSelection: $hasShownPromptSelection
-                    )
-                }
-                .presentationBackground(Color.clear)
-            }
-            .fullScreenCover(isPresented: $showEndSessionPrompt) {
-                ResultPromptOverlay(layout: .promptSelection) {
-                    NextStepsPromptView(
-                        mode: .endSession,
-                        closeAction: {
-                            showEndSessionPrompt = false
-                            navigateToHome()
-                        },
-                        confirmAction: { title, description in
-                            await submitUserResponse(title: title, description: description)
-                        }
+                        results: result
                     )
                 }
                 .presentationBackground(Color.clear)
@@ -134,51 +107,17 @@ struct ResultScreenButtons: View {
             .clipShape(RoundedRectangle(cornerRadius: 12.r, style: .continuous))
         }
     }
-
-    private func submitUserResponse(title: String, description: String) async -> Bool {
-        guard let email = LocalUserStorage.loadEmail(),
-              !email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            return false
-        }
-
-        do {
-            _ = try await submissionService.sendUserResponse(
-                email: email,
-                title: title,
-                description: description
-            )
-            await MainActor.run {
-                showEndSessionPrompt = false
-                navigateToHome(showResponseToast: true)
-            }
-            return true
-        } catch {
-            print("❌ Kiosk user response error:", error.localizedDescription)
-            return false
-        }
-    }
 }
 
 private enum ResultPromptOverlayLayout {
     case emailEntry
-    case promptSelection
 
     func width(in proxy: GeometryProxy) -> CGFloat {
-        switch self {
-        case .emailEntry:
-            return min(proxy.size.width * 0.79, 1088.w)
-        case .promptSelection:
-            return min(proxy.size.width * 0.82, 960.w)
-        }
+        min(proxy.size.width * 0.79, 1088.w)
     }
 
     func height(in proxy: GeometryProxy) -> CGFloat {
-        switch self {
-        case .emailEntry:
-            return min(proxy.size.height * 0.53, 1040.h)
-        case .promptSelection:
-            return min(proxy.size.height * 0.76, 1280.h)
-        }
+        min(proxy.size.height * 0.53, 1040.h)
     }
 }
 
@@ -186,7 +125,7 @@ private struct ResultPromptOverlay<Content: View>: View {
     let layout: ResultPromptOverlayLayout
     let content: () -> Content
 
-    init(layout: ResultPromptOverlayLayout = .promptSelection, @ViewBuilder content: @escaping () -> Content) {
+    init(layout: ResultPromptOverlayLayout = .emailEntry, @ViewBuilder content: @escaping () -> Content) {
         self.layout = layout
         self.content = content
     }
@@ -230,6 +169,24 @@ func navigateToHome(animated: Bool = true, showResponseToast: Bool = false) {
         transition.duration = 0.4 // ⏱ adjust smoothness here (0.3–0.6 works best)
         transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
 
+        window.layer.add(transition, forKey: kCATransition)
+    }
+
+    window.rootViewController = hostingController
+    window.makeKeyAndVisible()
+}
+
+func navigateToPostSessionFlow(animated: Bool = true, emailWasSent: Bool = false) {
+    guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+          let window = windowScene.windows.first else { return }
+
+    let hostingController = UIHostingController(rootView: PostSessionFlowScreen(emailWasSent: emailWasSent))
+
+    if animated {
+        let transition = CATransition()
+        transition.type = .fade
+        transition.duration = 0.35
+        transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
         window.layer.add(transition, forKey: kCATransition)
     }
 
