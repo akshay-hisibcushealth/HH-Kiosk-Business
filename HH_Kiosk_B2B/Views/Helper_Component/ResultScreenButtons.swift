@@ -176,10 +176,13 @@ func navigateToHome(animated: Bool = true, showResponseToast: Bool = false) {
     window.makeKeyAndVisible()
 }
 
+private var previousRootViewControllerBeforePostSession: UIViewController?
+
 func navigateToPostSessionFlow(animated: Bool = true, emailWasSent: Bool = false) {
     guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
           let window = windowScene.windows.first else { return }
 
+    previousRootViewControllerBeforePostSession = window.rootViewController
     let hostingController = UIHostingController(rootView: PostSessionFlowScreen(emailWasSent: emailWasSent))
 
     if animated {
@@ -192,4 +195,22 @@ func navigateToPostSessionFlow(animated: Bool = true, emailWasSent: Bool = false
 
     window.rootViewController = hostingController
     window.makeKeyAndVisible()
+}
+
+func navigateBackFromPostSessionFlow(animated: Bool = true) {
+    guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+          let window = windowScene.windows.first,
+          let previousRootViewController = previousRootViewControllerBeforePostSession else { return }
+
+    if animated {
+        let transition = CATransition()
+        transition.type = .fade
+        transition.duration = 0.35
+        transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+        window.layer.add(transition, forKey: kCATransition)
+    }
+
+    window.rootViewController = previousRootViewController
+    window.makeKeyAndVisible()
+    previousRootViewControllerBeforePostSession = nil
 }

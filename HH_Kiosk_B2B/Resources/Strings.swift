@@ -147,6 +147,7 @@ enum ResultScreenStrings {
     enum Actions {
         static let closeResult = "Close result"
         static let emailMyResults = "Email my results"
+        static let back = "Back"
         static let secureAndPrivate = "Secure and Private"
         static let print = "Print"
         static let endSession = "End Session"

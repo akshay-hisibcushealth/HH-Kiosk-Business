@@ -33,18 +33,18 @@ struct Toolbar: View {
 struct ResultToolbar: View {
     var body: some View {
         HStack {
-            BrandedCompanyLogoView()
-            Spacer()
             Image(AppIconNames.Asset.poweredByHHLogo)
                 .resizable()
                 .scaledToFit()
                 .frame(width: 220.w, height: 140.h)
                 .padding(.vertical, 48.h)
                 .padding(.trailing, 32.h)
+            Spacer()
+            BrandedCompanyLogoView()
+          
         }
         .padding(.horizontal, 24.w)
         .background(Color(AppColors.primary))
-        .clipShape(UnevenRoundedRectangle(bottomLeadingRadius: 52.r, bottomTrailingRadius: 52.r))
     }
 }
 

@@ -65,7 +65,7 @@ struct PostSessionFlowScreen: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            header
+            ResultToolbar()
 
             Group {
                 switch step {
@@ -82,26 +82,6 @@ struct PostSessionFlowScreen: View {
         .background(Color(AppColors.systemBackground))
     }
 
-    private var header: some View {
-        VStack(spacing: 0) {
-            postSessionToolbar
-                .frame(height: 92.h)
-
-            HStack(spacing: 0) {
-                progressItem(number: "1", title: "About You", isActive: false)
-                progressItem(number: "2", title: "Face Scan", isActive: false)
-                progressItem(number: "3", title: "Your Report", isActive: false)
-                progressItem(number: "4", title: "Next Steps", isActive: true)
-            }
-            .frame(height: 38.h)
-            .background(Color(AppColors.white))
-            .overlay(alignment: .bottomTrailing) {
-                Rectangle()
-                    .fill(Color(AppColors.ctaGreen))
-                    .frame(width: UIScreen.main.bounds.width * 0.25, height: 3.h)
-            }
-        }
-    }
 
     private var postSessionToolbar: some View {
         HStack {
@@ -149,23 +129,22 @@ struct PostSessionFlowScreen: View {
     private var nextStepsContent: some View {
         VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: .leading, spacing: 8.h) {
-                buildSemiBoldText(ResultScreenStrings.PostSession.nextStepsHeading, 25.sp, color: Color(AppColors.black))
+                buildSemiBoldText(ResultScreenStrings.PostSession.nextStepsHeading, 42.sp, color: Color(AppColors.black))
                     .lineLimit(2)
-                    .minimumScaleFactor(0.82)
 
                 Text(ResultScreenStrings.PostSession.nextStepsSubtitle)
-                    .font(.system(size: 14.sp, weight: .regular))
+                    .font(.system(size: 32.sp, weight: .regular))
                     .foregroundColor(Color(AppColors.black))
             }
-            .padding(.top, 44.h)
+            .padding(.top, 58.h)
             .padding(.horizontal, 58.w)
 
-            VStack(spacing: 12.h) {
+            VStack(spacing: 48.h) {
                 ForEach(options) { option in
                     optionRow(option)
                 }
             }
-            .padding(.top, 40.h)
+            .padding(.top, 58.h)
             .padding(.horizontal, 58.w)
 
             Spacer()
@@ -178,25 +157,25 @@ struct PostSessionFlowScreen: View {
         return Button {
             toggleOption(option)
         } label: {
-            HStack(spacing: 18.w) {
+            HStack(spacing: 22.w) {
                 ZStack {
                     RoundedRectangle(cornerRadius: 4.r, style: .continuous)
                         .fill(isSelected ? Color(AppColors.ctaGreen) : Color(AppColors.white))
-                        .frame(width: 24.w, height: 24.w)
+                        .frame(width: 30.w, height: 30.w)
                         .overlay(
                             RoundedRectangle(cornerRadius: 4.r, style: .continuous)
-                                .stroke(isSelected ? Color(AppColors.ctaGreen) : Color(AppColors.gray).opacity(0.45), lineWidth: 2.w)
+                                .stroke(isSelected ? Color.clear : Color(AppColors.gray).opacity(0.45), lineWidth: 3.w)
                         )
 
                     if isSelected {
                         Image(systemName: "checkmark")
-                            .font(.system(size: 13.sp, weight: .black))
+                            .font(.system(size: 17.sp, weight: .black))
                             .foregroundColor(Color(AppColors.black))
                     }
                 }
 
                 Text(option.title)
-                    .font(.system(size: 14.sp, weight: .semibold))
+                    .font(.system(size: 28.sp, weight: isSelected ? .bold : .regular))
                     .foregroundColor(Color(AppColors.black))
                     .multilineTextAlignment(.leading)
                     .lineLimit(2)
@@ -204,9 +183,9 @@ struct PostSessionFlowScreen: View {
 
                 Spacer(minLength: 0)
             }
-            .padding(.horizontal, 20.w)
+            .padding(.vertical, 40.w)
+            .padding(.horizontal, 28.w)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .frame(minHeight: 64.h)
             .background(isSelected ? Color(AppColors.ctaGreen).opacity(0.12) : Color(AppColors.white))
             .overlay(
                 RoundedRectangle(cornerRadius: 6.r, style: .continuous)
@@ -219,25 +198,25 @@ struct PostSessionFlowScreen: View {
 
     private var npsContent: some View {
         VStack(spacing: 0) {
-            Spacer(minLength: 44.h)
+            Spacer(minLength: 56.h)
 
             successMark
-                .padding(.bottom, 20.h)
+                .padding(.bottom, 28.h)
 
-            buildSemiBoldText(ResultScreenStrings.PostSession.allDoneTitle, 24.sp, color: Color(AppColors.black))
-                .padding(.bottom, 10.h)
+            buildSemiBoldText(ResultScreenStrings.PostSession.allDoneTitle, 31.sp, color: Color(AppColors.black))
+                .padding(.bottom, 14.h)
 
             Text(emailWasSent ? ResultScreenStrings.PostSession.emailSentBody : ResultScreenStrings.PostSession.completionBody)
-                .font(.system(size: 14.sp, weight: .regular))
+                .font(.system(size: 17.sp, weight: .regular))
                 .foregroundColor(Color(AppColors.black))
                 .multilineTextAlignment(.center)
-                .padding(.bottom, 7.h)
+                .padding(.bottom, 10.h)
 
             Text(ResultScreenStrings.PostSession.completionSubtitle)
-                .font(.system(size: 14.sp, weight: .regular))
+                .font(.system(size: 17.sp, weight: .regular))
                 .foregroundColor(Color(AppColors.black))
 
-            Spacer(minLength: 52.h)
+            Spacer(minLength: 84.h)
 
             npsCard
                 .padding(.horizontal, 62.w)
@@ -257,30 +236,30 @@ struct PostSessionFlowScreen: View {
         ZStack {
             Circle()
                 .fill(Color(AppColors.ctaGreen).opacity(0.32))
-                .frame(width: 84.w, height: 84.w)
+                .frame(width: 116.w, height: 116.w)
 
             Circle()
                 .fill(Color(red: 0.47, green: 0.78, blue: 0.0))
-                .frame(width: 56.w, height: 56.w)
+                .frame(width: 76.w, height: 76.w)
 
             Image(systemName: "checkmark")
-                .font(.system(size: 28.sp, weight: .black))
+                .font(.system(size: 40.sp, weight: .black))
                 .foregroundColor(Color(AppColors.black))
         }
     }
 
     private var npsCard: some View {
-        VStack(spacing: 10.h) {
+        VStack(spacing: 14.h) {
             Text(ResultScreenStrings.PostSession.npsEyebrow)
-                .font(.system(size: 10.sp, weight: .black))
+                .font(.system(size: 13.sp, weight: .black))
                 .foregroundColor(Color(AppColors.primary))
 
-            buildSemiBoldText(ResultScreenStrings.PostSession.npsQuestion, 21.sp, color: Color(AppColors.black))
+            buildSemiBoldText(ResultScreenStrings.PostSession.npsQuestion, 26.sp, color: Color(AppColors.black))
                 .multilineTextAlignment(.center)
                 .lineLimit(2)
                 .minimumScaleFactor(0.78)
 
-            HStack(spacing: 8.w) {
+            HStack(spacing: 10.w) {
                 ForEach(1...10, id: \.self) { score in
                     scoreButton(score)
                 }
@@ -292,12 +271,12 @@ struct PostSessionFlowScreen: View {
                 Spacer()
                 Text(ResultScreenStrings.PostSession.extremelyLikely)
             }
-            .font(.system(size: 10.sp, weight: .regular))
+            .font(.system(size: 12.sp, weight: .regular))
             .foregroundColor(Color(AppColors.black))
             .padding(.horizontal, 8.w)
         }
-        .padding(.horizontal, 14.w)
-        .padding(.vertical, 24.h)
+        .padding(.horizontal, 18.w)
+        .padding(.vertical, 32.h)
         .frame(maxWidth: .infinity)
         .background(Color(AppColors.white))
         .overlay(
@@ -312,10 +291,10 @@ struct PostSessionFlowScreen: View {
             selectedScore = score
         } label: {
             Text("\(score)")
-                .font(.system(size: 11.sp, weight: .bold))
+                .font(.system(size: 13.sp, weight: .bold))
                 .foregroundColor(Color(AppColors.primary))
                 .frame(maxWidth: .infinity)
-                .frame(height: 38.h)
+                .frame(height: 48.h)
                 .background(selectedScore == score ? Color(AppColors.ctaGreen) : Color(AppColors.formBorder).opacity(0.2))
                 .overlay(
                     RoundedRectangle(cornerRadius: 5.r, style: .continuous)
@@ -327,60 +306,149 @@ struct PostSessionFlowScreen: View {
     }
 
     private var footer: some View {
-        HStack(spacing: 24.w) {
-            if step == .nps {
-                Button(action: { submitAndReturnHome(npsScore: nil) }) {
-                    footerText(ResultScreenStrings.PostSession.skip, width: 178.w, foreground: Color(AppColors.black), background: Color(AppColors.white), bordered: true)
-                }
-                .disabled(isSubmitting)
+        VStack(spacing: 16.h) {
+            if step == .nextSteps {
+                weightedNextStepsFooter
             } else {
-                Spacer()
-                    .frame(width: 178.w)
-            }
-
-            Button(action: primaryAction) {
-                ZStack {
-                    footerText(
-                        step == .nextSteps ? ResultScreenStrings.PostSession.continueTitle : ResultScreenStrings.PostSession.submitAndReturnHome,
-                        width: step == .nextSteps ? 380.w : 560.w,
-                        foreground: Color(AppColors.black),
-                        background: Color(AppColors.ctaGreen),
-                        bordered: false
-                    )
-                    .opacity(isSubmitting ? 0 : 1)
-
-                    if isSubmitting {
-                        ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle(tint: Color(AppColors.black)))
+                HStack(alignment: .top, spacing: 20.w) {
+                    Button(action: { submitAndReturnHome(npsScore: nil) }) {
+                        footerText(ResultScreenStrings.PostSession.skip, width: 270.w, foreground: Color(AppColors.black), background: Color(AppColors.white), bordered: true)
                     }
+                    .disabled(isSubmitting)
+
+                    Spacer(minLength: 24.w)
+
+                    Button(action: primaryAction) {
+                        ZStack {
+                            footerText(
+                                ResultScreenStrings.PostSession.submitAndReturnHome,
+                                width: 570.w,
+                                foreground: Color(AppColors.black),
+                                background: Color(AppColors.ctaGreen),
+                                bordered: false
+                            )
+                            .opacity(isSubmitting ? 0 : 1)
+
+                            if isSubmitting {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle(tint: Color(AppColors.black)))
+                            }
+                        }
+                    }
+                    .disabled(isSubmitting || selectedScore == nil)
+                    .opacity((selectedScore != nil || isSubmitting) ? 1 : 0.55)
                 }
             }
-            .disabled(isSubmitting || (step == .nps && selectedScore == nil))
-            .opacity((step == .nextSteps || selectedScore != nil || isSubmitting) ? 1 : 0.55)
         }
         .frame(maxWidth: .infinity)
-        .padding(.horizontal, 28.w)
-        .padding(.vertical, 14.h)
+        .padding(.top, 24.h)
+        .padding(.horizontal, 30.w)
+        .padding(.bottom, 18.h)
         .background(
             Color(AppColors.white)
                 .shadow(color: Color(AppColors.black).opacity(0.18), radius: 14, x: 0, y: -4)
         )
+        .overlay(alignment: .top) {
+            LinearGradient(
+                colors: [
+                    Color.clear,
+                    Color(AppColors.black).opacity(0.08),
+                    Color(AppColors.black).opacity(0.18)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .frame(height: 28.h)
+            .offset(y: -28.h)
+            .allowsHitTesting(false)
+        }
+    }
+
+    private var weightedNextStepsFooter: some View {
+        GeometryReader { proxy in
+            let outerSpacing = 20.w
+            let innerSpacing = 16.w
+            let availableWidth = proxy.size.width - outerSpacing - innerSpacing
+            let totalWeight: CGFloat = 9.5
+            let utilityWidth = availableWidth * (2.5 / totalWeight)
+            let continueWidth = availableWidth * (6.5 / totalWeight)
+
+            HStack(alignment: .top, spacing: outerSpacing) {
+                    footerUtilityButton(
+                        title: ResultScreenStrings.Actions.back.uppercased(),
+                        width: utilityWidth,
+                        action: {
+                            navigateBackFromPostSessionFlow()
+                        }
+                    )
+
+                Spacer()
+
+                footerPrimaryButton(
+                    title: ResultScreenStrings.PostSession.continueTitle,
+                    width: continueWidth,
+                    action: primaryAction
+                )
+            }
+        }
+        .frame(height: 72.h)
+    }
+
+    private func footerUtilityButton(title: String, width: CGFloat, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 16.w) {
+                Image(systemName: "arrow.left")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 22.w, height: 22.h)
+                    .foregroundColor(Color(AppColors.black))
+                
+                Text(title)
+                    .font(.system(size: 20.sp, weight: .semibold))
+                    .foregroundColor(Color(AppColors.black))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.72)
+            }
+            .frame(width: width)
+            .frame(minHeight: 72.h)
+            .background(Color(AppColors.white))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12.r, style: .continuous)
+                    .stroke(Color(AppColors.black).opacity(0.7), lineWidth: 1)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 12.r, style: .continuous))
+        }
+    }
+
+    private func footerPrimaryButton(title: String, width: CGFloat, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 12.w) {
+                Text(title)
+                Image(systemName: "arrow.right")
+            }
+            .font(.system(size: 28.sp, weight: .semibold))
+            .foregroundColor(Color(AppColors.black))
+            .frame(width: width)
+            .frame(minHeight: 72.h)
+            .background(Color(AppColors.ctaGreen))
+            .clipShape(RoundedRectangle(cornerRadius: 12.r, style: .continuous))
+        }
     }
 
     private func footerText(_ text: String, width: CGFloat, foreground: Color, background: Color, bordered: Bool) -> some View {
         Text(text)
-            .font(.system(size: 18.sp, weight: .bold))
+            .font(.system(size: 20.sp, weight: .semibold))
             .foregroundColor(foreground)
             .lineLimit(1)
             .minimumScaleFactor(0.72)
             .frame(width: width)
-            .frame(height: 54.h)
+            .frame(minHeight: 72.h)
             .background(background)
             .overlay(
-                RoundedRectangle(cornerRadius: 6.r, style: .continuous)
+                RoundedRectangle(cornerRadius: 12.r, style: .continuous)
                     .stroke(bordered ? Color(AppColors.black).opacity(0.7) : Color.clear, lineWidth: 1)
             )
-            .clipShape(RoundedRectangle(cornerRadius: 6.r, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: 12.r, style: .continuous))
     }
 
     private func toggleOption(_ option: PostSessionNextStepOption) {
