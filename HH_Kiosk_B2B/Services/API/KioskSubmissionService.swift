@@ -18,7 +18,7 @@ struct KioskUserResponseResult: Decodable {
 }
 
 struct KioskNextStepResponse: Encodable, Equatable, Identifiable {
-    let id: String
+    let id: Int
     let title: String
     let description: String
 }
@@ -33,6 +33,18 @@ struct KioskSubmissionService: KioskSubmissionServiceProtocol {
             case email
             case selectedNextSteps = "selected_next_steps"
             case npsScore = "nps_score"
+        }
+
+        func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(email, forKey: .email)
+            try container.encode(selectedNextSteps, forKey: .selectedNextSteps)
+
+            if let npsScore {
+                try container.encode(npsScore, forKey: .npsScore)
+            } else {
+                try container.encodeNil(forKey: .npsScore)
+            }
         }
     }
 
@@ -57,8 +69,13 @@ struct KioskSubmissionService: KioskSubmissionServiceProtocol {
             selectedNextSteps: nextSteps,
             npsScore: npsScore
         )
+
+        printUserResponseRequest(payload)
         let responseData = try await client.sendAndReturnData(payload, to: AppAPIEndpoints.kioskUserResponse, method: "POST")
+        printUserResponseResponse(responseData)
+
         let result = try JSONDecoder().decode(KioskUserResponseResult.self, from: responseData)
+        print("✅ /kiosk-user-response/ decoded result: success=\(result.success), id=\(String(describing: result.id)), email=\(String(describing: result.email)), message=\(String(describing: result.message))")
         guard result.success else {
             throw AppAPIError.invalidResponse
         }
@@ -101,6 +118,32 @@ struct KioskSubmissionService: KioskSubmissionServiceProtocol {
 
     private func mapResults(_ results: ResultsMap) -> [String: ResultEntry] {
         results.mapValues { ResultEntry(value: $0.value, notes: $0.notes) }
+    }
+
+    private func printUserResponseRequest(_ payload: KioskUserResponsePayload) {
+        print("📤 /kiosk-user-response/ request: POST \(AppAPIEndpoints.kioskUserResponse.absoluteString)")
+
+        if let data = try? JSONEncoder().encode(payload),
+           let jsonObject = try? JSONSerialization.jsonObject(with: data),
+           let prettyData = try? JSONSerialization.data(withJSONObject: jsonObject, options: [.prettyPrinted, .sortedKeys]),
+           let prettyString = String(data: prettyData, encoding: .utf8) {
+            print("📤 /kiosk-user-response/ payload:\n\(prettyString)")
+            return
+        }
+
+        print("📤 /kiosk-user-response/ payload: <unable to encode payload for logging>")
+    }
+
+    private func printUserResponseResponse(_ data: Data) {
+        if let jsonObject = try? JSONSerialization.jsonObject(with: data),
+           let prettyData = try? JSONSerialization.data(withJSONObject: jsonObject, options: [.prettyPrinted, .sortedKeys]),
+           let prettyString = String(data: prettyData, encoding: .utf8) {
+            print("📥 /kiosk-user-response/ response:\n\(prettyString)")
+            return
+        }
+
+        let body = String(data: data, encoding: .utf8) ?? "<unreadable response body>"
+        print("📥 /kiosk-user-response/ response:\n\(body)")
     }
 
     private func printBackendResponse(_ data: Data) {

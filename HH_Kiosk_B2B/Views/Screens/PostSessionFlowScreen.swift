@@ -5,13 +5,20 @@ private enum PostSessionStep {
     case nps
 }
 
+private enum PostSessionSubmissionAction {
+    case nextStepsSkip
+    case npsSkip
+    case npsSubmit
+}
+
 private struct PostSessionNextStepOption: Identifiable, Equatable {
-    let id: String
-    let title: String
+    let id: Int
+    let displayTitle: String
+    let responseTitle: String
     let description: String
 
     var response: KioskNextStepResponse {
-        KioskNextStepResponse(id: id, title: title, description: description)
+        KioskNextStepResponse(id: id, title: responseTitle, description: description)
     }
 }
 
@@ -19,9 +26,10 @@ struct PostSessionFlowScreen: View {
     let emailWasSent: Bool
 
     @State private var step: PostSessionStep = .nextSteps
-    @State private var selectedOptionIDs: Set<String> = []
+    @State private var selectedOptionIDs: Set<Int> = []
     @State private var selectedScore: Int?
     @State private var isSubmitting = false
+    @State private var activeSubmissionAction: PostSessionSubmissionAction?
     @State private var showSubmitError = false
 
     private let submissionService: KioskSubmissionServiceProtocol = KioskSubmissionService()
@@ -33,23 +41,27 @@ struct PostSessionFlowScreen: View {
     private var options: [PostSessionNextStepOption] {
         [
             PostSessionNextStepOption(
-                id: "annual_physical",
-                title: ResultScreenStrings.PostSession.NextSteps.annualPhysical,
+                id: 0,
+                displayTitle: ResultScreenStrings.PostSession.NextSteps.annualPhysical,
+                responseTitle: "Annual Physical",
                 description: ResultScreenStrings.PostSession.NextSteps.annualPhysical
             ),
             PostSessionNextStepOption(
-                id: "biometric_screening",
-                title: ResultScreenStrings.PostSession.NextSteps.biometricScreening,
+                id: 1,
+                displayTitle: ResultScreenStrings.PostSession.NextSteps.biometricScreening,
+                responseTitle: "Biometric Screening",
                 description: ResultScreenStrings.PostSession.NextSteps.biometricScreening
             ),
             PostSessionNextStepOption(
-                id: "nutrition_counseling",
-                title: ResultScreenStrings.PostSession.NextSteps.nutritionCounseling,
+                id: 2,
+                displayTitle: ResultScreenStrings.PostSession.NextSteps.nutritionCounseling,
+                responseTitle: "Nutrition Counseling",
                 description: ResultScreenStrings.EmailPopup.NextSteps.dietitianBody
             ),
             PostSessionNextStepOption(
-                id: "ongoing_monitoring",
-                title: ResultScreenStrings.PostSession.NextSteps.ongoingMonitoring,
+                id: 3,
+                displayTitle: ResultScreenStrings.PostSession.NextSteps.ongoingMonitoring,
+                responseTitle: "Ongoing Monitoring",
                 description: ResultScreenStrings.EmailPopup.NextSteps.monitoringBodyPrefix
                     + ResultScreenStrings.EmailPopup.NextSteps.monitoringCode
                     + ResultScreenStrings.EmailPopup.NextSteps.monitoringBodySuffix
@@ -142,12 +154,19 @@ struct PostSessionFlowScreen: View {
             VStack(spacing: 48.h) {
                 ForEach(options) { option in
                     optionRow(option)
+                        .disabled(isSubmitting)
                 }
             }
             .padding(.top, 58.h)
             .padding(.horizontal, 58.w)
 
             Spacer()
+
+            if showSubmitError {
+                submitErrorText
+                    .padding(.horizontal, 58.w)
+                    .padding(.bottom, 20.h)
+            }
         }
     }
 
@@ -174,7 +193,7 @@ struct PostSessionFlowScreen: View {
                     }
                 }
 
-                Text(option.title)
+                Text(option.displayTitle)
                     .font(.system(size: 28.sp, weight: isSelected ? .bold : .regular))
                     .foregroundColor(Color(AppColors.black))
                     .multilineTextAlignment(.leading)
@@ -194,6 +213,7 @@ struct PostSessionFlowScreen: View {
             .clipShape(RoundedRectangle(cornerRadius: 6.r, style: .continuous))
         }
         .buttonStyle(.plain)
+        .disabled(isSubmitting)
     }
 
     private var npsContent: some View {
@@ -218,9 +238,7 @@ struct PostSessionFlowScreen: View {
                 .padding(.horizontal, 38.w)
 
             if showSubmitError {
-                Text(ResultScreenStrings.PostSession.submitFailure)
-                    .font(.system(size: 16.sp, weight: .semibold))
-                    .foregroundColor(Color(AppColors.error))
+                submitErrorText
                     .padding(.top, 18.h)
             }
 
@@ -307,8 +325,18 @@ struct PostSessionFlowScreen: View {
                 weightedNextStepsFooter
             } else {
                 HStack(alignment: .top, spacing: 20.w) {
-                    Button(action: { submitAndReturnToResults(npsScore: nil) }) {
-                        footerText(ResultScreenStrings.PostSession.skip, width: 250.w, foreground: Color(AppColors.black), background: Color(AppColors.white), bordered: true)
+                    Button(action: {
+                        submitUserResponse(nextSteps: selectedResponses, npsScore: nil, action: .npsSkip)
+                    }) {
+                        ZStack {
+                            footerText(ResultScreenStrings.PostSession.skip, width: 250.w, foreground: Color(AppColors.black), background: Color(AppColors.white), bordered: true)
+                                .opacity(activeSubmissionAction == .npsSkip ? 0 : 1)
+
+                            if activeSubmissionAction == .npsSkip {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle(tint: Color(AppColors.black)))
+                            }
+                        }
                     }
                     .disabled(isSubmitting)
 
@@ -323,16 +351,16 @@ struct PostSessionFlowScreen: View {
                                 background: Color(AppColors.ctaGreen),
                                 bordered: false
                             )
-                            .opacity(isSubmitting ? 0 : 1)
+                            .opacity(activeSubmissionAction == .npsSubmit ? 0 : 1)
 
-                            if isSubmitting {
+                            if activeSubmissionAction == .npsSubmit {
                                 ProgressView()
                                     .progressViewStyle(CircularProgressViewStyle(tint: Color(AppColors.black)))
                             }
                         }
                     }
                     .disabled(isSubmitting || selectedScore == nil)
-                    .opacity((selectedScore != nil || isSubmitting) ? 1 : 0.55)
+                    .opacity(selectedScore != nil ? 1 : 0.55)
                 }
             }
         }
@@ -377,13 +405,16 @@ struct PostSessionFlowScreen: View {
                             navigateBackFromPostSessionFlow()
                         }
                     )
+                    .disabled(isSubmitting)
                     footerUtilityButton(
                         title: ResultScreenStrings.PostSession.skip.uppercased(),
                         width: utilityWidth,
+                        isLoading: activeSubmissionAction == .nextStepsSkip,
                         action: {
-                            navigateBackFromPostSessionFlow()
+                            submitUserResponse(nextSteps: [], npsScore: nil, action: .nextStepsSkip)
                         }
                     )
+                    .disabled(isSubmitting)
 
 
                 footerPrimaryButton(
@@ -391,20 +422,28 @@ struct PostSessionFlowScreen: View {
                     width: continueWidth,
                     action: primaryAction
                 )
+                .disabled(selectedOptionIDs.isEmpty || isSubmitting)
+                .opacity((selectedOptionIDs.isEmpty || isSubmitting) ? 0.55 : 1)
             }
         }
         .frame(height: 72.h)
     }
 
-    private func footerUtilityButton(title: String, width: CGFloat, action: @escaping () -> Void) -> some View {
+    private func footerUtilityButton(title: String, width: CGFloat, isLoading: Bool = false, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            HStack(spacing: 16.w) {
+            ZStack {
                 Text(title)
-                    .font(.system(size: 20.sp, weight: .semibold))
-                    .foregroundColor(Color(AppColors.black))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.72)
+                    .opacity(isLoading ? 0 : 1)
+
+                if isLoading {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: Color(AppColors.black)))
+                }
             }
+            .font(.system(size: 20.sp, weight: .semibold))
+            .foregroundColor(Color(AppColors.black))
+            .lineLimit(1)
+            .minimumScaleFactor(0.72)
             .frame(width: width)
             .frame(minHeight: 90.h)
             .background(Color(AppColors.white))
@@ -414,6 +453,14 @@ struct PostSessionFlowScreen: View {
             )
             .clipShape(RoundedRectangle(cornerRadius: 12.r, style: .continuous))
         }
+    }
+
+    private var submitErrorText: some View {
+        Text(ResultScreenStrings.PostSession.submitFailure)
+            .font(.system(size: 16.sp, weight: .semibold))
+            .foregroundColor(Color(AppColors.error))
+            .multilineTextAlignment(.center)
+            .frame(maxWidth: .infinity)
     }
     
 
@@ -459,40 +506,45 @@ struct PostSessionFlowScreen: View {
     private func primaryAction() {
         switch step {
         case .nextSteps:
+            guard !selectedOptionIDs.isEmpty else { return }
             withAnimation(.easeInOut(duration: 0.2)) {
                 step = .nps
             }
         case .nps:
-            submitAndReturnToResults(npsScore: selectedScore)
+            submitUserResponse(nextSteps: selectedResponses, npsScore: selectedScore, action: .npsSubmit)
         }
     }
 
-    private func submitAndReturnToResults(npsScore: Int?) {
+    private func submitUserResponse(nextSteps: [KioskNextStepResponse], npsScore: Int?, action: PostSessionSubmissionAction) {
         guard !isSubmitting else { return }
 
         Task {
             await MainActor.run {
                 isSubmitting = true
+                activeSubmissionAction = action
                 showSubmitError = false
             }
 
             do {
-                if let email = LocalUserStorage.loadEmail(),
-                   !email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    _ = try await submissionService.sendUserResponse(
-                        email: email,
-                        nextSteps: selectedResponses,
-                        npsScore: npsScore
-                    )
+                guard let email = LocalUserStorage.loadEmail()?.trimmingCharacters(in: .whitespacesAndNewlines),
+                      !email.isEmpty else {
+                    throw AppAPIError.missingSavedUser
                 }
 
+                _ = try await submissionService.sendUserResponse(
+                    email: email,
+                    nextSteps: nextSteps,
+                    npsScore: npsScore
+                )
+
                 await MainActor.run {
-                    navigateBackFromPostSessionFlow()
+                    navigateToHome(showResponseToast: action == .npsSubmit)
                 }
             } catch {
                 print("Kiosk post-session response error:", error.localizedDescription)
                 await MainActor.run {
                     isSubmitting = false
+                    activeSubmissionAction = nil
                     showSubmitError = true
                 }
             }

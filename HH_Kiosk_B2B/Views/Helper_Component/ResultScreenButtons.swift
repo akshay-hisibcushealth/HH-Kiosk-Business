@@ -119,21 +119,11 @@ private enum ResultPromptOverlayLayout {
     case emailSuccess
 
     func width(in proxy: GeometryProxy) -> CGFloat {
-        switch self {
-        case .emailEntry:
-            min(proxy.size.width * 0.79, 1088.w)
-        case .emailSuccess:
-            min(proxy.size.width * 0.56, 768.w)
-        }
+        min(proxy.size.width * 0.79, 1088.w)
     }
 
     func height(in proxy: GeometryProxy) -> CGFloat {
-        switch self {
-        case .emailEntry:
-            min(proxy.size.height * 0.53, 1040.h)
-        case .emailSuccess:
-            min(proxy.size.height * 0.38, 680.h)
-        }
+        min(proxy.size.height * 0.53, 1040.h)
     }
 }
 

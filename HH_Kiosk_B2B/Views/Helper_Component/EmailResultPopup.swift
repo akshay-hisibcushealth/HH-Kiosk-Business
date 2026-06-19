@@ -42,13 +42,7 @@ struct EmailResultPopup: View {
 
     
     var body: some View {
-        ZStack(alignment: .topTrailing) {
-            if !isEmailSent {
-                closeButton
-                    .padding(.top, 16.h)
-                    .padding(.trailing, 16.w)
-            }
-
+        ZStack {
             VStack(spacing: 16.h) {
                 if isLoading {
                     loadingView
@@ -59,18 +53,24 @@ struct EmailResultPopup: View {
                 }
             }
             .padding(.top, 20.h)
+
+            if !isEmailSent {
+                closeButton
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+                    .padding(.top, 42.h)
+                    .padding(.trailing, 58.w)
+            }
         }
     }
 
     @ViewBuilder
     private var closeButton: some View {
         Button(action: { dismiss() }) {
-            HStack {
-                Spacer()
-                Image(systemName: AppIconNames.Symbol.xmark)
-                    .padding(.trailing, 32.w)
-                    .foregroundColor(Color(AppColors.black))
-            }
+            Image(systemName: AppIconNames.Symbol.xmark)
+                .font(.system(size: 28.sp, weight: .medium))
+                .foregroundColor(Color(AppColors.black))
+                .frame(width: 58.w, height: 58.w)
+                .contentShape(Rectangle())
         }
     }
 
