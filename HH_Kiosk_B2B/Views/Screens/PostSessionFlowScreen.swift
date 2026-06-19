@@ -203,18 +203,14 @@ struct PostSessionFlowScreen: View {
             successMark
                 .padding(.bottom, 38.h)
 
-            buildSemiBoldText(ResultScreenStrings.PostSession.allDoneTitle, 36.sp, color: Color(AppColors.black))
+            buildMediumText(ResultScreenStrings.PostSession.allDoneTitle, 36.sp, color: Color(AppColors.black))
                 .padding(.bottom, 18.h)
 
-            Text(emailWasSent ? ResultScreenStrings.PostSession.emailSentBody : ResultScreenStrings.PostSession.completionBody)
-                .font(.system(size: 22.sp, weight: .regular))
+            Text(ResultScreenStrings.PostSession.allDoneDescription)
+                .font(.system(size: 26.sp, weight: .light))
                 .foregroundColor(Color(AppColors.black))
                 .multilineTextAlignment(.center)
                 .padding(.bottom, 8.h)
-
-            Text(ResultScreenStrings.PostSession.completionSubtitle)
-                .font(.system(size: 22.sp, weight: .regular))
-                .foregroundColor(Color(AppColors.black))
 
             Spacer(minLength: 110.h)
 
@@ -236,11 +232,11 @@ struct PostSessionFlowScreen: View {
         ZStack {
             Circle()
                 .fill(Color(AppColors.ctaGreen).opacity(0.32))
-                .frame(width: 156.w, height: 156.w)
+                .frame(width: 180.w, height: 180.w)
 
             Circle()
                 .fill(Color(red: 0.47, green: 0.78, blue: 0.0))
-                .frame(width: 102.w, height: 102.w)
+                .frame(width: 140.w, height: 140.w)
 
             Image(systemName: "checkmark")
                 .font(.system(size: 56.sp, weight: .black))
@@ -251,7 +247,7 @@ struct PostSessionFlowScreen: View {
     private var npsCard: some View {
         VStack(spacing: 18.h) {
             Text(ResultScreenStrings.PostSession.npsEyebrow)
-                .font(.system(size: 15.sp, weight: .black))
+                .font(.system(size: 25.sp, weight: .semibold))
                 .foregroundColor(Color(AppColors.primary))
 
             buildSemiBoldText(ResultScreenStrings.PostSession.npsQuestion, 32.sp, color: Color(AppColors.black))
@@ -271,7 +267,7 @@ struct PostSessionFlowScreen: View {
                 Spacer()
                 Text(ResultScreenStrings.PostSession.extremelyLikely)
             }
-            .font(.system(size: 15.sp, weight: .regular))
+            .font(.system(size: 22.sp, weight: .regular))
             .foregroundColor(Color(AppColors.black))
             .padding(.horizontal, 10.w)
         }
@@ -291,10 +287,10 @@ struct PostSessionFlowScreen: View {
             selectedScore = score
         } label: {
             Text("\(score)")
-                .font(.system(size: selectedScore == score ? 24.sp : 15.sp, weight: .bold))
+                .font(.system(size: selectedScore == score ? 32.sp : 24.sp, weight: .bold))
                 .foregroundColor(Color(AppColors.primary))
                 .frame(maxWidth: .infinity)
-                .frame(height: 64.h)
+                .frame(height: 80.h)
                 .background(selectedScore == score ? Color(AppColors.ctaGreen) : Color(AppColors.formBorder).opacity(0.2))
                 .overlay(
                     RoundedRectangle(cornerRadius: 6.r, style: .continuous)
@@ -370,8 +366,8 @@ struct PostSessionFlowScreen: View {
             let innerSpacing = 16.w
             let availableWidth = proxy.size.width - outerSpacing - innerSpacing
             let totalWeight: CGFloat = 9.5
-            let utilityWidth = availableWidth * (2.5 / totalWeight)
-            let continueWidth = availableWidth * (6.5 / totalWeight)
+            let utilityWidth = availableWidth * (2 / totalWeight)
+            let continueWidth = availableWidth * (5.5 / totalWeight)
 
             HStack(alignment: .top, spacing: outerSpacing) {
                     footerUtilityButton(
@@ -381,8 +377,14 @@ struct PostSessionFlowScreen: View {
                             navigateBackFromPostSessionFlow()
                         }
                     )
+                    footerUtilityButton(
+                        title: ResultScreenStrings.PostSession.skip.uppercased(),
+                        width: utilityWidth,
+                        action: {
+                            navigateBackFromPostSessionFlow()
+                        }
+                    )
 
-                Spacer()
 
                 footerPrimaryButton(
                     title: ResultScreenStrings.PostSession.continueTitle,
@@ -397,12 +399,6 @@ struct PostSessionFlowScreen: View {
     private func footerUtilityButton(title: String, width: CGFloat, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack(spacing: 16.w) {
-                Image(systemName: "arrow.left")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 22.w, height: 22.h)
-                    .foregroundColor(Color(AppColors.black))
-                
                 Text(title)
                     .font(.system(size: 20.sp, weight: .semibold))
                     .foregroundColor(Color(AppColors.black))
@@ -410,7 +406,7 @@ struct PostSessionFlowScreen: View {
                     .minimumScaleFactor(0.72)
             }
             .frame(width: width)
-            .frame(minHeight: 72.h)
+            .frame(minHeight: 90.h)
             .background(Color(AppColors.white))
             .overlay(
                 RoundedRectangle(cornerRadius: 12.r, style: .continuous)
@@ -419,6 +415,7 @@ struct PostSessionFlowScreen: View {
             .clipShape(RoundedRectangle(cornerRadius: 12.r, style: .continuous))
         }
     }
+    
 
     private func footerPrimaryButton(title: String, width: CGFloat, action: @escaping () -> Void) -> some View {
         Button(action: action) {
@@ -429,7 +426,7 @@ struct PostSessionFlowScreen: View {
             .font(.system(size: 28.sp, weight: .semibold))
             .foregroundColor(Color(AppColors.black))
             .frame(width: width)
-            .frame(minHeight: 72.h)
+            .frame(minHeight: 90.h)
             .background(Color(AppColors.ctaGreen))
             .clipShape(RoundedRectangle(cornerRadius: 12.r, style: .continuous))
         }
@@ -437,7 +434,7 @@ struct PostSessionFlowScreen: View {
 
     private func footerText(_ text: String, width: CGFloat, foreground: Color, background: Color, bordered: Bool) -> some View {
         Text(text)
-            .font(.system(size: 20.sp, weight: .semibold))
+            .font(.system(size: 28.sp, weight: .semibold))
             .foregroundColor(foreground)
             .lineLimit(1)
             .minimumScaleFactor(0.72)

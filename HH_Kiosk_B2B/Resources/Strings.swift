@@ -197,7 +197,7 @@ enum ResultScreenStrings {
         static let nextStepsSubtitle = "Based on your results, here are some common next steps"
         static let continueTitle = "Continue"
         static let allDoneTitle = "All done. Thank you!"
-        static let emailSentBody = "Your wellness report and selected next steps have been sent to your email."
+        static let allDoneDescription = "Your wellness report and selected next steps have been sent to your email.\nWe hope you found this experience valuable."
         static let completionBody = "Your selected next steps have been saved."
         static let completionSubtitle = "We hope you found this experience valuable."
         static let npsEyebrow = "ONE QUICK QUESTION"
