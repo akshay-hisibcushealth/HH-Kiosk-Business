@@ -44,6 +44,7 @@ enum AppIconNames {
     }
     
     enum Symbol {
+        static let arrowRight = "arrow.right"
         static let chevronRight = "chevron.right"
         static let envelopeFill = "envelope.fill"
         static let exclamationmarkTriangleFill = "exclamationmark.triangle.fill"

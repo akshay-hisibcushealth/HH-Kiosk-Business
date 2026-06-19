@@ -147,10 +147,12 @@ enum ResultScreenStrings {
     enum Actions {
         static let closeResult = "Close result"
         static let emailMyResults = "Email my results"
+        static let emailResults = "Email Results"
         static let back = "Back"
         static let secureAndPrivate = "Secure and Private"
         static let print = "Print"
         static let endSession = "End Session"
+        static let viewNextSteps = "View Next Steps"
     }
 
     enum EmailPopup {
@@ -169,6 +171,9 @@ enum ResultScreenStrings {
         static let sendMail = "Send mail"
         static let emailFailure = "Failed to send email. Please try again."
         static let secureAndPrivate = "Secure and Private"
+        static let checkInboxTitle = "Check your inbox!"
+        static let emailSentMessage = "Your result has been sent to your email!\nTell a colleague about our Kiosk!"
+        static let done = "Done"
 
         enum NextSteps {
             static let talkToDoctorTitle = "Talk to a Hibiscus Doctor"

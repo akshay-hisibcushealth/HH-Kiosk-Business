@@ -7,6 +7,7 @@ struct EmailResultPopup: View {
     let results: [String: MeasurementResults.SignalResult]
     @Environment(\.dismiss) var dismiss
     private let submissionService: KioskSubmissionServiceProtocol
+    @Binding private var isEmailSent: Bool
     @State private var email: String = UserDefaults.standard.string(forKey: "user_email") ?? ""
     @State private var pin: String = ""
     @State private var isLoading: Bool = false
@@ -15,9 +16,11 @@ struct EmailResultPopup: View {
 
     init(
         results: [String: MeasurementResults.SignalResult],
+        isEmailSent: Binding<Bool> = .constant(false),
         submissionService: KioskSubmissionServiceProtocol = KioskSubmissionService()
     ) {
         self.results = results
+        self._isEmailSent = isEmailSent
         self.submissionService = submissionService
     }
 
@@ -40,13 +43,17 @@ struct EmailResultPopup: View {
     
     var body: some View {
         ZStack(alignment: .topTrailing) {
-            closeButton
-                .padding(.top, 16.h)
-                .padding(.trailing, 16.w)
+            if !isEmailSent {
+                closeButton
+                    .padding(.top, 16.h)
+                    .padding(.trailing, 16.w)
+            }
 
             VStack(spacing: 16.h) {
                 if isLoading {
                     loadingView
+                } else if isEmailSent {
+                    emailSentView
                 } else {
                     emailFormView
                 }
@@ -77,6 +84,44 @@ struct EmailResultPopup: View {
                 .scaleEffect(2)
             Spacer()
         }
+        Spacer()
+    }
+
+    @ViewBuilder
+    private var emailSentView: some View {
+        Spacer()
+
+        Image(AppIconNames.Asset.emailSent)
+            .resizable()
+            .scaledToFit()
+            .frame(width: 160.w, height: 160.w)
+            .padding(.bottom, 12.h)
+
+        Text(ResultScreenStrings.EmailPopup.checkInboxTitle)
+            .font(.system(size: 28.sp, weight: .bold))
+            .foregroundColor(Color(AppColors.black))
+            .padding(.bottom, 14.h)
+
+        Text(ResultScreenStrings.EmailPopup.emailSentMessage)
+            .multilineTextAlignment(.center)
+            .font(.system(size: 24.sp))
+            .foregroundColor(Color(AppColors.black))
+            .lineSpacing(4.h)
+            .padding(.bottom, 24.h)
+
+        Button(action: {
+            dismiss()
+        }) {
+            Text(ResultScreenStrings.EmailPopup.done)
+                .foregroundColor(Color(AppColors.black))
+                .font(.system(size: 22.sp, weight: .bold))
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color(AppColors.ctaGreen))
+                .cornerRadius(10.r)
+        }
+        .padding(.horizontal, 44.w)
+
         Spacer()
     }
 
@@ -159,8 +204,7 @@ struct EmailResultPopup: View {
                 let success = await submitEmailResults()
                 isLoading = false
                 if success {
-                    dismiss()
-                    navigateToPostSessionFlow(emailWasSent: true)
+                    isEmailSent = true
                 } else {
                     // Trigger failure message
                     showEmailError = true

@@ -7,20 +7,21 @@ struct ResultScreenButtons: View {
     let onPrint: () -> Void
 
     @State private var showEmailPopUp = false
+    @State private var isEmailSent = false
     var body: some View {
-        VStack(spacing: 16.h) {
-            HStack(alignment: .top, spacing: 20.w) {
+        HStack(alignment: .center, spacing: 20.w) {
                 HStack(spacing: 16.w) {
                     footerButton(
-                        title: ResultScreenStrings.Actions.emailMyResults.uppercased(),
+                        title: ResultScreenStrings.Actions.emailResults,
                         image: Image(AppIconNames.Asset.email),
                         action: {
+                            isEmailSent = false
                             showEmailPopUp = true
                         }
                     )
 
                     footerButton(
-                        title: ResultScreenStrings.Actions.print.uppercased(),
+                        title: ResultScreenStrings.Actions.print,
                         image: Image(systemName: AppIconNames.Symbol.printerFill),
                         action: {
                             onPrint()
@@ -29,41 +30,27 @@ struct ResultScreenButtons: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                Button(action: {
-                    navigateToPostSessionFlow()
-                }) {
-                    Text(ResultScreenStrings.Actions.endSession.uppercased())
-                        .font(.system(size: 20.sp, weight: .semibold))
-                        .foregroundColor(Color(AppColors.primaryActionOrange))
-                        .frame(width: 230.w)
-                        .frame(minHeight: 72.h)
-                        .background(Color(AppColors.resultAlertBackground).opacity(0.45))
-                        .clipShape(RoundedRectangle(cornerRadius: 12.r, style: .continuous))
-                }
+                footerPrimaryButton(
+                    title: ResultScreenStrings.Actions.viewNextSteps,
+                    action: {
+                        navigateToPostSessionFlow()
+                    }
+                )
             }
-
-            HStack(spacing: 8.w) {
-                Image(AppIconNames.Asset.secureEmail)
-                    .resizable()
-                    .frame(width: 24.w, height: 24.h)
-
-                Text(ResultScreenStrings.Actions.secureAndPrivate)
-                    .foregroundColor(Color(AppColors.blue))
-                    .font(.system(size: 18.sp, weight: .semibold))
-            }
-            .frame(maxWidth: .infinity, alignment: .center)
-            .fullScreenCover(isPresented: $showEmailPopUp) {
-                ResultPromptOverlay(layout: .emailEntry) {
+            .fullScreenCover(isPresented: $showEmailPopUp, onDismiss: {
+                isEmailSent = false
+            }) {
+                ResultPromptOverlay(layout: isEmailSent ? .emailSuccess : .emailEntry) {
                     EmailResultPopup(
-                        results: result
+                        results: result,
+                        isEmailSent: $isEmailSent
                     )
                 }
                 .presentationBackground(Color.clear)
             }
-        }
-        .padding(.top, 24.h)
+        .padding(.top, 26.h)
         .padding(.horizontal, 30.w)
-        .padding(.bottom, 18.h)
+        .padding(.bottom, 26.h)
         .background(
             Color(AppColors.white)
                 .shadow(color: Color(AppColors.black).opacity(0.18), radius: 14, x: 0, y: -4)
@@ -107,17 +94,46 @@ struct ResultScreenButtons: View {
             .clipShape(RoundedRectangle(cornerRadius: 12.r, style: .continuous))
         }
     }
+
+    private func footerPrimaryButton(title: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 16.w) {
+                Text(title)
+                    .font(.system(size: 20.sp, weight: .semibold))
+                    .foregroundColor(Color(AppColors.black))
+
+                Image(systemName: AppIconNames.Symbol.arrowRight)
+                    .font(.system(size: 24.sp, weight: .semibold))
+                    .foregroundColor(Color(AppColors.black))
+            }
+            .frame(width: 550.w)
+            .frame(minHeight: 72.h)
+            .background(Color(AppColors.ctaGreen))
+            .clipShape(RoundedRectangle(cornerRadius: 12.r, style: .continuous))
+        }
+    }
 }
 
 private enum ResultPromptOverlayLayout {
     case emailEntry
+    case emailSuccess
 
     func width(in proxy: GeometryProxy) -> CGFloat {
-        min(proxy.size.width * 0.79, 1088.w)
+        switch self {
+        case .emailEntry:
+            min(proxy.size.width * 0.79, 1088.w)
+        case .emailSuccess:
+            min(proxy.size.width * 0.56, 768.w)
+        }
     }
 
     func height(in proxy: GeometryProxy) -> CGFloat {
-        min(proxy.size.height * 0.53, 1040.h)
+        switch self {
+        case .emailEntry:
+            min(proxy.size.height * 0.53, 1040.h)
+        case .emailSuccess:
+            min(proxy.size.height * 0.38, 680.h)
+        }
     }
 }
 
@@ -176,41 +192,29 @@ func navigateToHome(animated: Bool = true, showResponseToast: Bool = false) {
     window.makeKeyAndVisible()
 }
 
-private var previousRootViewControllerBeforePostSession: UIViewController?
+private weak var presentedPostSessionFlowController: UIViewController?
 
 func navigateToPostSessionFlow(animated: Bool = true, emailWasSent: Bool = false) {
-    guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-          let window = windowScene.windows.first else { return }
-
-    previousRootViewControllerBeforePostSession = window.rootViewController
-    let hostingController = UIHostingController(rootView: PostSessionFlowScreen(emailWasSent: emailWasSent))
-
-    if animated {
-        let transition = CATransition()
-        transition.type = .fade
-        transition.duration = 0.35
-        transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-        window.layer.add(transition, forKey: kCATransition)
+    if presentedPostSessionFlowController != nil {
+        return
     }
 
-    window.rootViewController = hostingController
-    window.makeKeyAndVisible()
+    guard let topViewController = UIApplication.topViewController() else { return }
+
+    let hostingController = UIHostingController(rootView: PostSessionFlowScreen(emailWasSent: emailWasSent))
+    hostingController.modalPresentationStyle = .fullScreen
+    hostingController.modalTransitionStyle = .crossDissolve
+    presentedPostSessionFlowController = hostingController
+
+    topViewController.present(hostingController, animated: animated)
 }
 
 func navigateBackFromPostSessionFlow(animated: Bool = true) {
-    guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-          let window = windowScene.windows.first,
-          let previousRootViewController = previousRootViewControllerBeforePostSession else { return }
-
-    if animated {
-        let transition = CATransition()
-        transition.type = .fade
-        transition.duration = 0.35
-        transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-        window.layer.add(transition, forKey: kCATransition)
+    guard let postSessionController = presentedPostSessionFlowController ?? UIApplication.topViewController() else {
+        return
     }
 
-    window.rootViewController = previousRootViewController
-    window.makeKeyAndVisible()
-    previousRootViewControllerBeforePostSession = nil
+    postSessionController.dismiss(animated: animated) {
+        presentedPostSessionFlowController = nil
+    }
 }

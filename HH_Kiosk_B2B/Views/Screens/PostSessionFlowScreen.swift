@@ -198,28 +198,28 @@ struct PostSessionFlowScreen: View {
 
     private var npsContent: some View {
         VStack(spacing: 0) {
-            Spacer(minLength: 56.h)
+            Spacer(minLength: 86.h)
 
             successMark
-                .padding(.bottom, 28.h)
+                .padding(.bottom, 38.h)
 
-            buildSemiBoldText(ResultScreenStrings.PostSession.allDoneTitle, 31.sp, color: Color(AppColors.black))
-                .padding(.bottom, 14.h)
+            buildSemiBoldText(ResultScreenStrings.PostSession.allDoneTitle, 36.sp, color: Color(AppColors.black))
+                .padding(.bottom, 18.h)
 
             Text(emailWasSent ? ResultScreenStrings.PostSession.emailSentBody : ResultScreenStrings.PostSession.completionBody)
-                .font(.system(size: 17.sp, weight: .regular))
+                .font(.system(size: 22.sp, weight: .regular))
                 .foregroundColor(Color(AppColors.black))
                 .multilineTextAlignment(.center)
-                .padding(.bottom, 10.h)
+                .padding(.bottom, 8.h)
 
             Text(ResultScreenStrings.PostSession.completionSubtitle)
-                .font(.system(size: 17.sp, weight: .regular))
+                .font(.system(size: 22.sp, weight: .regular))
                 .foregroundColor(Color(AppColors.black))
 
-            Spacer(minLength: 84.h)
+            Spacer(minLength: 110.h)
 
             npsCard
-                .padding(.horizontal, 62.w)
+                .padding(.horizontal, 38.w)
 
             if showSubmitError {
                 Text(ResultScreenStrings.PostSession.submitFailure)
@@ -228,7 +228,7 @@ struct PostSessionFlowScreen: View {
                     .padding(.top, 18.h)
             }
 
-            Spacer(minLength: 42.h)
+            Spacer(minLength: 58.h)
         }
     }
 
@@ -236,47 +236,47 @@ struct PostSessionFlowScreen: View {
         ZStack {
             Circle()
                 .fill(Color(AppColors.ctaGreen).opacity(0.32))
-                .frame(width: 116.w, height: 116.w)
+                .frame(width: 156.w, height: 156.w)
 
             Circle()
                 .fill(Color(red: 0.47, green: 0.78, blue: 0.0))
-                .frame(width: 76.w, height: 76.w)
+                .frame(width: 102.w, height: 102.w)
 
             Image(systemName: "checkmark")
-                .font(.system(size: 40.sp, weight: .black))
+                .font(.system(size: 56.sp, weight: .black))
                 .foregroundColor(Color(AppColors.black))
         }
     }
 
     private var npsCard: some View {
-        VStack(spacing: 14.h) {
+        VStack(spacing: 18.h) {
             Text(ResultScreenStrings.PostSession.npsEyebrow)
-                .font(.system(size: 13.sp, weight: .black))
+                .font(.system(size: 15.sp, weight: .black))
                 .foregroundColor(Color(AppColors.primary))
 
-            buildSemiBoldText(ResultScreenStrings.PostSession.npsQuestion, 26.sp, color: Color(AppColors.black))
+            buildSemiBoldText(ResultScreenStrings.PostSession.npsQuestion, 32.sp, color: Color(AppColors.black))
                 .multilineTextAlignment(.center)
                 .lineLimit(2)
                 .minimumScaleFactor(0.78)
 
-            HStack(spacing: 10.w) {
+            HStack(spacing: 13.w) {
                 ForEach(1...10, id: \.self) { score in
                     scoreButton(score)
                 }
             }
-            .padding(.top, 4.h)
+            .padding(.top, 8.h)
 
             HStack {
                 Text(ResultScreenStrings.PostSession.notLikely)
                 Spacer()
                 Text(ResultScreenStrings.PostSession.extremelyLikely)
             }
-            .font(.system(size: 12.sp, weight: .regular))
+            .font(.system(size: 15.sp, weight: .regular))
             .foregroundColor(Color(AppColors.black))
-            .padding(.horizontal, 8.w)
+            .padding(.horizontal, 10.w)
         }
-        .padding(.horizontal, 18.w)
-        .padding(.vertical, 32.h)
+        .padding(.horizontal, 20.w)
+        .padding(.vertical, 44.h)
         .frame(maxWidth: .infinity)
         .background(Color(AppColors.white))
         .overlay(
@@ -291,16 +291,16 @@ struct PostSessionFlowScreen: View {
             selectedScore = score
         } label: {
             Text("\(score)")
-                .font(.system(size: 13.sp, weight: .bold))
+                .font(.system(size: selectedScore == score ? 24.sp : 15.sp, weight: .bold))
                 .foregroundColor(Color(AppColors.primary))
                 .frame(maxWidth: .infinity)
-                .frame(height: 48.h)
+                .frame(height: 64.h)
                 .background(selectedScore == score ? Color(AppColors.ctaGreen) : Color(AppColors.formBorder).opacity(0.2))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 5.r, style: .continuous)
+                    RoundedRectangle(cornerRadius: 6.r, style: .continuous)
                         .stroke(selectedScore == score ? Color(red: 0.35, green: 0.63, blue: 0.0) : Color(AppColors.formBorder), lineWidth: selectedScore == score ? 3.w : 1.w)
                 )
-                .clipShape(RoundedRectangle(cornerRadius: 5.r, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: 6.r, style: .continuous))
         }
         .buttonStyle(.plain)
     }
@@ -311,8 +311,8 @@ struct PostSessionFlowScreen: View {
                 weightedNextStepsFooter
             } else {
                 HStack(alignment: .top, spacing: 20.w) {
-                    Button(action: { submitAndReturnHome(npsScore: nil) }) {
-                        footerText(ResultScreenStrings.PostSession.skip, width: 270.w, foreground: Color(AppColors.black), background: Color(AppColors.white), bordered: true)
+                    Button(action: { submitAndReturnToResults(npsScore: nil) }) {
+                        footerText(ResultScreenStrings.PostSession.skip, width: 250.w, foreground: Color(AppColors.black), background: Color(AppColors.white), bordered: true)
                     }
                     .disabled(isSubmitting)
 
@@ -322,7 +322,7 @@ struct PostSessionFlowScreen: View {
                         ZStack {
                             footerText(
                                 ResultScreenStrings.PostSession.submitAndReturnHome,
-                                width: 570.w,
+                                width: 680.w,
                                 foreground: Color(AppColors.black),
                                 background: Color(AppColors.ctaGreen),
                                 bordered: false
@@ -343,7 +343,7 @@ struct PostSessionFlowScreen: View {
         .frame(maxWidth: .infinity)
         .padding(.top, 24.h)
         .padding(.horizontal, 30.w)
-        .padding(.bottom, 18.h)
+        .padding(.bottom, 24.h)
         .background(
             Color(AppColors.white)
                 .shadow(color: Color(AppColors.black).opacity(0.18), radius: 14, x: 0, y: -4)
@@ -442,7 +442,7 @@ struct PostSessionFlowScreen: View {
             .lineLimit(1)
             .minimumScaleFactor(0.72)
             .frame(width: width)
-            .frame(minHeight: 72.h)
+            .frame(minHeight: 80.h)
             .background(background)
             .overlay(
                 RoundedRectangle(cornerRadius: 12.r, style: .continuous)
@@ -466,11 +466,11 @@ struct PostSessionFlowScreen: View {
                 step = .nps
             }
         case .nps:
-            submitAndReturnHome(npsScore: selectedScore)
+            submitAndReturnToResults(npsScore: selectedScore)
         }
     }
 
-    private func submitAndReturnHome(npsScore: Int?) {
+    private func submitAndReturnToResults(npsScore: Int?) {
         guard !isSubmitting else { return }
 
         Task {
@@ -490,7 +490,7 @@ struct PostSessionFlowScreen: View {
                 }
 
                 await MainActor.run {
-                    navigateToHome(showResponseToast: !selectedResponses.isEmpty || npsScore != nil)
+                    navigateBackFromPostSessionFlow()
                 }
             } catch {
                 print("Kiosk post-session response error:", error.localizedDescription)
