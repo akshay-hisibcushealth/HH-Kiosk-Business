@@ -28,9 +28,8 @@ struct RootView: View {
                     .transition(.opacity)
                     .zIndex(1)
             } else {
-                PostSessionFlowScreen()
 //             ResultsViewWrapper()
-//                HomeScreen()
+                HomeScreen()
                     .environmentObject(appState)
                     .transition(.opacity)
                     .zIndex(0)
