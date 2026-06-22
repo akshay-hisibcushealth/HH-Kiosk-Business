@@ -5,6 +5,7 @@ import AnuraCore
 struct PhysicalAttributesScreen: View {
     private static let previewOrientationStorageKey = "physicalAttributes.previewOrientation"
     private let validAgeRange = 13...120
+    private let validWeightRangeInPounds = 75...400
     
     private enum DeveloperAutofill {
         static let email = "akshay@hibiscushealth.com"
@@ -84,6 +85,7 @@ struct PhysicalAttributesScreen: View {
                     bodyImage
                         .frame(width: 410.w, height: 700.h)
                         .clipped()
+                        .padding(.top,40.h)
 
                     formColumn
                         .frame(maxWidth: 548.w)
@@ -277,7 +279,7 @@ struct PhysicalAttributesScreen: View {
         case weight == nil:
             validationMessage = PhysicalAttributesScreenStrings.Validation.missingWeight
 
-        case weight! < 34:
+        case weightInPounds == nil || !validWeightRangeInPounds.contains(weightInPounds!):
             validationMessage = PhysicalAttributesScreenStrings.Validation.invalidWeight
 
         case age == nil:
