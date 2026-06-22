@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		960016092F6AD75300C7F9CA /* CONTRIBUTING.md in Resources */ = {isa = PBXBuildFile; fileRef = 960016082F6AD75300C7F9CA /* CONTRIBUTING.md */; };
+		96550BBB2FE5D242001C7296 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 96550BBA2FE5D242001C7296 /* Lottie */; };
 		96B73FD62EA016F70004A505 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96B73FD52EA016F70004A505 /* Accelerate.framework */; };
 		96B73FD82EA017110004A505 /* AnuraCore.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96B73FD72EA017110004A505 /* AnuraCore.xcframework */; };
 		96B73FD92EA017110004A505 /* AnuraCore.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 96B73FD72EA017110004A505 /* AnuraCore.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -72,6 +73,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				96B73FD82EA017110004A505 /* AnuraCore.xcframework in Frameworks */,
+				96550BBB2FE5D242001C7296 /* Lottie in Frameworks */,
 				96B73FE12EA017360004A505 /* libdfx.xcframework in Frameworks */,
 				96B73FD62EA016F70004A505 /* Accelerate.framework in Frameworks */,
 				96B73FDC2EA0171F0004A505 /* AVFoundation.framework in Frameworks */,
@@ -135,6 +137,7 @@
 			name = HH_Kiosk_B2B;
 			packageProductDependencies = (
 				96B740082EA01D510004A505 /* Starscream */,
+				96550BBA2FE5D242001C7296 /* Lottie */,
 			);
 			productName = HH_Kiosk_B2B;
 			productReference = 96B73F8F2EA014890004A505 /* HH_Kiosk_B2B.app */;
@@ -167,6 +170,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				96B740072EA01D510004A505 /* XCRemoteSwiftPackageReference "Starscream" */,
+				96550BB92FE5D242001C7296 /* XCRemoteSwiftPackageReference "lottie-ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 96B73F902EA014890004A505 /* Products */;
@@ -325,7 +329,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 49;
+				CURRENT_PROJECT_VERSION = 50;
 				DEVELOPMENT_TEAM = 7P2GHHGYQX;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -362,7 +366,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 49;
+				CURRENT_PROJECT_VERSION = 50;
 				DEVELOPMENT_TEAM = 7P2GHHGYQX;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -417,6 +421,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		96550BB92FE5D242001C7296 /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.6.1;
+			};
+		};
 		96B740072EA01D510004A505 /* XCRemoteSwiftPackageReference "Starscream" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/daltoniam/Starscream.git";
@@ -428,6 +440,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		96550BBA2FE5D242001C7296 /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 96550BB92FE5D242001C7296 /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			productName = Lottie;
+		};
 		96B740082EA01D510004A505 /* Starscream */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 96B740072EA01D510004A505 /* XCRemoteSwiftPackageReference "Starscream" */;
