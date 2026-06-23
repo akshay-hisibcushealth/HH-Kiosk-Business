@@ -50,14 +50,18 @@ struct ResultToolbar: View {
 
 private struct BrandedCompanyLogoView: View {
     var body: some View {
-        Text(SharedViewStrings.Toolbar.companyLogoPlaceholder)
-            .font(.system(size: 24.sp, weight: .semibold))
-            .foregroundColor(Color(AppColors.white))
-            .multilineTextAlignment(.center)
-            .padding(.all, 24.w)
-            .overlay(
-                RoundedRectangle(cornerRadius: 0)
-                    .stroke(Color(AppColors.white), lineWidth: 5.w)
-            )
+        Image(AppIconNames.Asset.axoLogo)
+            .resizable()
+            .scaledToFit()
+            .frame(width: 220.w)
+//        Text(SharedViewStrings.Toolbar.companyLogoPlaceholder)
+//            .font(.system(size: 24.sp, weight: .semibold))
+//            .foregroundColor(Color(AppColors.white))
+//            .multilineTextAlignment(.center)
+//            .padding(.all, 24.w)
+//            .overlay(
+//                RoundedRectangle(cornerRadius: 0)
+//                    .stroke(Color(AppColors.white), lineWidth: 5.w)
+//            )
     }
 }

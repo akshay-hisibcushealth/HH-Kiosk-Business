@@ -5,7 +5,7 @@ import AnuraCore
 struct PhysicalAttributesScreen: View {
     private static let previewOrientationStorageKey = "physicalAttributes.previewOrientation"
     private let validAgeRange = 13...120
-    private let validWeightRangeInPounds = 75...400
+    private let validWeightRangeInKilograms = 34...181
     
     private enum DeveloperAutofill {
         static let email = "akshay@hibiscushealth.com"
@@ -288,7 +288,7 @@ struct PhysicalAttributesScreen: View {
         case weight == nil:
             validationMessage = PhysicalAttributesScreenStrings.Validation.missingWeight
 
-        case weightInPounds == nil || !validWeightRangeInPounds.contains(weightInPounds!):
+        case weightInPounds == nil || !validWeightRangeInKilograms.contains(weight!):
             validationMessage = PhysicalAttributesScreenStrings.Validation.invalidWeight
 
         case age == nil:
@@ -361,7 +361,7 @@ struct PhysicalAttributesScreen: View {
     private func applyDeveloperAutofill() {
         email = DeveloperAutofill.email
         height = Self.heightInCentimeters(feet: DeveloperAutofill.heightFeet, inches: DeveloperAutofill.heightInches)
-        weight = Int(Double(DeveloperAutofill.weightLbs) / 2.20462)
+        weight = Int((Double(DeveloperAutofill.weightLbs) / 2.20462).rounded())
         weightInPounds = DeveloperAutofill.weightLbs
         age = DeveloperAutofill.age
         gender = DeveloperAutofill.gender
@@ -389,7 +389,7 @@ struct PhysicalAttributesScreen: View {
             feet: DeveloperAutofill.heightFeet,
             inches: DeveloperAutofill.heightInches
         )
-        let testWeight = Int(Double(DeveloperAutofill.weightLbs) / 2.20462)
+        let testWeight = Int((Double(DeveloperAutofill.weightLbs) / 2.20462).rounded())
 
         email = DeveloperAutofill.email
         height = testHeight
