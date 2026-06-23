@@ -6,7 +6,6 @@ private enum PostSessionStep {
 }
 
 private enum PostSessionSubmissionAction {
-    case nextStepsSkip
     case npsSkip
     case npsSubmit
 }
@@ -409,9 +408,8 @@ struct PostSessionFlowScreen: View {
                     footerUtilityButton(
                         title: ResultScreenStrings.PostSession.skip.uppercased(),
                         width: utilityWidth,
-                        isLoading: activeSubmissionAction == .nextStepsSkip,
                         action: {
-                            submitUserResponse(nextSteps: [], npsScore: nil, action: .nextStepsSkip)
+                            navigateToHome(showResponseToast: false)
                         }
                     )
                     .disabled(isSubmitting)
