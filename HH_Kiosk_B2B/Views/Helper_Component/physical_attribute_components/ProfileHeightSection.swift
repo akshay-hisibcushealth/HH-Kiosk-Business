@@ -21,7 +21,7 @@ struct ProfileHeightSection: View {
 
             Button {
                 preparePickerValues()
-                showPicker = true
+                openPickerAfterDismissingKeyboard()
             } label: {
                 HStack {
                     if let feet = committedFeet, let inches = committedInches {
@@ -91,6 +91,9 @@ struct ProfileHeightSection: View {
         .onChange(of: selectedHeight) { _, _ in
             syncCommittedHeight()
         }
+        .onReceive(NotificationCenter.default.publisher(for: .physicalAttributesDismissInputFocus)) { _ in
+            showPicker = false
+        }
     }
 
     private func preparePickerValues() {
@@ -104,6 +107,15 @@ struct ProfileHeightSection: View {
         } else {
             tempFeet = 5
             tempInches = 6
+        }
+    }
+
+    private func openPickerAfterDismissingKeyboard() {
+        NotificationCenter.default.post(name: .physicalAttributesDismissInputFocus, object: nil)
+        hideKeyboard()
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.08) {
+            showPicker = true
         }
     }
 

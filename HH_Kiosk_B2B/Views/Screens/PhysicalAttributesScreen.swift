@@ -102,6 +102,10 @@ struct PhysicalAttributesScreen: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
         .background(Color(AppColors.white))
+        .contentShape(Rectangle())
+        .onTapGesture {
+            dismissPhysicalAttributeInputs()
+        }
         .onAppear {
             appState.setScreenSaverSuppressed(true, reason: screenSuppressionReason)
             previewOrientation = Self.loadSavedPreviewOrientation()
@@ -262,6 +266,11 @@ struct PhysicalAttributesScreen: View {
             .buttonStyle(.plain)
             #endif
         }
+    }
+
+    private func dismissPhysicalAttributeInputs() {
+        NotificationCenter.default.post(name: .physicalAttributesDismissInputFocus, object: nil)
+        hideKeyboard()
     }
     
     private func validateInputs() -> Bool {
