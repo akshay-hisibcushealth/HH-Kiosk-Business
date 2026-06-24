@@ -4,6 +4,7 @@ import UIKit
 struct ProfileWeightSection: View {
     @Binding var selectedWeight: Int?  // Stored in kg
     @Binding var selectedWeightInPounds: Int?
+    var focusedField: FocusState<PhysicalAttributesInputField?>.Binding
     @State private var weightInput: String = "" // Local input in kg
     
     private let weightRange = 34...181
@@ -18,6 +19,8 @@ struct ProfileWeightSection: View {
             TextField(PhysicalAttributesScreenStrings.Form.weightPlaceholder, text: $weightInput)
                 .font(.system(size: 28.sp, weight: .regular))
                 .foregroundColor(Color(AppColors.black))
+                .submitLabel(.done)
+                .focused(focusedField, equals: .weight)
                 .textContentType(.none)
                 .autocorrectionDisabled()
                 .padding(.vertical, 26.h)
@@ -37,6 +40,10 @@ struct ProfileWeightSection: View {
             }
             .onChange(of: selectedWeight) { _, _ in
                 syncWeightInput()
+            }
+            .onSubmit {
+                focusedField.wrappedValue = nil
+                hideKeyboard()
             }
         }
     }

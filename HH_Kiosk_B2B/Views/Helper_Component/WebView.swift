@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 import WebKit
 
 struct WebView: UIViewRepresentable {
@@ -18,6 +19,8 @@ struct WebView: UIViewRepresentable {
 struct WebViewSheetView: View {
     @Environment(\.dismiss) var dismiss
     let url: URL
+    private let maxPopupWidth: CGFloat = 1200
+    private let maxPopupHeight: CGFloat = 900
 
     var body: some View {
         NavigationView {
@@ -29,5 +32,11 @@ struct WebViewSheetView: View {
                     }
                 )
         }
+        .frame(
+            width: min(UIScreen.main.bounds.width * 0.9, maxPopupWidth),
+            height: min(UIScreen.main.bounds.height * 0.9, maxPopupHeight)
+        )
+        .presentationDetents([.large])
+        .presentationDragIndicator(.visible)
     }
 }

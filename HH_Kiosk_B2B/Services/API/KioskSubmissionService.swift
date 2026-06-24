@@ -102,7 +102,7 @@ struct KioskSubmissionService: KioskSubmissionServiceProtocol {
             demographic: Demographic(
                 age: user.age,
                 height: user.height,
-                weight: user.weightInPounds,
+                weight: user.weight,
                 gender: user.gender
             ),
             data: data
