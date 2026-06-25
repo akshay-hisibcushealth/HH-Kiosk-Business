@@ -42,28 +42,26 @@ struct PostSessionFlowScreen: View {
             PostSessionNextStepOption(
                 id: 0,
                 displayTitle: ResultScreenStrings.PostSession.NextSteps.annualPhysical,
-                responseTitle: "Annual Physical",
+                responseTitle: ResultScreenStrings.PostSession.NextSteps.annualPhysical,
                 description: ResultScreenStrings.PostSession.NextSteps.annualPhysical
             ),
             PostSessionNextStepOption(
                 id: 1,
                 displayTitle: ResultScreenStrings.PostSession.NextSteps.biometricScreening,
-                responseTitle: "Biometric Screening",
+                responseTitle: ResultScreenStrings.PostSession.NextSteps.biometricScreening,
                 description: ResultScreenStrings.PostSession.NextSteps.biometricScreening
             ),
             PostSessionNextStepOption(
                 id: 2,
                 displayTitle: ResultScreenStrings.PostSession.NextSteps.nutritionCounseling,
-                responseTitle: "Nutrition Counseling",
-                description: ResultScreenStrings.EmailPopup.NextSteps.dietitianBody
+                responseTitle: ResultScreenStrings.PostSession.NextSteps.nutritionCounseling,
+                description: ResultScreenStrings.PostSession.NextSteps.nutritionCounseling
             ),
             PostSessionNextStepOption(
                 id: 3,
                 displayTitle: ResultScreenStrings.PostSession.NextSteps.ongoingMonitoring,
-                responseTitle: "Ongoing Monitoring",
-                description: ResultScreenStrings.EmailPopup.NextSteps.monitoringBodyPrefix
-                    + ResultScreenStrings.EmailPopup.NextSteps.monitoringCode
-                    + ResultScreenStrings.EmailPopup.NextSteps.monitoringBodySuffix
+                responseTitle: ResultScreenStrings.PostSession.NextSteps.ongoingMonitoring,
+                description: ResultScreenStrings.PostSession.NextSteps.ongoingMonitoring
             )
         ]
     }
