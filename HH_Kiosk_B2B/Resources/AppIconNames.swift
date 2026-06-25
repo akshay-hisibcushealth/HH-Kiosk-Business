@@ -41,6 +41,7 @@ enum AppIconNames {
         static let hiby = "hiby_icon"
         static let hibyLeft = "hiby_left"
         static let hibyRight = "hiby_right"
+        static let axoLogo = "axo_logo"
     }
     
     enum Symbol {

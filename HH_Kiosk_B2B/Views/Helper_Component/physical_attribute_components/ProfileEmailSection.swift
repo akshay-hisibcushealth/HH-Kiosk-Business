@@ -11,10 +11,10 @@ import SwiftUI
 struct ProfileEmailSection: View {
 
     @Binding var email: String?
+    var focusedField: FocusState<PhysicalAttributesInputField?>.Binding
 
     @State private var localEmail: String = ""
     @State private var showError = false
-    @FocusState private var isEmailFocused: Bool
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -32,9 +32,13 @@ struct ProfileEmailSection: View {
                 .keyboardType(.emailAddress)
                 .textContentType(.emailAddress)
                 .submitLabel(.done)
+                .onSubmit {
+                    focusedField.wrappedValue = nil
+                    hideKeyboard()
+                }
                 .autocapitalization(.none)
                 .disableAutocorrection(true)
-                .focused($isEmailFocused)
+                .focused(focusedField, equals: .email)
                 .foregroundColor(Color(AppColors.black))
                 .font(.system(size: 28.sp, weight: .regular))
                 .padding(.vertical, 26.h)
@@ -74,7 +78,7 @@ struct ProfileEmailSection: View {
                     }
                 }
                 .onReceive(NotificationCenter.default.publisher(for: .physicalAttributesDismissInputFocus)) { _ in
-                    isEmailFocused = false
+                    focusedField.wrappedValue = nil
                     hideKeyboard()
                 }
 

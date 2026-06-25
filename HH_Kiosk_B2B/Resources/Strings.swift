@@ -29,7 +29,7 @@ enum HomeScreenStrings {
         static let subtitle = "Start with a 30 seconds Face Scan"
         static let demoButtonTitle = "Watch Quick Demo"
         static let tryFaceScan = "Try Face Scan"
-        static let demoURL = "https://drive.google.com/file/d/1dPJs1A6aptEh3yTCVxR5BUlRfyLWa3rL/view?usp=sharing"
+        static let demoURL = "https://www.youtube.com/watch?v=2K4os2Rt81Q"
     }
 
     enum ReadSection {
@@ -79,8 +79,9 @@ enum PhysicalAttributesScreenStrings {
         static let missingEmail = "Please enter your email."
         static let invalidEmail = "Please enter a valid email."
         static let missingHeight = "Please select your height."
+        static let invalidHeight = "Height must be between 120 and 250 cm."
         static let missingWeight = "Weight cannot be empty."
-        static let invalidWeight = "Weight cannot be less than 75 lbs."
+        static let invalidWeight = "Weight must be between 34 and 181 kg."
         static let missingAge = "Please enter your age."
         static let invalidAge = "Age must be between 13 and 120 years."
         static let missingGender = "Please select your gender."
@@ -93,13 +94,10 @@ enum PhysicalAttributesScreenStrings {
         static let ageLabel = "Age"
         static let agePlaceholder = "Year"
         static let heightLabel = "Height"
-        static let heightPlaceholder = "Feet / Inches"
-        static let heightSheetTitle = "Select Height"
-        static let feetUnit = "ft"
-        static let inchesUnit = "in"
+        static let heightPlaceholder = "Cm"
         static let doneButton = "Done"
         static let weightLabel = "Weight"
-        static let weightPlaceholder = "Lbs"
+        static let weightPlaceholder = "Kg"
         static let genderLabel = "Sex (at birth)"
         static let genderPlaceholder = "Male / Female"
         static let genderOptions = ["Male", "Female"]

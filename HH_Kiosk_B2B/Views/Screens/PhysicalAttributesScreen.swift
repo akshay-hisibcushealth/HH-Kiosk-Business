@@ -2,10 +2,18 @@ import SwiftUI
 import UIKit
 import AnuraCore
 
+enum PhysicalAttributesInputField: Hashable {
+    case email
+    case height
+    case weight
+    case age
+}
+
 struct PhysicalAttributesScreen: View {
     private static let previewOrientationStorageKey = "physicalAttributes.previewOrientation"
     private let validAgeRange = 13...120
-    private let validWeightRangeInPounds = 75...400
+    private let validHeightRangeInCentimeters = 120...250
+    private let validWeightRangeInKilograms = 34...181
     
     private enum DeveloperAutofill {
         static let email = "akshay@hibiscushealth.com"
@@ -29,6 +37,7 @@ struct PhysicalAttributesScreen: View {
     @State private var email: String? = nil
     @State private var showSettings = false
     @State private var refreshTrigger = false
+    @FocusState private var focusedInputField: PhysicalAttributesInputField?
 
     
     // EXTERNAL CAMERA VARIABLES
@@ -125,7 +134,7 @@ struct PhysicalAttributesScreen: View {
             }
         }
         .sheet(isPresented: $showWebView) {
-            WebViewSheetView(url: URL(string: PhysicalAttributesScreenStrings.demoURL)!)
+            WebViewSheetView(url: URL(string: HomeScreenStrings.Promo.demoURL)!)
         }
         .sheet(isPresented: $showSettings) {
             SettingsView(
@@ -200,10 +209,14 @@ struct PhysicalAttributesScreen: View {
 
     private var formColumn: some View {
         VStack(alignment: .leading, spacing: 42.h) {
-            ProfileEmailSection(email: $email)
-            ProfileHeightSection(selectedHeight: $height)
-            ProfileWeightSection(selectedWeight: $weight, selectedWeightInPounds: $weightInPounds)
-            ProfileAgeSection(selectedAge: $age)
+            ProfileEmailSection(email: $email, focusedField: $focusedInputField)
+            ProfileHeightSection(selectedHeight: $height, focusedField: $focusedInputField)
+            ProfileWeightSection(
+                selectedWeight: $weight,
+                selectedWeightInPounds: $weightInPounds,
+                focusedField: $focusedInputField
+            )
+            ProfileAgeSection(selectedAge: $age, focusedField: $focusedInputField)
             ProfileGenderSection(selectedGender: $gender)
         }
     }
@@ -285,10 +298,13 @@ struct PhysicalAttributesScreen: View {
         case height == nil:
             validationMessage = PhysicalAttributesScreenStrings.Validation.missingHeight
 
+        case !validHeightRangeInCentimeters.contains(height!):
+            validationMessage = PhysicalAttributesScreenStrings.Validation.invalidHeight
+
         case weight == nil:
             validationMessage = PhysicalAttributesScreenStrings.Validation.missingWeight
 
-        case weightInPounds == nil || !validWeightRangeInPounds.contains(weightInPounds!):
+        case weightInPounds == nil || !validWeightRangeInKilograms.contains(weight!):
             validationMessage = PhysicalAttributesScreenStrings.Validation.invalidWeight
 
         case age == nil:
@@ -361,7 +377,7 @@ struct PhysicalAttributesScreen: View {
     private func applyDeveloperAutofill() {
         email = DeveloperAutofill.email
         height = Self.heightInCentimeters(feet: DeveloperAutofill.heightFeet, inches: DeveloperAutofill.heightInches)
-        weight = Int(Double(DeveloperAutofill.weightLbs) / 2.20462)
+        weight = Int((Double(DeveloperAutofill.weightLbs) / 2.20462).rounded())
         weightInPounds = DeveloperAutofill.weightLbs
         age = DeveloperAutofill.age
         gender = DeveloperAutofill.gender
@@ -389,7 +405,7 @@ struct PhysicalAttributesScreen: View {
             feet: DeveloperAutofill.heightFeet,
             inches: DeveloperAutofill.heightInches
         )
-        let testWeight = Int(Double(DeveloperAutofill.weightLbs) / 2.20462)
+        let testWeight = Int((Double(DeveloperAutofill.weightLbs) / 2.20462).rounded())
 
         email = DeveloperAutofill.email
         height = testHeight
