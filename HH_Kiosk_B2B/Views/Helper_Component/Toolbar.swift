@@ -10,7 +10,7 @@ struct Toolbar: View {
             Image(AppIconNames.Asset.logo)
                 .resizable()
                 .scaledToFit()
-                .frame(width: 200.w, height: 140.h)
+                .frame(width: 190.w, height: 140.h)
                 .padding([.vertical], 16.h)
 
             Spacer()
@@ -36,7 +36,7 @@ struct ResultToolbar: View {
             Image(AppIconNames.Asset.poweredByHHLogo)
                 .resizable()
                 .scaledToFit()
-                .frame(width: 220.w, height: 140.h)
+                .frame(width: 190.w, height: 140.h)
                 .padding(.vertical, 48.h)
                 .padding(.trailing, 32.h)
             Spacer()
