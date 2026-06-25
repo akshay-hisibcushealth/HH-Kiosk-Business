@@ -42,25 +42,25 @@ struct PostSessionFlowScreen: View {
             PostSessionNextStepOption(
                 id: 0,
                 displayTitle: ResultScreenStrings.PostSession.NextSteps.annualPhysical,
-                responseTitle: ResultScreenStrings.PostSession.NextSteps.annualPhysical,
+                responseTitle: ResultScreenStrings.PostSession.NextStepsTitles.annualPhysicalTitle,
                 description: ResultScreenStrings.PostSession.NextSteps.annualPhysical
             ),
             PostSessionNextStepOption(
                 id: 1,
                 displayTitle: ResultScreenStrings.PostSession.NextSteps.biometricScreening,
-                responseTitle: ResultScreenStrings.PostSession.NextSteps.biometricScreening,
+                responseTitle: ResultScreenStrings.PostSession.NextStepsTitles.biometricScreeningTitle,
                 description: ResultScreenStrings.PostSession.NextSteps.biometricScreening
             ),
             PostSessionNextStepOption(
                 id: 2,
                 displayTitle: ResultScreenStrings.PostSession.NextSteps.nutritionCounseling,
-                responseTitle: ResultScreenStrings.PostSession.NextSteps.nutritionCounseling,
+                responseTitle: ResultScreenStrings.PostSession.NextStepsTitles.nutritionCounselingTitle,
                 description: ResultScreenStrings.PostSession.NextSteps.nutritionCounseling
             ),
             PostSessionNextStepOption(
                 id: 3,
                 displayTitle: ResultScreenStrings.PostSession.NextSteps.ongoingMonitoring,
-                responseTitle: ResultScreenStrings.PostSession.NextSteps.ongoingMonitoring,
+                responseTitle: ResultScreenStrings.PostSession.NextStepsTitles.monitoringMyHealthTitle,
                 description: ResultScreenStrings.PostSession.NextSteps.ongoingMonitoring
             )
         ]
@@ -223,11 +223,7 @@ struct PostSessionFlowScreen: View {
             buildMediumText(ResultScreenStrings.PostSession.allDoneTitle, 36.sp, color: Color(AppColors.black))
                 .padding(.bottom, 18.h)
 
-            Text(ResultScreenStrings.PostSession.allDoneDescription)
-                .font(.system(size: 26.sp, weight: .light))
-                .foregroundColor(Color(AppColors.black))
-                .multilineTextAlignment(.center)
-                .padding(.bottom, 8.h)
+ 
 
             Spacer(minLength: 110.h)
 

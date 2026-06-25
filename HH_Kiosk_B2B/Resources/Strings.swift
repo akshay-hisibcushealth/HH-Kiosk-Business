@@ -207,11 +207,18 @@ enum ResultScreenStrings {
         static let submitFailure = "Failed to submit response. Please try again."
 
         enum NextSteps {
-            static let annualPhysical = "Schedule an annual physical with my primary care provider for a comprehensive health exam."
-            static let biometricScreening = "Schedule a biometric screening or other follow-up labs (i.e. HBA1c for blood sugar)."
-            static let nutritionCounseling = "Sign up for nutrition counseling with a registered dietitian."
-            static let ongoingMonitoring = "Keep monitoring my health - complete scans ongoing to track my biomarkers over time."
+            static let annualPhysical = "Schedule an annual physical with my primary care provider for a comprehensive health exam"
+            static let biometricScreening = "Schedule a biometric screening or other follow-up labs (i.e. HBA1c for blood sugar)"
+            static let nutritionCounseling = "Sign up for nutrition counseling with a registered dietitian"
+            static let ongoingMonitoring = "Keep monitoring my health — complete scans ongoing to track my biomarkers over time"
         }
+        enum NextStepsTitles {
+            static let annualPhysicalTitle = "Annual Physical"
+            static let biometricScreeningTitle = "Biometric Screening"
+            static let nutritionCounselingTitle = "Nutrition Counseling"
+            static let monitoringMyHealthTitle = "Keep Monitoring My Health"
+        }
+        
     }
 
     enum Metrics {
