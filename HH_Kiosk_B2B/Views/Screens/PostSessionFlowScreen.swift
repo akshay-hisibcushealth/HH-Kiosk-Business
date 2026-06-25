@@ -42,25 +42,25 @@ struct PostSessionFlowScreen: View {
             PostSessionNextStepOption(
                 id: 0,
                 displayTitle: ResultScreenStrings.PostSession.NextSteps.annualPhysical,
-                responseTitle: "Schedule an annual physical",
+                responseTitle: ResultScreenStrings.PostSession.NextSteps.annualPhysical,
                 description: ResultScreenStrings.PostSession.NextSteps.annualPhysical
             ),
             PostSessionNextStepOption(
                 id: 1,
                 displayTitle: ResultScreenStrings.PostSession.NextSteps.biometricScreening,
-                responseTitle: "Sign up for an on-site biometric screening",
+                responseTitle: ResultScreenStrings.PostSession.NextSteps.biometricScreening,
                 description: ResultScreenStrings.PostSession.NextSteps.biometricScreening
             ),
             PostSessionNextStepOption(
                 id: 2,
                 displayTitle: ResultScreenStrings.PostSession.NextSteps.nutritionCounseling,
-                responseTitle: "Sign up for nutrition counseling",
+                responseTitle: ResultScreenStrings.PostSession.NextSteps.nutritionCounseling,
                 description: ResultScreenStrings.PostSession.NextSteps.nutritionCounseling
             ),
             PostSessionNextStepOption(
                 id: 3,
                 displayTitle: ResultScreenStrings.PostSession.NextSteps.ongoingMonitoring,
-                responseTitle: "Keep monitoring my health",
+                responseTitle: ResultScreenStrings.PostSession.NextSteps.ongoingMonitoring,
                 description: ResultScreenStrings.PostSession.NextSteps.ongoingMonitoring
             )
         ]
