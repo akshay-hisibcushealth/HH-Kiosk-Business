@@ -5,10 +5,6 @@ enum AppAPIEndpoints {
         appURL(path: "/kiosk-data")
     }
 
-    static var screenSaverData: URL {
-        appURL(path: "/kiosk-screensaver/")
-    }
-
     static var emailResults: URL {
         appURL(path: "/kiosk-email/")
     }

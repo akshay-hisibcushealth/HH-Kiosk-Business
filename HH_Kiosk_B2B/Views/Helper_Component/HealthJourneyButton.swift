@@ -7,11 +7,16 @@ struct HealthJourneyButton: View {
     var backgroundColor: Color = Color(AppColors.accent)
     var textColor: Color = Color(AppColors.white)
     var icon: String = AppIconNames.SvgAsset.smile
+    var action: (() -> Void)? = nil
     
     var body: some View {
             Button(action: {
                 withAnimation {
-                    appState.dismissScreenSaver()
+                    if let action {
+                        action()
+                    } else {
+                        appState.dismissScreenSaver()
+                    }
                 }
             }) {
                 HStack {

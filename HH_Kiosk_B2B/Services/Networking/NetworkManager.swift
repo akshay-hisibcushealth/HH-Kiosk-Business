@@ -17,15 +17,6 @@ class NetworkManager {
         }
     }
     
-    func fetchScreenSaverData(completion: @escaping (Result<ScreenSaverData, Error>) -> Void) {
-        Task {
-            do {
-                completion(.success(try await contentService.fetchScreenSaverData()))
-            } catch {
-                completion(.failure(error))
-            }
-        }
-    }
 }
 
 enum NetworkError: Error {

@@ -42,25 +42,25 @@ struct PostSessionFlowScreen: View {
             PostSessionNextStepOption(
                 id: 0,
                 displayTitle: ResultScreenStrings.PostSession.NextSteps.annualPhysical,
-                responseTitle: ResultScreenStrings.PostSession.NextSteps.annualPhysical,
+                responseTitle: ResultScreenStrings.PostSession.NextStepsTitles.annualPhysicalTitle,
                 description: ResultScreenStrings.PostSession.NextSteps.annualPhysical
             ),
             PostSessionNextStepOption(
                 id: 1,
                 displayTitle: ResultScreenStrings.PostSession.NextSteps.biometricScreening,
-                responseTitle: ResultScreenStrings.PostSession.NextSteps.biometricScreening,
+                responseTitle: ResultScreenStrings.PostSession.NextStepsTitles.biometricScreeningTitle,
                 description: ResultScreenStrings.PostSession.NextSteps.biometricScreening
             ),
             PostSessionNextStepOption(
                 id: 2,
                 displayTitle: ResultScreenStrings.PostSession.NextSteps.nutritionCounseling,
-                responseTitle: ResultScreenStrings.PostSession.NextSteps.nutritionCounseling,
+                responseTitle: ResultScreenStrings.PostSession.NextStepsTitles.nutritionCounselingTitle,
                 description: ResultScreenStrings.PostSession.NextSteps.nutritionCounseling
             ),
             PostSessionNextStepOption(
                 id: 3,
                 displayTitle: ResultScreenStrings.PostSession.NextSteps.ongoingMonitoring,
-                responseTitle: ResultScreenStrings.PostSession.NextSteps.ongoingMonitoring,
+                responseTitle: ResultScreenStrings.PostSession.NextStepsTitles.monitoringMyHealthTitle,
                 description: ResultScreenStrings.PostSession.NextSteps.ongoingMonitoring
             )
         ]
@@ -223,11 +223,7 @@ struct PostSessionFlowScreen: View {
             buildMediumText(ResultScreenStrings.PostSession.allDoneTitle, 36.sp, color: Color(AppColors.black))
                 .padding(.bottom, 18.h)
 
-            Text(ResultScreenStrings.PostSession.allDoneDescription)
-                .font(.system(size: 26.sp, weight: .light))
-                .foregroundColor(Color(AppColors.black))
-                .multilineTextAlignment(.center)
-                .padding(.bottom, 8.h)
+ 
 
             Spacer(minLength: 110.h)
 
@@ -388,38 +384,27 @@ struct PostSessionFlowScreen: View {
     private var weightedNextStepsFooter: some View {
         GeometryReader { proxy in
             let outerSpacing = 20.w
-            let innerSpacing = 16.w
-            let availableWidth = proxy.size.width - outerSpacing - innerSpacing
-            let totalWeight: CGFloat = 9.5
+            let availableWidth = proxy.size.width - outerSpacing
+            let totalWeight: CGFloat = 7.5
             let utilityWidth = availableWidth * (2 / totalWeight)
             let continueWidth = availableWidth * (5.5 / totalWeight)
 
             HStack(alignment: .top, spacing: outerSpacing) {
-                    footerUtilityButton(
-                        title: ResultScreenStrings.Actions.back.uppercased(),
-                        width: utilityWidth,
-                        action: {
-                            navigateBackFromPostSessionFlow()
-                        }
-                    )
-                    .disabled(isSubmitting)
-                    footerUtilityButton(
-                        title: ResultScreenStrings.PostSession.skip.uppercased(),
-                        width: utilityWidth,
-                        action: {
-                            navigateToHome(showResponseToast: false)
-                        }
-                    )
-                    .disabled(isSubmitting)
-
+                footerUtilityButton(
+                    title: ResultScreenStrings.Actions.back.uppercased(),
+                    width: utilityWidth,
+                    action: {
+                        navigateBackFromPostSessionFlow()
+                    }
+                )
+                .disabled(isSubmitting)
 
                 footerPrimaryButton(
                     title: ResultScreenStrings.PostSession.continueTitle,
                     width: continueWidth,
                     action: primaryAction
                 )
-                .disabled(selectedOptionIDs.isEmpty || isSubmitting)
-                .opacity((selectedOptionIDs.isEmpty || isSubmitting) ? 0.55 : 1)
+                .disabled(isSubmitting)
             }
         }
         .frame(height: 72.h)
@@ -502,7 +487,6 @@ struct PostSessionFlowScreen: View {
     private func primaryAction() {
         switch step {
         case .nextSteps:
-            guard !selectedOptionIDs.isEmpty else { return }
             withAnimation(.easeInOut(duration: 0.2)) {
                 step = .nps
             }

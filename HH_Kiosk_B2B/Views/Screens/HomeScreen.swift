@@ -79,9 +79,6 @@ struct HomeScreen: View {
                 presentResponseReceivedToastIfNeeded()
                 startInactivityTimer()
             }
-            .task {
-                await appState.warmScreenSaverData(forceRefresh: true)
-            }
             .onChange(of: appState.isScreenSaverSuppressed) { _, isSuppressed in
                 if isSuppressed {
                     stopInactivityTimer()
