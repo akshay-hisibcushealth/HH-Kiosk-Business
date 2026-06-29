@@ -5,6 +5,11 @@ private enum PostSessionStep {
     case nps
 }
 
+private enum PostSessionSelectionMode {
+    case single
+    case multiple
+}
+
 private enum PostSessionSubmissionAction {
     case npsSkip
     case npsSubmit
@@ -21,11 +26,20 @@ private struct PostSessionNextStepOption: Identifiable, Equatable {
     }
 }
 
+private struct PostSessionQuestion: Identifiable, Equatable {
+    let id: Int
+    let title: String
+    let question: String
+    let selectionMode: PostSessionSelectionMode
+    let options: [PostSessionNextStepOption]
+}
+
 struct PostSessionFlowScreen: View {
     let emailWasSent: Bool
 
     @State private var step: PostSessionStep = .nextSteps
-    @State private var selectedOptionIDs: Set<Int> = []
+    @State private var currentQuestionIndex = 0
+    @State private var selectedOptionIDsByQuestion: [Int: Set<Int>] = [:]
     @State private var selectedScore: Int?
     @State private var isSubmitting = false
     @State private var activeSubmissionAction: PostSessionSubmissionAction?
@@ -37,39 +51,79 @@ struct PostSessionFlowScreen: View {
         self.emailWasSent = emailWasSent
     }
 
-    private var options: [PostSessionNextStepOption] {
+    private var questions: [PostSessionQuestion] {
         [
-            PostSessionNextStepOption(
+            PostSessionQuestion(
                 id: 0,
-                displayTitle: ResultScreenStrings.PostSession.NextSteps.annualPhysical,
-                responseTitle: ResultScreenStrings.PostSession.NextStepsTitles.annualPhysicalTitle,
-                description: ResultScreenStrings.PostSession.NextSteps.annualPhysical
+                title: "Thank you for taking the time to complete this important scan",
+                question: "When did you last have your blood pressure, heart, or blood sugar checked by a health professional?",
+                selectionMode: .single,
+                options: [
+                    PostSessionNextStepOption(id: 0, displayTitle: "Within 6 months", responseTitle: "", description: "Within 6 months"),
+                    PostSessionNextStepOption(id: 1, displayTitle: "6 to 12 months ago", responseTitle: "", description: "6 to 12 months ago"),
+                    PostSessionNextStepOption(id: 2, displayTitle: "More than a year ago", responseTitle: "", description: "More than a year ago"),
+                    PostSessionNextStepOption(id: 3, displayTitle: "Never, or not sure", responseTitle: "", description: "Never, or not sure")
+                ]
             ),
-            PostSessionNextStepOption(
+            PostSessionQuestion(
                 id: 1,
-                displayTitle: ResultScreenStrings.PostSession.NextSteps.biometricScreening,
-                responseTitle: ResultScreenStrings.PostSession.NextStepsTitles.biometricScreeningTitle,
-                description: ResultScreenStrings.PostSession.NextSteps.biometricScreening
+                title: "Anything new?",
+                question: "Did your scan show anything you did not already know about your health?",
+                selectionMode: .single,
+                options: [
+                    PostSessionNextStepOption(id: 0, displayTitle: "Yes, it surprised me", responseTitle: "", description: "Yes, it surprised me"),
+                    PostSessionNextStepOption(id: 1, displayTitle: "Somewhat new to me", responseTitle: "", description: "Somewhat new to me"),
+                    PostSessionNextStepOption(id: 2, displayTitle: "No, about what I expected", responseTitle: "", description: "No, about what I expected")
+                ]
             ),
-            PostSessionNextStepOption(
+            PostSessionQuestion(
                 id: 2,
-                displayTitle: ResultScreenStrings.PostSession.NextSteps.nutritionCounseling,
-                responseTitle: ResultScreenStrings.PostSession.NextStepsTitles.nutritionCounselingTitle,
-                description: ResultScreenStrings.PostSession.NextSteps.nutritionCounseling
+                title: "Your next step",
+                question: "What will you do based on your results? (select all that apply)",
+                selectionMode: .multiple,
+                options: [
+                    PostSessionNextStepOption(id: 0, displayTitle: "Book a doctor visit", responseTitle: "", description: "Book a doctor visit"),
+                    PostSessionNextStepOption(id: 1, displayTitle: "Mention it to my dentist today", responseTitle: "", description: "Mention it to my dentist today"),
+                    PostSessionNextStepOption(id: 2, displayTitle: "Change something in my routine", responseTitle: "", description: "Change something in my routine"),
+                    PostSessionNextStepOption(id: 3, displayTitle: "Nothing right now", responseTitle: "", description: "Nothing right now")
+                ]
             ),
-            PostSessionNextStepOption(
+            PostSessionQuestion(
                 id: 3,
-                displayTitle: ResultScreenStrings.PostSession.NextSteps.ongoingMonitoring,
-                responseTitle: ResultScreenStrings.PostSession.NextStepsTitles.monitoringMyHealthTitle,
-                description: ResultScreenStrings.PostSession.NextSteps.ongoingMonitoring
+                title: "Stay in touch",
+                question: "Can we check in with you in a few weeks to see how you are doing?",
+                selectionMode: .single,
+                options: [
+                    PostSessionNextStepOption(id: 0, displayTitle: "Yes", responseTitle: "", description: "Yes"),
+                    PostSessionNextStepOption(id: 1, displayTitle: "No thanks", responseTitle: "", description: "No thanks")
+                ]
             )
         ]
     }
 
+    private var currentQuestion: PostSessionQuestion {
+        questions[min(currentQuestionIndex, questions.count - 1)]
+    }
+
+    private var currentSelection: Set<Int> {
+        selectedOptionIDsByQuestion[currentQuestion.id] ?? []
+    }
+
     private var selectedResponses: [KioskNextStepResponse] {
-        options
-            .filter { selectedOptionIDs.contains($0.id) }
-            .map(\.response)
+        questions.compactMap { question in
+            let selectedIDs = selectedOptionIDsByQuestion[question.id] ?? []
+            let selectedDescriptions = question.options
+                .filter { selectedIDs.contains($0.id) }
+                .map(\.description)
+
+            guard !selectedDescriptions.isEmpty else { return nil }
+
+            return KioskNextStepResponse(
+                id: question.id,
+                title: question.question,
+                description: selectedDescriptions.joined(separator: " | ")
+            )
+        }
     }
 
     var body: some View {
@@ -117,45 +171,9 @@ struct PostSessionFlowScreen: View {
         .background(Color(AppColors.primary))
     }
 
-    private func progressItem(number: String, title: String, isActive: Bool) -> some View {
-        HStack(spacing: 8.w) {
-            Text(number)
-                .font(.system(size: 10.sp, weight: .bold))
-                .foregroundColor(isActive ? Color(AppColors.white) : Color(AppColors.gray).opacity(0.45))
-                .frame(width: 16.w, height: 16.w)
-                .background(isActive ? Color(AppColors.primary) : Color(AppColors.gray).opacity(0.12))
-                .clipShape(Circle())
-
-            Text(title)
-                .font(.system(size: 12.sp, weight: isActive ? .bold : .semibold))
-                .foregroundColor(isActive ? Color(AppColors.black) : Color(AppColors.gray).opacity(0.48))
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
-        }
-        .frame(maxWidth: .infinity)
-    }
-
     private var nextStepsContent: some View {
         VStack(alignment: .leading, spacing: 0) {
-            VStack(alignment: .leading, spacing: 8.h) {
-                buildSemiBoldText(ResultScreenStrings.PostSession.nextStepsHeading, 42.sp, color: Color(AppColors.black))
-                    .lineLimit(2)
-
-                Text(ResultScreenStrings.PostSession.nextStepsSubtitle)
-                    .font(.system(size: 32.sp, weight: .regular))
-                    .foregroundColor(Color(AppColors.black))
-            }
-            .padding(.top, 58.h)
-            .padding(.horizontal, 58.w)
-
-            VStack(spacing: 48.h) {
-                ForEach(options) { option in
-                    optionRow(option)
-                        .disabled(isSubmitting)
-                }
-            }
-            .padding(.top, 58.h)
-            .padding(.horizontal, 58.w)
+            questionContent(currentQuestion)
 
             Spacer()
 
@@ -167,26 +185,53 @@ struct PostSessionFlowScreen: View {
         }
     }
 
-    private func optionRow(_ option: PostSessionNextStepOption) -> some View {
-        let isSelected = selectedOptionIDs.contains(option.id)
+    private func questionContent(_ question: PostSessionQuestion) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            buildSemiBoldText(question.title, 36.sp, color: Color(AppColors.black))
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
+
+            Text(question.question)
+                .font(.system(size: 32.sp, weight: .regular))
+                .foregroundColor(Color(AppColors.black))
+                .lineLimit(3)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.top, 28.h)
+
+            VStack(spacing: 22.h) {
+                ForEach(question.options) { option in
+                    optionRow(option, in: question)
+                        .disabled(isSubmitting)
+                }
+            }
+            .padding(.top, 54.h)
+        }
+        .padding(.top, 58.h)
+        .padding(.horizontal, 58.w)
+    }
+
+    private func optionRow(_ option: PostSessionNextStepOption, in question: PostSessionQuestion) -> some View {
+        let isSelected = selectedOptionIDsByQuestion[question.id, default: []].contains(option.id)
 
         return Button {
-            toggleOption(option)
+            toggleOption(option, in: question)
         } label: {
             HStack(spacing: 22.w) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 4.r, style: .continuous)
-                        .fill(isSelected ? Color(AppColors.ctaGreen) : Color(AppColors.white))
-                        .frame(width: 30.w, height: 30.w)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 4.r, style: .continuous)
-                                .stroke(isSelected ? Color.clear : Color(AppColors.gray).opacity(0.45), lineWidth: 3.w)
-                        )
+                if question.selectionMode == .multiple {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 4.r, style: .continuous)
+                            .fill(isSelected ? Color(AppColors.ctaGreen) : Color(AppColors.white))
+                            .frame(width: 30.w, height: 30.w)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 4.r, style: .continuous)
+                                    .stroke(isSelected ? Color.clear : Color(AppColors.gray).opacity(0.45), lineWidth: 3.w)
+                            )
 
-                    if isSelected {
-                        Image(systemName: "checkmark")
-                            .font(.system(size: 17.sp, weight: .black))
-                            .foregroundColor(Color(AppColors.black))
+                        if isSelected {
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 17.sp, weight: .black))
+                                .foregroundColor(Color(AppColors.black))
+                        }
                     }
                 }
 
@@ -199,8 +244,9 @@ struct PostSessionFlowScreen: View {
 
                 Spacer(minLength: 0)
             }
-            .padding(.vertical, 40.w)
+            .padding(.vertical, 32.h)
             .padding(.horizontal, 28.w)
+            .frame(minHeight: 120.h)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(isSelected ? Color(AppColors.ctaGreen).opacity(0.12) : Color(AppColors.white))
             .overlay(
@@ -391,11 +437,9 @@ struct PostSessionFlowScreen: View {
 
             HStack(alignment: .top, spacing: outerSpacing) {
                 footerUtilityButton(
-                    title: ResultScreenStrings.Actions.back.uppercased(),
+                    title: ResultScreenStrings.Actions.back,
                     width: utilityWidth,
-                    action: {
-                        navigateBackFromPostSessionFlow()
-                    }
+                    action: secondaryAction
                 )
                 .disabled(isSubmitting)
 
@@ -476,19 +520,52 @@ struct PostSessionFlowScreen: View {
             .clipShape(RoundedRectangle(cornerRadius: 12.r, style: .continuous))
     }
 
-    private func toggleOption(_ option: PostSessionNextStepOption) {
-        if selectedOptionIDs.contains(option.id) {
-            selectedOptionIDs.remove(option.id)
-        } else {
-            selectedOptionIDs.insert(option.id)
+    private func toggleOption(_ option: PostSessionNextStepOption, in question: PostSessionQuestion) {
+        var selectedIDs = selectedOptionIDsByQuestion[question.id] ?? []
+
+        switch question.selectionMode {
+        case .single:
+            selectedIDs = [option.id]
+        case .multiple:
+            if selectedIDs.contains(option.id) {
+                selectedIDs.remove(option.id)
+            } else {
+                selectedIDs.insert(option.id)
+            }
+        }
+
+        selectedOptionIDsByQuestion[question.id] = selectedIDs
+    }
+
+    private func secondaryAction() {
+        switch step {
+        case .nextSteps:
+            if currentQuestionIndex == 0 {
+                navigateBackFromPostSessionFlow()
+            } else {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    currentQuestionIndex -= 1
+                }
+            }
+        case .nps:
+            withAnimation(.easeInOut(duration: 0.2)) {
+                step = .nextSteps
+                currentQuestionIndex = max(questions.count - 1, 0)
+            }
         }
     }
 
     private func primaryAction() {
         switch step {
         case .nextSteps:
-            withAnimation(.easeInOut(duration: 0.2)) {
-                step = .nps
+            if currentQuestionIndex < questions.count - 1 {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    currentQuestionIndex += 1
+                }
+            } else {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    step = .nps
+                }
             }
         case .nps:
             submitUserResponse(nextSteps: selectedResponses, npsScore: selectedScore, action: .npsSubmit)
