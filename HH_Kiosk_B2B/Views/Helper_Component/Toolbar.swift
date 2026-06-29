@@ -45,7 +45,7 @@ struct ResultToolbar: View {
                 .padding(.vertical, 48.h)
                 .padding(.trailing, 32.h)
             Spacer()
-            BrandedCompanyLogoViewPlaceHolder()
+            BrandedCompanyLogoView()
           
         }
         .padding(.horizontal, 24.w)
@@ -55,7 +55,7 @@ struct ResultToolbar: View {
 
 private struct BrandedCompanyLogoView: View {
     var body: some View {
-        Image(AppIconNames.Asset.axoLogo)
+        Image(AppIconNames.Asset.DentalLogo)
             .resizable()
             .scaledToFit()
             .frame(width: 300.w)

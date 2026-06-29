@@ -23,6 +23,7 @@ enum AppIconNames {
         static let hrIcon = "hr_icon"
         static let lock = "lock"
         static let logo = "logo"
+        static let DentalLogo = "dental_logo"
         static let logoBlue = "logo_blue"
         static let night = "night"
         static let noSchedule = "no_schedule"

@@ -61,19 +61,6 @@ struct PhysicalAttributesScreen: View {
 
             VStack(alignment: .leading, spacing: 0) {
                 HStack(alignment: .top) {
-                    Button(action: handleBack) {
-                        HStack(spacing: 10.w) {
-                            Image(systemName: "chevron.left")
-                                .font(.system(size: 28.sp, weight: .semibold))
-                            Text(ResultScreenStrings.Actions.back)
-                                .font(.system(size: 24.sp, weight: .semibold))
-                        }
-                        .foregroundColor(Color(AppColors.black))
-                        .padding(.top, 6.h)
-                    }
-                    .buttonStyle(.plain)
-                    .padding(.trailing, 28.w)
-
                     VStack(alignment: .leading, spacing: 0) {
                         buildSemiBoldText(PhysicalAttributesScreenStrings.title, 42.sp, color: Color(AppColors.bodyTextMuted))
 
@@ -124,6 +111,11 @@ struct PhysicalAttributesScreen: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
         .background(Color(AppColors.white))
+        .overlay(alignment: .topLeading) {
+            backButton
+                .padding(.leading, 14)
+                .padding(.top, 5)
+        }
         .contentShape(Rectangle())
         .onTapGesture {
             dismissPhysicalAttributeInputs()
@@ -180,6 +172,22 @@ struct PhysicalAttributesScreen: View {
                 dismissButton: .default(Text(PhysicalAttributesScreenStrings.alertDismiss))
             )
         }
+    }
+
+    private var backButton: some View {
+        Button(action: handleBack) {
+            Image(systemName: "chevron.left")
+                .font(.system(size: 30.sp, weight: .semibold))
+                .foregroundColor(Color(AppColors.white))
+                .frame(width: 58.w, height: 58.w)
+                .background(Color(AppColors.primary).opacity(0.74))
+                .clipShape(Circle())
+                .overlay(
+                    Circle()
+                        .stroke(Color(AppColors.white).opacity(0.12), lineWidth: 1.5)
+                )
+        }
+        .buttonStyle(.plain)
     }
 
     private var privacyBanner: some View {

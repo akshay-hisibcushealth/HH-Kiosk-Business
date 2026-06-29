@@ -4,7 +4,13 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="69d70bab-ae17-4888-9c12-3f3dde572849" name="Changes" comment="Added: Print Functionality" />
+    <list default="true" id="69d70bab-ae17-4888-9c12-3f3dde572849" name="Changes" comment="Added: Print Functionality">
+      <change afterPath="$PROJECT_DIR$/HH_Kiosk_B2B/Resources/Assets.xcassets/dental_logo.imageset/Contents.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/HH_Kiosk_B2B/Resources/Assets.xcassets/dental_logo.imageset/image.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/HH_Kiosk_B2B/Resources/AppIconNames.swift" beforeDir="false" afterPath="$PROJECT_DIR$/HH_Kiosk_B2B/Resources/AppIconNames.swift" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/HH_Kiosk_B2B/Views/Helper_Component/Toolbar.swift" beforeDir="false" afterPath="$PROJECT_DIR$/HH_Kiosk_B2B/Views/Helper_Component/Toolbar.swift" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/HH_Kiosk_B2B/Views/Screens/PhysicalAttributesScreen.swift" beforeDir="false" afterPath="$PROJECT_DIR$/HH_Kiosk_B2B/Views/Screens/PhysicalAttributesScreen.swift" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -46,7 +52,7 @@
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "axo-hh",
+    "git-widget-placeholder": "dental-kiosk",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/Users/applitesolutions/SwiftProject/HH_Kiosk_B2B",
     "show.migrate.to.gradle.popup": "false"
