@@ -2,13 +2,12 @@ import SwiftUI
 import UIKit
 
 struct ProfileWeightSection: View {
-    @Binding var selectedWeight: Int?  // Stored in kg
+    @Binding var selectedWeight: Int?
     @Binding var selectedWeightInPounds: Int?
     var focusedField: FocusState<PhysicalAttributesInputField?>.Binding
-    @State private var weightInput: String = "" // Local input in kg
-    
-    private let weightRange = 34...181
-    private let poundsPerKilogram = 2.20462
+    @State private var weightInput: String = ""
+
+    private let weightRange = 75...400
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -32,30 +31,30 @@ struct ProfileWeightSection: View {
                     RoundedRectangle(cornerRadius: 12.r)
                         .stroke(Color(AppColors.physicalAttributeFieldBorder), lineWidth: 1.5)
                 )
-            .onAppear {
-                syncWeightInput()
-            }
-            .onChange(of: weightInput) { _, newValue in
-                commitWeightInput(newValue)
-            }
-            .onChange(of: selectedWeight) { _, _ in
-                syncWeightInput()
-            }
-            .onSubmit {
-                focusedField.wrappedValue = nil
-                hideKeyboard()
-            }
+                .onAppear {
+                    syncWeightInput()
+                }
+                .onChange(of: weightInput) { _, newValue in
+                    commitWeightInput(newValue)
+                }
+                .onChange(of: selectedWeight) { _, _ in
+                    syncWeightInput()
+                }
+                .onSubmit {
+                    focusedField.wrappedValue = nil
+                    hideKeyboard()
+                }
         }
     }
 
-    private var selectedWeightInPoundsConvertedToKilograms: Int? {
-        guard let lbs = selectedWeightInPounds, lbs > 0 else { return nil }
-        return Int((Double(lbs) / poundsPerKilogram).rounded())
+    private var selectedWeightConvertedToPounds: Int? {
+        guard let kg = selectedWeight, kg > 0 else { return nil }
+        return Int(Double(kg) * 2.20462)
     }
 
     private func syncWeightInput() {
-        if let kg = selectedWeight ?? selectedWeightInPoundsConvertedToKilograms {
-            weightInput = String(kg)
+        if let lbs = selectedWeightInPounds ?? selectedWeightConvertedToPounds {
+            weightInput = String(lbs)
         } else {
             weightInput = ""
         }
@@ -69,20 +68,20 @@ struct ProfileWeightSection: View {
             return
         }
 
-        guard let kg = Int(digitsOnly), kg > 0 else {
+        guard let lbs = Int(digitsOnly), lbs > 0 else {
             selectedWeight = nil
             selectedWeightInPounds = nil
             return
         }
 
-        let boundedWeight = min(kg, weightRange.upperBound)
+        let boundedWeight = min(lbs, weightRange.upperBound)
 
-        if boundedWeight != kg {
+        if boundedWeight != lbs {
             weightInput = String(boundedWeight)
             return
         }
 
-        selectedWeight = boundedWeight
-        selectedWeightInPounds = Int((Double(boundedWeight) * poundsPerKilogram).rounded())
+        selectedWeight = Int(Double(boundedWeight) / 2.20462)
+        selectedWeightInPounds = boundedWeight
     }
 }

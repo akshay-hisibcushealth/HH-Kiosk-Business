@@ -25,7 +25,9 @@ struct RootView: View {
     var body: some View {
         ZStack {
             if isShowingPhysicalAttributes {
-                PhysicalAttributesScreen()
+                PhysicalAttributesScreen {
+                    isShowingPhysicalAttributes = false
+                }
                     .environmentObject(appState)
                     .environmentObject(faceManager)
                     .transition(.opacity)

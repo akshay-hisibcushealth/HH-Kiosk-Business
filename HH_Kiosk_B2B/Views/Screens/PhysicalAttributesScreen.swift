@@ -12,8 +12,8 @@ enum PhysicalAttributesInputField: Hashable {
 struct PhysicalAttributesScreen: View {
     private static let previewOrientationStorageKey = "physicalAttributes.previewOrientation"
     private let validAgeRange = 13...120
-    private let validHeightRangeInCentimeters = 120...250
-    private let validWeightRangeInKilograms = 34...181
+    private let validWeightRangeInPounds = 75...400
+    var onBack: (() -> Void)? = nil
     
     private enum DeveloperAutofill {
         static let email = "akshay@hibiscushealth.com"
@@ -61,6 +61,19 @@ struct PhysicalAttributesScreen: View {
 
             VStack(alignment: .leading, spacing: 0) {
                 HStack(alignment: .top) {
+                    Button(action: handleBack) {
+                        HStack(spacing: 10.w) {
+                            Image(systemName: "chevron.left")
+                                .font(.system(size: 28.sp, weight: .semibold))
+                            Text(ResultScreenStrings.Actions.back)
+                                .font(.system(size: 24.sp, weight: .semibold))
+                        }
+                        .foregroundColor(Color(AppColors.black))
+                        .padding(.top, 6.h)
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.trailing, 28.w)
+
                     VStack(alignment: .leading, spacing: 0) {
                         buildSemiBoldText(PhysicalAttributesScreenStrings.title, 42.sp, color: Color(AppColors.bodyTextMuted))
 
@@ -285,6 +298,15 @@ struct PhysicalAttributesScreen: View {
         NotificationCenter.default.post(name: .physicalAttributesDismissInputFocus, object: nil)
         hideKeyboard()
     }
+
+    private func handleBack() {
+        dismissPhysicalAttributeInputs()
+        if let onBack {
+            onBack()
+        } else {
+            dismiss()
+        }
+    }
     
     private func validateInputs() -> Bool {
 
@@ -298,13 +320,10 @@ struct PhysicalAttributesScreen: View {
         case height == nil:
             validationMessage = PhysicalAttributesScreenStrings.Validation.missingHeight
 
-        case !validHeightRangeInCentimeters.contains(height!):
-            validationMessage = PhysicalAttributesScreenStrings.Validation.invalidHeight
-
         case weight == nil:
             validationMessage = PhysicalAttributesScreenStrings.Validation.missingWeight
 
-        case weightInPounds == nil || !validWeightRangeInKilograms.contains(weight!):
+        case weightInPounds == nil || !validWeightRangeInPounds.contains(weightInPounds!):
             validationMessage = PhysicalAttributesScreenStrings.Validation.invalidWeight
 
         case age == nil:
@@ -377,7 +396,7 @@ struct PhysicalAttributesScreen: View {
     private func applyDeveloperAutofill() {
         email = DeveloperAutofill.email
         height = Self.heightInCentimeters(feet: DeveloperAutofill.heightFeet, inches: DeveloperAutofill.heightInches)
-        weight = Int((Double(DeveloperAutofill.weightLbs) / 2.20462).rounded())
+        weight = Int(Double(DeveloperAutofill.weightLbs) / 2.20462)
         weightInPounds = DeveloperAutofill.weightLbs
         age = DeveloperAutofill.age
         gender = DeveloperAutofill.gender
@@ -405,7 +424,7 @@ struct PhysicalAttributesScreen: View {
             feet: DeveloperAutofill.heightFeet,
             inches: DeveloperAutofill.heightInches
         )
-        let testWeight = Int((Double(DeveloperAutofill.weightLbs) / 2.20462).rounded())
+        let testWeight = Int(Double(DeveloperAutofill.weightLbs) / 2.20462)
 
         email = DeveloperAutofill.email
         height = testHeight
