@@ -9,6 +9,10 @@ enum PhysicalAttributesInputField: Hashable {
     case age
 }
 
+private enum PhysicalAttributesScrollTarget {
+    case gender
+}
+
 struct PhysicalAttributesScreen: View {
     private static let previewOrientationStorageKey = "physicalAttributes.previewOrientation"
     private let validAgeRange = 13...120
@@ -38,6 +42,7 @@ struct PhysicalAttributesScreen: View {
     @State private var email: String? = nil
     @State private var showSettings = false
     @State private var refreshTrigger = false
+    @StateObject private var keyboardObserver = KeyboardObserver()
     @FocusState private var focusedInputField: PhysicalAttributesInputField?
     #if DEBUG
     @State private var isSubmittingDebugVitals = false
@@ -64,56 +69,7 @@ struct PhysicalAttributesScreen: View {
         VStack(spacing: 0) {
             Toolbar()
 
-            VStack(alignment: .leading, spacing: 0) {
-                HStack(alignment: .top) {
-                    VStack(alignment: .leading, spacing: 0) {
-                        buildSemiBoldText(PhysicalAttributesScreenStrings.title, 42.sp, color: Color(AppColors.bodyTextMuted))
-
-                        Text(PhysicalAttributesScreenStrings.subtitle)
-                            .font(.system(size: 24.sp, weight: .regular))
-                            .foregroundColor(Color(AppColors.physicalAttributeText))
-                            .padding(.top, 18.h)
-                    }
-
-                    Spacer()
-
-                    Button(action: {
-                        showSettings = true
-                    }) {
-                        Image(systemName: AppIconNames.Symbol.gearshapeFill)
-                            .font(.system(size: 40.w))
-                            .foregroundColor(.black.opacity(0.5))
-                            .padding(.top, 4.h)
-                            .padding(.trailing, 6.w)
-                    }
-                    .buttonStyle(.plain)
-                }
-                .padding(.top, 54.h)
-                .padding(.horizontal, 50.w)
-
-                privacyBanner
-                    .padding(.top, 34.h)
-                    .padding(.horizontal, 58.w)
-
-                HStack(alignment: .top, spacing: 90.w) {
-                    bodyImage
-                        .frame(width: 410.w, height: 700.h)
-                        .clipped()
-                        .padding(.top,40.h)
-
-                    formColumn
-                        .frame(maxWidth: 548.w)
-                }
-                .padding(.top, 26.h)
-                .padding(.horizontal, 96.w)
-
-                Spacer(minLength: 24.h)
-
-                actionButtons
-                    .padding(.horizontal, 58.w)
-                    .padding(.bottom, 44.h)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            keyboardAwareContent
         }
         .background(Color(AppColors.white))
         .overlay(alignment: .topLeading) {
@@ -177,6 +133,92 @@ struct PhysicalAttributesScreen: View {
                 dismissButton: .default(Text(PhysicalAttributesScreenStrings.alertDismiss))
             )
         }
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Done") {
+                    focusedInputField = nil
+                    hideKeyboard()
+                }
+            }
+        }
+    }
+
+    private var keyboardAwareContent: some View {
+        GeometryReader { geometry in
+            ScrollViewReader { scrollProxy in
+                ScrollView(.vertical, showsIndicators: false) {
+                    contentStack
+                        .frame(minHeight: geometry.size.height, alignment: .topLeading)
+                        .frame(maxWidth: .infinity, alignment: .topLeading)
+                        .padding(.bottom, keyboardAwareBottomPadding)
+                }
+                .scrollDismissesKeyboard(.interactively)
+                .onChange(of: focusedInputField) { _, focusedField in
+                    scrollToGenderIfNeeded(focusedField: focusedField, scrollProxy: scrollProxy)
+                }
+                .onChange(of: keyboardObserver.isKeyboardVisible) { _, isVisible in
+                    guard isVisible else { return }
+                    scrollToGenderIfNeeded(focusedField: focusedInputField, scrollProxy: scrollProxy)
+                }
+            }
+        }
+    }
+
+    private var contentStack: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 0) {
+                    buildSemiBoldText(PhysicalAttributesScreenStrings.title, 42.sp, color: Color(AppColors.bodyTextMuted))
+
+                    Text(PhysicalAttributesScreenStrings.subtitle)
+                        .font(.system(size: 24.sp, weight: .regular))
+                        .foregroundColor(Color(AppColors.physicalAttributeText))
+                        .padding(.top, 18.h)
+                }
+
+                Spacer()
+
+                Button(action: {
+                    showSettings = true
+                }) {
+                    Image(systemName: AppIconNames.Symbol.gearshapeFill)
+                        .font(.system(size: 40.w))
+                        .foregroundColor(.black.opacity(0.5))
+                        .padding(.top, 4.h)
+                        .padding(.trailing, 6.w)
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.top, 54.h)
+            .padding(.horizontal, 50.w)
+
+            privacyBanner
+                .padding(.top, 34.h)
+                .padding(.horizontal, 58.w)
+
+            HStack(alignment: .top, spacing: 90.w) {
+                bodyImage
+                    .frame(width: 410.w, height: 700.h)
+                    .clipped()
+                    .padding(.top,40.h)
+
+                formColumn
+                    .frame(maxWidth: 548.w)
+            }
+            .padding(.top, 26.h)
+            .padding(.horizontal, 96.w)
+
+            Spacer(minLength: 24.h)
+
+            actionButtons
+                .padding(.horizontal, 58.w)
+                .padding(.bottom, 44.h)
+        }
+    }
+
+    private var keyboardAwareBottomPadding: CGFloat {
+        keyboardObserver.isKeyboardVisible ? keyboardObserver.height + 36.h : 0
     }
 
     private var backButton: some View {
@@ -248,6 +290,20 @@ struct PhysicalAttributesScreen: View {
             )
             ProfileAgeSection(selectedAge: $age, focusedField: $focusedInputField)
             ProfileGenderSection(selectedGender: $gender)
+                .id(PhysicalAttributesScrollTarget.gender)
+        }
+    }
+
+    private func scrollToGenderIfNeeded(
+        focusedField: PhysicalAttributesInputField?,
+        scrollProxy: ScrollViewProxy
+    ) {
+        guard focusedField == .age else { return }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+            withAnimation(.easeInOut(duration: 0.25)) {
+                scrollProxy.scrollTo(PhysicalAttributesScrollTarget.gender, anchor: .center)
+            }
         }
     }
 
