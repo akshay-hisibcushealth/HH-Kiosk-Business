@@ -21,6 +21,7 @@ enum AppConfig {
     static let deepaffexAPIHostname = "api.deepaffex.ai"
     static let openweatherApiKey = "f011104215b265af5c8fa381274ba594"
     static let baseURL = "https://coremobileapidev.hibiscushealth.com"
+    static let brandCode = "3KSEI5X7"
+    static let scanType = "Kiosk"
 
 }
-

@@ -10,7 +10,7 @@ enum AppAPIEndpoints {
     }
 
     static var saveKioskHealth: URL {
-        appURL(path: "/save-kiosk-health/")
+        appURL(path: "/custom-facescan/save/")
     }
 
     static var kioskUserResponse: URL {

@@ -11,8 +11,18 @@ import Foundation
 
 struct VitalsResultPayload: Codable {
     let email: String
-      let demographic: Demographic
-      let data: [String: ResultEntry]
+    let demographic: Demographic
+    let data: [String: ResultEntry]
+    let brandCode: String
+    let scanType: String
+
+    enum CodingKeys: String, CodingKey {
+        case email
+        case demographic
+        case data
+        case brandCode = "brand_code"
+        case scanType = "scan_type"
+    }
 }
 
 

@@ -105,7 +105,9 @@ struct KioskSubmissionService: KioskSubmissionServiceProtocol {
                 weight: user.weightInPounds,
                 gender: user.gender
             ),
-            data: data
+            data: data,
+            brandCode: AppConfig.brandCode,
+            scanType: AppConfig.scanType
         )
         let responseData = try await client.sendAndReturnData(payload, to: AppAPIEndpoints.saveKioskHealth, method: "POST")
         printBackendResponse(responseData)
@@ -150,12 +152,12 @@ struct KioskSubmissionService: KioskSubmissionServiceProtocol {
         if let jsonObject = try? JSONSerialization.jsonObject(with: data),
            let prettyData = try? JSONSerialization.data(withJSONObject: jsonObject, options: [.prettyPrinted, .sortedKeys]),
            let prettyString = String(data: prettyData, encoding: .utf8) {
-            print("📥 /save-kiosk-health/ response:\n\(prettyString)")
+            print("📥 /custom-facescan/save/ response:\n\(prettyString)")
             return
         }
 
         let body = String(data: data, encoding: .utf8) ?? "<unreadable response body>"
-        print("📥 /save-kiosk-health/ response:\n\(body)")
+        print("📥 /custom-facescan/save/ response:\n\(body)")
     }
 
     private func mapBackendResults(from data: Data) throws -> ResultsMap {
