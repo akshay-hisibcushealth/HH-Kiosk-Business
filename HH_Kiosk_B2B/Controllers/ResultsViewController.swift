@@ -83,8 +83,7 @@ class ResultsViewController: UIViewController {
         resultsModel.update(with: sample)
         resultButtonsHost.rootView = ResultScreenButtons(
             result: [:],
-            onDownloadPDF: {},
-            onPrint: { [weak self] in self?.printResults() }
+            onDownloadPDF: {}
         )
         updateUI(for: .success)
 
@@ -111,9 +110,6 @@ class ResultsViewController: UIViewController {
                     result: [:],
                     onDownloadPDF: { [weak self] in
                         self?.exportPDF()
-                    },
-                    onPrint: { [weak self] in
-                        self?.printResults()
                     }
                 )
                 self.updateUI(for: .success)
@@ -142,7 +138,8 @@ class ResultsViewController: UIViewController {
         let pdfView = makeResultScreen(
             model: self.resultsModel,
             showBottomButtons: false,
-            showLoadingOverlay: false
+            showLoadingOverlay: false,
+            showHeaderEmailButton: false
         )
         .background(Color(AppColors.white))
         .frame(width: 595.2)     // A4 Width
@@ -176,12 +173,10 @@ class ResultsViewController: UIViewController {
             result: [:],
             onDownloadPDF: { [weak self] in
                 self?.exportPDF()
-            },
-            onPrint: { [weak self] in
-                self?.printResults()
             }
         ))
         addChild(resultButtonsHost)
+        resultButtonsHost.view.backgroundColor = AppColors.white
         resultButtonsHost.view.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(resultButtonsHost.view)
         resultButtonsHost.didMove(toParent: self)
@@ -223,8 +218,8 @@ class ResultsViewController: UIViewController {
 
             resultButtonsHost.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             resultButtonsHost.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            resultButtonsHost.view.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            resultButtonsHost.view.heightAnchor.constraint(equalToConstant: 110),
+            resultButtonsHost.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            resultButtonsHost.view.heightAnchor.constraint(equalToConstant: 130),
 
             activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
@@ -320,9 +315,6 @@ class ResultsViewController: UIViewController {
                         result: self.results,
                         onDownloadPDF: { [weak self] in
                             self?.exportPDF()
-                        },
-                        onPrint: { [weak self] in
-                            self?.printResults()
                         }
                     )
                     self.updateUI(for: .success)
@@ -348,7 +340,8 @@ class ResultsViewController: UIViewController {
         let printView = makeResultScreen(
             model: self.resultsModel,
             showBottomButtons: false,
-            showLoadingOverlay: false
+            showLoadingOverlay: false,
+            showHeaderEmailButton: false
         )
         .background(Color(AppColors.white))
         .frame(width: screenWidth)
@@ -434,13 +427,15 @@ class ResultsViewController: UIViewController {
         model: ResultsModel,
         result: [String: MeasurementResults.SignalResult] = [:],
         showBottomButtons: Bool,
-        showLoadingOverlay: Bool
+        showLoadingOverlay: Bool,
+        showHeaderEmailButton: Bool = true
     ) -> AnyView {
         let screen = ResultScreen(
             model: model,
             result: result,
             showBottomButtons: showBottomButtons,
-            showLoadingOverlay: showLoadingOverlay
+            showLoadingOverlay: showLoadingOverlay,
+            showHeaderEmailButton: showHeaderEmailButton
         )
 
         if let appState {

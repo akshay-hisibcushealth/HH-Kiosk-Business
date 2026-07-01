@@ -66,17 +66,20 @@ public struct ResultScreen: View {
 
     private let showBottomButtons: Bool
     private let showLoadingOverlay: Bool
+    private let showHeaderEmailButton: Bool
     
     public init(
         model: ResultsModel = ResultsModel(),
         result: [String: MeasurementResults.SignalResult] = [:],
         showBottomButtons: Bool = true,
-        showLoadingOverlay: Bool = true
+        showLoadingOverlay: Bool = true,
+        showHeaderEmailButton: Bool = true
     ) {
         _model = StateObject(wrappedValue: model)
         self.result = result
         self.showBottomButtons = showBottomButtons
         self.showLoadingOverlay = showLoadingOverlay
+        self.showHeaderEmailButton = showHeaderEmailButton
     }
     
     public var body: some View {
@@ -90,7 +93,7 @@ public struct ResultScreen: View {
             if showBottomButtons {
                 ResultScreenButtons(result: result, onDownloadPDF: {
                     exportToPDF()
-                },onPrint: {})
+                })
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .screenDidChangeBounds)) { _ in
@@ -106,7 +109,7 @@ public struct ResultScreen: View {
     // Extracted content view so we can render it without the ScrollView wrapper for PDF
     private var mainContentView: some View {
         VStack(spacing: 0) {
-            HeroHeader()
+            HeroHeader(result: result, showsEmailButton: showHeaderEmailButton)
             TitleBlock()
             ResultsList(model: model)
         }
@@ -127,26 +130,90 @@ public struct ResultScreen: View {
 
 // MARK: - Subviews
 private struct HeroHeader: View {
+    let result: [String: MeasurementResults.SignalResult]
+    let showsEmailButton: Bool
+
+    private let title = "Great job taking a proactive step\nfor your health!"
+
     var body: some View {
         ZStack(alignment: .leading) {
-     VStack(alignment: .leading, spacing: 0) {
+            VStack(alignment: .leading, spacing: 0) {
                 ResultToolbar()
                 Spacer(minLength: 20)
-                buildSemiBoldText(ResultScreenStrings.title, 40.sp, color: Color(AppColors.primary))
-                    .font(.system(size: 34, weight: .bold))
-                    .foregroundColor(Color(AppColors.white))
-                    .padding(.leading, 50.w)
-                    .padding(.top, 50.w)
-                Text(ResultScreenStrings.heroDescription)
-                    .foregroundColor(Color(AppColors.bodyTextMuted))
-                    .font(.system(size: 20.sp, weight: .light))
-                    .italic()
-                    .padding(.leading, 50.w)
-                    .padding(.bottom, 24.w)
-                    .padding(.trailing, 330.w)
+
+                HStack(alignment: .center, spacing: 28.w) {
+                    VStack(alignment: .leading, spacing: 8.h) {
+                        buildSemiBoldText(title, 40.sp, color: Color(AppColors.primary))
+                            .font(.system(size: 34, weight: .bold))
+                            .foregroundColor(Color(AppColors.white))
+                            .lineLimit(2)
+                            .fixedSize(horizontal: false, vertical: true)
+
+                        Text(ResultScreenStrings.heroDescription)
+                            .foregroundColor(Color(AppColors.bodyTextMuted))
+                            .font(.system(size: 20.sp, weight: .light))
+                            .italic()
+                    }
+
+                    Spacer(minLength: 18.w)
+
+                    if showsEmailButton {
+                        ResultEmailButton(result: result)
+                    }
+                }
+                .padding(.leading, 50.w)
+                .padding(.trailing, 34.w)
+                .padding(.top, 50.w)
+                .padding(.bottom, 24.w)
             }
         }
         .frame(maxWidth: .infinity)
+    }
+}
+
+private struct ResultEmailButton: View {
+    let result: [String: MeasurementResults.SignalResult]
+
+    @State private var showEmailPopUp = false
+    @State private var isEmailSent = false
+    private let buttonColor = Color(AppColors.resultTitleText)
+
+    var body: some View {
+        Button {
+            isEmailSent = false
+            showEmailPopUp = true
+        } label: {
+            HStack(spacing: 16.w) {
+                Image(AppIconNames.Asset.email)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 24.w, height: 24.h)
+                    .foregroundColor(buttonColor)
+
+                Text(ResultScreenStrings.Actions.emailResults)
+                    .font(.system(size: 20.sp, weight: .semibold))
+                    .foregroundColor(buttonColor)
+            }
+            .frame(width: 270.w)
+            .frame(minHeight: 72.h)
+            .background(Color(AppColors.white))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12.r, style: .continuous)
+                    .stroke(buttonColor, lineWidth: 2)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 12.r, style: .continuous))
+        }
+        .fullScreenCover(isPresented: $showEmailPopUp, onDismiss: {
+            isEmailSent = false
+        }) {
+            ResultPromptOverlay(layout: isEmailSent ? .emailSuccess : .emailEntry) {
+                EmailResultPopup(
+                    results: result,
+                    isEmailSent: $isEmailSent
+                )
+            }
+            .presentationBackground(Color.clear)
+        }
     }
 }
 

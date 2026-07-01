@@ -4,32 +4,13 @@ import AnuraCore
 struct ResultScreenButtons: View {
     let result: [String: MeasurementResults.SignalResult]
     let onDownloadPDF: () -> Void
-    let onPrint: () -> Void
 
-    @State private var showEmailPopUp = false
-    @State private var isEmailSent = false
     var body: some View {
-        HStack(alignment: .center, spacing: 20.w) {
-                HStack(spacing: 16.w) {
-                    footerButton(
-                        title: ResultScreenStrings.Actions.emailResults,
-                        image: Image(AppIconNames.Asset.email),
-                        action: {
-                            isEmailSent = false
-                            showEmailPopUp = true
-                        }
-                    )
+        ZStack(alignment: .top) {
+            Color(AppColors.white)
+                .ignoresSafeArea(edges: .bottom)
 
-                    footerButton(
-                        title: ResultScreenStrings.Actions.print,
-                        image: Image(systemName: AppIconNames.Symbol.printerFill),
-                        action: {
-                            onPrint()
-                        }
-                    )
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-
+            HStack(alignment: .center, spacing: 20.w) {
                 footerPrimaryButton(
                     title: ResultScreenStrings.Actions.viewNextSteps,
                     action: {
@@ -37,24 +18,12 @@ struct ResultScreenButtons: View {
                     }
                 )
             }
-            .fullScreenCover(isPresented: $showEmailPopUp, onDismiss: {
-                isEmailSent = false
-            }) {
-                ResultPromptOverlay(layout: isEmailSent ? .emailSuccess : .emailEntry) {
-                    EmailResultPopup(
-                        results: result,
-                        isEmailSent: $isEmailSent
-                    )
-                }
-                .presentationBackground(Color.clear)
-            }
-        .padding(.top, 26.h)
-        .padding(.horizontal, 30.w)
-        .padding(.bottom, 26.h)
-        .background(
-            Color(AppColors.white)
-                .shadow(color: Color(AppColors.black).opacity(0.18), radius: 14, x: 0, y: -4)
-        )
+            .padding(.top, 26.h)
+            .padding(.horizontal, 30.w)
+            .padding(.bottom, 26.h)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .shadow(color: Color(AppColors.black).opacity(0.18), radius: 14, x: 0, y: -4)
         .overlay(alignment: .top) {
             LinearGradient(
                 colors: [
@@ -71,30 +40,6 @@ struct ResultScreenButtons: View {
         }
     }
 
-    private func footerButton(title: String, image: Image, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            HStack(spacing: 16.w) {
-                image
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 24.w, height: 24.h)
-                    .foregroundColor(Color(AppColors.black))
-
-                Text(title)
-                    .font(.system(size: 20.sp, weight: .semibold))
-                    .foregroundColor(Color(AppColors.black))
-            }
-            .frame(width: 270.w)
-            .frame(minHeight: 72.h)
-            .background(Color(AppColors.white))
-            .overlay(
-                RoundedRectangle(cornerRadius: 12.r, style: .continuous)
-                    .stroke(Color(AppColors.black).opacity(0.7), lineWidth: 1)
-            )
-            .clipShape(RoundedRectangle(cornerRadius: 12.r, style: .continuous))
-        }
-    }
-
     private func footerPrimaryButton(title: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack(spacing: 16.w) {
@@ -106,15 +51,16 @@ struct ResultScreenButtons: View {
                     .font(.system(size: 24.sp, weight: .semibold))
                     .foregroundColor(Color(AppColors.black))
             }
-            .frame(width: 550.w)
+            .frame(maxWidth: .infinity)
             .frame(minHeight: 72.h)
             .background(Color(AppColors.ctaGreen))
             .clipShape(RoundedRectangle(cornerRadius: 12.r, style: .continuous))
         }
+        .frame(maxWidth: .infinity)
     }
 }
 
-private enum ResultPromptOverlayLayout {
+enum ResultPromptOverlayLayout {
     case emailEntry
     case emailSuccess
 
@@ -127,7 +73,7 @@ private enum ResultPromptOverlayLayout {
     }
 }
 
-private struct ResultPromptOverlay<Content: View>: View {
+struct ResultPromptOverlay<Content: View>: View {
     let layout: ResultPromptOverlayLayout
     let content: () -> Content
 

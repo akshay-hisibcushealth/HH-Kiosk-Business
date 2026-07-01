@@ -68,7 +68,7 @@ struct PostSessionFlowScreen: View {
             PostSessionQuestion(
                 id: 1,
                 title: "Anything new?",
-                question: "Did your scan show anything you did not already know about your health?",
+                question: "Did your scan tell you anything new about your health?",
                 selectionMode: .single,
                 options: [
                     PostSessionNextStepOption(id: 0, displayTitle: "Yes, it surprised me", responseTitle: "", description: "Yes, it surprised me"),
@@ -83,9 +83,10 @@ struct PostSessionFlowScreen: View {
                 selectionMode: .multiple,
                 options: [
                     PostSessionNextStepOption(id: 0, displayTitle: "Book a doctor visit", responseTitle: "", description: "Book a doctor visit"),
-                    PostSessionNextStepOption(id: 1, displayTitle: "Mention it to my dentist today", responseTitle: "", description: "Mention it to my dentist today"),
-                    PostSessionNextStepOption(id: 2, displayTitle: "Change something in my routine", responseTitle: "", description: "Change something in my routine"),
-                    PostSessionNextStepOption(id: 3, displayTitle: "Nothing right now", responseTitle: "", description: "Nothing right now")
+                    PostSessionNextStepOption(id: 1, displayTitle: "Already have a doctor's visit booked", responseTitle: "", description: "Already have a doctor's visit booked"),
+                    PostSessionNextStepOption(id: 2, displayTitle: "Mention it to my dentist today", responseTitle: "", description: "Mention it to my dentist today"),
+                    PostSessionNextStepOption(id: 3, displayTitle: "Change something in my routine", responseTitle: "", description: "Change something in my routine"),
+                    PostSessionNextStepOption(id: 4, displayTitle: "Nothing right now", responseTitle: "", description: "Nothing right now")
                 ]
             ),
             PostSessionQuestion(
@@ -212,6 +213,7 @@ struct PostSessionFlowScreen: View {
 
     private func optionRow(_ option: PostSessionNextStepOption, in question: PostSessionQuestion) -> some View {
         let isSelected = selectedOptionIDsByQuestion[question.id, default: []].contains(option.id)
+        let selectedBorderColor = Color(AppColors.borderColor)
 
         return Button {
             toggleOption(option, in: question)
@@ -251,7 +253,7 @@ struct PostSessionFlowScreen: View {
             .background(isSelected ? Color(AppColors.ctaGreen).opacity(0.12) : Color(AppColors.white))
             .overlay(
                 RoundedRectangle(cornerRadius: 6.r, style: .continuous)
-                    .stroke(isSelected ? Color(AppColors.ctaGreen) : Color(AppColors.gray).opacity(0.45), lineWidth: 1.5)
+                    .stroke(isSelected ? selectedBorderColor : Color(AppColors.gray).opacity(0.45), lineWidth: isSelected ? 2.5 : 1.5)
             )
             .clipShape(RoundedRectangle(cornerRadius: 6.r, style: .continuous))
         }
@@ -266,7 +268,12 @@ struct PostSessionFlowScreen: View {
             successMark
                 .padding(.bottom, 38.h)
 
-            buildMediumText(ResultScreenStrings.PostSession.allDoneTitle, 36.sp, color: Color(AppColors.black))
+            Text(ResultScreenStrings.PostSession.allDoneTitle)
+                .font(.custom("NewSpirit-Medium", size: 36.sp))
+                .foregroundColor(Color(AppColors.black))
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+                .frame(maxWidth: .infinity, alignment: .center)
                 .padding(.bottom, 18.h)
 
  
@@ -363,44 +370,7 @@ struct PostSessionFlowScreen: View {
             if step == .nextSteps {
                 weightedNextStepsFooter
             } else {
-                HStack(alignment: .top, spacing: 20.w) {
-                    Button(action: {
-                        submitUserResponse(nextSteps: selectedResponses, npsScore: nil, action: .npsSkip)
-                    }) {
-                        ZStack {
-                            footerText(ResultScreenStrings.PostSession.skip, width: 250.w, foreground: Color(AppColors.black), background: Color(AppColors.white), bordered: true)
-                                .opacity(activeSubmissionAction == .npsSkip ? 0 : 1)
-
-                            if activeSubmissionAction == .npsSkip {
-                                ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle(tint: Color(AppColors.black)))
-                            }
-                        }
-                    }
-                    .disabled(isSubmitting)
-
-                    Spacer(minLength: 24.w)
-
-                    Button(action: primaryAction) {
-                        ZStack {
-                            footerText(
-                                ResultScreenStrings.PostSession.submitAndReturnHome,
-                                width: 680.w,
-                                foreground: Color(AppColors.black),
-                                background: Color(AppColors.ctaGreen),
-                                bordered: false
-                            )
-                            .opacity(activeSubmissionAction == .npsSubmit ? 0 : 1)
-
-                            if activeSubmissionAction == .npsSubmit {
-                                ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle(tint: Color(AppColors.black)))
-                            }
-                        }
-                    }
-                    .disabled(isSubmitting || selectedScore == nil)
-                    .opacity(selectedScore != nil ? 1 : 0.55)
-                }
+                weightedNPSFooter
             }
         }
         .frame(maxWidth: .infinity)
@@ -452,6 +422,60 @@ struct PostSessionFlowScreen: View {
             }
         }
         .frame(height: 72.h)
+    }
+
+    private var weightedNPSFooter: some View {
+        GeometryReader { proxy in
+            let outerSpacing = 32.w
+            let availableWidth = proxy.size.width - outerSpacing
+            let totalWeight: CGFloat = 7.5
+            let skipWidth = availableWidth * (2 / totalWeight)
+            let submitWidth = availableWidth * (5.5 / totalWeight)
+
+            HStack(alignment: .top, spacing: outerSpacing) {
+                Button(action: {
+                    submitUserResponse(nextSteps: selectedResponses, npsScore: nil, action: .npsSkip)
+                }) {
+                    ZStack {
+                        footerText(
+                            ResultScreenStrings.PostSession.skip,
+                            width: skipWidth,
+                            foreground: Color(AppColors.black),
+                            background: Color(AppColors.white),
+                            bordered: true
+                        )
+                        .opacity(activeSubmissionAction == .npsSkip ? 0 : 1)
+
+                        if activeSubmissionAction == .npsSkip {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: Color(AppColors.black)))
+                        }
+                    }
+                }
+                .disabled(isSubmitting)
+
+                Button(action: primaryAction) {
+                    ZStack {
+                        footerText(
+                            ResultScreenStrings.PostSession.submitAndReturnHome,
+                            width: submitWidth,
+                            foreground: Color(AppColors.black),
+                            background: Color(AppColors.ctaGreen),
+                            bordered: false
+                        )
+                        .opacity(activeSubmissionAction == .npsSubmit ? 0 : 1)
+
+                        if activeSubmissionAction == .npsSubmit {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: Color(AppColors.black)))
+                        }
+                    }
+                }
+                .disabled(isSubmitting || selectedScore == nil)
+                .opacity(selectedScore != nil ? 1 : 0.55)
+            }
+        }
+        .frame(height: 80.h)
     }
 
     private func footerUtilityButton(title: String, width: CGFloat, isLoading: Bool = false, action: @escaping () -> Void) -> some View {
@@ -595,7 +619,7 @@ struct PostSessionFlowScreen: View {
                 )
 
                 await MainActor.run {
-                    navigateToHome(showResponseToast: action == .npsSubmit)
+                    navigateToHome(showResponseToast: true)
                 }
             } catch {
                 print("Kiosk post-session response error:", error.localizedDescription)
