@@ -30,6 +30,7 @@ struct PhysicalAttributesScreen: View {
     @State private var isLoading = false
     @State private var showWebView = false
     @State private var height: Int? = nil   // Make optional
+    @State private var heightForBackend: Int? = nil
     @State private var weight: Int? = nil   // Make optional
     @State private var weightInPounds: Int? = nil
     @State private var age: Int? = nil      // Make optional
@@ -38,6 +39,10 @@ struct PhysicalAttributesScreen: View {
     @State private var showSettings = false
     @State private var refreshTrigger = false
     @FocusState private var focusedInputField: PhysicalAttributesInputField?
+    #if DEBUG
+    @State private var isSubmittingDebugVitals = false
+    private let debugSubmissionService: KioskSubmissionServiceProtocol = KioskSubmissionService()
+    #endif
 
     
     // EXTERNAL CAMERA VARIABLES
@@ -231,7 +236,11 @@ struct PhysicalAttributesScreen: View {
     private var formColumn: some View {
         VStack(alignment: .leading, spacing: 42.h) {
             ProfileEmailSection(email: $email, focusedField: $focusedInputField)
-            ProfileHeightSection(selectedHeight: $height, focusedField: $focusedInputField)
+            ProfileHeightSection(
+                selectedHeight: $height,
+                selectedHeightForBackend: $heightForBackend,
+                focusedField: $focusedInputField
+            )
             ProfileWeightSection(
                 selectedWeight: $weight,
                 selectedWeightInPounds: $weightInPounds,
@@ -286,6 +295,31 @@ struct PhysicalAttributesScreen: View {
             }
 
             #if DEBUG
+            Button(action: {
+                hideKeyboard()
+                submitDebugVitals()
+            }) {
+                ZStack {
+                    Text("Submit Debug Scan API")
+                        .font(.system(size: 18.sp, weight: .bold))
+                        .foregroundColor(Color(AppColors.white))
+                        .frame(width: 240.w, height: 46.h)
+                        .background(Color(AppColors.primary))
+                        .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
+                        .opacity(isSubmittingDebugVitals ? 0 : 1)
+
+                    if isSubmittingDebugVitals {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: Color(AppColors.white)))
+                            .frame(width: 240.w, height: 46.h)
+                            .background(Color(AppColors.primary))
+                            .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
+                    }
+                }
+            }
+            .buttonStyle(.plain)
+            .disabled(isSubmittingDebugVitals)
+
             Button(action: {
                 hideKeyboard()
                 skipFaceScanForTesting()
@@ -369,14 +403,7 @@ struct PhysicalAttributesScreen: View {
         faceManager.appState = appState
 
         // Save user locally
-        LocalUserStorage.saveUser(
-            email: email!,
-            height: height!,
-            weight: weight!,
-            weightInPounds: weightInPounds!,
-            age: age!,
-            gender: gender
-        )
+        saveCurrentUser()
 
         // Create User for Anura
         let user = AnuraUser(
@@ -400,10 +427,23 @@ struct PhysicalAttributesScreen: View {
             isLoading = false
         }
     }
+
+    private func saveCurrentUser() {
+        LocalUserStorage.saveUser(
+            email: email!,
+            height: height!,
+            heightForBackend: heightForBackend ?? height!,
+            weight: weight!,
+            weightInPounds: weightInPounds!,
+            age: age!,
+            gender: gender
+        )
+    }
     
     private func applyDeveloperAutofill() {
         email = DeveloperAutofill.email
         height = Self.heightInCentimeters(feet: DeveloperAutofill.heightFeet, inches: DeveloperAutofill.heightInches)
+        heightForBackend = Self.backendHeightInCentimeters(feet: DeveloperAutofill.heightFeet, inches: DeveloperAutofill.heightInches)
         weight = Int(Double(DeveloperAutofill.weightLbs) / 2.20462)
         weightInPounds = DeveloperAutofill.weightLbs
         age = DeveloperAutofill.age
@@ -411,6 +451,48 @@ struct PhysicalAttributesScreen: View {
     }
 
     #if DEBUG
+    private func submitDebugVitals() {
+        guard !isSubmittingDebugVitals else { return }
+
+        dismissPhysicalAttributeInputs()
+        guard validateInputs() else { return }
+        saveCurrentUser()
+
+        isSubmittingDebugVitals = true
+
+        Task {
+            do {
+                _ = try await debugSubmissionService.saveUserVitals(testResults: Self.debugScanResults)
+
+                await MainActor.run {
+                    isSubmittingDebugVitals = false
+                    validationMessage = "Debug scan API submitted successfully."
+                    showValidationAlert = true
+                }
+            } catch {
+                print("Debug scan API submission error:", error.localizedDescription)
+                await MainActor.run {
+                    isSubmittingDebugVitals = false
+                    validationMessage = "Failed to submit debug scan API."
+                    showValidationAlert = true
+                }
+            }
+        }
+    }
+
+    private static let debugScanResults: ResultsMap = [
+        "BP_CVD": SignalResult(notes: [], value: 0.2024),
+        "HR_BPM": SignalResult(notes: [], value: 70.4494),
+        "HBA1C_RISK_PROB": SignalResult(notes: [], value: 26.295),
+        "BP_SYSTOLIC": SignalResult(notes: [], value: 112.4425),
+        "BP_DIASTOLIC": SignalResult(notes: [], value: 83.7584),
+        "HDLTC_RISK_PROB": SignalResult(notes: [], value: 54.1508),
+        "TG_RISK_PROB": SignalResult(notes: [], value: 47.1745),
+        "BMI_CALC": SignalResult(notes: [], value: 27.6816),
+        "BR_BPM": SignalResult(notes: [], value: 12),
+        "HEALTH_SCORE": SignalResult(notes: [], value: 72.5714)
+    ]
+
     private func skipFaceScanForTesting() {
         saveDeveloperTestUser()
 
@@ -436,6 +518,10 @@ struct PhysicalAttributesScreen: View {
 
         email = DeveloperAutofill.email
         height = testHeight
+        heightForBackend = Self.backendHeightInCentimeters(
+            feet: DeveloperAutofill.heightFeet,
+            inches: DeveloperAutofill.heightInches
+        )
         weight = testWeight
         weightInPounds = DeveloperAutofill.weightLbs
         age = DeveloperAutofill.age
@@ -444,6 +530,10 @@ struct PhysicalAttributesScreen: View {
         LocalUserStorage.saveUser(
             email: DeveloperAutofill.email,
             height: testHeight,
+            heightForBackend: Self.backendHeightInCentimeters(
+                feet: DeveloperAutofill.heightFeet,
+                inches: DeveloperAutofill.heightInches
+            ),
             weight: testWeight,
             weightInPounds: DeveloperAutofill.weightLbs,
             age: DeveloperAutofill.age,
@@ -457,6 +547,11 @@ struct PhysicalAttributesScreen: View {
     private static func heightInCentimeters(feet: Int, inches: Int) -> Int {
         let totalInches = (feet * 12) + inches
         return Int(Double(totalInches) * 2.54)
+    }
+
+    private static func backendHeightInCentimeters(feet: Int, inches: Int) -> Int {
+        let totalInches = Double((feet * 12) + inches)
+        return Int(totalInches * 2.53986)
     }
 
     private static func loadSavedPreviewOrientation() -> AnuraCore.PreviewOrientation {

@@ -101,8 +101,8 @@ struct KioskSubmissionService: KioskSubmissionServiceProtocol {
             email: user.email,
             demographic: Demographic(
                 age: user.age,
-                height: user.height,
-                weight: user.weight,
+                height: user.heightForBackend,
+                weight: user.weightInPounds,
                 gender: user.gender
             ),
             data: data

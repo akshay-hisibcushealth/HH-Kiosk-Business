@@ -3,6 +3,7 @@ import UIKit
 
 struct ProfileHeightSection: View {
     @Binding var selectedHeight: Int?
+    @Binding var selectedHeightForBackend: Int?
     var focusedField: FocusState<PhysicalAttributesInputField?>.Binding
 
     @State private var committedFeet: Int? = nil
@@ -128,6 +129,7 @@ struct ProfileHeightSection: View {
 
         let totalInches = tempFeet * 12 + tempInches
         selectedHeight = Int(Double(totalInches) * 2.54)
+        selectedHeightForBackend = Self.backendHeightInCentimeters(feet: tempFeet, inches: tempInches)
 
         showPicker = false
         UIDevice.current.playInputClick()
@@ -149,6 +151,11 @@ struct ProfileHeightSection: View {
         committedFeet == nil || committedInches == nil
             ? Color(AppColors.physicalAttributeFieldBackground)
             : Color(AppColors.white)
+    }
+
+    private static func backendHeightInCentimeters(feet: Int, inches: Int) -> Int {
+        let totalInches = Double((feet * 12) + inches)
+        return Int(totalInches * 2.53986)
     }
 }
 
