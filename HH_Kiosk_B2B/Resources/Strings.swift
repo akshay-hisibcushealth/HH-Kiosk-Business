@@ -92,7 +92,7 @@ enum PhysicalAttributesScreenStrings {
         static let emailPlaceholder = "Enter email"
         static let emailInlineError = "Enter a valid email address"
         static let ageLabel = "Age"
-        static let agePlaceholder = "Year"
+        static let agePlaceholder = "How old are you?"
         static let heightLabel = "Height"
         static let heightPlaceholder = "Feet / Inches"
         static let heightSheetTitle = "Select Height"

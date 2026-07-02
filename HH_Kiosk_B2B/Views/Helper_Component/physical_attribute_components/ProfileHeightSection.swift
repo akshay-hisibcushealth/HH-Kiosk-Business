@@ -3,6 +3,7 @@ import UIKit
 
 struct ProfileHeightSection: View {
     @Binding var selectedHeight: Int?
+    var focusedField: FocusState<PhysicalAttributesInputField?>.Binding
 
     @State private var committedFeet: Int? = nil
     @State private var committedInches: Int? = nil
@@ -111,6 +112,7 @@ struct ProfileHeightSection: View {
     }
 
     private func openPickerAfterDismissingKeyboard() {
+        focusedField.wrappedValue = nil
         NotificationCenter.default.post(name: .physicalAttributesDismissInputFocus, object: nil)
         hideKeyboard()
 

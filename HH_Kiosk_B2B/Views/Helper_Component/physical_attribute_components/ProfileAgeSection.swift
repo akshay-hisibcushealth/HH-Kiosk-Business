@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ProfileAgeSection: View {
     @Binding var selectedAge: Int?
+    var focusedField: FocusState<PhysicalAttributesInputField?>.Binding
     @State private var ageInput: String = ""
     
     private let ageRange = 13...120
@@ -15,6 +16,8 @@ struct ProfileAgeSection: View {
             TextField(PhysicalAttributesScreenStrings.Form.agePlaceholder, text: $ageInput)
                 .font(.system(size: 28.sp, weight: .regular))
                 .foregroundColor(Color(AppColors.black))
+                .submitLabel(.done)
+                .focused(focusedField, equals: .age)
                 .textContentType(.none)
                 .autocorrectionDisabled()
                 .padding(.vertical, 26.h)
@@ -34,6 +37,10 @@ struct ProfileAgeSection: View {
             }
             .onChange(of: selectedAge) { _, _ in
                 syncAgeInput()
+            }
+            .onSubmit {
+                focusedField.wrappedValue = nil
+                hideKeyboard()
             }
         }
     }
