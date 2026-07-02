@@ -96,7 +96,7 @@ struct PostSessionFlowScreen: View {
                 selectionMode: .single,
                 options: [
                     PostSessionNextStepOption(id: 0, displayTitle: "Yes", responseTitle: "", description: "Yes"),
-                    PostSessionNextStepOption(id: 1, displayTitle: "No thanks", responseTitle: "", description: "No thanks")
+                    PostSessionNextStepOption(id: 1, displayTitle: "No", responseTitle: "", description: "No")
                 ]
             )
         ]
