@@ -71,6 +71,7 @@ enum PhysicalAttributesScreenStrings {
     static let proceedToScan = "Proceed to Scan"
     #if DEBUG
     static let debugHitAPI = "Hit API"
+    static let debugProceedToResults = "Skip to Results"
     #endif
     static let alertDismiss = "OK"
     static let demoURL = "https://drive.google.com/file/d/1dPJs1A6aptEh3yTCVxR5BUlRfyLWa3rL/view?usp=sharing"
@@ -196,7 +197,7 @@ enum ResultScreenStrings {
         static let nextStepsHeading = "Thank you for taking the time to complete this important scan"
         static let nextStepsSubtitle = "Based on your results, here are some common next steps"
         static let continueTitle = "Continue"
-        static let allDoneTitle = "All done. Thank you!"
+        static let allDoneTitle = "All done.\nThank you for visiting our kiosk!"
         static let allDoneDescription = "Your wellness report and selected next steps have been sent to your email.\nWe hope you found this experience valuable."
         static let completionBody = "Your selected next steps have been saved."
         static let completionSubtitle = "We hope you found this experience valuable."

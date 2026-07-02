@@ -67,9 +67,19 @@ struct PostSessionFlowScreen: View {
     }
 
     private var selectedResponses: [KioskNextStepResponse] {
-        options
+        let selectedDescriptions = options
             .filter { selectedOptionIDs.contains($0.id) }
-            .map(\.response)
+            .map(\.description)
+
+        guard !selectedDescriptions.isEmpty else { return [] }
+
+        return [
+            KioskNextStepResponse(
+                id: 0,
+                title: "Based on you results, here are some common next steps",
+                description: selectedDescriptions.joined(separator: " | ")
+            )
+        ]
     }
 
     var body: some View {
@@ -220,14 +230,13 @@ struct PostSessionFlowScreen: View {
             successMark
                 .padding(.bottom, 38.h)
 
-            buildMediumText(ResultScreenStrings.PostSession.allDoneTitle, 36.sp, color: Color(AppColors.black))
-                .padding(.bottom, 18.h)
-
-            Text(ResultScreenStrings.PostSession.allDoneDescription)
-                .font(.system(size: 26.sp, weight: .light))
+            Text(ResultScreenStrings.PostSession.allDoneTitle)
+                .font(.custom("NewSpirit-Medium", size: 36.sp))
                 .foregroundColor(Color(AppColors.black))
                 .multilineTextAlignment(.center)
-                .padding(.bottom, 8.h)
+                .lineLimit(2)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.bottom, 18.h)
 
             Spacer(minLength: 110.h)
 
@@ -522,7 +531,7 @@ struct PostSessionFlowScreen: View {
                 )
 
                 await MainActor.run {
-                    navigateToHome(showResponseToast: action == .npsSubmit)
+                    navigateToHome(showResponseToast: true)
                 }
             } catch {
                 print("Kiosk post-session response error:", error.localizedDescription)

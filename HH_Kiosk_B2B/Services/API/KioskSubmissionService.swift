@@ -25,11 +25,13 @@ struct KioskNextStepResponse: Encodable, Equatable, Identifiable {
 
 struct KioskSubmissionService: KioskSubmissionServiceProtocol {
     private struct KioskUserResponsePayload: Encodable {
+        let brandCode: String
         let email: String
         let selectedNextSteps: [KioskNextStepResponse]
         let npsScore: Int?
 
         enum CodingKeys: String, CodingKey {
+            case brandCode = "brand_code"
             case email
             case selectedNextSteps = "selected_next_steps"
             case npsScore = "nps_score"
@@ -37,6 +39,7 @@ struct KioskSubmissionService: KioskSubmissionServiceProtocol {
 
         func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(brandCode, forKey: .brandCode)
             try container.encode(email, forKey: .email)
             try container.encode(selectedNextSteps, forKey: .selectedNextSteps)
 
@@ -77,6 +80,7 @@ struct KioskSubmissionService: KioskSubmissionServiceProtocol {
 
     func sendUserResponse(email: String, nextSteps: [KioskNextStepResponse], npsScore: Int?) async throws -> KioskUserResponseResult {
         let payload = KioskUserResponsePayload(
+            brandCode: AppConfig.brandCode,
             email: email,
             selectedNextSteps: nextSteps,
             npsScore: npsScore
@@ -87,7 +91,7 @@ struct KioskSubmissionService: KioskSubmissionServiceProtocol {
         printUserResponseResponse(responseData)
 
         let result = try JSONDecoder().decode(KioskUserResponseResult.self, from: responseData)
-        print("✅ /kiosk-user-response/ decoded result: success=\(result.success), id=\(String(describing: result.id)), email=\(String(describing: result.email)), message=\(String(describing: result.message))")
+        print("✅ /custom-kiosk-user-response/ decoded result: success=\(result.success), id=\(String(describing: result.id)), email=\(String(describing: result.email)), message=\(String(describing: result.message))")
         guard result.success else {
             throw AppAPIError.invalidResponse
         }
@@ -143,11 +147,11 @@ struct KioskSubmissionService: KioskSubmissionServiceProtocol {
     }
 
     private func printUserResponseRequest(_ payload: KioskUserResponsePayload) {
-        printAPIRequest(endpointName: "/kiosk-user-response/", url: AppAPIEndpoints.kioskUserResponse, payload: payload)
+        printAPIRequest(endpointName: "/custom-kiosk-user-response/", url: AppAPIEndpoints.kioskUserResponse, payload: payload)
     }
 
     private func printUserResponseResponse(_ data: Data) {
-        printAPIResponse(endpointName: "/kiosk-user-response/", data: data)
+        printAPIResponse(endpointName: "/custom-kiosk-user-response/", data: data)
     }
 
     private func printAPIRequest<Payload: Encodable>(endpointName: String, url: URL, payload: Payload) {

@@ -264,6 +264,19 @@ struct PhysicalAttributesScreen: View {
                     .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
             }
             .buttonStyle(.plain)
+
+            Button(action: {
+                hideKeyboard()
+                skipFaceScanForTesting()
+            }) {
+                Text(PhysicalAttributesScreenStrings.debugProceedToResults)
+                    .font(.system(size: 18.sp, weight: .bold))
+                    .foregroundColor(Color(AppColors.white))
+                    .frame(width: 190.w, height: 46.h)
+                    .background(Color(AppColors.primary))
+                    .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
+            }
+            .buttonStyle(.plain)
             #endif
         }
     }
@@ -396,6 +409,48 @@ struct PhysicalAttributesScreen: View {
         )
 
         print("Saved current user for debug API hit flow.")
+    }
+
+    private func skipFaceScanForTesting() {
+        saveDeveloperTestUser()
+
+        let controller = ResultsViewController(appState: appState)
+        controller.modalPresentationStyle = .fullScreen
+
+        if let topVC = UIApplication.topViewController() {
+            topVC.present(controller, animated: true) {
+                controller.submitMockScanResultsForBackendDebug()
+            }
+        } else {
+            validationMessage = "Unable to open results screen."
+            showValidationAlert = true
+        }
+    }
+
+    private func saveDeveloperTestUser() {
+        let testHeight = Self.heightInCentimeters(
+            feet: DeveloperAutofill.heightFeet,
+            inches: DeveloperAutofill.heightInches
+        )
+        let testWeight = Int(Double(DeveloperAutofill.weightLbs) / 2.20462)
+
+        email = DeveloperAutofill.email
+        height = testHeight
+        weight = testWeight
+        weightInPounds = DeveloperAutofill.weightLbs
+        age = DeveloperAutofill.age
+        gender = DeveloperAutofill.gender
+
+        LocalUserStorage.saveUser(
+            email: DeveloperAutofill.email,
+            height: testHeight,
+            weight: testWeight,
+            weightInPounds: DeveloperAutofill.weightLbs,
+            age: DeveloperAutofill.age,
+            gender: DeveloperAutofill.gender
+        )
+
+        print("Saved developer test user for skip face scan flow.")
     }
     #endif
 
