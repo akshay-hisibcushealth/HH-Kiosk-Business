@@ -16,6 +16,12 @@ struct ResultEntry: Codable {
 
 struct EmailResultPayload: Codable {
     let email: String
+    let measurementID: String
     let pin: String
-    let data: [String: ResultEntry]
+
+    enum CodingKeys: String, CodingKey {
+        case email
+        case measurementID = "measurement_id"
+        case pin
+    }
 }

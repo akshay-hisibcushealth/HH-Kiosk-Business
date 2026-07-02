@@ -4,6 +4,7 @@ enum AppAPIError: LocalizedError {
     case invalidResponse
     case unexpectedStatusCode(Int, String)
     case missingSavedUser
+    case missingMeasurementID
 
     var errorDescription: String? {
         switch self {
@@ -19,6 +20,8 @@ enum AppAPIError: LocalizedError {
                 : "Unable to load this information right now. Please try again."
         case .missingSavedUser:
             return "Missing saved user information."
+        case .missingMeasurementID:
+            return "Missing measurement ID."
         }
     }
 }

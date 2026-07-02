@@ -251,7 +251,7 @@ struct EmailResultPopup: View {
 
     private func submitEmailResults() async -> Bool {
         do {
-            try await submissionService.sendEmailResults(email: email, pin: pin, results: results)
+            try await submissionService.sendEmailResults(email: email, pin: pin)
             return true
         } catch {
             print("❌ Network error:", error.localizedDescription)

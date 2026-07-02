@@ -6,7 +6,7 @@ enum AppAPIEndpoints {
     }
 
     static var emailResults: URL {
-        appURL(path: "/kiosk-email/")
+        appURL(path: "/custom-facescan/report-email/")
     }
 
     static var saveKioskHealth: URL {
