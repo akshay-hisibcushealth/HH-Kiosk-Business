@@ -14,7 +14,7 @@ enum AppAPIEndpoints {
     }
 
     static var kioskUserResponse: URL {
-        appURL(path: "/custom-branding-user-response/")
+        appURL(path: "/custom-kiosk-user-response/")
     }
 
     static func currentWeather(lat: Double, lon: Double) -> URL {

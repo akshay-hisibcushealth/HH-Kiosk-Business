@@ -91,7 +91,7 @@ struct KioskSubmissionService: KioskSubmissionServiceProtocol {
         printUserResponseResponse(responseData)
 
         let result = try JSONDecoder().decode(KioskUserResponseResult.self, from: responseData)
-        print("✅ /custom-branding-user-response/ decoded result: success=\(result.success), id=\(String(describing: result.id)), email=\(String(describing: result.email)), message=\(String(describing: result.message))")
+        print("✅ /custom-kiosk-user-response/ decoded result: success=\(result.success), id=\(String(describing: result.id)), email=\(String(describing: result.email)), message=\(String(describing: result.message))")
         guard result.success else {
             throw AppAPIError.invalidResponse
         }
@@ -147,11 +147,11 @@ struct KioskSubmissionService: KioskSubmissionServiceProtocol {
     }
 
     private func printUserResponseRequest(_ payload: KioskUserResponsePayload) {
-        printAPIRequest(endpointName: "/custom-branding-user-response/", url: AppAPIEndpoints.kioskUserResponse, payload: payload)
+        printAPIRequest(endpointName: "/custom-kiosk-user-response/", url: AppAPIEndpoints.kioskUserResponse, payload: payload)
     }
 
     private func printUserResponseResponse(_ data: Data) {
-        printAPIResponse(endpointName: "/custom-branding-user-response/", data: data)
+        printAPIResponse(endpointName: "/custom-kiosk-user-response/", data: data)
     }
 
     private func printAPIRequest<Payload: Encodable>(endpointName: String, url: URL, payload: Payload) {

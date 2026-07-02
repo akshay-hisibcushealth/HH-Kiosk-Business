@@ -10,7 +10,7 @@ enum PhysicalAttributesInputField: Hashable {
 }
 
 private enum PhysicalAttributesScrollTarget {
-    case gender
+    case age
 }
 
 struct PhysicalAttributesScreen: View {
@@ -155,11 +155,11 @@ struct PhysicalAttributesScreen: View {
                 }
                 .scrollDismissesKeyboard(.interactively)
                 .onChange(of: focusedInputField) { _, focusedField in
-                    scrollToGenderIfNeeded(focusedField: focusedField, scrollProxy: scrollProxy)
+                    scrollToAgeIfNeeded(focusedField: focusedField, scrollProxy: scrollProxy)
                 }
                 .onChange(of: keyboardObserver.isKeyboardVisible) { _, isVisible in
                     guard isVisible else { return }
-                    scrollToGenderIfNeeded(focusedField: focusedInputField, scrollProxy: scrollProxy)
+                    scrollToAgeIfNeeded(focusedField: focusedInputField, scrollProxy: scrollProxy)
                 }
             }
         }
@@ -218,7 +218,7 @@ struct PhysicalAttributesScreen: View {
     }
 
     private var keyboardAwareBottomPadding: CGFloat {
-        keyboardObserver.isKeyboardVisible ? keyboardObserver.height + 36.h : 0
+        keyboardObserver.isKeyboardVisible ? keyboardObserver.height + 8.h : 0
     }
 
     private var backButton: some View {
@@ -289,12 +289,12 @@ struct PhysicalAttributesScreen: View {
                 focusedField: $focusedInputField
             )
             ProfileAgeSection(selectedAge: $age, focusedField: $focusedInputField)
+                .id(PhysicalAttributesScrollTarget.age)
             ProfileGenderSection(selectedGender: $gender)
-                .id(PhysicalAttributesScrollTarget.gender)
         }
     }
 
-    private func scrollToGenderIfNeeded(
+    private func scrollToAgeIfNeeded(
         focusedField: PhysicalAttributesInputField?,
         scrollProxy: ScrollViewProxy
     ) {
@@ -302,7 +302,7 @@ struct PhysicalAttributesScreen: View {
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
             withAnimation(.easeInOut(duration: 0.25)) {
-                scrollProxy.scrollTo(PhysicalAttributesScrollTarget.gender, anchor: .center)
+                scrollProxy.scrollTo(PhysicalAttributesScrollTarget.age, anchor: .center)
             }
         }
     }
