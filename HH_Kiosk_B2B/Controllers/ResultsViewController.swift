@@ -182,6 +182,7 @@ class ResultsViewController: UIViewController {
             }
         ))
         addChild(resultButtonsHost)
+        resultButtonsHost.view.backgroundColor = AppColors.white
         resultButtonsHost.view.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(resultButtonsHost.view)
         resultButtonsHost.didMove(toParent: self)
@@ -223,8 +224,8 @@ class ResultsViewController: UIViewController {
 
             resultButtonsHost.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             resultButtonsHost.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            resultButtonsHost.view.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            resultButtonsHost.view.heightAnchor.constraint(equalToConstant: 110),
+            resultButtonsHost.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            resultButtonsHost.view.heightAnchor.constraint(equalToConstant: 130),
 
             activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
