@@ -161,6 +161,8 @@ func navigateToHome(animated: Bool = true, showResponseToast: Bool = false) {
     guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
           let window = windowScene.windows.first else { return }
 
+    ScanSessionStorage.clearMeasurementID()
+
     if showResponseToast {
         UserDefaults.standard.set(true, forKey: AppStorageKeys.responseReceivedToastPending)
     }

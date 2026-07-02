@@ -70,7 +70,7 @@ enum PhysicalAttributesScreenStrings {
     static let watchQuickDemo = "Watch Demo"
     static let proceedToScan = "Proceed to Scan"
     #if DEBUG
-    static let debugProceedToResults = "Skip to Results"
+    static let debugHitAPI = "Hit API"
     #endif
     static let alertDismiss = "OK"
     static let demoURL = "https://drive.google.com/file/d/1dPJs1A6aptEh3yTCVxR5BUlRfyLWa3rL/view?usp=sharing"

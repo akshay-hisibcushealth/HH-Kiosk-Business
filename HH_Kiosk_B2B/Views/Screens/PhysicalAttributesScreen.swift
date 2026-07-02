@@ -254,9 +254,9 @@ struct PhysicalAttributesScreen: View {
             #if DEBUG
             Button(action: {
                 hideKeyboard()
-                skipFaceScanForTesting()
+                hitFaceScanAPIForTesting()
             }) {
-                Text(PhysicalAttributesScreenStrings.debugProceedToResults)
+                Text(PhysicalAttributesScreenStrings.debugHitAPI)
                     .font(.system(size: 18.sp, weight: .bold))
                     .foregroundColor(Color(AppColors.white))
                     .frame(width: 190.w, height: 46.h)
@@ -368,8 +368,9 @@ struct PhysicalAttributesScreen: View {
     }
 
     #if DEBUG
-    private func skipFaceScanForTesting() {
-        saveDeveloperTestUser()
+    private func hitFaceScanAPIForTesting() {
+        guard validateInputs() else { return }
+        saveCurrentUser()
 
         let controller = ResultsViewController(appState: appState)
         controller.modalPresentationStyle = .fullScreen
@@ -384,30 +385,17 @@ struct PhysicalAttributesScreen: View {
         }
     }
 
-    private func saveDeveloperTestUser() {
-        let testHeight = Self.heightInCentimeters(
-            feet: DeveloperAutofill.heightFeet,
-            inches: DeveloperAutofill.heightInches
-        )
-        let testWeight = Int(Double(DeveloperAutofill.weightLbs) / 2.20462)
-
-        email = DeveloperAutofill.email
-        height = testHeight
-        weight = testWeight
-        weightInPounds = DeveloperAutofill.weightLbs
-        age = DeveloperAutofill.age
-        gender = DeveloperAutofill.gender
-
+    private func saveCurrentUser() {
         LocalUserStorage.saveUser(
-            email: DeveloperAutofill.email,
-            height: testHeight,
-            weight: testWeight,
-            weightInPounds: DeveloperAutofill.weightLbs,
-            age: DeveloperAutofill.age,
-            gender: DeveloperAutofill.gender
+            email: email!,
+            height: height!,
+            weight: weight!,
+            weightInPounds: weightInPounds!,
+            age: age!,
+            gender: gender
         )
 
-        print("Saved developer test user for skip face scan flow.")
+        print("Saved current user for debug API hit flow.")
     }
     #endif
 
