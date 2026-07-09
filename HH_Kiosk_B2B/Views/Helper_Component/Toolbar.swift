@@ -58,7 +58,9 @@ private struct BrandedCompanyLogoView: View {
         Image(AppIconNames.Asset.BrandLogo)
             .resizable()
             .scaledToFit()
-            .frame(width: 300.w)
+            .frame(width: 230.w)
+            .padding(.trailing, 24.w)
+
     }
 }
 private struct BrandedCompanyLogoViewPlaceHolder: View {
