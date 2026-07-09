@@ -1,0 +1,11 @@
+{
+  "title_text": "Tell us about yourself",
+  "subtitle_text": "We use these details to ensure your scan results are as accurate as possible.",
+  "privacy_message_text": "Your privacy is protected. Your information will NOT be stored during this process and will only be used for calculations.",
+  "watch_demo_button_text": "Watch Demo",
+  "watch_demo_button_background_color_hex": "#E8E8E8",
+  "watch_demo_button_text_color_hex": "#241F1F",
+  "watch_demo_button_icon_color_hex": "#241F1F",
+  "proceed_to_scan_button_text": "Proceed to Scan",
+  "proceed_to_scan_button_background_color_hex": "#B8EB5E"
+}

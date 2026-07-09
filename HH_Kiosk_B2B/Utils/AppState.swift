@@ -12,6 +12,10 @@ class AppState: ObservableObject {
     @Published private(set) var isScreenSaverDataLoading = false
     @Published private(set) var screenSaverErrorMessage: String?
 
+    var physicalAttributesScreenCustomization: PhysicalAttributesScreenCustomization {
+        brandingData?.physicalAttributesScreen ?? PhysicalAttributesScreenDummyData.customization
+    }
+
     private let brandingService: KioskBrandingServiceProtocol
     private let contentService: KioskContentServiceProtocol
 

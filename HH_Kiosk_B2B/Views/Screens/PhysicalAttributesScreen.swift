@@ -45,6 +45,10 @@ struct PhysicalAttributesScreen: View {
     private let demoSheetSuppressionReason = "physicalAttributes.quickDemoSheet"
     private let settingsSheetSuppressionReason = "physicalAttributes.settingsSheet"
     private let validationAlertSuppressionReason = "physicalAttributes.validationAlert"
+
+    private var customization: PhysicalAttributesScreenCustomization {
+        appState.physicalAttributesScreenCustomization
+    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -53,9 +57,9 @@ struct PhysicalAttributesScreen: View {
             VStack(alignment: .leading, spacing: 0) {
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 0) {
-                        buildSemiBoldText(PhysicalAttributesScreenStrings.title, 42.sp, color: Color(AppColors.bodyTextMuted))
+                        buildSemiBoldText(customization.titleText, 42.sp, color: Color(AppColors.bodyTextMuted))
 
-                        Text(PhysicalAttributesScreenStrings.subtitle)
+                        Text(customization.subtitleText)
                             .font(.system(size: 24.sp, weight: .regular))
                             .foregroundColor(Color(AppColors.physicalAttributeText))
                             .padding(.top, 18.h)
@@ -183,7 +187,7 @@ struct PhysicalAttributesScreen: View {
     }
 
     private var privacyAttributedText: AttributedString {
-        var text = AttributedString(PhysicalAttributesScreenStrings.privacyMessage)
+        var text = AttributedString(customization.privacyMessageText)
         if let range = text.range(of: "Your privacy is protected.") {
             text[range].font = .system(size: 22.sp, weight: .bold)
         }
@@ -194,7 +198,7 @@ struct PhysicalAttributesScreen: View {
         ZStack {
             Color.white
 
-            AnimatedGIFView(assetName: AppIconNames.Asset.bodyAnimation)
+            AppLottieView(name: "face_scan")
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
@@ -219,12 +223,13 @@ struct PhysicalAttributesScreen: View {
                     HStack(spacing: 18.w) {
                         Image(systemName: AppIconNames.Symbol.playCircleFill)
                             .font(.system(size: 34.sp, weight: .semibold))
-                        Text(PhysicalAttributesScreenStrings.watchQuickDemo)
+                            .foregroundColor(customization.watchDemoIconColor)
+                        Text(customization.watchDemoButtonText)
                             .font(.system(size: 28.sp, weight: .bold))
+                            .foregroundColor(customization.watchDemoTextColor)
                     }
-                    .foregroundColor(Color(AppColors.sectionHeaderText))
                     .frame(maxWidth: .infinity, minHeight: 88.h)
-                    .background(Color(AppColors.gray).opacity(0.18))
+                    .background(customization.watchDemoBackgroundColor)
                     .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
                 }
                 .buttonStyle(.plain)
@@ -241,13 +246,13 @@ struct PhysicalAttributesScreen: View {
                             .progressViewStyle(CircularProgressViewStyle(tint: Color(AppColors.black)))
                             .frame(maxWidth: .infinity, minHeight: 88.h)
                     } else {
-                        Text(PhysicalAttributesScreenStrings.proceedToScan)
+                        Text(customization.proceedToScanButtonText)
                             .font(.system(size: 28.sp, weight: .bold))
                             .foregroundColor(Color(AppColors.clientIDDialogBackground))
                             .frame(maxWidth: .infinity, minHeight: 88.h)
                     }
                 }
-                .background(Color(AppColors.ctaGreen))
+                .background(customization.proceedToScanBackgroundColor)
                 .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
                 .buttonStyle(.plain)
             }
