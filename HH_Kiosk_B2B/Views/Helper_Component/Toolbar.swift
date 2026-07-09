@@ -55,7 +55,7 @@ struct ResultToolbar: View {
 
 private struct BrandedCompanyLogoView: View {
     var body: some View {
-        Image(AppIconNames.Asset.DentalLogo)
+        Image(AppIconNames.Asset.BrandLogo)
             .resizable()
             .scaledToFit()
             .frame(width: 300.w)
