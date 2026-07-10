@@ -221,6 +221,43 @@ enum ResultScreenStrings {
             static let nutritionCounselingTitle = "Nutrition Counseling"
             static let monitoringMyHealthTitle = "Keep Monitoring My Health"
         }
+
+        enum Questions {
+            enum LastHealthCheck {
+                static let title = ResultScreenStrings.PostSession.nextStepsHeading
+                static let question = "When was your last routine health check with a healthcare provider?”"
+                static let sixToTwelveMonths = "6 to 12 months ago"
+                static let oneToTwoYearsAgo = "1-2 years ago"
+                static let moreThanTwoYears = "More than 2 years ago"
+                static let never = "Never"
+            }
+
+            enum ScanLearning {
+                static let title = "Anything new?"
+                static let question = "Did your scan tell you anything new about your health?"
+                static let surprised = "Yes, it surprised me"
+                static let somewhatNew = "Somewhat new to me"
+                static let expected = "No, about what I expected"
+            }
+
+            enum NextAction {
+                static let title = "Your next step"
+                static let question = "What will you do based on your results? (select all that apply)"
+                static let bookDoctorVisit = "Book a doctor visit"
+                static let getBloodTests = "Get blood tests"
+                static let monitorMyHealth = "Monitor my health"
+                static let changeRoutine = "Change something in my routine"
+                static let nothingRightNow = "Nothing right now"
+                static let disclaimer = "\"Your barber/stylist can't interpret these results — but they can help you email them to yourself to share with a doctor, pharmacist, or clinic.\""
+            }
+
+            enum FollowUp {
+                static let title = "Stay in touch"
+                static let question = "Can we check in with you in a few weeks to see how you are doing?"
+                static let yes = "Yes"
+                static let no = "No"
+            }
+        }
         
     }
 

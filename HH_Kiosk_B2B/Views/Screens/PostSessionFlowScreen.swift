@@ -21,6 +21,13 @@ private struct PostSessionNextStepOption: Identifiable, Equatable {
     let responseTitle: String
     let description: String
 
+    init(id: Int, title: String, responseTitle: String = "") {
+        self.id = id
+        self.displayTitle = title
+        self.responseTitle = responseTitle
+        self.description = title
+    }
+
     var response: KioskNextStepResponse {
         KioskNextStepResponse(id: id, title: responseTitle, description: description)
     }
@@ -32,6 +39,7 @@ private struct PostSessionQuestion: Identifiable, Equatable {
     let question: String
     let selectionMode: PostSessionSelectionMode
     let options: [PostSessionNextStepOption]
+    let disclaimer: String?
 }
 
 struct PostSessionFlowScreen: View {
@@ -52,52 +60,58 @@ struct PostSessionFlowScreen: View {
     }
 
     private var questions: [PostSessionQuestion] {
-        [
+        typealias Questions = ResultScreenStrings.PostSession.Questions
+
+        return [
             PostSessionQuestion(
                 id: 0,
-                title: "Thank you for taking the time to complete this important scan",
-                question: "When did you last have your blood pressure, heart, or blood sugar checked by a health professional?",
+                title: Questions.LastHealthCheck.title,
+                question: Questions.LastHealthCheck.question,
                 selectionMode: .single,
                 options: [
-                    PostSessionNextStepOption(id: 0, displayTitle: "Within 6 months", responseTitle: "", description: "Within 6 months"),
-                    PostSessionNextStepOption(id: 1, displayTitle: "6 to 12 months ago", responseTitle: "", description: "6 to 12 months ago"),
-                    PostSessionNextStepOption(id: 2, displayTitle: "More than a year ago", responseTitle: "", description: "More than a year ago"),
-                    PostSessionNextStepOption(id: 3, displayTitle: "Never, or not sure", responseTitle: "", description: "Never, or not sure")
-                ]
+                    PostSessionNextStepOption(id: 0, title: Questions.LastHealthCheck.sixToTwelveMonths),
+                    PostSessionNextStepOption(id: 1, title: Questions.LastHealthCheck.oneToTwoYearsAgo),
+                    PostSessionNextStepOption(id: 2, title: Questions.LastHealthCheck.moreThanTwoYears),
+                    PostSessionNextStepOption(id: 3, title: Questions.LastHealthCheck.never)
+                ],
+                disclaimer: nil
             ),
             PostSessionQuestion(
                 id: 1,
-                title: "Anything new?",
-                question: "Did your scan tell you anything new about your health?",
+                title: Questions.ScanLearning.title,
+                question: Questions.ScanLearning.question,
                 selectionMode: .single,
                 options: [
-                    PostSessionNextStepOption(id: 0, displayTitle: "Yes, it surprised me", responseTitle: "", description: "Yes, it surprised me"),
-                    PostSessionNextStepOption(id: 1, displayTitle: "Somewhat new to me", responseTitle: "", description: "Somewhat new to me"),
-                    PostSessionNextStepOption(id: 2, displayTitle: "No, about what I expected", responseTitle: "", description: "No, about what I expected")
-                ]
+                    PostSessionNextStepOption(id: 0, title: Questions.ScanLearning.surprised),
+                    PostSessionNextStepOption(id: 1, title: Questions.ScanLearning.somewhatNew),
+                    PostSessionNextStepOption(id: 2, title: Questions.ScanLearning.expected)
+                ],
+                disclaimer: nil
             ),
             PostSessionQuestion(
                 id: 2,
-                title: "Your next step",
-                question: "What will you do based on your results? (select all that apply)",
+                title: Questions.NextAction.title,
+                question: Questions.NextAction.question,
                 selectionMode: .multiple,
                 options: [
-                    PostSessionNextStepOption(id: 0, displayTitle: "Book a doctor visit", responseTitle: "", description: "Book a doctor visit"),
-                    PostSessionNextStepOption(id: 1, displayTitle: "Already have a doctor's visit booked", responseTitle: "", description: "Already have a doctor's visit booked"),
-                    PostSessionNextStepOption(id: 2, displayTitle: "Mention it to my dentist today", responseTitle: "", description: "Mention it to my dentist today"),
-                    PostSessionNextStepOption(id: 3, displayTitle: "Change something in my routine", responseTitle: "", description: "Change something in my routine"),
-                    PostSessionNextStepOption(id: 4, displayTitle: "Nothing right now", responseTitle: "", description: "Nothing right now")
-                ]
+                    PostSessionNextStepOption(id: 0, title: Questions.NextAction.bookDoctorVisit),
+                    PostSessionNextStepOption(id: 1, title: Questions.NextAction.getBloodTests),
+                    PostSessionNextStepOption(id: 2, title: Questions.NextAction.monitorMyHealth),
+                    PostSessionNextStepOption(id: 3, title: Questions.NextAction.changeRoutine),
+                    PostSessionNextStepOption(id: 4, title: Questions.NextAction.nothingRightNow)
+                ],
+                disclaimer: Questions.NextAction.disclaimer
             ),
             PostSessionQuestion(
                 id: 3,
-                title: "Stay in touch",
-                question: "Can we check in with you in a few weeks to see how you are doing?",
+                title: Questions.FollowUp.title,
+                question: Questions.FollowUp.question,
                 selectionMode: .single,
                 options: [
-                    PostSessionNextStepOption(id: 0, displayTitle: "Yes", responseTitle: "", description: "Yes"),
-                    PostSessionNextStepOption(id: 1, displayTitle: "No", responseTitle: "", description: "No")
-                ]
+                    PostSessionNextStepOption(id: 0, title: Questions.FollowUp.yes),
+                    PostSessionNextStepOption(id: 1, title: Questions.FollowUp.no)
+                ],
+                disclaimer: nil
             )
         ]
     }
@@ -206,6 +220,20 @@ struct PostSessionFlowScreen: View {
                 }
             }
             .padding(.top, 54.h)
+
+            if let disclaimer = question.disclaimer {
+                Text(disclaimer)
+                    .font(.system(size: 24.sp,).italic())
+                    .foregroundColor(Color(AppColors.resultTitleText))
+                    .multilineTextAlignment(.leading)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.vertical, 16.h)
+                    .padding(.horizontal, 22.w)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color(AppColors.infoPanelBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 4.r, style: .continuous))
+                    .padding(.top, 24.h)
+            }
         }
         .padding(.top, 58.h)
         .padding(.horizontal, 58.w)
