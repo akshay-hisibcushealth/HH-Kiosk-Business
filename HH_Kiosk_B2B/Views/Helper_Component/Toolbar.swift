@@ -45,7 +45,7 @@ struct ResultToolbar: View {
                 .padding(.vertical, 48.h)
                 .padding(.trailing, 32.h)
             Spacer()
-            BrandedCompanyLogoView()
+            BrandedCompanyLogoViewPlaceHolder()
           
         }
         .padding(.horizontal, 24.w)
