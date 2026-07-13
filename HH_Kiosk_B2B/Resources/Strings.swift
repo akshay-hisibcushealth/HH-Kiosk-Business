@@ -225,7 +225,7 @@ enum ResultScreenStrings {
         enum Questions {
             enum LastHealthCheck {
                 static let title = ResultScreenStrings.PostSession.nextStepsHeading
-                static let question = "When was your last routine health check with a healthcare provider?”"
+                static let question = "When was your last routine health check with a healthcare provider?"
                 static let sixToTwelveMonths = "6 to 12 months ago"
                 static let oneToTwoYearsAgo = "1-2 years ago"
                 static let moreThanTwoYears = "More than 2 years ago"
