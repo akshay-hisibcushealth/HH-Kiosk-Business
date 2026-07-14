@@ -10,8 +10,15 @@ enum ScreenSaverSuppressionReason {
 class AppState: ObservableObject {
     @Published var showScreenSaver = false
     @Published private(set) var isScreenSaverSuppressed = false
+    @Published private(set) var selectedLanguage = AppLocalization.currentLanguage
 
     private var suppressionReasons: Set<String> = []
+
+    func setLanguage(_ language: AppLanguage) {
+        guard selectedLanguage != language else { return }
+        AppLocalization.setLanguage(language)
+        selectedLanguage = language
+    }
 
     func setScreenSaverSuppressed(_ suppressed: Bool, reason: String) {
         if suppressed {

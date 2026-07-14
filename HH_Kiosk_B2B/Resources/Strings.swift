@@ -1,368 +1,301 @@
 import Foundation
 
-enum ArticleScreenStrings {
-    static let imageLoading = "Loading Image..."
-    static let body = """
-    If you are feeling stiff and uncomfortable while working at a sedentary job, there are exercises you can do without even leaving your desk that will leave you feeling refreshed and healthier.
-
-    Work-related disorders aren’t just limited to heavy manufacturing or construction. They can occur in all types of industries and work environments, including office spaces. Research shows that repetitive motion, poor posture, and staying in the same position can cause or worsen musculoskeletal disorders.
-
-    Staying in one position while doing repetitive motions is typical of a desk job. An analysis of job industry trends over the past 50 years revealed that at least 8 in 10 American workers are desk potatoes. The habits we build at our desk, especially while sitting, can contribute to discomfort and health issues, including:
-    """
-}
-
-
 enum HomeScreenStrings {
-    static let responseReceivedToast = "Response Received"
+    static let responseReceivedToast = AppLocalization.string("app.HomeScreenStrings.Response_Received", defaultValue: "Response Received")
 
     enum Weather {
-        static let loading = "Loading Weather..."
-        static let errorTitle = "Error:"
-        static let fetchingLocation = "Fetching location..."
-        static let welcomePrefix = "Welcome to the"
-        static let companyName = "[ABC Company]"
-        static let kioskSuffix = "Kiosk"
+        static let loading = AppLocalization.string("app.HomeScreenStrings.Weather.Loading_Weather", defaultValue: "Loading Weather...")
+        static let errorTitle = AppLocalization.string("app.HomeScreenStrings.Weather.Error", defaultValue: "Error:")
+        static let fetchingLocation = AppLocalization.string("app.HomeScreenStrings.Weather.Fetching_location", defaultValue: "Fetching location...")
+        static let welcomePrefix = AppLocalization.string("app.HomeScreenStrings.Weather.Welcome_to_the", defaultValue: "Welcome to the")
+        static let companyName = AppLocalization.string("app.HomeScreenStrings.Weather.ABC_Company", defaultValue: "[ABC Company]")
+        static let kioskSuffix = AppLocalization.string("app.HomeScreenStrings.Weather.Kiosk", defaultValue: "Kiosk")
         static func highLow(high: Int, low: Int) -> String {
-            "H:\(high)°F  L:\(low)°F"
+            AppLocalization.format("app.HomeScreenStrings.Weather.highLow", defaultValue: "H:%d°F  L:%d°F", high, low)
         }
     }
 
     enum Promo {
-        static let title = "Curious About Your Health?"
-        static let subtitle = "Start with a 30 seconds Face Scan"
-        static let demoButtonTitle = "Watch Quick Demo"
-        static let tryFaceScan = "Try Face Scan"
+        static let title = AppLocalization.string("app.HomeScreenStrings.Promo.Curious_About_Your_Health", defaultValue: "Curious About Your Health?")
+        static let subtitle = AppLocalization.string("app.HomeScreenStrings.Promo.Start_with_a_30_seconds_Face_Scan", defaultValue: "Start with a 30 seconds Face Scan")
+        static let demoButtonTitle = AppLocalization.string("app.HomeScreenStrings.Promo.Watch_Quick_Demo", defaultValue: "Watch Quick Demo")
+        static let tryFaceScan = AppLocalization.string("app.HomeScreenStrings.Promo.Try_Face_Scan", defaultValue: "Try Face Scan")
         static let demoURL = "https://www.youtube.com/watch?v=2K4os2Rt81Q"
     }
 
     enum ReadSection {
-        static let loading = "Loading..."
-        static let unavailableTitle = "Content Temporarily Unavailable"
-        static let todaysReadTitle = "Today's Read"
-        static let articleBadge = "Article"
-        static let hrDeskTitle = "From HR Desk"
+        static let loading = AppLocalization.string("app.HomeScreenStrings.ReadSection.Loading", defaultValue: "Loading...")
+        static let unavailableTitle = AppLocalization.string("app.HomeScreenStrings.ReadSection.Content_Temporarily_Unavailable", defaultValue: "Content Temporarily Unavailable")
+        static let todaysReadTitle = AppLocalization.string("app.HomeScreenStrings.ReadSection.Today_s_Read", defaultValue: "Today's Read")
+        static let articleBadge = AppLocalization.string("app.HomeScreenStrings.ReadSection.Article", defaultValue: "Article")
+        static let hrDeskTitle = AppLocalization.string("app.HomeScreenStrings.ReadSection.From_HR_Desk", defaultValue: "From HR Desk")
     }
 
     enum Schedule {
-        static let sectionTitle = "Today's Schedule"
-        static let noSchedule = "No Schedule"
-        static let dailyStandupTitle = "Daily Stand-Up"
-        static let dailyStandupDescription = "A stand-up meeting is a meeting in which attendees typically participate while standing."
+        static let sectionTitle = AppLocalization.string("app.HomeScreenStrings.Schedule.Today_s_Schedule", defaultValue: "Today's Schedule")
+        static let noSchedule = AppLocalization.string("app.HomeScreenStrings.Schedule.No_Schedule", defaultValue: "No Schedule")
+        static let dailyStandupTitle = AppLocalization.string("app.HomeScreenStrings.Schedule.Daily_Stand_Up", defaultValue: "Daily Stand-Up")
+        static let dailyStandupDescription = AppLocalization.string("app.HomeScreenStrings.Schedule.A_stand_up_meeting_is_a_meeting_in_which_attendees_typically", defaultValue: "A stand-up meeting is a meeting in which attendees typically participate while standing.")
 
         static let eventPool: [(title: String, description: String)] = [
-            ("Quarterly Town Hall Meeting", "To discuss about the upcoming project & organization of units"),
-            ("Q3 Wellness Challenge begins", "To discuss about the upcoming project & organization of units"),
-            ("Diversity, Equity & Inclusion (DEI) Awareness Days", "Panels, training, and celebration of heritage months or cultural milestones."),
-            ("Wellness Week / Health Fair", "Activities focused on physical and mental well-being."),
-            ("Hackathons / Innovation Days", "Creative sprints where teams develop solutions, tools, or prototypes."),
-            ("Team-Building Retreat", "A full-day or overnight program to boost collaboration and morale."),
-            ("Company Anniversary", "Celebration of the organization's founding and journey."),
-            ("Open Enrollment / Benefits Fair", "Informational sessions on employee benefits, insurance, and perks."),
-            ("Community Service / Volunteer Day", "Team-led initiatives supporting local organizations."),
-            ("Mid-Year Review", "Alignment on key metrics, shifting priorities, and future plans."),
-            ("New Employee Welcome Sessions", "Monthly or quarterly onboarding experiences with leadership meet-and-greets.")
+            (AppLocalization.string("app.HomeScreenStrings.Schedule.Quarterly_Town_Hall_Meeting", defaultValue: "Quarterly Town Hall Meeting"), AppLocalization.string("app.HomeScreenStrings.Schedule.To_discuss_about_the_upcoming_project_organization_of_units", defaultValue: "To discuss about the upcoming project & organization of units")),
+            (AppLocalization.string("app.HomeScreenStrings.Schedule.Q3_Wellness_Challenge_begins", defaultValue: "Q3 Wellness Challenge begins"), AppLocalization.string("app.HomeScreenStrings.Schedule.To_discuss_about_the_upcoming_project_organization_of_units_2", defaultValue: "To discuss about the upcoming project & organization of units")),
+            (AppLocalization.string("app.HomeScreenStrings.Schedule.Diversity_Equity_Inclusion_DEI_Awareness_Days", defaultValue: "Diversity, Equity & Inclusion (DEI) Awareness Days"), AppLocalization.string("app.HomeScreenStrings.Schedule.Panels_training_and_celebration_of_heritage_months_or_cultur", defaultValue: "Panels, training, and celebration of heritage months or cultural milestones.")),
+            (AppLocalization.string("app.HomeScreenStrings.Schedule.Wellness_Week_Health_Fair", defaultValue: "Wellness Week / Health Fair"), AppLocalization.string("app.HomeScreenStrings.Schedule.Activities_focused_on_physical_and_mental_well_being", defaultValue: "Activities focused on physical and mental well-being.")),
+            (AppLocalization.string("app.HomeScreenStrings.Schedule.Hackathons_Innovation_Days", defaultValue: "Hackathons / Innovation Days"), AppLocalization.string("app.HomeScreenStrings.Schedule.Creative_sprints_where_teams_develop_solutions_tools_or_prot", defaultValue: "Creative sprints where teams develop solutions, tools, or prototypes.")),
+            (AppLocalization.string("app.HomeScreenStrings.Schedule.Team_Building_Retreat", defaultValue: "Team-Building Retreat"), AppLocalization.string("app.HomeScreenStrings.Schedule.A_full_day_or_overnight_program_to_boost_collaboration_and_m", defaultValue: "A full-day or overnight program to boost collaboration and morale.")),
+            (AppLocalization.string("app.HomeScreenStrings.Schedule.Company_Anniversary", defaultValue: "Company Anniversary"), AppLocalization.string("app.HomeScreenStrings.Schedule.Celebration_of_the_organization_s_founding_and_journey", defaultValue: "Celebration of the organization's founding and journey.")),
+            (AppLocalization.string("app.HomeScreenStrings.Schedule.Open_Enrollment_Benefits_Fair", defaultValue: "Open Enrollment / Benefits Fair"), AppLocalization.string("app.HomeScreenStrings.Schedule.Informational_sessions_on_employee_benefits_insurance_and_pe", defaultValue: "Informational sessions on employee benefits, insurance, and perks.")),
+            (AppLocalization.string("app.HomeScreenStrings.Schedule.Community_Service_Volunteer_Day", defaultValue: "Community Service / Volunteer Day"), AppLocalization.string("app.HomeScreenStrings.Schedule.Team_led_initiatives_supporting_local_organizations", defaultValue: "Team-led initiatives supporting local organizations.")),
+            (AppLocalization.string("app.HomeScreenStrings.Schedule.Mid_Year_Review", defaultValue: "Mid-Year Review"), AppLocalization.string("app.HomeScreenStrings.Schedule.Alignment_on_key_metrics_shifting_priorities_and_future_plan", defaultValue: "Alignment on key metrics, shifting priorities, and future plans.")),
+            (AppLocalization.string("app.HomeScreenStrings.Schedule.New_Employee_Welcome_Sessions", defaultValue: "New Employee Welcome Sessions"), AppLocalization.string("app.HomeScreenStrings.Schedule.Monthly_or_quarterly_onboarding_experiences_with_leadership", defaultValue: "Monthly or quarterly onboarding experiences with leadership meet-and-greets."))
         ]
     }
 }
 
 
 enum PhysicalAttributesScreenStrings {
-    static let title = "Tell us about yourself"
-    static let subtitle = "We use these details to ensure your scan results are as accurate as possible."
-    static let privacyMessage = "We value your privacy. Your information will NOT be shared externally."
-    static let watchQuickDemo = "Watch Demo"
-    static let proceedToScan = "Proceed to Scan"
+    static let title = AppLocalization.string("app.PhysicalAttributesScreenStrings.Tell_us_about_yourself", defaultValue: "Tell us about yourself")
+    static let subtitle = AppLocalization.string("app.PhysicalAttributesScreenStrings.We_use_these_details_to_ensure_your_scan_results_are_as_accu", defaultValue: "We use these details to ensure your scan results are as accurate as possible.")
+    static let privacyMessage = AppLocalization.string("app.PhysicalAttributesScreenStrings.We_value_your_privacy_Your_information_will_NOT_be_shared_ex", defaultValue: "We value your privacy. Your information will NOT be shared externally.")
+    static let watchQuickDemo = AppLocalization.string("app.PhysicalAttributesScreenStrings.Watch_Demo", defaultValue: "Watch Demo")
+    static let proceedToScan = AppLocalization.string("app.PhysicalAttributesScreenStrings.Proceed_to_Scan", defaultValue: "Proceed to Scan")
     #if DEBUG
-    static let debugProceedToResults = "Skip to Results"
+    static let debugProceedToResults = AppLocalization.string("app.PhysicalAttributesScreenStrings.Skip_to_Results", defaultValue: "Skip to Results")
     #endif
-    static let alertDismiss = "OK"
-    static let demoURL = "https://drive.google.com/file/d/1dPJs1A6aptEh3yTCVxR5BUlRfyLWa3rL/view?usp=sharing"
+    static let alertDismiss = AppLocalization.string("app.PhysicalAttributesScreenStrings.OK", defaultValue: "OK")
 
     enum Validation {
-        static let missingEmail = "Please enter your email."
-        static let invalidEmail = "Please enter a valid email."
-        static let missingHeight = "Please select your height."
-        static let missingWeight = "Weight cannot be empty."
-        static let invalidWeight = "Weight cannot be less than 75 lbs."
-        static let missingAge = "Please enter your age."
-        static let invalidAge = "Age must be between 13 and 120 years."
-        static let missingGender = "Please select your gender."
+        static let missingEmail = AppLocalization.string("app.PhysicalAttributesScreenStrings.Validation.Please_enter_your_email", defaultValue: "Please enter your email.")
+        static let invalidEmail = AppLocalization.string("app.PhysicalAttributesScreenStrings.Validation.Please_enter_a_valid_email", defaultValue: "Please enter a valid email.")
+        static let missingHeight = AppLocalization.string("app.PhysicalAttributesScreenStrings.Validation.Please_select_your_height", defaultValue: "Please select your height.")
+        static let missingWeight = AppLocalization.string("app.PhysicalAttributesScreenStrings.Validation.Weight_cannot_be_empty", defaultValue: "Weight cannot be empty.")
+        static let invalidWeight = AppLocalization.string("app.PhysicalAttributesScreenStrings.Validation.Weight_cannot_be_less_than_75_lbs", defaultValue: "Weight cannot be less than 75 lbs.")
+        static let missingAge = AppLocalization.string("app.PhysicalAttributesScreenStrings.Validation.Please_enter_your_age", defaultValue: "Please enter your age.")
+        static let invalidAge = AppLocalization.string("app.PhysicalAttributesScreenStrings.Validation.Age_must_be_between_13_and_120_years", defaultValue: "Age must be between 13 and 120 years.")
+        static let missingGender = AppLocalization.string("app.PhysicalAttributesScreenStrings.Validation.Please_select_your_gender", defaultValue: "Please select your gender.")
     }
 
     enum Form {
-        static let emailLabel = "Email"
-        static let emailPlaceholder = "Enter email"
-        static let emailInlineError = "Enter a valid email address"
-        static let ageLabel = "Age"
-        static let agePlaceholder = "How old are you?"
-        static let heightLabel = "Height"
-        static let heightPlaceholder = "Feet / Inches"
-        static let heightSheetTitle = "Select Height"
-        static let feetUnit = "ft"
-        static let inchesUnit = "in"
+        static let emailLabel = AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Email", defaultValue: "Email")
+        static let emailPlaceholder = AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Enter_email", defaultValue: "Enter email")
+        static let emailInlineError = AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Enter_a_valid_email_address", defaultValue: "Enter a valid email address")
+        static let ageLabel = AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Age", defaultValue: "Age")
+        static let agePlaceholder = AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.How_old_are_you", defaultValue: "How old are you?")
+        static let heightLabel = AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Height", defaultValue: "Height")
+        static let heightPlaceholder = AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Feet_Inches", defaultValue: "Feet / Inches")
+        static let heightSheetTitle = AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Select_Height", defaultValue: "Select Height")
+        static let feetUnit = AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.ft", defaultValue: "ft")
+        static let inchesUnit = AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.in", defaultValue: "in")
         static let confirmButton = "CONFIRM"
-        static let doneButton = "Done"
-        static let weightLabel = "Weight"
-        static let weightPlaceholder = "Lbs"
-        static let genderLabel = "Sex (at birth)"
-        static let genderPlaceholder = "Male / Female"
-        static let genderOptions = ["Male", "Female"]
+        static let doneButton = AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Done", defaultValue: "Done")
+        static let weightLabel = AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Weight", defaultValue: "Weight")
+        static let weightPlaceholder = AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Lbs", defaultValue: "Lbs")
+        static let genderLabel = AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Sex_at_birth", defaultValue: "Sex (at birth)")
+        static let genderOptions = [AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Male", defaultValue: "Male"), AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Female", defaultValue: "Female")]
     }
 
     enum Settings {
-        static let cameraPreset = "External camera preset"
-        static let previewOrientation = "Preview orientation"
-        static let mirrorExternalVideo = "Mirror external camera video"
-        static let useExternalCameraOnly = "Use external camera only"
-        static let externalCameraDescription = "If enabled, only the external camera will be used. If disabled, the app will automatically switch between the built-in camera and an external camera (external camera is prioritized)."
-        static let title = "Camera Settings"
-        static let closeButton = "Close"
-        static let unknownOption = "Unknown"
-        static let portrait = "Portrait"
-        static let landscapeLeft = "LandscapeLeft"
-        static let landscapeRight = "LandscapeRight"
-        static let portraitUpsideDown = "PortraitUpsideDown"
+        static let cameraPreset = AppLocalization.string("app.PhysicalAttributesScreenStrings.Settings.External_camera_preset", defaultValue: "External camera preset")
+        static let previewOrientation = AppLocalization.string("app.PhysicalAttributesScreenStrings.Settings.Preview_orientation", defaultValue: "Preview orientation")
+        static let mirrorExternalVideo = AppLocalization.string("app.PhysicalAttributesScreenStrings.Settings.Mirror_external_camera_video", defaultValue: "Mirror external camera video")
+        static let useExternalCameraOnly = AppLocalization.string("app.PhysicalAttributesScreenStrings.Settings.Use_external_camera_only", defaultValue: "Use external camera only")
+        static let externalCameraDescription = AppLocalization.string("app.PhysicalAttributesScreenStrings.Settings.If_enabled_only_the_external_camera_will_be_used_If_disabled", defaultValue: "If enabled, only the external camera will be used. If disabled, the app will automatically switch between the built-in camera and an external camera (external camera is prioritized).")
+        static let title = AppLocalization.string("app.PhysicalAttributesScreenStrings.Settings.Camera_Settings", defaultValue: "Camera Settings")
+        static let closeButton = AppLocalization.string("app.PhysicalAttributesScreenStrings.Settings.Close", defaultValue: "Close")
+        static let unknownOption = AppLocalization.string("app.PhysicalAttributesScreenStrings.Settings.Unknown", defaultValue: "Unknown")
+        static let portrait = AppLocalization.string("app.PhysicalAttributesScreenStrings.Settings.Portrait", defaultValue: "Portrait")
+        static let landscapeLeft = AppLocalization.string("app.PhysicalAttributesScreenStrings.Settings.LandscapeLeft", defaultValue: "LandscapeLeft")
+        static let landscapeRight = AppLocalization.string("app.PhysicalAttributesScreenStrings.Settings.LandscapeRight", defaultValue: "LandscapeRight")
+        static let portraitUpsideDown = AppLocalization.string("app.PhysicalAttributesScreenStrings.Settings.PortraitUpsideDown", defaultValue: "PortraitUpsideDown")
     }
 
     enum Debug {
-        static let submitScanAPI = "Submit Debug Scan API"
-        static let scanAPISubmitted = "Debug scan API submitted successfully."
-        static let scanAPIFailed = "Failed to submit debug scan API."
-        static let unableToOpenResults = "Unable to open results screen."
+        static let submitScanAPI = AppLocalization.string("app.PhysicalAttributesScreenStrings.Debug.Submit_Debug_Scan_API", defaultValue: "Submit Debug Scan API")
+        static let scanAPISubmitted = AppLocalization.string("app.PhysicalAttributesScreenStrings.Debug.Debug_scan_API_submitted_successfully", defaultValue: "Debug scan API submitted successfully.")
+        static let scanAPIFailed = AppLocalization.string("app.PhysicalAttributesScreenStrings.Debug.Failed_to_submit_debug_scan_API", defaultValue: "Failed to submit debug scan API.")
+        static let unableToOpenResults = AppLocalization.string("app.PhysicalAttributesScreenStrings.Debug.Unable_to_open_results_screen", defaultValue: "Unable to open results screen.")
     }
 }
 
 
 enum ReadPdfScreenStrings {
-    static let loading = "Loading PDF..."
-    static let failedToLoad = "Failed to load PDF"
+    static let loading = AppLocalization.string("app.ReadPdfScreenStrings.Loading_PDF", defaultValue: "Loading PDF...")
+    static let failedToLoad = AppLocalization.string("app.ReadPdfScreenStrings.Failed_to_load_PDF", defaultValue: "Failed to load PDF")
 }
 
 
 enum ResultScreenStrings {
     static let pdfFileName = "Hibiscus_Health_Report"
-    static let title = "Great job taking a proactive step for your health!"
-    static let heroTitle = "Great job taking a proactive step\nfor your health!"
-    static let heroDescription = "Below is a summary of your key biomarkers based on your 30-second scan."
-    static let titleBlockDescription = "This report is intended to improve your awareness of general wellness. It is not a substitute for the clinical judgment of a health care professional.  These results provide a non-diagnostic screening to help you understand your current wellness trends."
-    static let infoFooter = "Hibiscus Health is intended to improve your awareness of general wellness. Hibiscus Health does not diagnose, treat, mitigate or prevent any disease, symptom, disorder or abnormal physical state. Consult with a healthcare professional or emergency services if you believe you may have a medical issue."
-    static let privacyMessage = "The results from this face scan are not intended to diagnose, treat, or replace professional medical advice. For any health concerns, please consult a healthcare provider."
-    static let nextStepsTitle = "Next Steps"
-    static let nextStepsPrefix = "We know every organization is unique. Whether you’re an employer, health plan, or solution partner, Hibiscus can integrate seamlessly into your existing ecosystem, or provide full end-to-end support from "
-    static let nextStepsEmphasis = "Face Scan -> Care Guide -> Clinician"
-    static let nextStepsSuffix = " for maximum impact. Choose the components that best complement your current resources."
-    static let footerResources = "Find even more resources\ntips & insights on the app,"
-    static let footerAddress = "575 LEXINGTON AVE, FL 14TH NEW YORK, NY 10022-6102 United States"
-    static let appStoreURL = "https://apps.apple.com/tn/app/hibiscus-health/id6478411080"
-    static let playStoreURL = "https://play.google.com/store/apps/details?id=com.nutritionApp.hibiscus_health&hl"
+    static let title = AppLocalization.string("app.ResultScreenStrings.Great_job_taking_a_proactive_step_for_your_health", defaultValue: "Great job taking a proactive step for your health!")
+    static let heroTitle = AppLocalization.string("app.ResultScreenStrings.Great_job_taking_a_proactive_step_for_your_health_2", defaultValue: "Great job taking a proactive step\nfor your health!")
+    static let heroDescription = AppLocalization.string("app.ResultScreenStrings.Below_is_a_summary_of_your_key_biomarkers_based_on_your_30_s", defaultValue: "Below is a summary of your key biomarkers based on your 30-second scan.")
+    static let titleBlockDescription = AppLocalization.string("app.ResultScreenStrings.This_report_is_intended_to_improve_your_awareness_of_general", defaultValue: "This report is intended to improve your awareness of general wellness. It is not a substitute for the clinical judgment of a health care professional.  These results provide a non-diagnostic screening to help you understand your current wellness trends.")
+    static let infoFooter = AppLocalization.string("app.ResultScreenStrings.Hibiscus_Health_is_intended_to_improve_your_awareness_of_gen", defaultValue: "Hibiscus Health is intended to improve your awareness of general wellness. Hibiscus Health does not diagnose, treat, mitigate or prevent any disease, symptom, disorder or abnormal physical state. Consult with a healthcare professional or emergency services if you believe you may have a medical issue.")
+    static let privacyMessage = AppLocalization.string("app.ResultScreenStrings.The_results_from_this_face_scan_are_not_intended_to_diagnose", defaultValue: "The results from this face scan are not intended to diagnose, treat, or replace professional medical advice. For any health concerns, please consult a healthcare provider.")
 
     enum Actions {
-        static let closeResult = "Close result"
-        static let emailMyResults = "Email my results"
-        static let emailResults = "Email Results"
-        static let back = "Back"
-        static let secureAndPrivate = "Secure and Private"
-        static let print = "Print"
-        static let endSession = "End Session"
-        static let viewNextSteps = "View Next Steps"
+        static let emailResults = AppLocalization.string("app.ResultScreenStrings.Actions.Email_Results", defaultValue: "Email Results")
+        static let back = AppLocalization.string("app.ResultScreenStrings.Actions.Back", defaultValue: "Back")
+        static let viewNextSteps = AppLocalization.string("app.ResultScreenStrings.Actions.View_Next_Steps", defaultValue: "View Next Steps")
     }
 
     enum Status {
-        static let measurementFailed = "Measurement failed"
-        static let unableToLoadResults = "Unable to load results. Please try again."
-        static let exit = "Exit"
+        static let measurementFailed = AppLocalization.string("app.ResultScreenStrings.Status.Measurement_failed", defaultValue: "Measurement failed")
+        static let unableToLoadResults = AppLocalization.string("app.ResultScreenStrings.Status.Unable_to_load_results_Please_try_again", defaultValue: "Unable to load results. Please try again.")
+        static let exit = AppLocalization.string("app.ResultScreenStrings.Status.Exit", defaultValue: "Exit")
         static func loading(currentChunk: Int, totalChunks: Int) -> String {
-            "Loading (\(currentChunk + 1) of \(totalChunks))"
+            AppLocalization.format("app.ResultScreenStrings.Status.loading", defaultValue: "Loading (%d of %d)", currentChunk + 1, totalChunks)
         }
     }
 
     enum Print {
-        static let errorTitle = "Error"
-        static let ok = "OK"
-        static let renderFailed = "Failed to render results for printing."
-        static let generatePDFFailed = "Failed to generate PDF for printing."
-        static let jobName = "Health Report"
+        static let errorTitle = AppLocalization.string("app.ResultScreenStrings.Print.Error", defaultValue: "Error")
+        static let ok = AppLocalization.string("app.ResultScreenStrings.Print.OK", defaultValue: "OK")
+        static let renderFailed = AppLocalization.string("app.ResultScreenStrings.Print.Failed_to_render_results_for_printing", defaultValue: "Failed to render results for printing.")
+        static let generatePDFFailed = AppLocalization.string("app.ResultScreenStrings.Print.Failed_to_generate_PDF_for_printing", defaultValue: "Failed to generate PDF for printing.")
+        static let jobName = AppLocalization.string("app.ResultScreenStrings.Print.Health_Report", defaultValue: "Health Report")
         static let exportFileName = "HealthReport"
         static let fileName = "HealthReport_Print.pdf"
     }
 
     enum EmailPopup {
-        static let emailSentConfirmation = "Your result has been sent to your email!"
-        static let whatNextTitle = "What next?"
-        static let oneLastThingTitle = "One last thing before you leave,"
-        static let supportSubtitle = "How can we support you from here?"
-        static let close = "Close"
-        static let confirm = "Confirm"
-        static let title = "Send result to your mail"
-        static let emailAddress = "Email address"
-        static let emailPlaceholder = "Email"
-        static let pinTitle = "Create a 4-digit secret key"
+        static let title = AppLocalization.string("app.ResultScreenStrings.EmailPopup.Send_result_to_your_mail", defaultValue: "Send result to your mail")
+        static let emailAddress = AppLocalization.string("app.ResultScreenStrings.EmailPopup.Email_address", defaultValue: "Email address")
+        static let emailPlaceholder = AppLocalization.string("app.ResultScreenStrings.EmailPopup.Email", defaultValue: "Email")
+        static let pinTitle = AppLocalization.string("app.ResultScreenStrings.EmailPopup.Create_a_4_digit_secret_key", defaultValue: "Create a 4-digit secret key")
         static let pinPlaceholder = "* * * *"
-        static let pinHelp = "This will be used to view your result"
-        static let sendMail = "Send mail"
-        static let emailFailure = "Failed to send email. Please try again."
-        static let secureAndPrivate = "Secure and Private"
-        static let checkInboxTitle = "Check your inbox!"
-        static let emailSentMessage = "Your result has been sent to your email!\nTell a colleague about our Kiosk!"
-        static let done = "Done"
-
-        enum NextSteps {
-            static let talkToDoctorTitle = "Talk to a Hibiscus Doctor"
-            static let talkToDoctorSubtitle = "Connect with a Hibiscus Health physician to review your results."
-            static let talkToDoctorBodyPrefix = "Your results are in -- and a Hibiscus Health physician is ready to walk you through them. Schedule at this link: "
-            static let talkToDoctorLink = "https://calendly.com/david-hibiscushealth/30min"
-            static let talkToDoctorBodySuffix = ". Alternatively, the scheduling link will be emailed to you if you emailed your results."
-            static let dietitianTitle = "Explore Hibiscus Dietitian Care"
-            static let dietitianSubtitle = "Get personalized nutrition guidance from a registered dietitian."
-            static let dietitianBody = "Turn your data into a plan. A Registered Dietitian can review your results and build a nutrition plan around your specific needs to improve your health. A scheduling link will be sent to your email."
-            static let monitoringTitle = "Keep monitoring my health"
-            static let monitoringSubtitle = "Schedule regular scans to track my biomarkers over time."
-            static let monitoringBodyPrefix = "One scan is a snapshot. Regular scans show the full picture. Download the mobile app by scanning the appropriate QR code and use dietitian code "
-            static let monitoringCode = "\"KIRKLAND\""
-            static let monitoringBodySuffix = " to sign-up. Take a picture of this pop-up to remember the code later on."
-        }
+        static let pinHelp = AppLocalization.string("app.ResultScreenStrings.EmailPopup.This_will_be_used_to_view_your_result", defaultValue: "This will be used to view your result")
+        static let sendMail = AppLocalization.string("app.ResultScreenStrings.EmailPopup.Send_mail", defaultValue: "Send mail")
+        static let emailFailure = AppLocalization.string("app.ResultScreenStrings.EmailPopup.Failed_to_send_email_Please_try_again", defaultValue: "Failed to send email. Please try again.")
+        static let secureAndPrivate = AppLocalization.string("app.ResultScreenStrings.EmailPopup.Secure_and_Private", defaultValue: "Secure and Private")
+        static let checkInboxTitle = AppLocalization.string("app.ResultScreenStrings.EmailPopup.Check_your_inbox", defaultValue: "Check your inbox!")
+        static let emailSentMessage = AppLocalization.string("app.ResultScreenStrings.EmailPopup.Your_result_has_been_sent_to_your_email_Tell_a_colleague_abo", defaultValue: "Your result has been sent to your email!\nTell a colleague about our Kiosk!")
+        static let done = AppLocalization.string("app.ResultScreenStrings.EmailPopup.Done", defaultValue: "Done")
     }
 
     enum PostSession {
-        static let nextStepsHeading = "Thank you for taking the time to complete this important scan"
-        static let nextStepsSubtitle = "Based on your results, here are some common next steps"
-        static let continueTitle = "Continue"
-        static let allDoneTitle = "All done.\nThank you for visiting our kiosk!"
-        static let allDoneDescription = "Your wellness report and selected next steps have been sent to your email.\nWe hope you found this experience valuable."
-        static let completionBody = "Your selected next steps have been saved."
-        static let completionSubtitle = "We hope you found this experience valuable."
-        static let npsEyebrow = "ONE QUICK QUESTION"
-        static let npsQuestion = "Would you recommend this experience to others?"
-        static let notLikely = "Not at all likely"
-        static let extremelyLikely = "Extremely likely"
-        static let skip = "Skip"
-        static let submitAndReturnHome = "Submit and return home"
-        static let submitFailure = "Failed to submit response. Please try again."
-
-        enum NextSteps {
-            static let annualPhysical = "Schedule an annual physical with my primary care provider for a comprehensive health exam."
-            static let biometricScreening = "Schedule a biometric screening or other follow-up labs (i.e. HBA1c for blood sugar)."
-            static let nutritionCounseling = "Sign up for nutrition counseling with a registered dietitian."
-            static let ongoingMonitoring = "Keep monitoring my health — complete scans ongoing to track my biomarkers over time."
-        }
-        enum NextStepsTitles {
-            static let annualPhysicalTitle = "Annual Physical"
-            static let biometricScreeningTitle = "Biometric Screening"
-            static let nutritionCounselingTitle = "Nutrition Counseling"
-            static let monitoringMyHealthTitle = "Keep Monitoring My Health"
-        }
+        static let continueTitle = AppLocalization.string("app.ResultScreenStrings.PostSession.Continue", defaultValue: "Continue")
+        static let allDoneTitle = AppLocalization.string("app.ResultScreenStrings.PostSession.All_done_Thank_you_for_visiting_our_kiosk", defaultValue: "All done.\nThank you for visiting our kiosk!")
+        static let npsEyebrow = AppLocalization.string("app.ResultScreenStrings.PostSession.ONE_QUICK_QUESTION", defaultValue: "ONE QUICK QUESTION")
+        static let npsQuestion = AppLocalization.string("app.ResultScreenStrings.PostSession.Would_you_recommend_this_experience_to_others", defaultValue: "Would you recommend this experience to others?")
+        static let notLikely = AppLocalization.string("app.ResultScreenStrings.PostSession.Not_at_all_likely", defaultValue: "Not at all likely")
+        static let extremelyLikely = AppLocalization.string("app.ResultScreenStrings.PostSession.Extremely_likely", defaultValue: "Extremely likely")
+        static let skip = AppLocalization.string("app.ResultScreenStrings.PostSession.Skip", defaultValue: "Skip")
+        static let submitAndReturnHome = AppLocalization.string("app.ResultScreenStrings.PostSession.Submit_and_return_home", defaultValue: "Submit and return home")
+        static let submitFailure = AppLocalization.string("app.ResultScreenStrings.PostSession.Failed_to_submit_response_Please_try_again", defaultValue: "Failed to submit response. Please try again.")
 
         enum Survey {
-            static let healthCheckTitle = "Thank you for taking the time to complete this important scan"
-            static let healthCheckQuestion = "When did you last have your blood pressure, heart, or blood sugar checked by a health professional?"
-            static let withinSixMonths = "Within 6 months"
-            static let sixToTwelveMonthsAgo = "6 to 12 months ago"
-            static let moreThanAYearAgo = "More than a year ago"
-            static let neverOrNotSure = "Never, or not sure"
+            static let healthCheckTitle = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Thank_you_for_taking_the_time_to_complete_this_important_sca", defaultValue: "Thank you for taking the time to complete this important scan")
+            static let healthCheckQuestion = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.When_did_you_last_have_your_blood_pressure_heart_or_blood_su", defaultValue: "When did you last have your blood pressure, heart, or blood sugar checked by a health professional?")
+            static let withinSixMonths = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Within_6_months", defaultValue: "Within 6 months")
+            static let sixToTwelveMonthsAgo = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.6_to_12_months_ago", defaultValue: "6 to 12 months ago")
+            static let moreThanAYearAgo = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.More_than_a_year_ago", defaultValue: "More than a year ago")
+            static let neverOrNotSure = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Never_or_not_sure", defaultValue: "Never, or not sure")
 
-            static let anythingNewTitle = "Anything new?"
-            static let anythingNewQuestion = "Did your scan tell you anything new about your health?"
-            static let yesSurprisedMe = "Yes, it surprised me"
-            static let somewhatNew = "Somewhat new to me"
-            static let noExpected = "No, about what I expected"
+            static let anythingNewTitle = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Anything_new", defaultValue: "Anything new?")
+            static let anythingNewQuestion = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Did_your_scan_tell_you_anything_new_about_your_health", defaultValue: "Did your scan tell you anything new about your health?")
+            static let yesSurprisedMe = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Yes_it_surprised_me", defaultValue: "Yes, it surprised me")
+            static let somewhatNew = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Somewhat_new_to_me", defaultValue: "Somewhat new to me")
+            static let noExpected = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.No_about_what_I_expected", defaultValue: "No, about what I expected")
 
-            static let nextStepTitle = "Your next step"
-            static let nextStepQuestion = "What will you do based on your results? (select all that apply)"
-            static let bookDoctorVisit = "Book a doctor visit"
-            static let doctorVisitBooked = "Already have a doctor's visit booked"
-            static let mentionDentist = "Mention it to my dentist today"
-            static let changeRoutine = "Change something in my routine"
-            static let nothingRightNow = "Nothing right now"
+            static let nextStepTitle = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Your_next_step", defaultValue: "Your next step")
+            static let nextStepQuestion = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.What_will_you_do_based_on_your_results_select_all_that_apply", defaultValue: "What will you do based on your results? (select all that apply)")
+            static let bookDoctorVisit = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Book_a_doctor_visit", defaultValue: "Book a doctor visit")
+            static let doctorVisitBooked = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Already_have_a_doctor_s_visit_booked", defaultValue: "Already have a doctor's visit booked")
+            static let mentionDentist = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Mention_it_to_my_dentist_today", defaultValue: "Mention it to my dentist today")
+            static let changeRoutine = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Change_something_in_my_routine", defaultValue: "Change something in my routine")
+            static let nothingRightNow = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Nothing_right_now", defaultValue: "Nothing right now")
 
-            static let stayInTouchTitle = "Stay in touch"
-            static let stayInTouchQuestion = "Can we check in with you in a few weeks to see how you are doing?"
-            static let yes = "Yes"
-            static let no = "No"
+            static let stayInTouchTitle = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Stay_in_touch", defaultValue: "Stay in touch")
+            static let stayInTouchQuestion = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Can_we_check_in_with_you_in_a_few_weeks_to_see_how_you_are_d", defaultValue: "Can we check in with you in a few weeks to see how you are doing?")
+            static let yes = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Yes", defaultValue: "Yes")
+            static let no = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.No", defaultValue: "No")
         }
         
     }
 
     enum Metrics {
         static let interpretations: [String: [String: String]] = [
-            "Cardiovascular Disease Risk": [
-                "very_low": "Your screening suggests a very low likelihood of a heart attack or stroke in the next 10 years.",
-                "low": "Your screening suggests a low likelihood of a heart attack or stroke in the next 10 years.",
-                "moderate_low": "Your screening suggests a moderate-low likelihood of a heart attack or stroke in the next 10 years.",
-                "moderate": "Your screening suggests a moderate likelihood of a heart attack or stroke in the next 10 years.",
-                "high": "Your screening suggests a higher likelihood of a heart attack or stroke in the next 10 years."
+            "BP_CVD": [
+                "very_low": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_a_very_low_likelihood_of_a_heart_att", defaultValue: "Your screening suggests a very low likelihood of a heart attack or stroke in the next 10 years."),
+                "low": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_a_low_likelihood_of_a_heart_attack_o", defaultValue: "Your screening suggests a low likelihood of a heart attack or stroke in the next 10 years."),
+                "moderate_low": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_a_moderate_low_likelihood_of_a_heart", defaultValue: "Your screening suggests a moderate-low likelihood of a heart attack or stroke in the next 10 years."),
+                "moderate": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_a_moderate_likelihood_of_a_heart_att", defaultValue: "Your screening suggests a moderate likelihood of a heart attack or stroke in the next 10 years."),
+                "high": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_a_higher_likelihood_of_a_heart_attac", defaultValue: "Your screening suggests a higher likelihood of a heart attack or stroke in the next 10 years.")
             ],
-            "Systolic Blood Pressure": [
-                "healthy": "Your screening suggests your systolic blood pressure is within a healthy range.",
-                "low": "Your screening suggests your systolic blood pressure may be lower than the healthy range.",
-                "slightly_high": "Your screening suggests your systolic blood pressure may be slightly above the healthy range.",
-                "high": "Your screening suggests your systolic blood pressure may be significantly elevated."
+            "BP_SYSTOLIC": [
+                "healthy": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_your_systolic_blood_pressure_is_with", defaultValue: "Your screening suggests your systolic blood pressure is within a healthy range."),
+                "low": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_your_systolic_blood_pressure_may_be", defaultValue: "Your screening suggests your systolic blood pressure may be lower than the healthy range."),
+                "slightly_high": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_your_systolic_blood_pressure_may_be_2", defaultValue: "Your screening suggests your systolic blood pressure may be slightly above the healthy range."),
+                "high": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_your_systolic_blood_pressure_may_be_3", defaultValue: "Your screening suggests your systolic blood pressure may be significantly elevated.")
             ],
-            "Diastolic Blood Pressure": [
-                "healthy": "Your screening suggests your diastolic blood pressure is within a healthy range.",
-                "low": "Your screening suggests your diastolic blood pressure may be lower than the healthy range.",
-                "slightly_low": "Your screening suggests your diastolic blood pressure may be slightly lower the healthy range.",
-                "slightly_high": "Your screening suggests your diastolic blood pressure may be slightly above the healthy range.",
-                "high": "Your screening suggests your diastolic blood pressure may be significantly elevated."
+            "BP_DIASTOLIC": [
+                "healthy": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_your_diastolic_blood_pressure_is_wit", defaultValue: "Your screening suggests your diastolic blood pressure is within a healthy range."),
+                "low": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_your_diastolic_blood_pressure_may_be", defaultValue: "Your screening suggests your diastolic blood pressure may be lower than the healthy range."),
+                "slightly_low": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_your_diastolic_blood_pressure_may_be_2", defaultValue: "Your screening suggests your diastolic blood pressure may be slightly lower the healthy range."),
+                "slightly_high": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_your_diastolic_blood_pressure_may_be_3", defaultValue: "Your screening suggests your diastolic blood pressure may be slightly above the healthy range."),
+                "high": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_your_diastolic_blood_pressure_may_be_4", defaultValue: "Your screening suggests your diastolic blood pressure may be significantly elevated.")
             ],
-            "Heart Rate": [
-                "low": "Your screening suggests your heart rate is below a normal resting range.",
-                "normal": "Your screening suggests your heart rate is within a normal resting range.",
-                "high": "Your screening suggests your heart rate is higher than the typical resting range."
+            "HR_BPM": [
+                "low": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_your_heart_rate_is_below_a_normal_re", defaultValue: "Your screening suggests your heart rate is below a normal resting range."),
+                "normal": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_your_heart_rate_is_within_a_normal_r", defaultValue: "Your screening suggests your heart rate is within a normal resting range."),
+                "high": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_your_heart_rate_is_higher_than_the_t", defaultValue: "Your screening suggests your heart rate is higher than the typical resting range.")
             ],
-            "HbA1c Risk": [
-                "very_low": "Your screening suggests your HbA1c markers are within a healthy, stable range.",
-                "low": "Your screening suggests your HbA1c is likely below the threshold for concern.",
-                "moderate": "Your screening suggests slightly elevated glycemic markers compared to the ideal range.",
-                "high": "Your screening suggests that your blood sugar levels are currently above the standard healthy range.",
-                "very_high": "Your screening suggests blood sugar markers that are notably above the standard healthy range."
+            "HBA1C_RISK_PROB": [
+                "very_low": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_your_HbA1c_markers_are_within_a_heal", defaultValue: "Your screening suggests your HbA1c markers are within a healthy, stable range."),
+                "low": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_your_HbA1c_is_likely_below_the_thres", defaultValue: "Your screening suggests your HbA1c is likely below the threshold for concern."),
+                "moderate": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_slightly_elevated_glycemic_markers_c", defaultValue: "Your screening suggests slightly elevated glycemic markers compared to the ideal range."),
+                "high": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_that_your_blood_sugar_levels_are_cur", defaultValue: "Your screening suggests that your blood sugar levels are currently above the standard healthy range."),
+                "very_high": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_blood_sugar_markers_that_are_notably", defaultValue: "Your screening suggests blood sugar markers that are notably above the standard healthy range.")
             ],
-            "High Risk of Cholesterol": [
-                "very_low": "Your screening suggests a very low probability of elevated cholesterol levels.",
-                "low": "Your screening suggests your cholesterol markers are within a standard, low-risk profile.",
-                "moderate": "Your screening suggests your cholesterol markers are currently sitting in a moderate range.",
-                "high": "Your screening suggests cholesterol levels are currently above the recommended healthy threshold.",
-                "very_high": "Your screening suggests indicators consistent with a high concentration of cholesterol in the blood."
+            "HDLTC_RISK_PROB": [
+                "very_low": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_a_very_low_probability_of_elevated_c", defaultValue: "Your screening suggests a very low probability of elevated cholesterol levels."),
+                "low": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_your_cholesterol_markers_are_within", defaultValue: "Your screening suggests your cholesterol markers are within a standard, low-risk profile."),
+                "moderate": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_your_cholesterol_markers_are_current", defaultValue: "Your screening suggests your cholesterol markers are currently sitting in a moderate range."),
+                "high": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_cholesterol_levels_are_currently_abo", defaultValue: "Your screening suggests cholesterol levels are currently above the recommended healthy threshold."),
+                "very_high": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_indicators_consistent_with_a_high_co", defaultValue: "Your screening suggests indicators consistent with a high concentration of cholesterol in the blood.")
             ],
-            "High Risk of Triglycerides": [
-                "very_low": "Your screening suggests a very low probability of elevated triglyceride levels.",
-                "low": "Your screening suggests your triglyceride markers are within a standard, low-risk profile.",
-                "moderate": "Your screening suggests your triglyceride markers are currently sitting in a moderate range.",
-                "high": "Your screening suggests triglyceride levels are currently above the recommended healthy threshold.",
-                "very_high": "Your screening suggests indicators consistent with a high concentration of triglyceride in the blood."
+            "TG_RISK_PROB": [
+                "very_low": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_a_very_low_probability_of_elevated_t", defaultValue: "Your screening suggests a very low probability of elevated triglyceride levels."),
+                "low": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_your_triglyceride_markers_are_within", defaultValue: "Your screening suggests your triglyceride markers are within a standard, low-risk profile."),
+                "moderate": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_your_triglyceride_markers_are_curren", defaultValue: "Your screening suggests your triglyceride markers are currently sitting in a moderate range."),
+                "high": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_triglyceride_levels_are_currently_ab", defaultValue: "Your screening suggests triglyceride levels are currently above the recommended healthy threshold."),
+                "very_high": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_indicators_consistent_with_a_high_co_2", defaultValue: "Your screening suggests indicators consistent with a high concentration of triglyceride in the blood.")
             ]
         ]
 
         static func displayTitle(for key: String) -> String {
             switch key {
-            case "BP_CVD": return "Cardiovascular Disease Risk"
-            case "HR_BPM": return "Heart Rate"
-            case "HBA1C_RISK_PROB": return "HbA1c Risk"
-            case "BP_SYSTOLIC": return "Systolic Blood Pressure"
-            case "BP_DIASTOLIC": return "Diastolic Blood Pressure"
-            case "HDLTC_RISK_PROB": return "High Risk of Cholesterol"
-            case "TG_RISK_PROB": return "High Risk of Triglycerides"
+            case "BP_CVD": return AppLocalization.string("app.ResultScreenStrings.Metrics.Cardiovascular_Disease_Risk_2", defaultValue: "Cardiovascular Disease Risk")
+            case "HR_BPM": return AppLocalization.string("app.ResultScreenStrings.Metrics.Heart_Rate_2", defaultValue: "Heart Rate")
+            case "HBA1C_RISK_PROB": return AppLocalization.string("app.ResultScreenStrings.Metrics.HbA1c_Risk_2", defaultValue: "HbA1c Risk")
+            case "BP_SYSTOLIC": return AppLocalization.string("app.ResultScreenStrings.Metrics.Systolic_Blood_Pressure_2", defaultValue: "Systolic Blood Pressure")
+            case "BP_DIASTOLIC": return AppLocalization.string("app.ResultScreenStrings.Metrics.Diastolic_Blood_Pressure_2", defaultValue: "Diastolic Blood Pressure")
+            case "HDLTC_RISK_PROB": return AppLocalization.string("app.ResultScreenStrings.Metrics.High_Risk_of_Cholesterol_2", defaultValue: "High Risk of Cholesterol")
+            case "TG_RISK_PROB": return AppLocalization.string("app.ResultScreenStrings.Metrics.High_Risk_of_Triglycerides_2", defaultValue: "High Risk of Triglycerides")
             default: return key.replacingOccurrences(of: "_", with: " ")
             }
         }
 
         static func gridTitle(for key: String) -> String {
             switch key {
-            case "BP_CVD": return "Cardiovascular Risk"
-            case "HBA1C_RISK_PROB": return "Hemoglobin A1C Risk"
-            case "HR_BPM": return "Heart Rate"
+            case "BP_CVD": return AppLocalization.string("app.ResultScreenStrings.Metrics.Cardiovascular_Risk", defaultValue: "Cardiovascular Risk")
+            case "HBA1C_RISK_PROB": return AppLocalization.string("app.ResultScreenStrings.Metrics.Hemoglobin_A1C_Risk", defaultValue: "Hemoglobin A1C Risk")
+            case "HR_BPM": return AppLocalization.string("app.ResultScreenStrings.Metrics.Heart_Rate_3", defaultValue: "Heart Rate")
             default: return displayTitle(for: key)
             }
         }
 
         static func description(for key: String) -> String {
             switch key {
-            case "BP_CVD": return "Think of this as your heart's 10-year weather forecast. It estimates how likely you are to experience a heart attack or stroke based on signals from your face scan. The lower the number, the clearer the skies."
-            case "BP_SYSTOLIC": return "This is the pressure your heart creates when it pumps blood out. Too high over time and it puts extra strain on your arteries. A normal reading is usually around 90–120 mmHg."
-            case "BP_DIASTOLIC": return "This is the pressure in your arteries when your heart is resting between beats. It tells us how hard your cardiovascular system is working even when it's taking a breather. A normal reading is usually around 60–80 mmHg."
-            case "HBA1C_RISK_PROB": return "This gives you a sense of your long-term blood sugar patterns. High blood sugar over time is linked to pre-diabetes and type 2 diabetes. Think of it less like a snapshot and more like a three-month average of how your body handles sugar."
-            case "HDLTC_RISK_PROB": return "Too much cholesterol in your blood can quietly clog your arteries over time. This screening gives you an early signal of whether your cholesterol levels may be in a healthy range."
-            case "TG_RISK_PROB": return "Triglycerides are a type of fat your body stores for energy. When there's too much of it in your blood, it can quietly raise your risk of heart disease and inflammation. This score flags whether your levels may be worth a closer look."
-            case "HR_BPM": return "How many times your heart beats in a minute. Most healthy adults land between 60–100 bpm at rest. Being consistently too high or too low can be worth discussing with your doctor."
+            case "BP_CVD": return AppLocalization.string("app.ResultScreenStrings.Metrics.Think_of_this_as_your_heart_s_10_year_weather_forecast_It_es", defaultValue: "Think of this as your heart's 10-year weather forecast. It estimates how likely you are to experience a heart attack or stroke based on signals from your face scan. The lower the number, the clearer the skies.")
+            case "BP_SYSTOLIC": return AppLocalization.string("app.ResultScreenStrings.Metrics.This_is_the_pressure_your_heart_creates_when_it_pumps_blood", defaultValue: "This is the pressure your heart creates when it pumps blood out. Too high over time and it puts extra strain on your arteries. A normal reading is usually around 90–120 mmHg.")
+            case "BP_DIASTOLIC": return AppLocalization.string("app.ResultScreenStrings.Metrics.This_is_the_pressure_in_your_arteries_when_your_heart_is_res", defaultValue: "This is the pressure in your arteries when your heart is resting between beats. It tells us how hard your cardiovascular system is working even when it's taking a breather. A normal reading is usually around 60–80 mmHg.")
+            case "HBA1C_RISK_PROB": return AppLocalization.string("app.ResultScreenStrings.Metrics.This_gives_you_a_sense_of_your_long_term_blood_sugar_pattern", defaultValue: "This gives you a sense of your long-term blood sugar patterns. High blood sugar over time is linked to pre-diabetes and type 2 diabetes. Think of it less like a snapshot and more like a three-month average of how your body handles sugar.")
+            case "HDLTC_RISK_PROB": return AppLocalization.string("app.ResultScreenStrings.Metrics.Too_much_cholesterol_in_your_blood_can_quietly_clog_your_art", defaultValue: "Too much cholesterol in your blood can quietly clog your arteries over time. This screening gives you an early signal of whether your cholesterol levels may be in a healthy range.")
+            case "TG_RISK_PROB": return AppLocalization.string("app.ResultScreenStrings.Metrics.Triglycerides_are_a_type_of_fat_your_body_stores_for_energy", defaultValue: "Triglycerides are a type of fat your body stores for energy. When there's too much of it in your blood, it can quietly raise your risk of heart disease and inflammation. This score flags whether your levels may be worth a closer look.")
+            case "HR_BPM": return AppLocalization.string("app.ResultScreenStrings.Metrics.How_many_times_your_heart_beats_in_a_minute_Most_healthy_adu", defaultValue: "How many times your heart beats in a minute. Most healthy adults land between 60–100 bpm at rest. Being consistently too high or too low can be worth discussing with your doctor.")
             default: return ""
             }
         }
@@ -371,45 +304,43 @@ enum ResultScreenStrings {
 
 
 enum ScreenSaverStrings {
-    static let loading = "Loading..."
-    static let title = "Welcome to the Hibiscus Health Kiosk!"
-    static let subtitle = "30-second face scan that identifies health risk\nbefore, during, and between visits."
-    static let actionButton = "Start Face Scan"
-    static let qrPrompt = "Scan to try it on your smartphone!"
+    static var title: String { AppLocalization.string("app.ScreenSaverStrings.Welcome_to_the_Hibiscus_Health_Kiosk", defaultValue: "Welcome to the Hibiscus Health Kiosk!") }
+    static var subtitle: String { AppLocalization.string("app.ScreenSaverStrings.30_second_face_scan_that_identifies_health_risk_before_durin", defaultValue: "30-second face scan that identifies health risk\nbefore, during, and between visits.") }
+    static var actionButton: String { AppLocalization.string("app.ScreenSaverStrings.Start_Face_Scan", defaultValue: "Start Face Scan") }
+    static var selectLanguage: String { AppLocalization.string("app.ScreenSaverStrings.Select_a_language", defaultValue: "Select a language") }
+    static var english: String { AppLocalization.string("app.ScreenSaverStrings.English", defaultValue: "English") }
+    static var spanish: String { AppLocalization.string("app.ScreenSaverStrings.Espanol", defaultValue: "Español") }
 }
 
 
 enum AnuraMeasurementStrings {
-    static let startTitle = "Start Anura Measurement"
-    static let startButton = "Start Measurement"
-    static let missingLicenseConfiguration = "You must provide a license key and study ID to use this app"
-    static let cameraPermissionDeniedLog = "Camera permission denied."
+    static let missingLicenseConfiguration = AppLocalization.string("app.AnuraMeasurementStrings.You_must_provide_a_license_key_and_study_ID_to_use_this_app", defaultValue: "You must provide a license key and study ID to use this app")
 
     enum Alert {
-        static let tokenErrorTitle = "Token Error"
-        static let tokenErrorMessage = "There was an error in verifying your DeepAffex token. Please check the error log or contact support."
-        static let licenseErrorTitle = "License Error"
-        static let licenseErrorMessage = "There was an error registering your DeepAffex license key. Please check the error log or contact support."
-        static let sdkConfigurationErrorTitle = "SDK Configuration File Error"
-        static let sdkConfigurationErrorMessage = "There was an error retreiving the SDK configuration file. Please check the error log or contact support."
-        static let cameraPermissionTitle = "No Camera Permission"
-        static let cameraPermissionMessage = "Please grant the app access to the camera before starting a measurement"
+        static let tokenErrorTitle = AppLocalization.string("app.AnuraMeasurementStrings.Alert.Token_Error", defaultValue: "Token Error")
+        static let tokenErrorMessage = AppLocalization.string("app.AnuraMeasurementStrings.Alert.There_was_an_error_in_verifying_your_DeepAffex_token_Please", defaultValue: "There was an error in verifying your DeepAffex token. Please check the error log or contact support.")
+        static let licenseErrorTitle = AppLocalization.string("app.AnuraMeasurementStrings.Alert.License_Error", defaultValue: "License Error")
+        static let licenseErrorMessage = AppLocalization.string("app.AnuraMeasurementStrings.Alert.There_was_an_error_registering_your_DeepAffex_license_key_Pl", defaultValue: "There was an error registering your DeepAffex license key. Please check the error log or contact support.")
+        static let sdkConfigurationErrorTitle = AppLocalization.string("app.AnuraMeasurementStrings.Alert.SDK_Configuration_File_Error", defaultValue: "SDK Configuration File Error")
+        static let sdkConfigurationErrorMessage = AppLocalization.string("app.AnuraMeasurementStrings.Alert.There_was_an_error_retreiving_the_SDK_configuration_file_Ple", defaultValue: "There was an error retreiving the SDK configuration file. Please check the error log or contact support.")
+        static let cameraPermissionTitle = AppLocalization.string("app.AnuraMeasurementStrings.Alert.No_Camera_Permission", defaultValue: "No Camera Permission")
+        static let cameraPermissionMessage = AppLocalization.string("app.AnuraMeasurementStrings.Alert.Please_grant_the_app_access_to_the_camera_before_starting_a", defaultValue: "Please grant the app access to the camera before starting a measurement")
     }
 
     enum Banner {
-        static let initialPrompt = "Center Your Face"
-        static let holdStill = "Hold Still"
-        static let moveCloser = "Move Closer"
-        static let moveFurther = "Move Further"
-        static let faceCamera = "Look Directly at the Camera"
+        static let initialPrompt = AppLocalization.string("app.AnuraMeasurementStrings.Banner.Center_Your_Face", defaultValue: "Center Your Face")
+        static let holdStill = AppLocalization.string("app.AnuraMeasurementStrings.Banner.Hold_Still", defaultValue: "Hold Still")
+        static let moveCloser = AppLocalization.string("app.AnuraMeasurementStrings.Banner.Move_Closer", defaultValue: "Move Closer")
+        static let moveFurther = AppLocalization.string("app.AnuraMeasurementStrings.Banner.Move_Further", defaultValue: "Move Further")
+        static let faceCamera = AppLocalization.string("app.AnuraMeasurementStrings.Banner.Look_Directly_at_the_Camera", defaultValue: "Look Directly at the Camera")
         static let timeline: [(offset: TimeInterval, message: String)] = [
-            (0, "Breathe Naturally and Stay Still"),
-            (5, "Reading Your Pulse from Facial Blood Flow"),
-            (10, "Detecting Cardiovascular Patterns..."),
-            (16, "Halfway - Eyes on the Camera"),
-            (21, "Capturing Your Final Readings..."),
-            (25, "Almost There, Don't Move"),
-            (28, "Last Few Seconds...")
+            (0, AppLocalization.string("app.AnuraMeasurementStrings.Banner.Breathe_Naturally_and_Stay_Still", defaultValue: "Breathe Naturally and Stay Still")),
+            (5, AppLocalization.string("app.AnuraMeasurementStrings.Banner.Reading_Your_Pulse_from_Facial_Blood_Flow", defaultValue: "Reading Your Pulse from Facial Blood Flow")),
+            (10, AppLocalization.string("app.AnuraMeasurementStrings.Banner.Detecting_Cardiovascular_Patterns", defaultValue: "Detecting Cardiovascular Patterns...")),
+            (16, AppLocalization.string("app.AnuraMeasurementStrings.Banner.Halfway_Eyes_on_the_Camera", defaultValue: "Halfway - Eyes on the Camera")),
+            (21, AppLocalization.string("app.AnuraMeasurementStrings.Banner.Capturing_Your_Final_Readings", defaultValue: "Capturing Your Final Readings...")),
+            (25, AppLocalization.string("app.AnuraMeasurementStrings.Banner.Almost_There_Don_t_Move", defaultValue: "Almost There, Don't Move")),
+            (28, AppLocalization.string("app.AnuraMeasurementStrings.Banner.Last_Few_Seconds", defaultValue: "Last Few Seconds..."))
         ]
     }
 }
@@ -417,12 +348,11 @@ enum AnuraMeasurementStrings {
 
 enum SharedViewStrings {
     enum Toolbar {
-        static let companyLogoPlaceholder = "PUT YOUR COMPANY\nLOGO HERE"
-        static let resultPartnerLogoPlaceholder = "Partner logo\ngoes here"
+        static let companyLogoPlaceholder = AppLocalization.string("app.SharedViewStrings.Toolbar.PUT_YOUR_COMPANY_LOGO_HERE", defaultValue: "PUT YOUR COMPANY\nLOGO HERE")
     }
 
     enum WebView {
-        static let faceScanDemoTitle = "Face Scan Demo"
-        static let doneButtonTitle = "Done"
+        static let faceScanDemoTitle = AppLocalization.string("app.SharedViewStrings.WebView.Face_Scan_Demo", defaultValue: "Face Scan Demo")
+        static let doneButtonTitle = AppLocalization.string("app.SharedViewStrings.WebView.Done", defaultValue: "Done")
     }
 }

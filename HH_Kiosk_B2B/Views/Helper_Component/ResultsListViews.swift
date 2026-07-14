@@ -238,9 +238,8 @@ fileprivate func riskBucket(for key: String, value: Double) -> String {
 }
 
 fileprivate func getTaggedMessage(metricKey: String, value: Double) -> String {
-    let title = displayTitle(for: metricKey)
     let bucket = riskBucket(for: metricKey, value: value)
-    return interpretationJSON[title]?[bucket] ?? interpretationJSON[title]?["low"] ?? ""
+    return interpretationJSON[metricKey]?[bucket] ?? interpretationJSON[metricKey]?["low"] ?? ""
 }
 
 fileprivate func formattedValue(_ value: Double, for metricKey: String) -> String {

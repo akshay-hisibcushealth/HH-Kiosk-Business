@@ -29,7 +29,7 @@
 "ERR_MSG_SNR_SHORT" = "Please try to allow the light to fall evenly across your face while holding still";
 "ERR_CAMERA_CALIBRATION_TIMEOUT" = "Could not calibrate camera\nRestarting calibration...";
 
-/* App strings - English source. */
+/* App strings - Spanish translations pending. */
 "app.HomeScreenStrings.Response_Received" = "Response Received";
 "app.HomeScreenStrings.Weather.Loading_Weather" = "Loading Weather...";
 "app.HomeScreenStrings.Weather.Error" = "Error:";
@@ -231,11 +231,11 @@
 "app.ResultScreenStrings.Metrics.Too_much_cholesterol_in_your_blood_can_quietly_clog_your_art" = "Too much cholesterol in your blood can quietly clog your arteries over time. This screening gives you an early signal of whether your cholesterol levels may be in a healthy range.";
 "app.ResultScreenStrings.Metrics.Triglycerides_are_a_type_of_fat_your_body_stores_for_energy" = "Triglycerides are a type of fat your body stores for energy. When there's too much of it in your blood, it can quietly raise your risk of heart disease and inflammation. This score flags whether your levels may be worth a closer look.";
 "app.ResultScreenStrings.Metrics.How_many_times_your_heart_beats_in_a_minute_Most_healthy_adu" = "How many times your heart beats in a minute. Most healthy adults land between 60–100 bpm at rest. Being consistently too high or too low can be worth discussing with your doctor.";
-"app.ScreenSaverStrings.Welcome_to_the_Hibiscus_Health_Kiosk" = "Welcome to the Hibiscus Health Kiosk!";
-"app.ScreenSaverStrings.30_second_face_scan_that_identifies_health_risk_before_durin" = "30-second face scan that identifies health risk\nbefore, during, and between visits.";
-"app.ScreenSaverStrings.Start_Face_Scan" = "Start Face Scan";
-"app.ScreenSaverStrings.Select_a_language" = "Select a language";
-"app.ScreenSaverStrings.English" = "English";
+"app.ScreenSaverStrings.Welcome_to_the_Hibiscus_Health_Kiosk" = "¡Bienvenido al kiosco de Hibiscus Health!";
+"app.ScreenSaverStrings.30_second_face_scan_that_identifies_health_risk_before_durin" = "Escaneo facial de 30 segundos que identifica riesgos de salud\nantes, durante y entre visitas.";
+"app.ScreenSaverStrings.Start_Face_Scan" = "Iniciar escaneo facial";
+"app.ScreenSaverStrings.Select_a_language" = "Selecciona un idioma";
+"app.ScreenSaverStrings.English" = "Inglés";
 "app.ScreenSaverStrings.Espanol" = "Español";
 "app.AnuraMeasurementStrings.You_must_provide_a_license_key_and_study_ID_to_use_this_app" = "You must provide a license key and study ID to use this app";
 "app.AnuraMeasurementStrings.Alert.Token_Error" = "Token Error";
