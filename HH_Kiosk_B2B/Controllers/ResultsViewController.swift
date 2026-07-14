@@ -98,7 +98,7 @@ class ResultsViewController: UIViewController {
         Task {
             guard let backendResults = await self.prepareTestDataForAPI(Self.mockScanResults) else {
                 await MainActor.run {
-                    self.errorLabel.text = "Unable to load results. Please try again."
+                    self.errorLabel.text = ResultScreenStrings.Status.unableToLoadResults
                     self.updateUI(for: .failure)
                 }
                 return
@@ -145,7 +145,7 @@ class ResultsViewController: UIViewController {
         .frame(width: 595.2)     // A4 Width
         
         // 2. Attempt generation
-        if let url = PDFGenerator.generatePDF(view: pdfView, fileName: "HealthReport") {
+        if let url = PDFGenerator.generatePDF(view: pdfView, fileName: ResultScreenStrings.Print.exportFileName) {
             let activityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
             
             if let popover = activityVC.popoverPresentationController {
@@ -189,7 +189,7 @@ class ResultsViewController: UIViewController {
         view.addSubview(activityIndicator)
 
         errorLabel = UILabel()
-        errorLabel.text = "Measurement failed"
+        errorLabel.text = ResultScreenStrings.Status.measurementFailed
         errorLabel.textColor = AppColors.error
         errorLabel.font = .boldSystemFont(ofSize: 18)
         errorLabel.textAlignment = .center
@@ -198,7 +198,7 @@ class ResultsViewController: UIViewController {
         view.addSubview(errorLabel)
 
         exitButton = UIButton(type: .system)
-        exitButton.setTitle("Exit", for: .normal)
+        exitButton.setTitle(ResultScreenStrings.Status.exit, for: .normal)
         exitButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
         exitButton.setTitleColor(.white, for: .normal)
         exitButton.backgroundColor = UIColor(red: 1.0, green: 0.63, blue: 0.58, alpha: 1.0)
@@ -263,7 +263,7 @@ class ResultsViewController: UIViewController {
     // MARK: - Public Methods (required by MeasurementDelegate)
     func setLoadingMessage(currentChunk: Int, totalChunks: Int) {
         DispatchQueue.main.async {
-            self.navigationItem.prompt = "Loading (\(currentChunk + 1) of \(totalChunks))"
+            self.navigationItem.prompt = ResultScreenStrings.Status.loading(currentChunk: currentChunk, totalChunks: totalChunks)
             self.updateUI(for: .loading)
         }
     }
@@ -303,7 +303,7 @@ class ResultsViewController: UIViewController {
             Task {
                 guard let backendResults = await self.prepareDataForAPI(self.results) else {
                     await MainActor.run {
-                        self.errorLabel.text = "Unable to load results. Please try again."
+                        self.errorLabel.text = ResultScreenStrings.Status.unableToLoadResults
                         self.updateUI(for: .failure)
                     }
                     return
@@ -353,8 +353,8 @@ class ResultsViewController: UIViewController {
         // 5. Render SwiftUI view to UIImage at device screen scale (for best fidelity)
         guard let image = renderImage(from: printView, targetSize: CGSize(width: screenWidth, height: contentHeight)) else {
             DispatchQueue.main.async {
-                let alert = UIAlertController(title: "Error", message: "Failed to render results for printing.", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "OK", style: .default))
+                let alert = UIAlertController(title: ResultScreenStrings.Print.errorTitle, message: ResultScreenStrings.Print.renderFailed, preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: ResultScreenStrings.Print.ok, style: .default))
                 self.present(alert, animated: true)
             }
             print("❌ Failed to render SwiftUI view for printing")
@@ -364,8 +364,8 @@ class ResultsViewController: UIViewController {
         // 6. Create paged PDF from the rendered image, scaling each slice horizontally to exactly fit A4 width
         guard let pdfURL = createPagedPDF(from: image, pageSize: CGSize(width: pdfPageWidth, height: pdfPageHeight)) else {
             DispatchQueue.main.async {
-                let alert = UIAlertController(title: "Error", message: "Failed to generate PDF for printing.", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "OK", style: .default))
+                let alert = UIAlertController(title: ResultScreenStrings.Print.errorTitle, message: ResultScreenStrings.Print.generatePDFFailed, preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: ResultScreenStrings.Print.ok, style: .default))
                 self.present(alert, animated: true)
             }
             print("❌ Failed to create paged PDF from rendered image")
@@ -374,7 +374,7 @@ class ResultsViewController: UIViewController {
 
         // 7. Setup print controller with the generated PDF URL
         let printInfo = UIPrintInfo(dictionary: nil)
-        printInfo.jobName = "Health Report"
+        printInfo.jobName = ResultScreenStrings.Print.jobName
         printInfo.outputType = .general
 
         let printController = UIPrintInteractionController.shared
@@ -588,7 +588,7 @@ class ResultsViewController: UIViewController {
 
         // Write PDF to temp file
         let tempDir = FileManager.default.temporaryDirectory
-        let fileURL = tempDir.appendingPathComponent("HealthReport_Print.pdf")
+        let fileURL = tempDir.appendingPathComponent(ResultScreenStrings.Print.fileName)
 
         do {
             try pdfData.write(to: fileURL, options: .atomic)

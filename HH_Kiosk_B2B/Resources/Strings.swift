@@ -22,6 +22,9 @@ enum HomeScreenStrings {
         static let welcomePrefix = "Welcome to the"
         static let companyName = "[ABC Company]"
         static let kioskSuffix = "Kiosk"
+        static func highLow(high: Int, low: Int) -> String {
+            "H:\(high)°F  L:\(low)°F"
+        }
     }
 
     enum Promo {
@@ -120,6 +123,13 @@ enum PhysicalAttributesScreenStrings {
         static let landscapeRight = "LandscapeRight"
         static let portraitUpsideDown = "PortraitUpsideDown"
     }
+
+    enum Debug {
+        static let submitScanAPI = "Submit Debug Scan API"
+        static let scanAPISubmitted = "Debug scan API submitted successfully."
+        static let scanAPIFailed = "Failed to submit debug scan API."
+        static let unableToOpenResults = "Unable to open results screen."
+    }
 }
 
 
@@ -132,6 +142,7 @@ enum ReadPdfScreenStrings {
 enum ResultScreenStrings {
     static let pdfFileName = "Hibiscus_Health_Report"
     static let title = "Great job taking a proactive step for your health!"
+    static let heroTitle = "Great job taking a proactive step\nfor your health!"
     static let heroDescription = "Below is a summary of your key biomarkers based on your 30-second scan."
     static let titleBlockDescription = "This report is intended to improve your awareness of general wellness. It is not a substitute for the clinical judgment of a health care professional.  These results provide a non-diagnostic screening to help you understand your current wellness trends."
     static let infoFooter = "Hibiscus Health is intended to improve your awareness of general wellness. Hibiscus Health does not diagnose, treat, mitigate or prevent any disease, symptom, disorder or abnormal physical state. Consult with a healthcare professional or emergency services if you believe you may have a medical issue."
@@ -154,6 +165,25 @@ enum ResultScreenStrings {
         static let print = "Print"
         static let endSession = "End Session"
         static let viewNextSteps = "View Next Steps"
+    }
+
+    enum Status {
+        static let measurementFailed = "Measurement failed"
+        static let unableToLoadResults = "Unable to load results. Please try again."
+        static let exit = "Exit"
+        static func loading(currentChunk: Int, totalChunks: Int) -> String {
+            "Loading (\(currentChunk + 1) of \(totalChunks))"
+        }
+    }
+
+    enum Print {
+        static let errorTitle = "Error"
+        static let ok = "OK"
+        static let renderFailed = "Failed to render results for printing."
+        static let generatePDFFailed = "Failed to generate PDF for printing."
+        static let jobName = "Health Report"
+        static let exportFileName = "HealthReport"
+        static let fileName = "HealthReport_Print.pdf"
     }
 
     enum EmailPopup {
@@ -220,6 +250,34 @@ enum ResultScreenStrings {
             static let biometricScreeningTitle = "Biometric Screening"
             static let nutritionCounselingTitle = "Nutrition Counseling"
             static let monitoringMyHealthTitle = "Keep Monitoring My Health"
+        }
+
+        enum Survey {
+            static let healthCheckTitle = "Thank you for taking the time to complete this important scan"
+            static let healthCheckQuestion = "When did you last have your blood pressure, heart, or blood sugar checked by a health professional?"
+            static let withinSixMonths = "Within 6 months"
+            static let sixToTwelveMonthsAgo = "6 to 12 months ago"
+            static let moreThanAYearAgo = "More than a year ago"
+            static let neverOrNotSure = "Never, or not sure"
+
+            static let anythingNewTitle = "Anything new?"
+            static let anythingNewQuestion = "Did your scan tell you anything new about your health?"
+            static let yesSurprisedMe = "Yes, it surprised me"
+            static let somewhatNew = "Somewhat new to me"
+            static let noExpected = "No, about what I expected"
+
+            static let nextStepTitle = "Your next step"
+            static let nextStepQuestion = "What will you do based on your results? (select all that apply)"
+            static let bookDoctorVisit = "Book a doctor visit"
+            static let doctorVisitBooked = "Already have a doctor's visit booked"
+            static let mentionDentist = "Mention it to my dentist today"
+            static let changeRoutine = "Change something in my routine"
+            static let nothingRightNow = "Nothing right now"
+
+            static let stayInTouchTitle = "Stay in touch"
+            static let stayInTouchQuestion = "Can we check in with you in a few weeks to see how you are doing?"
+            static let yes = "Yes"
+            static let no = "No"
         }
         
     }
@@ -314,10 +372,46 @@ enum ResultScreenStrings {
 
 enum ScreenSaverStrings {
     static let loading = "Loading..."
-    static let title = "Welcome to the Hibiscus Wellness Kiosk!"
-    static let subtitle = "Take a few minutes to check in on your health."
+    static let title = "Welcome to the Hibiscus Health Kiosk!"
+    static let subtitle = "30-second face scan that identifies health risk\nbefore, during, and between visits."
     static let actionButton = "Start Face Scan"
     static let qrPrompt = "Scan to try it on your smartphone!"
+}
+
+
+enum AnuraMeasurementStrings {
+    static let startTitle = "Start Anura Measurement"
+    static let startButton = "Start Measurement"
+    static let missingLicenseConfiguration = "You must provide a license key and study ID to use this app"
+    static let cameraPermissionDeniedLog = "Camera permission denied."
+
+    enum Alert {
+        static let tokenErrorTitle = "Token Error"
+        static let tokenErrorMessage = "There was an error in verifying your DeepAffex token. Please check the error log or contact support."
+        static let licenseErrorTitle = "License Error"
+        static let licenseErrorMessage = "There was an error registering your DeepAffex license key. Please check the error log or contact support."
+        static let sdkConfigurationErrorTitle = "SDK Configuration File Error"
+        static let sdkConfigurationErrorMessage = "There was an error retreiving the SDK configuration file. Please check the error log or contact support."
+        static let cameraPermissionTitle = "No Camera Permission"
+        static let cameraPermissionMessage = "Please grant the app access to the camera before starting a measurement"
+    }
+
+    enum Banner {
+        static let initialPrompt = "Center Your Face"
+        static let holdStill = "Hold Still"
+        static let moveCloser = "Move Closer"
+        static let moveFurther = "Move Further"
+        static let faceCamera = "Look Directly at the Camera"
+        static let timeline: [(offset: TimeInterval, message: String)] = [
+            (0, "Breathe Naturally and Stay Still"),
+            (5, "Reading Your Pulse from Facial Blood Flow"),
+            (10, "Detecting Cardiovascular Patterns..."),
+            (16, "Halfway - Eyes on the Camera"),
+            (21, "Capturing Your Final Readings..."),
+            (25, "Almost There, Don't Move"),
+            (28, "Last Few Seconds...")
+        ]
+    }
 }
 
 

@@ -244,7 +244,7 @@ private struct WeatherCard: View {
                         .font(.system(size: 20.sp, weight: .semibold))
                         .foregroundColor(Color(AppColors.white))
                     
-                    Text("H:\(celsiusToFahrenheit(viewModel.high))°F  L:\(celsiusToFahrenheit(viewModel.low))°F")
+                    Text(HomeScreenStrings.Weather.highLow(high: celsiusToFahrenheit(viewModel.high), low: celsiusToFahrenheit(viewModel.low)))
                         .font(.system(size: 16.sp, weight: .semibold))
                         .foregroundColor(Color(AppColors.white))
                     

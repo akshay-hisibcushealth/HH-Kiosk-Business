@@ -58,7 +58,7 @@ struct ScreenSaver: View {
     private var titleBlock: some View {
         VStack(spacing: 18.h) {
             buildSemiBoldText(
-                "Welcome to the Hibiscus Health Kiosk!",
+                ScreenSaverStrings.title,
                 42.sp,
                 color: Color(AppColors.white)
             )
@@ -66,7 +66,7 @@ struct ScreenSaver: View {
             .lineLimit(2)
             .minimumScaleFactor(0.72)
 
-            Text("30-second face scan that identifies health risk\nbefore, during, and between visits.")
+            Text(ScreenSaverStrings.subtitle)
                 .font(.system(size: 34.sp, weight: .regular))
                 .foregroundColor(Color(AppColors.white).opacity(0.84))
                 .multilineTextAlignment(.center)

@@ -136,7 +136,7 @@ struct PhysicalAttributesScreen: View {
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
                 Spacer()
-                Button("Done") {
+                Button(PhysicalAttributesScreenStrings.Form.doneButton) {
                     focusedInputField = nil
                     hideKeyboard()
                 }
@@ -356,7 +356,7 @@ struct PhysicalAttributesScreen: View {
                 submitDebugVitals()
             }) {
                 ZStack {
-                    Text("Submit Debug Scan API")
+                    Text(PhysicalAttributesScreenStrings.Debug.submitScanAPI)
                         .font(.system(size: 18.sp, weight: .bold))
                         .foregroundColor(Color(AppColors.white))
                         .frame(width: 240.w, height: 46.h)
@@ -522,14 +522,14 @@ struct PhysicalAttributesScreen: View {
 
                 await MainActor.run {
                     isSubmittingDebugVitals = false
-                    validationMessage = "Debug scan API submitted successfully."
+                    validationMessage = PhysicalAttributesScreenStrings.Debug.scanAPISubmitted
                     showValidationAlert = true
                 }
             } catch {
                 print("Debug scan API submission error:", error.localizedDescription)
                 await MainActor.run {
                     isSubmittingDebugVitals = false
-                    validationMessage = "Failed to submit debug scan API."
+                    validationMessage = PhysicalAttributesScreenStrings.Debug.scanAPIFailed
                     showValidationAlert = true
                 }
             }
@@ -560,7 +560,7 @@ struct PhysicalAttributesScreen: View {
                 controller.submitMockScanResultsForBackendDebug()
             }
         } else {
-            validationMessage = "Unable to open results screen."
+            validationMessage = PhysicalAttributesScreenStrings.Debug.unableToOpenResults
             showValidationAlert = true
         }
     }

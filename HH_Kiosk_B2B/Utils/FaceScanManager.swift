@@ -31,7 +31,7 @@ class FaceScanManager: ObservableObject{
     
     func checkEmbeddedLicense() {
         if AppConfig.deepaffexLicenseKey.isEmpty || AppConfig.deepaffexStudyID.isEmpty {
-            fatalError("You must provide a license key and study ID to use this app")
+            fatalError(AnuraMeasurementStrings.missingLicenseConfiguration)
         }
     }
     
@@ -116,23 +116,23 @@ class FaceScanManager: ObservableObject{
     }
     
     private func tokenError() {
-        showAlert(title: "Token Error",
-                  message: "There was an error in verifying your DeepAffex token. Please check the error log or contact support.")
+        showAlert(title: AnuraMeasurementStrings.Alert.tokenErrorTitle,
+                  message: AnuraMeasurementStrings.Alert.tokenErrorMessage)
     }
     
     private func registerLicenseError() {
-        showAlert(title: "License Error",
-                  message: "There was an error registering your DeepAffex license key. Please check the error log or contact support.")
+        showAlert(title: AnuraMeasurementStrings.Alert.licenseErrorTitle,
+                  message: AnuraMeasurementStrings.Alert.licenseErrorMessage)
     }
     
     private func sdkConfigurationFileError() {
-        showAlert(title: "SDK Configuration File Error",
-                  message: "There was an error retreiving the SDK configuration file. Please check the error log or contact support.")
+        showAlert(title: AnuraMeasurementStrings.Alert.sdkConfigurationErrorTitle,
+                  message: AnuraMeasurementStrings.Alert.sdkConfigurationErrorMessage)
     }
     
     private func handleCameraPermissionError() {
-        showAlert(title: "No Camera Permission",
-                  message: "Please grant the app access to the camera before starting a measurement")
+        showAlert(title: AnuraMeasurementStrings.Alert.cameraPermissionTitle,
+                  message: AnuraMeasurementStrings.Alert.cameraPermissionMessage)
     }
     
     private func showAlert(title: String, message: String, activateMeasurementButton: Bool = true) {

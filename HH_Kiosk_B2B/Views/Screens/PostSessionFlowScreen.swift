@@ -55,48 +55,48 @@ struct PostSessionFlowScreen: View {
         [
             PostSessionQuestion(
                 id: 0,
-                title: "Thank you for taking the time to complete this important scan",
-                question: "When did you last have your blood pressure, heart, or blood sugar checked by a health professional?",
+                title: ResultScreenStrings.PostSession.Survey.healthCheckTitle,
+                question: ResultScreenStrings.PostSession.Survey.healthCheckQuestion,
                 selectionMode: .single,
                 options: [
-                    PostSessionNextStepOption(id: 0, displayTitle: "Within 6 months", responseTitle: "", description: "Within 6 months"),
-                    PostSessionNextStepOption(id: 1, displayTitle: "6 to 12 months ago", responseTitle: "", description: "6 to 12 months ago"),
-                    PostSessionNextStepOption(id: 2, displayTitle: "More than a year ago", responseTitle: "", description: "More than a year ago"),
-                    PostSessionNextStepOption(id: 3, displayTitle: "Never, or not sure", responseTitle: "", description: "Never, or not sure")
+                    PostSessionNextStepOption(id: 0, displayTitle: ResultScreenStrings.PostSession.Survey.withinSixMonths, responseTitle: "", description: ResultScreenStrings.PostSession.Survey.withinSixMonths),
+                    PostSessionNextStepOption(id: 1, displayTitle: ResultScreenStrings.PostSession.Survey.sixToTwelveMonthsAgo, responseTitle: "", description: ResultScreenStrings.PostSession.Survey.sixToTwelveMonthsAgo),
+                    PostSessionNextStepOption(id: 2, displayTitle: ResultScreenStrings.PostSession.Survey.moreThanAYearAgo, responseTitle: "", description: ResultScreenStrings.PostSession.Survey.moreThanAYearAgo),
+                    PostSessionNextStepOption(id: 3, displayTitle: ResultScreenStrings.PostSession.Survey.neverOrNotSure, responseTitle: "", description: ResultScreenStrings.PostSession.Survey.neverOrNotSure)
                 ]
             ),
             PostSessionQuestion(
                 id: 1,
-                title: "Anything new?",
-                question: "Did your scan tell you anything new about your health?",
+                title: ResultScreenStrings.PostSession.Survey.anythingNewTitle,
+                question: ResultScreenStrings.PostSession.Survey.anythingNewQuestion,
                 selectionMode: .single,
                 options: [
-                    PostSessionNextStepOption(id: 0, displayTitle: "Yes, it surprised me", responseTitle: "", description: "Yes, it surprised me"),
-                    PostSessionNextStepOption(id: 1, displayTitle: "Somewhat new to me", responseTitle: "", description: "Somewhat new to me"),
-                    PostSessionNextStepOption(id: 2, displayTitle: "No, about what I expected", responseTitle: "", description: "No, about what I expected")
+                    PostSessionNextStepOption(id: 0, displayTitle: ResultScreenStrings.PostSession.Survey.yesSurprisedMe, responseTitle: "", description: ResultScreenStrings.PostSession.Survey.yesSurprisedMe),
+                    PostSessionNextStepOption(id: 1, displayTitle: ResultScreenStrings.PostSession.Survey.somewhatNew, responseTitle: "", description: ResultScreenStrings.PostSession.Survey.somewhatNew),
+                    PostSessionNextStepOption(id: 2, displayTitle: ResultScreenStrings.PostSession.Survey.noExpected, responseTitle: "", description: ResultScreenStrings.PostSession.Survey.noExpected)
                 ]
             ),
             PostSessionQuestion(
                 id: 2,
-                title: "Your next step",
-                question: "What will you do based on your results? (select all that apply)",
+                title: ResultScreenStrings.PostSession.Survey.nextStepTitle,
+                question: ResultScreenStrings.PostSession.Survey.nextStepQuestion,
                 selectionMode: .multiple,
                 options: [
-                    PostSessionNextStepOption(id: 0, displayTitle: "Book a doctor visit", responseTitle: "", description: "Book a doctor visit"),
-                    PostSessionNextStepOption(id: 1, displayTitle: "Already have a doctor's visit booked", responseTitle: "", description: "Already have a doctor's visit booked"),
-                    PostSessionNextStepOption(id: 2, displayTitle: "Mention it to my dentist today", responseTitle: "", description: "Mention it to my dentist today"),
-                    PostSessionNextStepOption(id: 3, displayTitle: "Change something in my routine", responseTitle: "", description: "Change something in my routine"),
-                    PostSessionNextStepOption(id: 4, displayTitle: "Nothing right now", responseTitle: "", description: "Nothing right now")
+                    PostSessionNextStepOption(id: 0, displayTitle: ResultScreenStrings.PostSession.Survey.bookDoctorVisit, responseTitle: "", description: ResultScreenStrings.PostSession.Survey.bookDoctorVisit),
+                    PostSessionNextStepOption(id: 1, displayTitle: ResultScreenStrings.PostSession.Survey.doctorVisitBooked, responseTitle: "", description: ResultScreenStrings.PostSession.Survey.doctorVisitBooked),
+                    PostSessionNextStepOption(id: 2, displayTitle: ResultScreenStrings.PostSession.Survey.mentionDentist, responseTitle: "", description: ResultScreenStrings.PostSession.Survey.mentionDentist),
+                    PostSessionNextStepOption(id: 3, displayTitle: ResultScreenStrings.PostSession.Survey.changeRoutine, responseTitle: "", description: ResultScreenStrings.PostSession.Survey.changeRoutine),
+                    PostSessionNextStepOption(id: 4, displayTitle: ResultScreenStrings.PostSession.Survey.nothingRightNow, responseTitle: "", description: ResultScreenStrings.PostSession.Survey.nothingRightNow)
                 ]
             ),
             PostSessionQuestion(
                 id: 3,
-                title: "Stay in touch",
-                question: "Can we check in with you in a few weeks to see how you are doing?",
+                title: ResultScreenStrings.PostSession.Survey.stayInTouchTitle,
+                question: ResultScreenStrings.PostSession.Survey.stayInTouchQuestion,
                 selectionMode: .single,
                 options: [
-                    PostSessionNextStepOption(id: 0, displayTitle: "Yes", responseTitle: "", description: "Yes"),
-                    PostSessionNextStepOption(id: 1, displayTitle: "No", responseTitle: "", description: "No")
+                    PostSessionNextStepOption(id: 0, displayTitle: ResultScreenStrings.PostSession.Survey.yes, responseTitle: "", description: ResultScreenStrings.PostSession.Survey.yes),
+                    PostSessionNextStepOption(id: 1, displayTitle: ResultScreenStrings.PostSession.Survey.no, responseTitle: "", description: ResultScreenStrings.PostSession.Survey.no)
                 ]
             )
         ]

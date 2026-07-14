@@ -231,20 +231,14 @@ private final class AdaptiveMeasurementBanner {
     }
 
     private enum Copy {
-        static let initialPrompt = "Center Your Face"
-        static let holdStill = "Hold Still"
-        static let moveCloser = "Move Closer"
-        static let moveFurther = "Move Further"
-        static let faceCamera = "Look Directly at the Camera"
-        static let timeline: [TimelineEntry] = [
-            TimelineEntry(offset: 0, message: "Breathe Naturally and Stay Still"),
-            TimelineEntry(offset: 5, message: "Reading Your Pulse from Facial Blood Flow"),
-            TimelineEntry(offset: 10, message: "Detecting Cardiovascular Patterns..."),
-            TimelineEntry(offset: 16, message: "Halfway - Eyes on the Camera"),
-            TimelineEntry(offset: 21, message: "Capturing Your Final Readings..."),
-            TimelineEntry(offset: 25, message: "Almost There, Don't Move"),
-            TimelineEntry(offset: 28, message: "Last Few Seconds...")
-        ]
+        static let initialPrompt = AnuraMeasurementStrings.Banner.initialPrompt
+        static let holdStill = AnuraMeasurementStrings.Banner.holdStill
+        static let moveCloser = AnuraMeasurementStrings.Banner.moveCloser
+        static let moveFurther = AnuraMeasurementStrings.Banner.moveFurther
+        static let faceCamera = AnuraMeasurementStrings.Banner.faceCamera
+        static let timeline: [TimelineEntry] = AnuraMeasurementStrings.Banner.timeline.map {
+            TimelineEntry(offset: $0.offset, message: $0.message)
+        }
     }
     
     private weak var hostViewController: UIViewController?

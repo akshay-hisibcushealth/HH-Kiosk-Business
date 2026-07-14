@@ -133,7 +133,7 @@ private struct HeroHeader: View {
     let result: [String: MeasurementResults.SignalResult]
     let showsEmailButton: Bool
 
-    private let title = "Great job taking a proactive step\nfor your health!"
+    private let title = ResultScreenStrings.heroTitle
 
     var body: some View {
         ZStack(alignment: .leading) {

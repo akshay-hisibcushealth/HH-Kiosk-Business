@@ -20,10 +20,10 @@ struct AnuraMeasurementView: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            Text("Start Anura Measurement")
+            Text(AnuraMeasurementStrings.startTitle)
                 .font(.title)
 
-            Button("Start Measurement") {
+            Button(AnuraMeasurementStrings.startButton) {
                 startAnuraMeasurement()
             }
             .disabled(isPresentingMeasurement)
@@ -35,7 +35,7 @@ struct AnuraMeasurementView: View {
 
     private func checkEmbeddedLicense() {
         if AppConfig.deepaffexLicenseKey.isEmpty || AppConfig.deepaffexStudyID.isEmpty {
-            fatalError("You must provide a license key and study ID to use this app")
+            fatalError(AnuraMeasurementStrings.missingLicenseConfiguration)
         }
     }
 
@@ -94,7 +94,7 @@ struct AnuraMeasurementView: View {
 
     private func showPermissionAlert() {
         // Replace with a more SwiftUI-friendly alert system if needed
-        print("Camera permission denied.")
+        print(AnuraMeasurementStrings.cameraPermissionDeniedLog)
     }
 
     private func handleError(_ error: Error) {
