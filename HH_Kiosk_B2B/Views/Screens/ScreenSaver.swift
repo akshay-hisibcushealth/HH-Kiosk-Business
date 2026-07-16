@@ -17,7 +17,7 @@ struct ScreenSaver: View {
                     titleBlock
                         .padding(.top, 40.h)
 
-                    Image(AppIconNames.Asset.screenSaverAvatar)
+                    Image(screenSaverAvatar)
                         .resizable()
                         .scaledToFit()
                         .frame(width: 630.w,height: 670.h)
@@ -57,6 +57,12 @@ struct ScreenSaver: View {
             .resizable()
             .scaledToFill()
             .ignoresSafeArea()
+    }
+
+    private var screenSaverAvatar: String {
+        appState.selectedLanguage == .spanish
+            ? AppIconNames.Asset.screenSaverAvatarSpanish
+            : AppIconNames.Asset.screenSaverAvatar
     }
 
 

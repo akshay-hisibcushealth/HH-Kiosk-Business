@@ -36,6 +36,7 @@ enum AppIconNames {
         static let screensaverBackground = "screensaverbg"
         static let secureEmail = "secure_email"
         static let screenSaverAvatar = "ss_avatar"
+        static let screenSaverAvatarSpanish = "ss_avatar_spanish"
         static let snow = "snow"
         static let sun = "sun"
         static let systolicBloodPressureIcon = "sys_bp_icon"
