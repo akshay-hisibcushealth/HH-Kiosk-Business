@@ -5,8 +5,9 @@ import SwiftUI
 struct MyApp: App {
     @StateObject private var orientation = OrientationManager()
     init() {
-          Screen.startMonitoring()
-      }
+        AppLocalization.activateBundleLanguageOverride()
+        Screen.startMonitoring()
+    }
 
     var body: some Scene {
         WindowGroup {
