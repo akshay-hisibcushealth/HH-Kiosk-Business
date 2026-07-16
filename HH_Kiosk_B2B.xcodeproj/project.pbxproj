@@ -351,7 +351,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.62;
+				MARKETING_VERSION = 1.1.63;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.nutritionApp.hibiscushealth.HH-Kiosk-B2B";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -388,7 +388,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.62;
+				MARKETING_VERSION = 1.1.63;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.nutritionApp.hibiscushealth.HH-Kiosk-B2B";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

@@ -193,27 +193,27 @@ struct PostSessionFlowScreen: View {
 
     private func questionContent(_ question: PostSessionQuestion) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            buildSemiBoldText(question.title, 36.sp, color: Color(AppColors.black))
+            buildSemiBoldText(question.title, 41.sp, color: Color(AppColors.black))
                 .lineLimit(2)
                 .fixedSize(horizontal: false, vertical: true)
 
             Text(question.question)
-                .font(.system(size: 32.sp, weight: .regular))
+                .font(.system(size: 37.sp, weight: .regular))
                 .foregroundColor(Color(AppColors.black))
                 .lineLimit(3)
                 .fixedSize(horizontal: false, vertical: true)
-                .padding(.top, 28.h)
+                .padding(.top, 32.h)
 
-            VStack(spacing: 22.h) {
+            VStack(spacing: 25.h) {
                 ForEach(question.options) { option in
                     optionRow(option, in: question)
                         .disabled(isSubmitting)
                 }
             }
-            .padding(.top, 54.h)
+            .padding(.top, 62.h)
         }
-        .padding(.top, 58.h)
-        .padding(.horizontal, 58.w)
+        .padding(.top, 67.h)
+        .padding(.horizontal, 67.w)
     }
 
     private func optionRow(_ option: PostSessionNextStepOption, in question: PostSessionQuestion) -> some View {
@@ -223,12 +223,12 @@ struct PostSessionFlowScreen: View {
         return Button {
             toggleOption(option, in: question)
         } label: {
-            HStack(spacing: 22.w) {
+            HStack(spacing: 25.w) {
                 if question.selectionMode == .multiple {
                     ZStack {
                         RoundedRectangle(cornerRadius: 4.r, style: .continuous)
                             .fill(isSelected ? Color(AppColors.ctaGreen) : Color(AppColors.white))
-                            .frame(width: 30.w, height: 30.w)
+                            .frame(width: 35.w, height: 35.w)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 4.r, style: .continuous)
                                     .stroke(isSelected ? Color.clear : Color(AppColors.gray).opacity(0.45), lineWidth: 3.w)
@@ -236,14 +236,14 @@ struct PostSessionFlowScreen: View {
 
                         if isSelected {
                             Image(systemName: "checkmark")
-                                .font(.system(size: 17.sp, weight: .black))
+                                .font(.system(size: 20.sp, weight: .black))
                                 .foregroundColor(Color(AppColors.black))
                         }
                     }
                 }
 
                 Text(option.displayTitle)
-                    .font(.system(size: 28.sp, weight: isSelected ? .bold : .regular))
+                    .font(.system(size: 32.sp, weight: isSelected ? .bold : .regular))
                     .foregroundColor(Color(AppColors.black))
                     .multilineTextAlignment(.leading)
                     .lineLimit(2)
@@ -251,9 +251,9 @@ struct PostSessionFlowScreen: View {
 
                 Spacer(minLength: 0)
             }
-            .padding(.vertical, 32.h)
-            .padding(.horizontal, 28.w)
-            .frame(minHeight: 120.h)
+            .padding(.vertical, 37.h)
+            .padding(.horizontal, 32.w)
+            .frame(minHeight: 138.h)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(isSelected ? Color(AppColors.ctaGreen).opacity(0.12) : Color(AppColors.white))
             .overlay(
