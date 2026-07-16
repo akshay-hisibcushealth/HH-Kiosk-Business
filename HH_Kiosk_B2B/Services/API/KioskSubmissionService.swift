@@ -121,7 +121,7 @@ struct KioskSubmissionService: KioskSubmissionServiceProtocol {
                 age: user.age,
                 height: user.heightForBackend,
                 weight: user.weightInPounds,
-                gender: user.gender
+                gender: canonicalGender(user.gender)
             ),
             results: data
         )
@@ -293,5 +293,14 @@ struct KioskSubmissionService: KioskSubmissionServiceProtocol {
 
         let notes = (dictionary["notes"] ?? dictionary["Notes"]) as? [String] ?? []
         return SignalResult(notes: notes, value: value)
+    }
+
+    private func canonicalGender(_ value: String) -> String {
+        switch value.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
+        case "female", "femenino":
+            return "Female"
+        default:
+            return "Male"
+        }
     }
 }

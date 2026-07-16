@@ -112,7 +112,9 @@ private struct ScreenSaverFaceScanButton: View {
                     .font(.system(size: 42.sp, weight: .bold))
                     .foregroundColor(Color(AppColors.white))
                     .lineLimit(1)
+                    .fixedSize(horizontal: true, vertical: false)
                     .minimumScaleFactor(0.72)
+                    .layoutPriority(1)
 
                 Image(systemName: AppIconNames.Symbol.arrowRight)
                     .font(.system(size: 34.sp, weight: .regular))
@@ -123,7 +125,8 @@ private struct ScreenSaverFaceScanButton: View {
             }
             .padding(.leading, 70.w)
             .padding(.trailing, 32.w)
-            .frame(width: 600.w, height: 130.h)
+            .frame(minWidth: 600.w, minHeight: 130.h)
+            .fixedSize(horizontal: true, vertical: false)
             .background(
                 LinearGradient(
                     colors: [

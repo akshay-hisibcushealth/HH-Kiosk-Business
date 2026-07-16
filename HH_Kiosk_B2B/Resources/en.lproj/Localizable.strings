@@ -98,6 +98,7 @@
 "app.PhysicalAttributesScreenStrings.Form.Select_Height" = "Select Height";
 "app.PhysicalAttributesScreenStrings.Form.ft" = "ft";
 "app.PhysicalAttributesScreenStrings.Form.in" = "in";
+"app.PhysicalAttributesScreenStrings.Form.CONFIRM" = "CONFIRM";
 "app.PhysicalAttributesScreenStrings.Form.Done" = "Done";
 "app.PhysicalAttributesScreenStrings.Form.Weight" = "Weight";
 "app.PhysicalAttributesScreenStrings.Form.Lbs" = "Lbs";

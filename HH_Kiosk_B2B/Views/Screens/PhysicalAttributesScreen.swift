@@ -334,19 +334,21 @@ struct PhysicalAttributesScreen: View {
                         proceedToScan()
                     }
                 }) {
-                    if isLoading {
-                        ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle(tint: Color(AppColors.black)))
-                            .frame(maxWidth: .infinity, minHeight: 88.h)
-                    } else {
-                        Text(PhysicalAttributesScreenStrings.proceedToScan)
-                            .font(.system(size: 28.sp, weight: .bold))
-                            .foregroundColor(Color(AppColors.clientIDDialogBackground))
-                            .frame(maxWidth: .infinity, minHeight: 88.h)
+                    ZStack {
+                        if isLoading {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: Color(AppColors.black)))
+                        } else {
+                            Text(PhysicalAttributesScreenStrings.proceedToScan)
+                                .font(.system(size: 28.sp, weight: .bold))
+                                .foregroundColor(Color(AppColors.clientIDDialogBackground))
+                        }
                     }
+                    .frame(maxWidth: .infinity, minHeight: 88.h)
+                    .background(Color(AppColors.ctaGreen))
+                    .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
+                    .contentShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
                 }
-                .background(Color(AppColors.ctaGreen))
-                .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
                 .buttonStyle(.plain)
             }
 
@@ -466,7 +468,7 @@ struct PhysicalAttributesScreen: View {
             height: height!,
             weight: weight!,
             age: age!,
-            gender: gender.lowercased() == "male" ? .male : .female
+            gender: canonicalGender(gender).lowercased() == "male" ? .male : .female
         )
 
         // Initilize Face Scan
@@ -492,8 +494,17 @@ struct PhysicalAttributesScreen: View {
             weight: weight!,
             weightInPounds: weightInPounds!,
             age: age!,
-            gender: gender
+            gender: canonicalGender(gender)
         )
+    }
+
+    private func canonicalGender(_ value: String) -> String {
+        switch value.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
+        case "female", "femenino":
+            return "Female"
+        default:
+            return "Male"
+        }
     }
     
     private func applyDeveloperAutofill() {

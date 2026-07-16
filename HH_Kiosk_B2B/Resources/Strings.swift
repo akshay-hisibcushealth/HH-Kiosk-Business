@@ -1,43 +1,43 @@
 import Foundation
 
 enum HomeScreenStrings {
-    static let responseReceivedToast = AppLocalization.string("app.HomeScreenStrings.Response_Received", defaultValue: "Response Received")
+    static var responseReceivedToast: String { AppLocalization.string("app.HomeScreenStrings.Response_Received", defaultValue: "Response Received") }
 
     enum Weather {
-        static let loading = AppLocalization.string("app.HomeScreenStrings.Weather.Loading_Weather", defaultValue: "Loading Weather...")
-        static let errorTitle = AppLocalization.string("app.HomeScreenStrings.Weather.Error", defaultValue: "Error:")
-        static let fetchingLocation = AppLocalization.string("app.HomeScreenStrings.Weather.Fetching_location", defaultValue: "Fetching location...")
-        static let welcomePrefix = AppLocalization.string("app.HomeScreenStrings.Weather.Welcome_to_the", defaultValue: "Welcome to the")
-        static let companyName = AppLocalization.string("app.HomeScreenStrings.Weather.ABC_Company", defaultValue: "[ABC Company]")
-        static let kioskSuffix = AppLocalization.string("app.HomeScreenStrings.Weather.Kiosk", defaultValue: "Kiosk")
+        static var loading: String { AppLocalization.string("app.HomeScreenStrings.Weather.Loading_Weather", defaultValue: "Loading Weather...") }
+        static var errorTitle: String { AppLocalization.string("app.HomeScreenStrings.Weather.Error", defaultValue: "Error:") }
+        static var fetchingLocation: String { AppLocalization.string("app.HomeScreenStrings.Weather.Fetching_location", defaultValue: "Fetching location...") }
+        static var welcomePrefix: String { AppLocalization.string("app.HomeScreenStrings.Weather.Welcome_to_the", defaultValue: "Welcome to the") }
+        static var companyName: String { AppLocalization.string("app.HomeScreenStrings.Weather.ABC_Company", defaultValue: "[ABC Company]") }
+        static var kioskSuffix: String { AppLocalization.string("app.HomeScreenStrings.Weather.Kiosk", defaultValue: "Kiosk") }
         static func highLow(high: Int, low: Int) -> String {
             AppLocalization.format("app.HomeScreenStrings.Weather.highLow", defaultValue: "H:%d°F  L:%d°F", high, low)
         }
     }
 
     enum Promo {
-        static let title = AppLocalization.string("app.HomeScreenStrings.Promo.Curious_About_Your_Health", defaultValue: "Curious About Your Health?")
-        static let subtitle = AppLocalization.string("app.HomeScreenStrings.Promo.Start_with_a_30_seconds_Face_Scan", defaultValue: "Start with a 30 seconds Face Scan")
-        static let demoButtonTitle = AppLocalization.string("app.HomeScreenStrings.Promo.Watch_Quick_Demo", defaultValue: "Watch Quick Demo")
-        static let tryFaceScan = AppLocalization.string("app.HomeScreenStrings.Promo.Try_Face_Scan", defaultValue: "Try Face Scan")
+        static var title: String { AppLocalization.string("app.HomeScreenStrings.Promo.Curious_About_Your_Health", defaultValue: "Curious About Your Health?") }
+        static var subtitle: String { AppLocalization.string("app.HomeScreenStrings.Promo.Start_with_a_30_seconds_Face_Scan", defaultValue: "Start with a 30 seconds Face Scan") }
+        static var demoButtonTitle: String { AppLocalization.string("app.HomeScreenStrings.Promo.Watch_Quick_Demo", defaultValue: "Watch Quick Demo") }
+        static var tryFaceScan: String { AppLocalization.string("app.HomeScreenStrings.Promo.Try_Face_Scan", defaultValue: "Try Face Scan") }
         static let demoURL = "https://www.youtube.com/watch?v=2K4os2Rt81Q"
     }
 
     enum ReadSection {
-        static let loading = AppLocalization.string("app.HomeScreenStrings.ReadSection.Loading", defaultValue: "Loading...")
-        static let unavailableTitle = AppLocalization.string("app.HomeScreenStrings.ReadSection.Content_Temporarily_Unavailable", defaultValue: "Content Temporarily Unavailable")
-        static let todaysReadTitle = AppLocalization.string("app.HomeScreenStrings.ReadSection.Today_s_Read", defaultValue: "Today's Read")
-        static let articleBadge = AppLocalization.string("app.HomeScreenStrings.ReadSection.Article", defaultValue: "Article")
-        static let hrDeskTitle = AppLocalization.string("app.HomeScreenStrings.ReadSection.From_HR_Desk", defaultValue: "From HR Desk")
+        static var loading: String { AppLocalization.string("app.HomeScreenStrings.ReadSection.Loading", defaultValue: "Loading...") }
+        static var unavailableTitle: String { AppLocalization.string("app.HomeScreenStrings.ReadSection.Content_Temporarily_Unavailable", defaultValue: "Content Temporarily Unavailable") }
+        static var todaysReadTitle: String { AppLocalization.string("app.HomeScreenStrings.ReadSection.Today_s_Read", defaultValue: "Today's Read") }
+        static var articleBadge: String { AppLocalization.string("app.HomeScreenStrings.ReadSection.Article", defaultValue: "Article") }
+        static var hrDeskTitle: String { AppLocalization.string("app.HomeScreenStrings.ReadSection.From_HR_Desk", defaultValue: "From HR Desk") }
     }
 
     enum Schedule {
-        static let sectionTitle = AppLocalization.string("app.HomeScreenStrings.Schedule.Today_s_Schedule", defaultValue: "Today's Schedule")
-        static let noSchedule = AppLocalization.string("app.HomeScreenStrings.Schedule.No_Schedule", defaultValue: "No Schedule")
-        static let dailyStandupTitle = AppLocalization.string("app.HomeScreenStrings.Schedule.Daily_Stand_Up", defaultValue: "Daily Stand-Up")
-        static let dailyStandupDescription = AppLocalization.string("app.HomeScreenStrings.Schedule.A_stand_up_meeting_is_a_meeting_in_which_attendees_typically", defaultValue: "A stand-up meeting is a meeting in which attendees typically participate while standing.")
+        static var sectionTitle: String { AppLocalization.string("app.HomeScreenStrings.Schedule.Today_s_Schedule", defaultValue: "Today's Schedule") }
+        static var noSchedule: String { AppLocalization.string("app.HomeScreenStrings.Schedule.No_Schedule", defaultValue: "No Schedule") }
+        static var dailyStandupTitle: String { AppLocalization.string("app.HomeScreenStrings.Schedule.Daily_Stand_Up", defaultValue: "Daily Stand-Up") }
+        static var dailyStandupDescription: String { AppLocalization.string("app.HomeScreenStrings.Schedule.A_stand_up_meeting_is_a_meeting_in_which_attendees_typically", defaultValue: "A stand-up meeting is a meeting in which attendees typically participate while standing.") }
 
-        static let eventPool: [(title: String, description: String)] = [
+        static var eventPool: [(title: String, description: String)] { [
             (AppLocalization.string("app.HomeScreenStrings.Schedule.Quarterly_Town_Hall_Meeting", defaultValue: "Quarterly Town Hall Meeting"), AppLocalization.string("app.HomeScreenStrings.Schedule.To_discuss_about_the_upcoming_project_organization_of_units", defaultValue: "To discuss about the upcoming project & organization of units")),
             (AppLocalization.string("app.HomeScreenStrings.Schedule.Q3_Wellness_Challenge_begins", defaultValue: "Q3 Wellness Challenge begins"), AppLocalization.string("app.HomeScreenStrings.Schedule.To_discuss_about_the_upcoming_project_organization_of_units_2", defaultValue: "To discuss about the upcoming project & organization of units")),
             (AppLocalization.string("app.HomeScreenStrings.Schedule.Diversity_Equity_Inclusion_DEI_Awareness_Days", defaultValue: "Diversity, Equity & Inclusion (DEI) Awareness Days"), AppLocalization.string("app.HomeScreenStrings.Schedule.Panels_training_and_celebration_of_heritage_months_or_cultur", defaultValue: "Panels, training, and celebration of heritage months or cultural milestones.")),
@@ -49,174 +49,176 @@ enum HomeScreenStrings {
             (AppLocalization.string("app.HomeScreenStrings.Schedule.Community_Service_Volunteer_Day", defaultValue: "Community Service / Volunteer Day"), AppLocalization.string("app.HomeScreenStrings.Schedule.Team_led_initiatives_supporting_local_organizations", defaultValue: "Team-led initiatives supporting local organizations.")),
             (AppLocalization.string("app.HomeScreenStrings.Schedule.Mid_Year_Review", defaultValue: "Mid-Year Review"), AppLocalization.string("app.HomeScreenStrings.Schedule.Alignment_on_key_metrics_shifting_priorities_and_future_plan", defaultValue: "Alignment on key metrics, shifting priorities, and future plans.")),
             (AppLocalization.string("app.HomeScreenStrings.Schedule.New_Employee_Welcome_Sessions", defaultValue: "New Employee Welcome Sessions"), AppLocalization.string("app.HomeScreenStrings.Schedule.Monthly_or_quarterly_onboarding_experiences_with_leadership", defaultValue: "Monthly or quarterly onboarding experiences with leadership meet-and-greets."))
-        ]
+        ] }
     }
 }
 
 
 enum PhysicalAttributesScreenStrings {
-    static let title = AppLocalization.string("app.PhysicalAttributesScreenStrings.Tell_us_about_yourself", defaultValue: "Tell us about yourself")
-    static let subtitle = AppLocalization.string("app.PhysicalAttributesScreenStrings.We_use_these_details_to_ensure_your_scan_results_are_as_accu", defaultValue: "We use these details to ensure your scan results are as accurate as possible.")
-    static let privacyMessage = AppLocalization.string("app.PhysicalAttributesScreenStrings.We_value_your_privacy_Your_information_will_NOT_be_shared_ex", defaultValue: "We value your privacy. Your information will NOT be shared externally.")
-    static let watchQuickDemo = AppLocalization.string("app.PhysicalAttributesScreenStrings.Watch_Demo", defaultValue: "Watch Demo")
-    static let proceedToScan = AppLocalization.string("app.PhysicalAttributesScreenStrings.Proceed_to_Scan", defaultValue: "Proceed to Scan")
+    static var title: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Tell_us_about_yourself", defaultValue: "Tell us about yourself") }
+    static var subtitle: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.We_use_these_details_to_ensure_your_scan_results_are_as_accu", defaultValue: "We use these details to ensure your scan results are as accurate as possible.") }
+    static var privacyMessage: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.We_value_your_privacy_Your_information_will_NOT_be_shared_ex", defaultValue: "We value your privacy. Your information will NOT be shared externally.") }
+    static var watchQuickDemo: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Watch_Demo", defaultValue: "Watch Demo") }
+    static var proceedToScan: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Proceed_to_Scan", defaultValue: "Proceed to Scan") }
     #if DEBUG
-    static let debugProceedToResults = AppLocalization.string("app.PhysicalAttributesScreenStrings.Skip_to_Results", defaultValue: "Skip to Results")
+    static var debugProceedToResults: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Skip_to_Results", defaultValue: "Skip to Results") }
     #endif
-    static let alertDismiss = AppLocalization.string("app.PhysicalAttributesScreenStrings.OK", defaultValue: "OK")
+    static var alertDismiss: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.OK", defaultValue: "OK") }
 
     enum Validation {
-        static let missingEmail = AppLocalization.string("app.PhysicalAttributesScreenStrings.Validation.Please_enter_your_email", defaultValue: "Please enter your email.")
-        static let invalidEmail = AppLocalization.string("app.PhysicalAttributesScreenStrings.Validation.Please_enter_a_valid_email", defaultValue: "Please enter a valid email.")
-        static let missingHeight = AppLocalization.string("app.PhysicalAttributesScreenStrings.Validation.Please_select_your_height", defaultValue: "Please select your height.")
-        static let missingWeight = AppLocalization.string("app.PhysicalAttributesScreenStrings.Validation.Weight_cannot_be_empty", defaultValue: "Weight cannot be empty.")
-        static let invalidWeight = AppLocalization.string("app.PhysicalAttributesScreenStrings.Validation.Weight_cannot_be_less_than_75_lbs", defaultValue: "Weight cannot be less than 75 lbs.")
-        static let missingAge = AppLocalization.string("app.PhysicalAttributesScreenStrings.Validation.Please_enter_your_age", defaultValue: "Please enter your age.")
-        static let invalidAge = AppLocalization.string("app.PhysicalAttributesScreenStrings.Validation.Age_must_be_between_13_and_120_years", defaultValue: "Age must be between 13 and 120 years.")
-        static let missingGender = AppLocalization.string("app.PhysicalAttributesScreenStrings.Validation.Please_select_your_gender", defaultValue: "Please select your gender.")
+        static var missingEmail: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Validation.Please_enter_your_email", defaultValue: "Please enter your email.") }
+        static var invalidEmail: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Validation.Please_enter_a_valid_email", defaultValue: "Please enter a valid email.") }
+        static var missingHeight: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Validation.Please_select_your_height", defaultValue: "Please select your height.") }
+        static var missingWeight: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Validation.Weight_cannot_be_empty", defaultValue: "Weight cannot be empty.") }
+        static var invalidWeight: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Validation.Weight_cannot_be_less_than_75_lbs", defaultValue: "Weight cannot be less than 75 lbs.") }
+        static var missingAge: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Validation.Please_enter_your_age", defaultValue: "Please enter your age.") }
+        static var invalidAge: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Validation.Age_must_be_between_13_and_120_years", defaultValue: "Age must be between 13 and 120 years.") }
+        static var missingGender: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Validation.Please_select_your_gender", defaultValue: "Please select your gender.") }
     }
 
     enum Form {
-        static let emailLabel = AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Email", defaultValue: "Email")
-        static let emailPlaceholder = AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Enter_email", defaultValue: "Enter email")
-        static let emailInlineError = AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Enter_a_valid_email_address", defaultValue: "Enter a valid email address")
-        static let ageLabel = AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Age", defaultValue: "Age")
-        static let agePlaceholder = AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.How_old_are_you", defaultValue: "How old are you?")
-        static let heightLabel = AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Height", defaultValue: "Height")
-        static let heightPlaceholder = AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Feet_Inches", defaultValue: "Feet / Inches")
-        static let heightSheetTitle = AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Select_Height", defaultValue: "Select Height")
-        static let feetUnit = AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.ft", defaultValue: "ft")
-        static let inchesUnit = AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.in", defaultValue: "in")
-        static let confirmButton = "CONFIRM"
-        static let doneButton = AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Done", defaultValue: "Done")
-        static let weightLabel = AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Weight", defaultValue: "Weight")
-        static let weightPlaceholder = AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Lbs", defaultValue: "Lbs")
-        static let genderLabel = AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Sex_at_birth", defaultValue: "Sex (at birth)")
-        static let genderOptions = [AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Male", defaultValue: "Male"), AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Female", defaultValue: "Female")]
+        static var emailLabel: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Email", defaultValue: "Email") }
+        static var emailPlaceholder: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Enter_email", defaultValue: "Enter email") }
+        static var emailInlineError: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Enter_a_valid_email_address", defaultValue: "Enter a valid email address") }
+        static var ageLabel: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Age", defaultValue: "Age") }
+        static var agePlaceholder: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.How_old_are_you", defaultValue: "How old are you?") }
+        static var heightLabel: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Height", defaultValue: "Height") }
+        static var heightPlaceholder: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Feet_Inches", defaultValue: "Feet / Inches") }
+        static var heightSheetTitle: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Select_Height", defaultValue: "Select Height") }
+        static var feetUnit: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.ft", defaultValue: "ft") }
+        static var inchesUnit: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.in", defaultValue: "in") }
+        static var confirmButton: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.CONFIRM", defaultValue: "CONFIRM") }
+        static var doneButton: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Done", defaultValue: "Done") }
+        static var weightLabel: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Weight", defaultValue: "Weight") }
+        static var weightPlaceholder: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Lbs", defaultValue: "Lbs") }
+        static var genderLabel: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Sex_at_birth", defaultValue: "Sex (at birth)") }
+        static var male: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Male", defaultValue: "Male") }
+        static var female: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Female", defaultValue: "Female") }
+        static var genderOptions: [String] { [AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Male", defaultValue: "Male"), AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Female", defaultValue: "Female")] }
     }
 
     enum Settings {
-        static let cameraPreset = AppLocalization.string("app.PhysicalAttributesScreenStrings.Settings.External_camera_preset", defaultValue: "External camera preset")
-        static let previewOrientation = AppLocalization.string("app.PhysicalAttributesScreenStrings.Settings.Preview_orientation", defaultValue: "Preview orientation")
-        static let mirrorExternalVideo = AppLocalization.string("app.PhysicalAttributesScreenStrings.Settings.Mirror_external_camera_video", defaultValue: "Mirror external camera video")
-        static let useExternalCameraOnly = AppLocalization.string("app.PhysicalAttributesScreenStrings.Settings.Use_external_camera_only", defaultValue: "Use external camera only")
-        static let externalCameraDescription = AppLocalization.string("app.PhysicalAttributesScreenStrings.Settings.If_enabled_only_the_external_camera_will_be_used_If_disabled", defaultValue: "If enabled, only the external camera will be used. If disabled, the app will automatically switch between the built-in camera and an external camera (external camera is prioritized).")
-        static let title = AppLocalization.string("app.PhysicalAttributesScreenStrings.Settings.Camera_Settings", defaultValue: "Camera Settings")
-        static let closeButton = AppLocalization.string("app.PhysicalAttributesScreenStrings.Settings.Close", defaultValue: "Close")
-        static let unknownOption = AppLocalization.string("app.PhysicalAttributesScreenStrings.Settings.Unknown", defaultValue: "Unknown")
-        static let portrait = AppLocalization.string("app.PhysicalAttributesScreenStrings.Settings.Portrait", defaultValue: "Portrait")
-        static let landscapeLeft = AppLocalization.string("app.PhysicalAttributesScreenStrings.Settings.LandscapeLeft", defaultValue: "LandscapeLeft")
-        static let landscapeRight = AppLocalization.string("app.PhysicalAttributesScreenStrings.Settings.LandscapeRight", defaultValue: "LandscapeRight")
-        static let portraitUpsideDown = AppLocalization.string("app.PhysicalAttributesScreenStrings.Settings.PortraitUpsideDown", defaultValue: "PortraitUpsideDown")
+        static var cameraPreset: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Settings.External_camera_preset", defaultValue: "External camera preset") }
+        static var previewOrientation: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Settings.Preview_orientation", defaultValue: "Preview orientation") }
+        static var mirrorExternalVideo: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Settings.Mirror_external_camera_video", defaultValue: "Mirror external camera video") }
+        static var useExternalCameraOnly: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Settings.Use_external_camera_only", defaultValue: "Use external camera only") }
+        static var externalCameraDescription: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Settings.If_enabled_only_the_external_camera_will_be_used_If_disabled", defaultValue: "If enabled, only the external camera will be used. If disabled, the app will automatically switch between the built-in camera and an external camera (external camera is prioritized).") }
+        static var title: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Settings.Camera_Settings", defaultValue: "Camera Settings") }
+        static var closeButton: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Settings.Close", defaultValue: "Close") }
+        static var unknownOption: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Settings.Unknown", defaultValue: "Unknown") }
+        static var portrait: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Settings.Portrait", defaultValue: "Portrait") }
+        static var landscapeLeft: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Settings.LandscapeLeft", defaultValue: "LandscapeLeft") }
+        static var landscapeRight: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Settings.LandscapeRight", defaultValue: "LandscapeRight") }
+        static var portraitUpsideDown: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Settings.PortraitUpsideDown", defaultValue: "PortraitUpsideDown") }
     }
 
     enum Debug {
-        static let submitScanAPI = AppLocalization.string("app.PhysicalAttributesScreenStrings.Debug.Submit_Debug_Scan_API", defaultValue: "Submit Debug Scan API")
-        static let scanAPISubmitted = AppLocalization.string("app.PhysicalAttributesScreenStrings.Debug.Debug_scan_API_submitted_successfully", defaultValue: "Debug scan API submitted successfully.")
-        static let scanAPIFailed = AppLocalization.string("app.PhysicalAttributesScreenStrings.Debug.Failed_to_submit_debug_scan_API", defaultValue: "Failed to submit debug scan API.")
-        static let unableToOpenResults = AppLocalization.string("app.PhysicalAttributesScreenStrings.Debug.Unable_to_open_results_screen", defaultValue: "Unable to open results screen.")
+        static var submitScanAPI: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Debug.Submit_Debug_Scan_API", defaultValue: "Submit Debug Scan API") }
+        static var scanAPISubmitted: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Debug.Debug_scan_API_submitted_successfully", defaultValue: "Debug scan API submitted successfully.") }
+        static var scanAPIFailed: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Debug.Failed_to_submit_debug_scan_API", defaultValue: "Failed to submit debug scan API.") }
+        static var unableToOpenResults: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Debug.Unable_to_open_results_screen", defaultValue: "Unable to open results screen.") }
     }
 }
 
 
 enum ReadPdfScreenStrings {
-    static let loading = AppLocalization.string("app.ReadPdfScreenStrings.Loading_PDF", defaultValue: "Loading PDF...")
-    static let failedToLoad = AppLocalization.string("app.ReadPdfScreenStrings.Failed_to_load_PDF", defaultValue: "Failed to load PDF")
+    static var loading: String { AppLocalization.string("app.ReadPdfScreenStrings.Loading_PDF", defaultValue: "Loading PDF...") }
+    static var failedToLoad: String { AppLocalization.string("app.ReadPdfScreenStrings.Failed_to_load_PDF", defaultValue: "Failed to load PDF") }
 }
 
 
 enum ResultScreenStrings {
     static let pdfFileName = "Hibiscus_Health_Report"
-    static let title = AppLocalization.string("app.ResultScreenStrings.Great_job_taking_a_proactive_step_for_your_health", defaultValue: "Great job taking a proactive step for your health!")
-    static let heroTitle = AppLocalization.string("app.ResultScreenStrings.Great_job_taking_a_proactive_step_for_your_health_2", defaultValue: "Great job taking a proactive step\nfor your health!")
-    static let heroDescription = AppLocalization.string("app.ResultScreenStrings.Below_is_a_summary_of_your_key_biomarkers_based_on_your_30_s", defaultValue: "Below is a summary of your key biomarkers based on your 30-second scan.")
-    static let titleBlockDescription = AppLocalization.string("app.ResultScreenStrings.This_report_is_intended_to_improve_your_awareness_of_general", defaultValue: "This report is intended to improve your awareness of general wellness. It is not a substitute for the clinical judgment of a health care professional.  These results provide a non-diagnostic screening to help you understand your current wellness trends.")
-    static let infoFooter = AppLocalization.string("app.ResultScreenStrings.Hibiscus_Health_is_intended_to_improve_your_awareness_of_gen", defaultValue: "Hibiscus Health is intended to improve your awareness of general wellness. Hibiscus Health does not diagnose, treat, mitigate or prevent any disease, symptom, disorder or abnormal physical state. Consult with a healthcare professional or emergency services if you believe you may have a medical issue.")
-    static let privacyMessage = AppLocalization.string("app.ResultScreenStrings.The_results_from_this_face_scan_are_not_intended_to_diagnose", defaultValue: "The results from this face scan are not intended to diagnose, treat, or replace professional medical advice. For any health concerns, please consult a healthcare provider.")
+    static var title: String { AppLocalization.string("app.ResultScreenStrings.Great_job_taking_a_proactive_step_for_your_health", defaultValue: "Great job taking a proactive step for your health!") }
+    static var heroTitle: String { AppLocalization.string("app.ResultScreenStrings.Great_job_taking_a_proactive_step_for_your_health_2", defaultValue: "Great job taking a proactive step\nfor your health!") }
+    static var heroDescription: String { AppLocalization.string("app.ResultScreenStrings.Below_is_a_summary_of_your_key_biomarkers_based_on_your_30_s", defaultValue: "Below is a summary of your key biomarkers based on your 30-second scan.") }
+    static var titleBlockDescription: String { AppLocalization.string("app.ResultScreenStrings.This_report_is_intended_to_improve_your_awareness_of_general", defaultValue: "This report is intended to improve your awareness of general wellness. It is not a substitute for the clinical judgment of a health care professional.  These results provide a non-diagnostic screening to help you understand your current wellness trends.") }
+    static var infoFooter: String { AppLocalization.string("app.ResultScreenStrings.Hibiscus_Health_is_intended_to_improve_your_awareness_of_gen", defaultValue: "Hibiscus Health is intended to improve your awareness of general wellness. Hibiscus Health does not diagnose, treat, mitigate or prevent any disease, symptom, disorder or abnormal physical state. Consult with a healthcare professional or emergency services if you believe you may have a medical issue.") }
+    static var privacyMessage: String { AppLocalization.string("app.ResultScreenStrings.The_results_from_this_face_scan_are_not_intended_to_diagnose", defaultValue: "The results from this face scan are not intended to diagnose, treat, or replace professional medical advice. For any health concerns, please consult a healthcare provider.") }
 
     enum Actions {
-        static let emailResults = AppLocalization.string("app.ResultScreenStrings.Actions.Email_Results", defaultValue: "Email Results")
-        static let back = AppLocalization.string("app.ResultScreenStrings.Actions.Back", defaultValue: "Back")
-        static let viewNextSteps = AppLocalization.string("app.ResultScreenStrings.Actions.View_Next_Steps", defaultValue: "View Next Steps")
+        static var emailResults: String { AppLocalization.string("app.ResultScreenStrings.Actions.Email_Results", defaultValue: "Email Results") }
+        static var back: String { AppLocalization.string("app.ResultScreenStrings.Actions.Back", defaultValue: "Back") }
+        static var viewNextSteps: String { AppLocalization.string("app.ResultScreenStrings.Actions.View_Next_Steps", defaultValue: "View Next Steps") }
     }
 
     enum Status {
-        static let measurementFailed = AppLocalization.string("app.ResultScreenStrings.Status.Measurement_failed", defaultValue: "Measurement failed")
-        static let unableToLoadResults = AppLocalization.string("app.ResultScreenStrings.Status.Unable_to_load_results_Please_try_again", defaultValue: "Unable to load results. Please try again.")
-        static let exit = AppLocalization.string("app.ResultScreenStrings.Status.Exit", defaultValue: "Exit")
+        static var measurementFailed: String { AppLocalization.string("app.ResultScreenStrings.Status.Measurement_failed", defaultValue: "Measurement failed") }
+        static var unableToLoadResults: String { AppLocalization.string("app.ResultScreenStrings.Status.Unable_to_load_results_Please_try_again", defaultValue: "Unable to load results. Please try again.") }
+        static var exit: String { AppLocalization.string("app.ResultScreenStrings.Status.Exit", defaultValue: "Exit") }
         static func loading(currentChunk: Int, totalChunks: Int) -> String {
             AppLocalization.format("app.ResultScreenStrings.Status.loading", defaultValue: "Loading (%d of %d)", currentChunk + 1, totalChunks)
         }
     }
 
     enum Print {
-        static let errorTitle = AppLocalization.string("app.ResultScreenStrings.Print.Error", defaultValue: "Error")
-        static let ok = AppLocalization.string("app.ResultScreenStrings.Print.OK", defaultValue: "OK")
-        static let renderFailed = AppLocalization.string("app.ResultScreenStrings.Print.Failed_to_render_results_for_printing", defaultValue: "Failed to render results for printing.")
-        static let generatePDFFailed = AppLocalization.string("app.ResultScreenStrings.Print.Failed_to_generate_PDF_for_printing", defaultValue: "Failed to generate PDF for printing.")
-        static let jobName = AppLocalization.string("app.ResultScreenStrings.Print.Health_Report", defaultValue: "Health Report")
+        static var errorTitle: String { AppLocalization.string("app.ResultScreenStrings.Print.Error", defaultValue: "Error") }
+        static var ok: String { AppLocalization.string("app.ResultScreenStrings.Print.OK", defaultValue: "OK") }
+        static var renderFailed: String { AppLocalization.string("app.ResultScreenStrings.Print.Failed_to_render_results_for_printing", defaultValue: "Failed to render results for printing.") }
+        static var generatePDFFailed: String { AppLocalization.string("app.ResultScreenStrings.Print.Failed_to_generate_PDF_for_printing", defaultValue: "Failed to generate PDF for printing.") }
+        static var jobName: String { AppLocalization.string("app.ResultScreenStrings.Print.Health_Report", defaultValue: "Health Report") }
         static let exportFileName = "HealthReport"
         static let fileName = "HealthReport_Print.pdf"
     }
 
     enum EmailPopup {
-        static let title = AppLocalization.string("app.ResultScreenStrings.EmailPopup.Send_result_to_your_mail", defaultValue: "Send result to your mail")
-        static let emailAddress = AppLocalization.string("app.ResultScreenStrings.EmailPopup.Email_address", defaultValue: "Email address")
-        static let emailPlaceholder = AppLocalization.string("app.ResultScreenStrings.EmailPopup.Email", defaultValue: "Email")
-        static let pinTitle = AppLocalization.string("app.ResultScreenStrings.EmailPopup.Create_a_4_digit_secret_key", defaultValue: "Create a 4-digit secret key")
+        static var title: String { AppLocalization.string("app.ResultScreenStrings.EmailPopup.Send_result_to_your_mail", defaultValue: "Send result to your mail") }
+        static var emailAddress: String { AppLocalization.string("app.ResultScreenStrings.EmailPopup.Email_address", defaultValue: "Email address") }
+        static var emailPlaceholder: String { AppLocalization.string("app.ResultScreenStrings.EmailPopup.Email", defaultValue: "Email") }
+        static var pinTitle: String { AppLocalization.string("app.ResultScreenStrings.EmailPopup.Create_a_4_digit_secret_key", defaultValue: "Create a 4-digit secret key") }
         static let pinPlaceholder = "* * * *"
-        static let pinHelp = AppLocalization.string("app.ResultScreenStrings.EmailPopup.This_will_be_used_to_view_your_result", defaultValue: "This will be used to view your result")
-        static let sendMail = AppLocalization.string("app.ResultScreenStrings.EmailPopup.Send_mail", defaultValue: "Send mail")
-        static let emailFailure = AppLocalization.string("app.ResultScreenStrings.EmailPopup.Failed_to_send_email_Please_try_again", defaultValue: "Failed to send email. Please try again.")
-        static let secureAndPrivate = AppLocalization.string("app.ResultScreenStrings.EmailPopup.Secure_and_Private", defaultValue: "Secure and Private")
-        static let checkInboxTitle = AppLocalization.string("app.ResultScreenStrings.EmailPopup.Check_your_inbox", defaultValue: "Check your inbox!")
-        static let emailSentMessage = AppLocalization.string("app.ResultScreenStrings.EmailPopup.Your_result_has_been_sent_to_your_email_Tell_a_colleague_abo", defaultValue: "Your result has been sent to your email!\nTell a colleague about our Kiosk!")
-        static let done = AppLocalization.string("app.ResultScreenStrings.EmailPopup.Done", defaultValue: "Done")
+        static var pinHelp: String { AppLocalization.string("app.ResultScreenStrings.EmailPopup.This_will_be_used_to_view_your_result", defaultValue: "This will be used to view your result") }
+        static var sendMail: String { AppLocalization.string("app.ResultScreenStrings.EmailPopup.Send_mail", defaultValue: "Send mail") }
+        static var emailFailure: String { AppLocalization.string("app.ResultScreenStrings.EmailPopup.Failed_to_send_email_Please_try_again", defaultValue: "Failed to send email. Please try again.") }
+        static var secureAndPrivate: String { AppLocalization.string("app.ResultScreenStrings.EmailPopup.Secure_and_Private", defaultValue: "Secure and Private") }
+        static var checkInboxTitle: String { AppLocalization.string("app.ResultScreenStrings.EmailPopup.Check_your_inbox", defaultValue: "Check your inbox!") }
+        static var emailSentMessage: String { AppLocalization.string("app.ResultScreenStrings.EmailPopup.Your_result_has_been_sent_to_your_email_Tell_a_colleague_abo", defaultValue: "Your result has been sent to your email!\nTell a colleague about our Kiosk!") }
+        static var done: String { AppLocalization.string("app.ResultScreenStrings.EmailPopup.Done", defaultValue: "Done") }
     }
 
     enum PostSession {
-        static let continueTitle = AppLocalization.string("app.ResultScreenStrings.PostSession.Continue", defaultValue: "Continue")
-        static let allDoneTitle = AppLocalization.string("app.ResultScreenStrings.PostSession.All_done_Thank_you_for_visiting_our_kiosk", defaultValue: "All done.\nThank you for visiting our kiosk!")
-        static let npsEyebrow = AppLocalization.string("app.ResultScreenStrings.PostSession.ONE_QUICK_QUESTION", defaultValue: "ONE QUICK QUESTION")
-        static let npsQuestion = AppLocalization.string("app.ResultScreenStrings.PostSession.Would_you_recommend_this_experience_to_others", defaultValue: "Would you recommend this experience to others?")
-        static let notLikely = AppLocalization.string("app.ResultScreenStrings.PostSession.Not_at_all_likely", defaultValue: "Not at all likely")
-        static let extremelyLikely = AppLocalization.string("app.ResultScreenStrings.PostSession.Extremely_likely", defaultValue: "Extremely likely")
-        static let skip = AppLocalization.string("app.ResultScreenStrings.PostSession.Skip", defaultValue: "Skip")
-        static let submitAndReturnHome = AppLocalization.string("app.ResultScreenStrings.PostSession.Submit_and_return_home", defaultValue: "Submit and return home")
-        static let submitFailure = AppLocalization.string("app.ResultScreenStrings.PostSession.Failed_to_submit_response_Please_try_again", defaultValue: "Failed to submit response. Please try again.")
+        static var continueTitle: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Continue", defaultValue: "Continue") }
+        static var allDoneTitle: String { AppLocalization.string("app.ResultScreenStrings.PostSession.All_done_Thank_you_for_visiting_our_kiosk", defaultValue: "All done.\nThank you for visiting our kiosk!") }
+        static var npsEyebrow: String { AppLocalization.string("app.ResultScreenStrings.PostSession.ONE_QUICK_QUESTION", defaultValue: "ONE QUICK QUESTION") }
+        static var npsQuestion: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Would_you_recommend_this_experience_to_others", defaultValue: "Would you recommend this experience to others?") }
+        static var notLikely: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Not_at_all_likely", defaultValue: "Not at all likely") }
+        static var extremelyLikely: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Extremely_likely", defaultValue: "Extremely likely") }
+        static var skip: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Skip", defaultValue: "Skip") }
+        static var submitAndReturnHome: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Submit_and_return_home", defaultValue: "Submit and return home") }
+        static var submitFailure: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Failed_to_submit_response_Please_try_again", defaultValue: "Failed to submit response. Please try again.") }
 
         enum Survey {
-            static let healthCheckTitle = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Thank_you_for_taking_the_time_to_complete_this_important_sca", defaultValue: "Thank you for taking the time to complete this important scan")
-            static let healthCheckQuestion = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.When_did_you_last_have_your_blood_pressure_heart_or_blood_su", defaultValue: "When did you last have your blood pressure, heart, or blood sugar checked by a health professional?")
-            static let withinSixMonths = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Within_6_months", defaultValue: "Within 6 months")
-            static let sixToTwelveMonthsAgo = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.6_to_12_months_ago", defaultValue: "6 to 12 months ago")
-            static let moreThanAYearAgo = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.More_than_a_year_ago", defaultValue: "More than a year ago")
-            static let neverOrNotSure = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Never_or_not_sure", defaultValue: "Never, or not sure")
+            static var healthCheckTitle: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Thank_you_for_taking_the_time_to_complete_this_important_sca", defaultValue: "Thank you for taking the time to complete this important scan") }
+            static var healthCheckQuestion: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.When_did_you_last_have_your_blood_pressure_heart_or_blood_su", defaultValue: "When did you last have your blood pressure, heart, or blood sugar checked by a health professional?") }
+            static var withinSixMonths: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Within_6_months", defaultValue: "Within 6 months") }
+            static var sixToTwelveMonthsAgo: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.6_to_12_months_ago", defaultValue: "6 to 12 months ago") }
+            static var moreThanAYearAgo: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.More_than_a_year_ago", defaultValue: "More than a year ago") }
+            static var neverOrNotSure: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Never_or_not_sure", defaultValue: "Never, or not sure") }
 
-            static let anythingNewTitle = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Anything_new", defaultValue: "Anything new?")
-            static let anythingNewQuestion = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Did_your_scan_tell_you_anything_new_about_your_health", defaultValue: "Did your scan tell you anything new about your health?")
-            static let yesSurprisedMe = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Yes_it_surprised_me", defaultValue: "Yes, it surprised me")
-            static let somewhatNew = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Somewhat_new_to_me", defaultValue: "Somewhat new to me")
-            static let noExpected = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.No_about_what_I_expected", defaultValue: "No, about what I expected")
+            static var anythingNewTitle: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Anything_new", defaultValue: "Anything new?") }
+            static var anythingNewQuestion: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Did_your_scan_tell_you_anything_new_about_your_health", defaultValue: "Did your scan tell you anything new about your health?") }
+            static var yesSurprisedMe: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Yes_it_surprised_me", defaultValue: "Yes, it surprised me") }
+            static var somewhatNew: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Somewhat_new_to_me", defaultValue: "Somewhat new to me") }
+            static var noExpected: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.No_about_what_I_expected", defaultValue: "No, about what I expected") }
 
-            static let nextStepTitle = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Your_next_step", defaultValue: "Your next step")
-            static let nextStepQuestion = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.What_will_you_do_based_on_your_results_select_all_that_apply", defaultValue: "What will you do based on your results? (select all that apply)")
-            static let bookDoctorVisit = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Book_a_doctor_visit", defaultValue: "Book a doctor visit")
-            static let doctorVisitBooked = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Already_have_a_doctor_s_visit_booked", defaultValue: "Already have a doctor's visit booked")
-            static let mentionDentist = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Mention_it_to_my_dentist_today", defaultValue: "Mention it to my dentist today")
-            static let changeRoutine = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Change_something_in_my_routine", defaultValue: "Change something in my routine")
-            static let nothingRightNow = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Nothing_right_now", defaultValue: "Nothing right now")
+            static var nextStepTitle: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Your_next_step", defaultValue: "Your next step") }
+            static var nextStepQuestion: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.What_will_you_do_based_on_your_results_select_all_that_apply", defaultValue: "What will you do based on your results? (select all that apply)") }
+            static var bookDoctorVisit: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Book_a_doctor_visit", defaultValue: "Book a doctor visit") }
+            static var doctorVisitBooked: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Already_have_a_doctor_s_visit_booked", defaultValue: "Already have a doctor's visit booked") }
+            static var mentionDentist: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Mention_it_to_my_dentist_today", defaultValue: "Mention it to my dentist today") }
+            static var changeRoutine: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Change_something_in_my_routine", defaultValue: "Change something in my routine") }
+            static var nothingRightNow: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Nothing_right_now", defaultValue: "Nothing right now") }
 
-            static let stayInTouchTitle = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Stay_in_touch", defaultValue: "Stay in touch")
-            static let stayInTouchQuestion = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Can_we_check_in_with_you_in_a_few_weeks_to_see_how_you_are_d", defaultValue: "Can we check in with you in a few weeks to see how you are doing?")
-            static let yes = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Yes", defaultValue: "Yes")
-            static let no = AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.No", defaultValue: "No")
+            static var stayInTouchTitle: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Stay_in_touch", defaultValue: "Stay in touch") }
+            static var stayInTouchQuestion: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Can_we_check_in_with_you_in_a_few_weeks_to_see_how_you_are_d", defaultValue: "Can we check in with you in a few weeks to see how you are doing?") }
+            static var yes: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Yes", defaultValue: "Yes") }
+            static var no: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.No", defaultValue: "No") }
         }
         
     }
 
     enum Metrics {
-        static let interpretations: [String: [String: String]] = [
+        static var interpretations: [String: [String: String]] { [
             "BP_CVD": [
                 "very_low": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_a_very_low_likelihood_of_a_heart_att", defaultValue: "Your screening suggests a very low likelihood of a heart attack or stroke in the next 10 years."),
                 "low": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_a_low_likelihood_of_a_heart_attack_o", defaultValue: "Your screening suggests a low likelihood of a heart attack or stroke in the next 10 years."),
@@ -263,7 +265,7 @@ enum ResultScreenStrings {
                 "high": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_triglyceride_levels_are_currently_ab", defaultValue: "Your screening suggests triglyceride levels are currently above the recommended healthy threshold."),
                 "very_high": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_indicators_consistent_with_a_high_co_2", defaultValue: "Your screening suggests indicators consistent with a high concentration of triglyceride in the blood.")
             ]
-        ]
+        ] }
 
         static func displayTitle(for key: String) -> String {
             switch key {
@@ -314,26 +316,26 @@ enum ScreenSaverStrings {
 
 
 enum AnuraMeasurementStrings {
-    static let missingLicenseConfiguration = AppLocalization.string("app.AnuraMeasurementStrings.You_must_provide_a_license_key_and_study_ID_to_use_this_app", defaultValue: "You must provide a license key and study ID to use this app")
+    static var missingLicenseConfiguration: String { AppLocalization.string("app.AnuraMeasurementStrings.You_must_provide_a_license_key_and_study_ID_to_use_this_app", defaultValue: "You must provide a license key and study ID to use this app") }
 
     enum Alert {
-        static let tokenErrorTitle = AppLocalization.string("app.AnuraMeasurementStrings.Alert.Token_Error", defaultValue: "Token Error")
-        static let tokenErrorMessage = AppLocalization.string("app.AnuraMeasurementStrings.Alert.There_was_an_error_in_verifying_your_DeepAffex_token_Please", defaultValue: "There was an error in verifying your DeepAffex token. Please check the error log or contact support.")
-        static let licenseErrorTitle = AppLocalization.string("app.AnuraMeasurementStrings.Alert.License_Error", defaultValue: "License Error")
-        static let licenseErrorMessage = AppLocalization.string("app.AnuraMeasurementStrings.Alert.There_was_an_error_registering_your_DeepAffex_license_key_Pl", defaultValue: "There was an error registering your DeepAffex license key. Please check the error log or contact support.")
-        static let sdkConfigurationErrorTitle = AppLocalization.string("app.AnuraMeasurementStrings.Alert.SDK_Configuration_File_Error", defaultValue: "SDK Configuration File Error")
-        static let sdkConfigurationErrorMessage = AppLocalization.string("app.AnuraMeasurementStrings.Alert.There_was_an_error_retreiving_the_SDK_configuration_file_Ple", defaultValue: "There was an error retreiving the SDK configuration file. Please check the error log or contact support.")
-        static let cameraPermissionTitle = AppLocalization.string("app.AnuraMeasurementStrings.Alert.No_Camera_Permission", defaultValue: "No Camera Permission")
-        static let cameraPermissionMessage = AppLocalization.string("app.AnuraMeasurementStrings.Alert.Please_grant_the_app_access_to_the_camera_before_starting_a", defaultValue: "Please grant the app access to the camera before starting a measurement")
+        static var tokenErrorTitle: String { AppLocalization.string("app.AnuraMeasurementStrings.Alert.Token_Error", defaultValue: "Token Error") }
+        static var tokenErrorMessage: String { AppLocalization.string("app.AnuraMeasurementStrings.Alert.There_was_an_error_in_verifying_your_DeepAffex_token_Please", defaultValue: "There was an error in verifying your DeepAffex token. Please check the error log or contact support.") }
+        static var licenseErrorTitle: String { AppLocalization.string("app.AnuraMeasurementStrings.Alert.License_Error", defaultValue: "License Error") }
+        static var licenseErrorMessage: String { AppLocalization.string("app.AnuraMeasurementStrings.Alert.There_was_an_error_registering_your_DeepAffex_license_key_Pl", defaultValue: "There was an error registering your DeepAffex license key. Please check the error log or contact support.") }
+        static var sdkConfigurationErrorTitle: String { AppLocalization.string("app.AnuraMeasurementStrings.Alert.SDK_Configuration_File_Error", defaultValue: "SDK Configuration File Error") }
+        static var sdkConfigurationErrorMessage: String { AppLocalization.string("app.AnuraMeasurementStrings.Alert.There_was_an_error_retreiving_the_SDK_configuration_file_Ple", defaultValue: "There was an error retreiving the SDK configuration file. Please check the error log or contact support.") }
+        static var cameraPermissionTitle: String { AppLocalization.string("app.AnuraMeasurementStrings.Alert.No_Camera_Permission", defaultValue: "No Camera Permission") }
+        static var cameraPermissionMessage: String { AppLocalization.string("app.AnuraMeasurementStrings.Alert.Please_grant_the_app_access_to_the_camera_before_starting_a", defaultValue: "Please grant the app access to the camera before starting a measurement") }
     }
 
     enum Banner {
-        static let initialPrompt = AppLocalization.string("app.AnuraMeasurementStrings.Banner.Center_Your_Face", defaultValue: "Center Your Face")
-        static let holdStill = AppLocalization.string("app.AnuraMeasurementStrings.Banner.Hold_Still", defaultValue: "Hold Still")
-        static let moveCloser = AppLocalization.string("app.AnuraMeasurementStrings.Banner.Move_Closer", defaultValue: "Move Closer")
-        static let moveFurther = AppLocalization.string("app.AnuraMeasurementStrings.Banner.Move_Further", defaultValue: "Move Further")
-        static let faceCamera = AppLocalization.string("app.AnuraMeasurementStrings.Banner.Look_Directly_at_the_Camera", defaultValue: "Look Directly at the Camera")
-        static let timeline: [(offset: TimeInterval, message: String)] = [
+        static var initialPrompt: String { AppLocalization.string("app.AnuraMeasurementStrings.Banner.Center_Your_Face", defaultValue: "Center Your Face") }
+        static var holdStill: String { AppLocalization.string("app.AnuraMeasurementStrings.Banner.Hold_Still", defaultValue: "Hold Still") }
+        static var moveCloser: String { AppLocalization.string("app.AnuraMeasurementStrings.Banner.Move_Closer", defaultValue: "Move Closer") }
+        static var moveFurther: String { AppLocalization.string("app.AnuraMeasurementStrings.Banner.Move_Further", defaultValue: "Move Further") }
+        static var faceCamera: String { AppLocalization.string("app.AnuraMeasurementStrings.Banner.Look_Directly_at_the_Camera", defaultValue: "Look Directly at the Camera") }
+        static var timeline: [(offset: TimeInterval, message: String)] { [
             (0, AppLocalization.string("app.AnuraMeasurementStrings.Banner.Breathe_Naturally_and_Stay_Still", defaultValue: "Breathe Naturally and Stay Still")),
             (5, AppLocalization.string("app.AnuraMeasurementStrings.Banner.Reading_Your_Pulse_from_Facial_Blood_Flow", defaultValue: "Reading Your Pulse from Facial Blood Flow")),
             (10, AppLocalization.string("app.AnuraMeasurementStrings.Banner.Detecting_Cardiovascular_Patterns", defaultValue: "Detecting Cardiovascular Patterns...")),
@@ -341,18 +343,18 @@ enum AnuraMeasurementStrings {
             (21, AppLocalization.string("app.AnuraMeasurementStrings.Banner.Capturing_Your_Final_Readings", defaultValue: "Capturing Your Final Readings...")),
             (25, AppLocalization.string("app.AnuraMeasurementStrings.Banner.Almost_There_Don_t_Move", defaultValue: "Almost There, Don't Move")),
             (28, AppLocalization.string("app.AnuraMeasurementStrings.Banner.Last_Few_Seconds", defaultValue: "Last Few Seconds..."))
-        ]
+        ] }
     }
 }
 
 
 enum SharedViewStrings {
     enum Toolbar {
-        static let companyLogoPlaceholder = AppLocalization.string("app.SharedViewStrings.Toolbar.PUT_YOUR_COMPANY_LOGO_HERE", defaultValue: "PUT YOUR COMPANY\nLOGO HERE")
+        static var companyLogoPlaceholder: String { AppLocalization.string("app.SharedViewStrings.Toolbar.PUT_YOUR_COMPANY_LOGO_HERE", defaultValue: "PUT YOUR COMPANY\nLOGO HERE") }
     }
 
     enum WebView {
-        static let faceScanDemoTitle = AppLocalization.string("app.SharedViewStrings.WebView.Face_Scan_Demo", defaultValue: "Face Scan Demo")
-        static let doneButtonTitle = AppLocalization.string("app.SharedViewStrings.WebView.Done", defaultValue: "Done")
+        static var faceScanDemoTitle: String { AppLocalization.string("app.SharedViewStrings.WebView.Face_Scan_Demo", defaultValue: "Face Scan Demo") }
+        static var doneButtonTitle: String { AppLocalization.string("app.SharedViewStrings.WebView.Done", defaultValue: "Done") }
     }
 }

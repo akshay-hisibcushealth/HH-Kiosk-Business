@@ -4,6 +4,13 @@ import SwiftUI
 struct ProfileGenderSection: View {
     @Binding var selectedGender: String
 
+    private var genderOptions: [(value: String, title: String)] {
+        [
+            ("Male", PhysicalAttributesScreenStrings.Form.male),
+            ("Female", PhysicalAttributesScreenStrings.Form.female)
+        ]
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 22.h) {
             Text(PhysicalAttributesScreenStrings.Form.genderLabel)
@@ -11,18 +18,18 @@ struct ProfileGenderSection: View {
                 .foregroundColor(Color(AppColors.black))
 
             HStack(spacing: 28.w) {
-                ForEach(PhysicalAttributesScreenStrings.Form.genderOptions, id: \.self) { gender in
-                    genderButton(gender)
+                ForEach(genderOptions, id: \.value) { gender in
+                    genderButton(value: gender.value, title: gender.title)
                 }
             }
         }
     }
 
-    private func genderButton(_ gender: String) -> some View {
-        let isSelected = selectedGender == gender
+    private func genderButton(value: String, title: String) -> some View {
+        let isSelected = selectedGender == value
 
         return Button {
-            selectedGender = gender
+            selectedGender = value
             HapticFeedback.light()
         } label: {
             HStack(spacing: 18.w) {
@@ -32,7 +39,7 @@ struct ProfileGenderSection: View {
                         .foregroundColor(Color(AppColors.white))
                 }
 
-                Text(gender)
+                Text(title)
                     .font(.system(size: 28.sp, weight: .bold))
                     .foregroundColor(isSelected ? Color(AppColors.white) : Color(AppColors.physicalAttributeText))
             }
