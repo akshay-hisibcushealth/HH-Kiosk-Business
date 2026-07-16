@@ -299,9 +299,7 @@ private struct LoadingLocationView: View {
 
 extension HomeScreen {
     static func getCurrentTime() -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "h:mm a"
-        return formatter.string(from: Date())
+        AppLocalization.dateFormatter(format: "h:mm a").string(from: Date())
     }
 }
 

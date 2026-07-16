@@ -6,13 +6,9 @@ protocol WeatherServiceProtocol {
 
 struct WeatherService: WeatherServiceProtocol {
     private let client: AppURLSessionClientProtocol
-    private let hourFormatter: DateFormatter
 
     init(client: AppURLSessionClientProtocol = AppURLSessionClient()) {
         self.client = client
-        let formatter = DateFormatter()
-        formatter.dateFormat = "ha"
-        self.hourFormatter = formatter
     }
 
     func fetchWeather(lat: Double, lon: Double) async throws -> WeatherSnapshot {
@@ -28,7 +24,7 @@ struct WeatherService: WeatherServiceProtocol {
             guard let condition = item.weather.first?.main else { return nil }
             let date = Date(timeIntervalSince1970: item.dt)
             return ForecastItem(
-                hour: hourFormatter.string(from: date),
+                hour: AppLocalization.dateFormatter(format: "ha").string(from: date),
                 temperature: Int(item.main.temp),
                 condition: condition
             )

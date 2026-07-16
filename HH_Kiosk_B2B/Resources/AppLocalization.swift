@@ -7,6 +7,14 @@ enum AppLanguage: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
     var locale: Locale { Locale(identifier: rawValue) }
+    var backendDisplayName: String {
+        switch self {
+        case .english:
+            return "English"
+        case .spanish:
+            return "Spanish"
+        }
+    }
 }
 
 enum AppLocalization {
@@ -37,6 +45,13 @@ enum AppLocalization {
         return String(format: localizedFormat, locale: currentLanguage.locale, arguments: arguments)
     }
 
+    static func dateFormatter(format: String) -> DateFormatter {
+        let formatter = DateFormatter()
+        formatter.locale = currentLanguage.locale
+        formatter.dateFormat = format
+        return formatter
+    }
+
     static func bundleString(_ key: String, value: String?, table tableName: String?) -> String {
         localizedBundle.localizedString(forKey: key, value: value, table: tableName)
     }
@@ -58,7 +73,7 @@ enum AppLocalization {
     }
 }
 
-private final class SelectedLanguageBundle: Bundle {
+private final class SelectedLanguageBundle: Bundle, @unchecked Sendable {
     override func localizedString(forKey key: String, value: String?, table tableName: String?) -> String {
         AppLocalization.bundleString(key, value: value, table: tableName)
     }

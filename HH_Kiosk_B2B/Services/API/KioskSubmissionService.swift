@@ -29,12 +29,14 @@ struct KioskSubmissionService: KioskSubmissionServiceProtocol {
         let email: String
         let selectedNextSteps: [KioskNextStepResponse]
         let npsScore: Int?
+        let selectedLanguage: String
 
         enum CodingKeys: String, CodingKey {
             case brandCode = "brand_code"
             case email
             case selectedNextSteps = "selected_next_steps"
             case npsScore = "nps_score"
+            case selectedLanguage = "selected_language"
         }
 
         func encode(to encoder: Encoder) throws {
@@ -42,6 +44,7 @@ struct KioskSubmissionService: KioskSubmissionServiceProtocol {
             try container.encode(brandCode, forKey: .brandCode)
             try container.encode(email, forKey: .email)
             try container.encode(selectedNextSteps, forKey: .selectedNextSteps)
+            try container.encode(selectedLanguage, forKey: .selectedLanguage)
 
             if let npsScore {
                 try container.encode(npsScore, forKey: .npsScore)
@@ -83,7 +86,8 @@ struct KioskSubmissionService: KioskSubmissionServiceProtocol {
             brandCode: AppConfig.brandCode,
             email: email,
             selectedNextSteps: nextSteps,
-            npsScore: npsScore
+            npsScore: npsScore,
+            selectedLanguage: AppLocalization.currentLanguage.backendDisplayName
         )
 
         printUserResponseRequest(payload)
