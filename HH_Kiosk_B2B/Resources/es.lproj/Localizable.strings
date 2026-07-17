@@ -117,6 +117,7 @@
 "app.PhysicalAttributesScreenStrings.Settings.LandscapeLeft" = "Horizontal izquierda";
 "app.PhysicalAttributesScreenStrings.Settings.LandscapeRight" = "Horizontal derecha";
 "app.PhysicalAttributesScreenStrings.Settings.PortraitUpsideDown" = "Vertical invertido";
+"app.PhysicalAttributesScreenStrings.Debug.Fill_Dummy_Data" = "Completar datos dummy";
 "app.PhysicalAttributesScreenStrings.Debug.Submit_Debug_Scan_API" = "Enviar API de escaneo de depuración";
 "app.PhysicalAttributesScreenStrings.Debug.Debug_scan_API_submitted_successfully" = "La API de escaneo de depuración se envió correctamente.";
 "app.PhysicalAttributesScreenStrings.Debug.Failed_to_submit_debug_scan_API" = "No se pudo enviar la API de escaneo de depuración.";

@@ -113,6 +113,7 @@ enum PhysicalAttributesScreenStrings {
     }
 
     enum Debug {
+        static var fillDummyData: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Debug.Fill_Dummy_Data", defaultValue: "Fill Dummy Data") }
         static var submitScanAPI: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Debug.Submit_Debug_Scan_API", defaultValue: "Submit Debug Scan API") }
         static var scanAPISubmitted: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Debug.Debug_scan_API_submitted_successfully", defaultValue: "Debug scan API submitted successfully.") }
         static var scanAPIFailed: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Debug.Failed_to_submit_debug_scan_API", defaultValue: "Failed to submit debug scan API.") }

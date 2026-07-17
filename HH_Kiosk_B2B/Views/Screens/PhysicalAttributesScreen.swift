@@ -353,43 +353,58 @@ struct PhysicalAttributesScreen: View {
             }
 
             #if DEBUG
-            Button(action: {
-                hideKeyboard()
-                submitDebugVitals()
-            }) {
-                ZStack {
-                    Text(PhysicalAttributesScreenStrings.Debug.submitScanAPI)
+            HStack(spacing: 12.w) {
+                Button(action: {
+                    dismissPhysicalAttributeInputs()
+                    applyDeveloperAutofill()
+                }) {
+                    Text(PhysicalAttributesScreenStrings.Debug.fillDummyData)
                         .font(.system(size: 18.sp, weight: .bold))
                         .foregroundColor(Color(AppColors.white))
-                        .frame(width: 240.w, height: 46.h)
+                        .frame(width: 190.w, height: 46.h)
                         .background(Color(AppColors.primary))
                         .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
-                        .opacity(isSubmittingDebugVitals ? 0 : 1)
+                }
+                .buttonStyle(.plain)
 
-                    if isSubmittingDebugVitals {
-                        ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle(tint: Color(AppColors.white)))
+                Button(action: {
+                    hideKeyboard()
+                    submitDebugVitals()
+                }) {
+                    ZStack {
+                        Text(PhysicalAttributesScreenStrings.Debug.submitScanAPI)
+                            .font(.system(size: 18.sp, weight: .bold))
+                            .foregroundColor(Color(AppColors.white))
                             .frame(width: 240.w, height: 46.h)
                             .background(Color(AppColors.primary))
                             .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
+                            .opacity(isSubmittingDebugVitals ? 0 : 1)
+
+                        if isSubmittingDebugVitals {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: Color(AppColors.white)))
+                                .frame(width: 240.w, height: 46.h)
+                                .background(Color(AppColors.primary))
+                                .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
+                        }
                     }
                 }
-            }
-            .buttonStyle(.plain)
-            .disabled(isSubmittingDebugVitals)
+                .buttonStyle(.plain)
+                .disabled(isSubmittingDebugVitals)
 
-            Button(action: {
-                hideKeyboard()
-                skipFaceScanForTesting()
-            }) {
-                Text(PhysicalAttributesScreenStrings.debugProceedToResults)
-                    .font(.system(size: 18.sp, weight: .bold))
-                    .foregroundColor(Color(AppColors.white))
-                    .frame(width: 190.w, height: 46.h)
-                    .background(Color(AppColors.primary))
-                    .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
+                Button(action: {
+                    hideKeyboard()
+                    skipFaceScanForTesting()
+                }) {
+                    Text(PhysicalAttributesScreenStrings.debugProceedToResults)
+                        .font(.system(size: 18.sp, weight: .bold))
+                        .foregroundColor(Color(AppColors.white))
+                        .frame(width: 190.w, height: 46.h)
+                        .background(Color(AppColors.primary))
+                        .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
             #endif
         }
     }
