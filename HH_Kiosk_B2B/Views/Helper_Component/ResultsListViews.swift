@@ -1,11 +1,6 @@
 import SwiftUI
 
 // ----------------------
-// Tagged interpretation JSON
-// ----------------------
-let interpretationJSON = ResultScreenStrings.Metrics.interpretations
-
-// ----------------------
 // UI: ResultsList & ResultRow
 // ----------------------
 struct ResultsList: View {
@@ -239,6 +234,7 @@ fileprivate func riskBucket(for key: String, value: Double) -> String {
 
 fileprivate func getTaggedMessage(metricKey: String, value: Double) -> String {
     let bucket = riskBucket(for: metricKey, value: value)
+    let interpretationJSON = ResultScreenStrings.Metrics.interpretations
     return interpretationJSON[metricKey]?[bucket] ?? interpretationJSON[metricKey]?["low"] ?? ""
 }
 

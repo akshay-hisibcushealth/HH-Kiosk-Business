@@ -231,13 +231,15 @@ private final class AdaptiveMeasurementBanner {
     }
 
     private enum Copy {
-        static let initialPrompt = AnuraMeasurementStrings.Banner.initialPrompt
-        static let holdStill = AnuraMeasurementStrings.Banner.holdStill
-        static let moveCloser = AnuraMeasurementStrings.Banner.moveCloser
-        static let moveFurther = AnuraMeasurementStrings.Banner.moveFurther
-        static let faceCamera = AnuraMeasurementStrings.Banner.faceCamera
-        static let timeline: [TimelineEntry] = AnuraMeasurementStrings.Banner.timeline.map {
-            TimelineEntry(offset: $0.offset, message: $0.message)
+        static var initialPrompt: String { AnuraMeasurementStrings.Banner.initialPrompt }
+        static var holdStill: String { AnuraMeasurementStrings.Banner.holdStill }
+        static var moveCloser: String { AnuraMeasurementStrings.Banner.moveCloser }
+        static var moveFurther: String { AnuraMeasurementStrings.Banner.moveFurther }
+        static var faceCamera: String { AnuraMeasurementStrings.Banner.faceCamera }
+        static var timeline: [TimelineEntry] {
+            AnuraMeasurementStrings.Banner.timeline.map {
+                TimelineEntry(offset: $0.offset, message: $0.message)
+            }
         }
     }
     
