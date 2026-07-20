@@ -319,14 +319,16 @@ struct PhysicalAttributesScreen: View {
                             .font(.system(size: 34.sp, weight: .semibold))
                         Text(PhysicalAttributesScreenStrings.watchQuickDemo)
                             .font(.system(size: 28.sp, weight: .bold))
+                            .lineLimit(1)
+                            .fixedSize(horizontal: true, vertical: false)
                     }
                     .foregroundColor(Color(AppColors.sectionHeaderText))
-                    .frame(maxWidth: .infinity, minHeight: 88.h)
+                    .padding(.horizontal, 28.w)
+                    .frame(minWidth: 305.w, minHeight: 88.h)
                     .background(Color(AppColors.gray).opacity(0.18))
                     .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
                 }
                 .buttonStyle(.plain)
-                .frame(width: 305.w)
 
                 Button(action: {
                     hideKeyboard()
