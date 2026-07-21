@@ -144,9 +144,18 @@ struct EmailResultPopup: View {
                 .font(.headline)
                 .padding(.horizontal)
                 .foregroundColor(Color(AppColors.black))
-            TextField(ResultScreenStrings.EmailPopup.emailPlaceholder, text: $email)
-                .keyboardType(.emailAddress)
-                .autocapitalization(.none)
+            LocalizedEditMenuTextField(
+                text: $email,
+                placeholder: ResultScreenStrings.EmailPopup.emailPlaceholder,
+                keyboardType: .emailAddress,
+                textContentType: .emailAddress,
+                returnKeyType: .done,
+                autocapitalizationType: .none,
+                autocorrectionType: .no,
+                spellCheckingType: .no,
+                textColor: AppColors.black
+            )
+                .frame(height: 28.h)
                 .padding(.vertical, 24.h)
                 .padding(.horizontal)
                 .background(RoundedRectangle(cornerRadius: 10.r).stroke(Color(AppColors.gray).opacity(0.3)))
@@ -175,9 +184,16 @@ struct EmailResultPopup: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
 
                             // The actual input field
-                            TextField(ResultScreenStrings.EmailPopup.pinPlaceholder, text: $pin)
-                                .foregroundColor(Color(AppColors.clear))
-                                
+                            LocalizedEditMenuTextField(
+                                text: $pin,
+                                placeholder: ResultScreenStrings.EmailPopup.pinPlaceholder,
+                                returnKeyType: .done,
+                                autocorrectionType: .no,
+                                spellCheckingType: .no,
+                                textColor: AppColors.clear,
+                                font: UIFont(name: "NewSpirit-SemiBold", size: 30.sp) ?? .systemFont(ofSize: 30.sp, weight: .semibold)
+                            )
+                                .frame(height: 30.h)
                                 .padding()
                                 .background(RoundedRectangle(cornerRadius: 10).stroke(Color(AppColors.gray).opacity(0.3)))
                                 .onChange(of: pin) { _,newValue in

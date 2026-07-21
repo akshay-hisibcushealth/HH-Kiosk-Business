@@ -7,6 +7,7 @@
 
 
 import SwiftUI
+import UIKit
 
 struct ProfileEmailSection: View {
 
@@ -23,24 +24,28 @@ struct ProfileEmailSection: View {
                 .font(.system(size: 24.sp, weight: .bold))
                 .foregroundColor(Color(AppColors.black))
 
-            TextField(
-                "",
+            LocalizedEditMenuTextField(
                 text: $localEmail,
-                prompt: Text(PhysicalAttributesScreenStrings.Form.emailPlaceholder)
-                    .foregroundColor(Color(AppColors.physicalAttributeFieldPlaceholder))
-            )
-                .keyboardType(.emailAddress)
-                .textContentType(.emailAddress)
-                .submitLabel(.done)
-                .onSubmit {
+                placeholder: PhysicalAttributesScreenStrings.Form.emailPlaceholder,
+                keyboardType: .emailAddress,
+                textContentType: .emailAddress,
+                returnKeyType: .done,
+                autocapitalizationType: .none,
+                autocorrectionType: .no,
+                spellCheckingType: .no,
+                textColor: AppColors.black,
+                font: .systemFont(ofSize: 28.sp, weight: .regular),
+                placeholderColor: AppColors.physicalAttributeFieldPlaceholder,
+                placeholderFont: .systemFont(ofSize: 28.sp, weight: .regular),
+                isFocused: focusedField.wrappedValue == .email,
+                onFocusChange: { isFocused in
+                    focusedField.wrappedValue = isFocused ? .email : nil
+                },
+                onReturn: {
                     focusedField.wrappedValue = nil
                     hideKeyboard()
                 }
-                .autocapitalization(.none)
-                .disableAutocorrection(true)
-                .focused(focusedField, equals: .email)
-                .foregroundColor(Color(AppColors.black))
-                .font(.system(size: 28.sp, weight: .regular))
+            )
                 .padding(.vertical, 26.h)
                 .padding(.horizontal, 28.w)
                 .frame(maxWidth: .infinity, minHeight: 94.h)

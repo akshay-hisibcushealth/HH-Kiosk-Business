@@ -97,6 +97,22 @@ enum PhysicalAttributesScreenStrings {
         static var genderOptions: [String] { [AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Male", defaultValue: "Male"), AppLocalization.string("app.PhysicalAttributesScreenStrings.Form.Female", defaultValue: "Female")] }
     }
 
+    enum EditMenu {
+        static var cut: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.EditMenu.Cut", defaultValue: "Cut") }
+        static var copy: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.EditMenu.Copy", defaultValue: "Copy") }
+        static var paste: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.EditMenu.Paste", defaultValue: "Paste") }
+        static var select: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.EditMenu.Select", defaultValue: "Select") }
+        static var selectAll: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.EditMenu.Select_All", defaultValue: "Select All") }
+        static var delete: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.EditMenu.Delete", defaultValue: "Delete") }
+        static var autoFill: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.EditMenu.AutoFill", defaultValue: "AutoFill") }
+        static var replace: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.EditMenu.Replace", defaultValue: "Replace…") }
+        static var lookUp: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.EditMenu.Look_Up", defaultValue: "Look Up") }
+        static var translate: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.EditMenu.Translate", defaultValue: "Translate") }
+        static var scanText: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.EditMenu.Scan_Text", defaultValue: "Scan Text") }
+        static var writingTools: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.EditMenu.Writing_Tools", defaultValue: "Writing Tools") }
+        static var email: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.EditMenu.Email", defaultValue: "Email") }
+    }
+
     enum Settings {
         static var cameraPreset: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Settings.External_camera_preset", defaultValue: "External camera preset") }
         static var previewOrientation: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Settings.Preview_orientation", defaultValue: "Preview orientation") }

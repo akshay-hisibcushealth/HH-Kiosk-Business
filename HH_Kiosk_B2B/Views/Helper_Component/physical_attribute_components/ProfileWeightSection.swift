@@ -15,13 +15,24 @@ struct ProfileWeightSection: View {
                 .font(.system(size: 24.sp, weight: .bold))
                 .foregroundColor(Color(AppColors.black))
 
-            TextField(PhysicalAttributesScreenStrings.Form.weightPlaceholder, text: $weightInput)
-                .font(.system(size: 28.sp, weight: .regular))
-                .foregroundColor(Color(AppColors.black))
-                .submitLabel(.done)
-                .focused(focusedField, equals: .weight)
-                .textContentType(.none)
-                .autocorrectionDisabled()
+            LocalizedEditMenuTextField(
+                text: $weightInput,
+                placeholder: PhysicalAttributesScreenStrings.Form.weightPlaceholder,
+                textContentType: .none,
+                returnKeyType: .done,
+                autocorrectionType: .no,
+                spellCheckingType: .no,
+                textColor: AppColors.black,
+                font: .systemFont(ofSize: 28.sp, weight: .regular),
+                isFocused: focusedField.wrappedValue == .weight,
+                onFocusChange: { isFocused in
+                    focusedField.wrappedValue = isFocused ? .weight : nil
+                },
+                onReturn: {
+                    focusedField.wrappedValue = nil
+                    hideKeyboard()
+                }
+            )
                 .padding(.vertical, 26.h)
                 .padding(.horizontal, 28.w)
                 .frame(maxWidth: .infinity, minHeight: 94.h)
@@ -40,7 +51,7 @@ struct ProfileWeightSection: View {
                 .onChange(of: selectedWeight) { _, _ in
                     syncWeightInput()
                 }
-                .onSubmit {
+                .onReceive(NotificationCenter.default.publisher(for: .physicalAttributesDismissInputFocus)) { _ in
                     focusedField.wrappedValue = nil
                     hideKeyboard()
                 }

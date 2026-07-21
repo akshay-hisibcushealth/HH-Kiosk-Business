@@ -143,7 +143,7 @@ class FaceScanManager: ObservableObject{
     func presentAnuraMeasurementViewController(sdkConfig: Data) {
         let measurementConfig = MeasurementConfiguration.defaultConfiguration
         measurementConfig.studyFile = sdkConfig
-
+        measurementConfig.lightingQualityConstraintEnabled = true
         measurementConfig.externalCameraPreset = cameraPreset
         measurementConfig.externalCameraPreviewOrientation = previewOrientation
         measurementConfig.isExternalCameraVideoMirrored = mirrorExternalCameraPreview
