@@ -45,7 +45,7 @@ struct ResultToolbar: View {
                 .padding(.vertical, 48.h)
                 .padding(.trailing, 32.h)
             Spacer()
-            BrandedCompanyLogoView()
+            BrandedCompanyLogoViewPlaceHolder()
           
         }
         .padding(.horizontal, 24.w)
@@ -67,7 +67,8 @@ private struct BrandedCompanyLogoViewPlaceHolder: View {
             .font(.system(size: 24.sp, weight: .semibold))
             .foregroundColor(Color(AppColors.white))
             .multilineTextAlignment(.center)
-            .padding(.all, 24.w)
+            .padding(.vertical, 24.w)
+            .padding(.horizontal, 60.w)
             .overlay(
                 RoundedRectangle(cornerRadius: 0)
                     .stroke(Color(AppColors.white), lineWidth: 5.w)

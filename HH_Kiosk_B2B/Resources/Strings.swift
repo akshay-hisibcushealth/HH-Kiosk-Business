@@ -57,6 +57,7 @@ enum HomeScreenStrings {
 enum PhysicalAttributesScreenStrings {
     static var title: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Tell_us_about_yourself", defaultValue: "Tell us about yourself") }
     static var subtitle: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.We_use_these_details_to_ensure_your_scan_results_are_as_accu", defaultValue: "We use these details to ensure your scan results are as accurate as possible.") }
+    static var privacyProtectedPrefix: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Your_privacy_is_protected", defaultValue: "Your privacy is protected.") }
     static var privacyMessage: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.We_value_your_privacy_Your_information_will_NOT_be_shared_ex", defaultValue: "We value your privacy. Your information will NOT be shared externally.") }
     static var watchQuickDemo: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Watch_Demo", defaultValue: "Watch Demo") }
     static var proceedToScan: String { AppLocalization.string("app.PhysicalAttributesScreenStrings.Proceed_to_Scan", defaultValue: "Proceed to Scan") }
@@ -179,13 +180,14 @@ enum ResultScreenStrings {
     }
 
     enum EmailPopup {
-        static var title: String { AppLocalization.string("app.ResultScreenStrings.EmailPopup.Send_result_to_your_mail", defaultValue: "Send result to your mail") }
+        static var title: String { AppLocalization.string("app.ResultScreenStrings.EmailPopup.Send_result_to_your_mail", defaultValue: "Email me my results") }
+        static var subtitle: String { AppLocalization.string("app.ResultScreenStrings.EmailPopup.We_ll_send_a_secure_link", defaultValue: "We’ll send a secure link. Your 4-digit PIN\nunlocks the results, only you can open them") }
         static var emailAddress: String { AppLocalization.string("app.ResultScreenStrings.EmailPopup.Email_address", defaultValue: "Email address") }
         static var emailPlaceholder: String { AppLocalization.string("app.ResultScreenStrings.EmailPopup.Email", defaultValue: "Email") }
-        static var pinTitle: String { AppLocalization.string("app.ResultScreenStrings.EmailPopup.Create_a_4_digit_secret_key", defaultValue: "Create a 4-digit secret key") }
+        static var pinTitle: String { AppLocalization.string("app.ResultScreenStrings.EmailPopup.Create_a_4_digit_secret_key", defaultValue: "Create a 4-digit PIN (used to open your report)") }
         static let pinPlaceholder = "* * * *"
         static var pinHelp: String { AppLocalization.string("app.ResultScreenStrings.EmailPopup.This_will_be_used_to_view_your_result", defaultValue: "This will be used to view your result") }
-        static var sendMail: String { AppLocalization.string("app.ResultScreenStrings.EmailPopup.Send_mail", defaultValue: "Send mail") }
+        static var sendMail: String { AppLocalization.string("app.ResultScreenStrings.EmailPopup.Send_mail", defaultValue: "Send my results") }
         static var emailFailure: String { AppLocalization.string("app.ResultScreenStrings.EmailPopup.Failed_to_send_email_Please_try_again", defaultValue: "Failed to send email. Please try again.") }
         static var secureAndPrivate: String { AppLocalization.string("app.ResultScreenStrings.EmailPopup.Secure_and_Private", defaultValue: "Secure and Private") }
         static var checkInboxTitle: String { AppLocalization.string("app.ResultScreenStrings.EmailPopup.Check_your_inbox", defaultValue: "Check your inbox!") }
@@ -218,13 +220,12 @@ enum ResultScreenStrings {
             static var somewhatNew: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Somewhat_new_to_me", defaultValue: "Somewhat new to me") }
             static var noExpected: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.No_about_what_I_expected", defaultValue: "No, about what I expected") }
 
-            static var nextStepTitle: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Your_next_step", defaultValue: "Your next step") }
             static var nextStepQuestion: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.What_will_you_do_based_on_your_results_select_all_that_apply", defaultValue: "What will you do based on your results? (select all that apply)") }
-            static var bookDoctorVisit: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Book_a_doctor_visit", defaultValue: "Book a doctor visit") }
+            static var schedulePrimaryCareExam: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Schedule_an_exam_with_my_primary_care_provider", defaultValue: "Schedule an exam with my primary care provider and share these results") }
             static var doctorVisitBooked: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Already_have_a_doctor_s_visit_booked", defaultValue: "Already have a doctor's visit booked") }
             static var mentionDentist: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Mention_it_to_my_dentist_today", defaultValue: "Mention it to my dentist today") }
-            static var changeRoutine: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Change_something_in_my_routine", defaultValue: "Change something in my routine") }
-            static var nothingRightNow: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Nothing_right_now", defaultValue: "Nothing right now") }
+            static var dietitianSupport: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Get_support_from_a_Registered_Dietitian", defaultValue: "Get support from a Registered Dietitian") }
+            static var continueTracking: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Continue_tracking_my_health_biomarkers", defaultValue: "Continue tracking my health biomarkers over time with Hibiscus Health’s scans") }
 
             static var stayInTouchTitle: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Stay_in_touch", defaultValue: "Stay in touch") }
             static var stayInTouchQuestion: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Survey.Can_we_check_in_with_you_in_a_few_weeks_to_see_how_you_are_d", defaultValue: "Can we check in with you in a few weeks to see how you are doing?") }
@@ -326,9 +327,6 @@ enum ScreenSaverStrings {
     static var title: String { AppLocalization.string("app.ScreenSaverStrings.Welcome_to_the_Hibiscus_Health_Kiosk", defaultValue: "Welcome to the Hibiscus Health Kiosk!") }
     static var subtitle: String { AppLocalization.string("app.ScreenSaverStrings.30_second_face_scan_that_identifies_health_risk_before_durin", defaultValue: "30-second face scan that identifies health risk\nbefore, during, and between visits.") }
     static var actionButton: String { AppLocalization.string("app.ScreenSaverStrings.Start_Face_Scan", defaultValue: "Start Face Scan") }
-    static var selectLanguage: String { AppLocalization.string("app.ScreenSaverStrings.Select_a_language", defaultValue: "Select a language") }
-    static var english: String { AppLocalization.string("app.ScreenSaverStrings.English", defaultValue: "English") }
-    static var spanish: String { AppLocalization.string("app.ScreenSaverStrings.Espanol", defaultValue: "Español") }
 }
 
 
@@ -367,7 +365,7 @@ enum AnuraMeasurementStrings {
 
 enum SharedViewStrings {
     enum Toolbar {
-        static var companyLogoPlaceholder: String { AppLocalization.string("app.SharedViewStrings.Toolbar.PUT_YOUR_COMPANY_LOGO_HERE", defaultValue: "PUT YOUR COMPANY\nLOGO HERE") }
+        static var companyLogoPlaceholder: String { AppLocalization.string("app.SharedViewStrings.Toolbar.PUT_YOUR_COMPANY_LOGO_HERE", defaultValue: "PUT YOUR\nLOGO HERE") }
     }
 
     enum WebView {

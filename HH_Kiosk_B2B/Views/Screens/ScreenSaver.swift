@@ -28,9 +28,6 @@ struct ScreenSaver: View {
                     ScreenSaverFaceScanButton(action: onStartFaceScan)
                         .padding(.top, 54.h)
 
-                    ScreenSaverLanguageSelector()
-                        .padding(.top, 56.h)
-
                     Spacer()
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -60,9 +57,7 @@ struct ScreenSaver: View {
     }
 
     private var screenSaverAvatar: String {
-        appState.selectedLanguage == .spanish
-            ? AppIconNames.Asset.screenSaverAvatarSpanish
-            : AppIconNames.Asset.screenSaverAvatar
+        AppIconNames.Asset.screenSaverAvatar
     }
 
 
@@ -148,65 +143,6 @@ private struct ScreenSaverFaceScanButton: View {
             .shadow(color: Color(red: 1.0, green: 0.45, blue: 0.0).opacity(0.34), radius: 28, x: 0, y: 22)
         }
         .buttonStyle(.plain)
-    }
-}
-
-private struct ScreenSaverLanguageSelector: View {
-    @EnvironmentObject private var appState: AppState
-
-    var body: some View {
-        VStack(spacing: 18.h) {
-            Text(ScreenSaverStrings.selectLanguage)
-                .font(.system(size: 28.sp, weight: .bold))
-                .foregroundColor(Color(AppColors.white))
-                .multilineTextAlignment(.center)
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
-
-            HStack(spacing: 0) {
-                languageButton(.english)
-                languageButton(.spanish)
-            }
-            .padding(5.w)
-            .frame(width: 330.w, height: 70.h)
-            .background(
-                Capsule()
-                    .stroke(Color(AppColors.white).opacity(0.9), lineWidth: 1.5)
-                    .background(Color(AppColors.white).opacity(0.08), in: Capsule())
-            )
-        }
-    }
-
-    private func languageButton(_ language: AppLanguage) -> some View {
-        let isSelected = appState.selectedLanguage == language
-
-        return Button {
-            withAnimation(.easeInOut(duration: 0.18)) {
-                appState.setLanguage(language)
-            }
-        } label: {
-            Text(title(for: language))
-                .font(.system(size: 24.sp, weight: .bold))
-                .foregroundColor(isSelected ? Color(AppColors.primary) : Color(AppColors.white))
-                .lineLimit(1)
-                .minimumScaleFactor(0.72)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(
-                    Capsule()
-                        .fill(isSelected ? Color(AppColors.white) : Color.clear)
-                )
-        }
-        .buttonStyle(.plain)
-        .accessibilityAddTraits(isSelected ? .isSelected : [])
-    }
-
-    private func title(for language: AppLanguage) -> String {
-        switch language {
-        case .english:
-            return ScreenSaverStrings.english
-        case .spanish:
-            return ScreenSaverStrings.spanish
-        }
     }
 }
 

@@ -112,6 +112,17 @@ public struct ResultScreen: View {
             HeroHeader(result: result, showsEmailButton: showHeaderEmailButton)
             TitleBlock()
             ResultsList(model: model)
+
+            if showHeaderEmailButton {
+                ResultEmailButton(result: result, placement: .bottom)
+                    .padding(.horizontal, 30.w)
+                    .padding(.top, 18.h)
+
+                Divider()
+                    .frame(width: 550.w)
+                    .padding(.top, 170.h)
+                    .padding(.bottom, 120.h)
+            }
         }
         .frame(maxWidth: .infinity)
         .background(Color(AppColors.systemBackground))
@@ -172,11 +183,21 @@ private struct HeroHeader: View {
 }
 
 private struct ResultEmailButton: View {
+    enum Placement {
+        case header
+        case bottom
+    }
+
     let result: [String: MeasurementResults.SignalResult]
+    var placement: Placement = .header
 
     @State private var showEmailPopUp = false
     @State private var isEmailSent = false
     private let buttonColor = Color(AppColors.resultTitleText)
+
+    private var cornerRadius: CGFloat {
+        placement == .header ? 12.r : 6.r
+    }
 
     var body: some View {
         Button {
@@ -185,24 +206,27 @@ private struct ResultEmailButton: View {
         } label: {
             HStack(spacing: 16.w) {
                 Image(AppIconNames.Asset.email)
+                    .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 24.w, height: 24.h)
+                    .frame(width: 32.w, height: 32.h)
                     .foregroundColor(buttonColor)
 
                 Text(ResultScreenStrings.Actions.emailResults)
                     .font(.system(size: 20.sp, weight: .semibold))
                     .foregroundColor(buttonColor)
             }
-            .frame(width: 270.w)
-            .frame(minHeight: 72.h)
-            .background(Color(AppColors.white))
+            .frame(width: placement == .header ? 270.w : nil)
+            .frame(maxWidth: placement == .bottom ? .infinity : nil)
+            .frame(minHeight: placement == .bottom ? 84.h : 72.h)
+            .background(placement == .header ? Color(AppColors.white) : Color.clear)
             .overlay(
-                RoundedRectangle(cornerRadius: 12.r, style: .continuous)
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                     .stroke(buttonColor, lineWidth: 2)
             )
-            .clipShape(RoundedRectangle(cornerRadius: 12.r, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
         }
+        .frame(maxWidth: placement == .bottom ? .infinity : nil)
         .fullScreenCover(isPresented: $showEmailPopUp, onDismiss: {
             isEmailSent = false
         }) {

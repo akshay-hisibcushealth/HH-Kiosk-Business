@@ -243,7 +243,7 @@ struct PhysicalAttributesScreen: View {
                 .resizable()
                 .frame(width: 38.w, height: 38.w)
 
-            Text(PhysicalAttributesScreenStrings.privacyMessage)
+            Text(attributedPrivacyMessage)
                 .font(.system(size: 22.sp, weight: .regular))
                 .foregroundColor(Color(AppColors.supportLinkText))
                 .lineLimit(2)
@@ -258,6 +258,16 @@ struct PhysicalAttributesScreen: View {
             RoundedRectangle(cornerRadius: 10.r, style: .continuous)
                 .stroke(Color(AppColors.formBorder), lineWidth: 1)
         )
+    }
+
+    private var attributedPrivacyMessage: AttributedString {
+        var message = AttributedString(PhysicalAttributesScreenStrings.privacyMessage)
+
+        if let protectedPrefix = message.range(of: PhysicalAttributesScreenStrings.privacyProtectedPrefix) {
+            message[protectedPrefix].font = .system(size: 22.sp, weight: .bold)
+        }
+
+        return message
     }
 
 

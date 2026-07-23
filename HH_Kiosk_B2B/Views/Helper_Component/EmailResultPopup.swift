@@ -127,142 +127,140 @@ struct EmailResultPopup: View {
 
     @ViewBuilder
     private var emailFormView: some View {
-        Image(AppIconNames.Asset.emailLock)
-            .resizable()
-            .scaledToFit()
-            .padding(.top)
-            .frame(width: 50.w, height: 60.h)
+        VStack(spacing: 0) {
+            ZStack {
+                Circle()
+                    .fill(Color(AppColors.ctaGreen).opacity(0.30))
+                    .frame(width: 104.w, height: 104.w)
 
-        Text(ResultScreenStrings.EmailPopup.title)
-            .font(.headline)
-            .bold()
-            .padding(.bottom, 12)
+                Image(systemName: "envelope")
+                    .font(.system(size: 40.sp, weight: .medium))
+                    .foregroundColor(Color(AppColors.primary))
+            }
+            .padding(.bottom, 22.h)
 
-        // Email field
-        VStack(alignment: .leading) {
-            Text(ResultScreenStrings.EmailPopup.emailAddress)
-                .font(.headline)
-                .padding(.horizontal)
+            Text(ResultScreenStrings.EmailPopup.title)
+                .font(.custom("NewSpirit-Semibold", size: 36.sp))
                 .foregroundColor(Color(AppColors.black))
-            LocalizedEditMenuTextField(
-                text: $email,
-                placeholder: ResultScreenStrings.EmailPopup.emailPlaceholder,
-                keyboardType: .emailAddress,
-                textContentType: .emailAddress,
-                returnKeyType: .done,
-                autocapitalizationType: .none,
-                autocorrectionType: .no,
-                spellCheckingType: .no,
-                textColor: AppColors.black
-            )
-                .frame(height: 28.h)
-                .padding(.vertical, 24.h)
-                .padding(.horizontal)
-                .background(RoundedRectangle(cornerRadius: 10.r).stroke(Color(AppColors.gray).opacity(0.3)))
-                .padding(.horizontal)
-        }
-        
+                .padding(.bottom, 8.h)
 
-        // PIN field
-                    VStack(alignment: .leading) {
-                        Text(ResultScreenStrings.EmailPopup.pinTitle)
-                            .font(.headline)
-                            .padding(.horizontal)
+            Text(ResultScreenStrings.EmailPopup.subtitle)
+                .font(.system(size: 22.sp, weight: .regular))
+                .foregroundColor(Color(AppColors.black))
+                .multilineTextAlignment(.center)
+                .lineSpacing(4.h)
+                .padding(.bottom, 36.h)
+
+            VStack(alignment: .leading, spacing: 24.h) {
+                VStack(alignment: .leading, spacing: 12.h) {
+                    Text(ResultScreenStrings.EmailPopup.emailAddress)
+                        .font(.system(size: 22.sp, weight: .bold))
+                        .foregroundColor(Color(AppColors.black))
+
+                    LocalizedEditMenuTextField(
+                        text: $email,
+                        placeholder: ResultScreenStrings.EmailPopup.emailPlaceholder,
+                        keyboardType: .emailAddress,
+                        textContentType: .emailAddress,
+                        returnKeyType: .done,
+                        autocapitalizationType: .none,
+                        autocorrectionType: .no,
+                        spellCheckingType: .no,
+                        textColor: AppColors.black
+                    )
+                    .frame(height: 34.h)
+                    .padding(.vertical, 22.h)
+                    .padding(.horizontal, 20.w)
+                    .background(Color(uiColor: .systemGray6))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10.r, style: .continuous)
+                            .stroke(Color(AppColors.formBorder), lineWidth: 1)
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
+                }
+
+                VStack(alignment: .leading, spacing: 12.h) {
+                    Text(ResultScreenStrings.EmailPopup.pinTitle)
+                        .font(.system(size: 22.sp, weight: .bold))
+                        .foregroundColor(Color(AppColors.black))
+
+                    ZStack(alignment: .leading) {
+                        Text(String(repeating: "•  ", count: pin.count))
+                            .font(.system(size: 28.sp, weight: .bold))
                             .foregroundColor(Color(AppColors.black))
+                            .padding(.horizontal, 20.w)
 
-                        ZStack(alignment: .leading) {
-                            // Background display of asterisks
-                            HStack(spacing: 1.w) { // Set spacing to 0 if not already minimal
-                                ForEach(0..<pin.count, id: \.self) { _ in
-                                    Text("*")
-                                        .font(.system(size: 24.sp,weight: .bold))
-                                        .padding(.top,8.h)
-                                        .padding(.trailing,4.h)
-                                }
-                            }
-                            .padding()
-                            .frame(maxWidth: .infinity, alignment: .leading)
-
-                            // The actual input field
-                            LocalizedEditMenuTextField(
-                                text: $pin,
-                                placeholder: ResultScreenStrings.EmailPopup.pinPlaceholder,
-                                returnKeyType: .done,
-                                autocorrectionType: .no,
-                                spellCheckingType: .no,
-                                textColor: AppColors.clear,
-                                font: UIFont(name: "NewSpirit-SemiBold", size: 30.sp) ?? .systemFont(ofSize: 30.sp, weight: .semibold)
-                            )
-                                .frame(height: 30.h)
-                                .padding()
-                                .background(RoundedRectangle(cornerRadius: 10).stroke(Color(AppColors.gray).opacity(0.3)))
-                                .onChange(of: pin) { _,newValue in
-                                    pin = String(newValue.prefix(4).filter { $0.isNumber })
-                                }
-
+                        LocalizedEditMenuTextField(
+                            text: $pin,
+                            placeholder: ResultScreenStrings.EmailPopup.pinPlaceholder,
+                            returnKeyType: .done,
+                            autocorrectionType: .no,
+                            spellCheckingType: .no,
+                            textColor: AppColors.clear,
+                            font: .systemFont(ofSize: 28.sp, weight: .semibold)
+                        )
+                        .frame(height: 34.h)
+                        .padding(.vertical, 22.h)
+                        .padding(.horizontal, 20.w)
+                        .onChange(of: pin) { _, newValue in
+                            pin = String(newValue.prefix(4).filter(\.isNumber))
                         }
-                        .font(.custom("NewSpirit-SemiBold", size: 30.sp))
-                        // ========================================================================
-                        .padding(.horizontal)
-
-                        Text(ResultScreenStrings.EmailPopup.pinHelp)
-                            .font(.caption)
-                            .italic()
-                            .padding(.horizontal)
-                            .foregroundColor(Color(AppColors.blue))
                     }
-        
-
-        // Send button
-        Button(action: {
-            Task {
-                isLoading = true
-                let success = await submitEmailResults()
-                isLoading = false
-                if success {
-                    isEmailSent = true
-                } else {
-                    // Trigger failure message
-                    showEmailError = true
+                    .background(Color(uiColor: .systemGray6))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10.r, style: .continuous)
+                            .stroke(Color(AppColors.formBorder), lineWidth: 1)
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
                 }
             }
-        }) {
-            HStack {
-                Image(systemName: AppIconNames.Symbol.envelopeFill)
-                    .foregroundColor(Color(AppColors.black))
-                Text(ResultScreenStrings.EmailPopup.sendMail)
-                    .foregroundColor(Color(AppColors.black))
-                    .fontWeight(.bold)
-            }
-            .padding()
-            .frame(maxWidth: .infinity)
-            .background((isEmailValid && isPinValid) ? Color(AppColors.ctaGreen) : Color(AppColors.ctaGreen).opacity(0.5))
-            .cornerRadius(10.r)
-        }
-        .disabled(!(isEmailValid && isPinValid))
-        .padding(.horizontal)
 
-        // ✅ Show message depending on success/failure
-        if showEmailError {
-            HStack(spacing: 8.w) {
-                Image(systemName: AppIconNames.Symbol.exclamationmarkTriangleFill)
-                    .foregroundColor(Color(AppColors.error))
-                Text(ResultScreenStrings.EmailPopup.emailFailure)
-                    .foregroundColor(Color(AppColors.error))
-                    .font(.body)
-                    .multilineTextAlignment(.center)
+            Button {
+                Task {
+                    isLoading = true
+                    let success = await submitEmailResults()
+                    isLoading = false
+                    if success {
+                        isEmailSent = true
+                    } else {
+                        showEmailError = true
+                    }
+                }
+            } label: {
+                HStack(spacing: 14.w) {
+                    Image(systemName: AppIconNames.Symbol.paperplane)
+                        .font(.system(size: 24.sp, weight: .medium))
+
+                    Text(ResultScreenStrings.EmailPopup.sendMail)
+                        .font(.system(size: 22.sp, weight: .bold))
+                }
+                .foregroundColor(Color(AppColors.black))
+                .frame(maxWidth: .infinity)
+                .frame(minHeight: 82.h)
+                .background(
+                    (isEmailValid && isPinValid)
+                        ? Color(AppColors.ctaGreen)
+                        : Color(AppColors.ctaGreen).opacity(0.5)
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
             }
-            .padding(.top, 8.h)
-        } else {
-            HStack(spacing: 8.w) {
-                Image(systemName: AppIconNames.Symbol.lockShield)
-                    .foregroundColor(Color(AppColors.blue))
-                Text(ResultScreenStrings.EmailPopup.secureAndPrivate)
-                    .foregroundColor(Color(AppColors.blue))
-                    .font(.footnote)
+            .disabled(!(isEmailValid && isPinValid))
+            .padding(.top, 30.h)
+
+            if showEmailError {
+                HStack(spacing: 8.w) {
+                    Image(systemName: AppIconNames.Symbol.exclamationmarkTriangleFill)
+                    Text(ResultScreenStrings.EmailPopup.emailFailure)
+                        .multilineTextAlignment(.center)
+                }
+                .font(.system(size: 18.sp))
+                .foregroundColor(Color(AppColors.error))
+                .padding(.top, 14.h)
             }
         }
-
+        .padding(.horizontal, 70.w)
+        .padding(.top, 68.h)
+        .padding(.bottom, 100.h)
     }
 
     private func submitEmailResults() async -> Bool {

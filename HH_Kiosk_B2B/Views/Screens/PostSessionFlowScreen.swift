@@ -5,11 +5,6 @@ private enum PostSessionStep {
     case nps
 }
 
-private enum PostSessionSelectionMode {
-    case single
-    case multiple
-}
-
 private enum PostSessionSubmissionAction {
     case npsSkip
     case npsSubmit
@@ -31,7 +26,6 @@ private struct PostSessionQuestion: Identifiable, Equatable {
     let title: String
     let question: String
     let responseQuestion: String
-    let selectionMode: PostSessionSelectionMode
     let options: [PostSessionNextStepOption]
 }
 
@@ -55,53 +49,16 @@ struct PostSessionFlowScreen: View {
     private var questions: [PostSessionQuestion] {
         [
             PostSessionQuestion(
-                id: 0,
-                title: ResultScreenStrings.PostSession.Survey.healthCheckTitle,
-                question: ResultScreenStrings.PostSession.Survey.healthCheckQuestion,
-                responseQuestion: "When did you last have your blood pressure, heart, or blood sugar checked by a health professional?",
-                selectionMode: .single,
-                options: [
-                    PostSessionNextStepOption(id: 0, displayTitle: ResultScreenStrings.PostSession.Survey.withinSixMonths, description: ResultScreenStrings.PostSession.Survey.withinSixMonths, responseDescription: "Within 6 months"),
-                    PostSessionNextStepOption(id: 1, displayTitle: ResultScreenStrings.PostSession.Survey.sixToTwelveMonthsAgo, description: ResultScreenStrings.PostSession.Survey.sixToTwelveMonthsAgo, responseDescription: "6 to 12 months ago"),
-                    PostSessionNextStepOption(id: 2, displayTitle: ResultScreenStrings.PostSession.Survey.moreThanAYearAgo, description: ResultScreenStrings.PostSession.Survey.moreThanAYearAgo, responseDescription: "More than a year ago"),
-                    PostSessionNextStepOption(id: 3, displayTitle: ResultScreenStrings.PostSession.Survey.neverOrNotSure, description: ResultScreenStrings.PostSession.Survey.neverOrNotSure, responseDescription: "Never, or not sure")
-                ]
-            ),
-            PostSessionQuestion(
-                id: 1,
-                title: ResultScreenStrings.PostSession.Survey.anythingNewTitle,
-                question: ResultScreenStrings.PostSession.Survey.anythingNewQuestion,
-                responseQuestion: "Did your scan tell you anything new about your health?",
-                selectionMode: .single,
-                options: [
-                    PostSessionNextStepOption(id: 0, displayTitle: ResultScreenStrings.PostSession.Survey.yesSurprisedMe, description: ResultScreenStrings.PostSession.Survey.yesSurprisedMe, responseDescription: "Yes, it surprised me"),
-                    PostSessionNextStepOption(id: 1, displayTitle: ResultScreenStrings.PostSession.Survey.somewhatNew, description: ResultScreenStrings.PostSession.Survey.somewhatNew, responseDescription: "Somewhat new to me"),
-                    PostSessionNextStepOption(id: 2, displayTitle: ResultScreenStrings.PostSession.Survey.noExpected, description: ResultScreenStrings.PostSession.Survey.noExpected, responseDescription: "No, about what I expected")
-                ]
-            ),
-            PostSessionQuestion(
                 id: 2,
-                title: ResultScreenStrings.PostSession.Survey.nextStepTitle,
+                title: ResultScreenStrings.PostSession.Survey.healthCheckTitle,
                 question: ResultScreenStrings.PostSession.Survey.nextStepQuestion,
                 responseQuestion: "What will you do based on your results? (select all that apply)",
-                selectionMode: .multiple,
                 options: [
-                    PostSessionNextStepOption(id: 0, displayTitle: ResultScreenStrings.PostSession.Survey.bookDoctorVisit, description: ResultScreenStrings.PostSession.Survey.bookDoctorVisit, responseDescription: "Book a doctor visit"),
+                    PostSessionNextStepOption(id: 0, displayTitle: ResultScreenStrings.PostSession.Survey.schedulePrimaryCareExam, description: ResultScreenStrings.PostSession.Survey.schedulePrimaryCareExam, responseDescription: "Schedule an exam with my primary care provider and share these results"),
                     PostSessionNextStepOption(id: 1, displayTitle: ResultScreenStrings.PostSession.Survey.doctorVisitBooked, description: ResultScreenStrings.PostSession.Survey.doctorVisitBooked, responseDescription: "Already have a doctor's visit booked"),
                     PostSessionNextStepOption(id: 2, displayTitle: ResultScreenStrings.PostSession.Survey.mentionDentist, description: ResultScreenStrings.PostSession.Survey.mentionDentist, responseDescription: "Mention it to my dentist today"),
-                    PostSessionNextStepOption(id: 3, displayTitle: ResultScreenStrings.PostSession.Survey.changeRoutine, description: ResultScreenStrings.PostSession.Survey.changeRoutine, responseDescription: "Change something in my routine"),
-                    PostSessionNextStepOption(id: 4, displayTitle: ResultScreenStrings.PostSession.Survey.nothingRightNow, description: ResultScreenStrings.PostSession.Survey.nothingRightNow, responseDescription: "Nothing right now")
-                ]
-            ),
-            PostSessionQuestion(
-                id: 3,
-                title: ResultScreenStrings.PostSession.Survey.stayInTouchTitle,
-                question: ResultScreenStrings.PostSession.Survey.stayInTouchQuestion,
-                responseQuestion: "Can we check in with you in a few weeks to see how you are doing?",
-                selectionMode: .single,
-                options: [
-                    PostSessionNextStepOption(id: 0, displayTitle: ResultScreenStrings.PostSession.Survey.yes, description: ResultScreenStrings.PostSession.Survey.yes, responseDescription: "Yes"),
-                    PostSessionNextStepOption(id: 1, displayTitle: ResultScreenStrings.PostSession.Survey.no, description: ResultScreenStrings.PostSession.Survey.no, responseDescription: "No")
+                    PostSessionNextStepOption(id: 3, displayTitle: ResultScreenStrings.PostSession.Survey.dietitianSupport, description: ResultScreenStrings.PostSession.Survey.dietitianSupport, responseDescription: "Get support from a Registered Dietitian"),
+                    PostSessionNextStepOption(id: 4, displayTitle: ResultScreenStrings.PostSession.Survey.continueTracking, description: ResultScreenStrings.PostSession.Survey.continueTracking, responseDescription: "Continue tracking my health biomarkers over time with Hibiscus Health's scans")
                 ]
             )
         ]
@@ -224,21 +181,19 @@ struct PostSessionFlowScreen: View {
             toggleOption(option, in: question)
         } label: {
             HStack(spacing: 25.w) {
-                if question.selectionMode == .multiple {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 4.r, style: .continuous)
-                            .fill(isSelected ? Color(AppColors.ctaGreen) : Color(AppColors.white))
-                            .frame(width: 35.w, height: 35.w)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 4.r, style: .continuous)
-                                    .stroke(isSelected ? Color.clear : Color(AppColors.gray).opacity(0.45), lineWidth: 3.w)
-                            )
+                ZStack {
+                    RoundedRectangle(cornerRadius: 4.r, style: .continuous)
+                        .fill(isSelected ? Color(AppColors.ctaGreen) : Color(AppColors.white))
+                        .frame(width: 35.w, height: 35.w)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 4.r, style: .continuous)
+                                .stroke(isSelected ? Color.clear : Color(AppColors.gray).opacity(0.45), lineWidth: 3.w)
+                        )
 
-                        if isSelected {
-                            Image(systemName: "checkmark")
-                                .font(.system(size: 20.sp, weight: .black))
-                                .foregroundColor(Color(AppColors.black))
-                        }
+                    if isSelected {
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 20.sp, weight: .black))
+                            .foregroundColor(Color(AppColors.black))
                     }
                 }
 
@@ -270,7 +225,10 @@ struct PostSessionFlowScreen: View {
         VStack(spacing: 0) {
             Spacer(minLength: 86.h)
 
-            successMark
+            Image(AppIconNames.Asset.thanksImage)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 150.w, height: 177.h)
                 .padding(.bottom, 38.h)
 
             Text(ResultScreenStrings.PostSession.allDoneTitle)
@@ -294,22 +252,6 @@ struct PostSessionFlowScreen: View {
             }
 
             Spacer(minLength: 58.h)
-        }
-    }
-
-    private var successMark: some View {
-        ZStack {
-            Circle()
-                .fill(Color(AppColors.ctaGreen).opacity(0.32))
-                .frame(width: 180.w, height: 180.w)
-
-            Circle()
-                .fill(Color(red: 0.47, green: 0.78, blue: 0.0))
-                .frame(width: 140.w, height: 140.w)
-
-            Image(systemName: "checkmark")
-                .font(.system(size: 56.sp, weight: .black))
-                .foregroundColor(Color(AppColors.black))
         }
     }
 
@@ -552,15 +494,10 @@ struct PostSessionFlowScreen: View {
     private func toggleOption(_ option: PostSessionNextStepOption, in question: PostSessionQuestion) {
         var selectedIDs = selectedOptionIDsByQuestion[question.id] ?? []
 
-        switch question.selectionMode {
-        case .single:
-            selectedIDs = [option.id]
-        case .multiple:
-            if selectedIDs.contains(option.id) {
-                selectedIDs.remove(option.id)
-            } else {
-                selectedIDs.insert(option.id)
-            }
+        if selectedIDs.contains(option.id) {
+            selectedIDs.remove(option.id)
+        } else {
+            selectedIDs.insert(option.id)
         }
 
         selectedOptionIDsByQuestion[question.id] = selectedIDs
