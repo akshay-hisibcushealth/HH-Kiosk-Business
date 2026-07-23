@@ -198,44 +198,50 @@ struct MeterBar: View {
 // ----------------------
 // Helpers
 // ----------------------
-fileprivate func riskBucket(for key: String, value: Double) -> String {
-    switch key {
-    case "BP_CVD":
-        if value < 5 { return "very_low" }
-        if value < 7.25 { return "low" }
-        if value < 10 { return "moderate_low" }
-        if value < 20 { return "moderate" }
-        return "high"
-    case "HR_BPM":
-        if value < 60 { return "low" }
-        if value < 100 { return "normal" }
-        return "high"
-    case "BP_SYSTOLIC":
-        if value < 90 { return "low" }
-        if value < 130 { return "healthy" }
-        if value < 140 { return "slightly_high" }
-        return "high"
-    case "BP_DIASTOLIC":
-        if value < 60 { return "low" }
-        if value < 70 { return "slightly_low" }
-        if value < 80 { return "healthy" }
-        if value < 90 { return "slightly_high" }
-        return "high"
-    case "HBA1C_RISK_PROB", "HDLTC_RISK_PROB", "TG_RISK_PROB":
-        if value < 25 { return "very_low" }
-        if value < 45 { return "low" }
-        if value < 55 { return "moderate" }
-        if value < 77.5 { return "high" }
-        return "very_high"
-    default:
-        return "low"
+enum ResultInterpretationResolver {
+    static func riskBucket(for key: String, value: Double) -> String {
+        switch key {
+        case "BP_CVD":
+            if value < 5 { return "very_low" }
+            if value < 7.25 { return "low" }
+            if value < 10 { return "moderate_low" }
+            if value < 20 { return "moderate" }
+            return "high"
+        case "HR_BPM":
+            if value < 60 { return "low" }
+            if value < 100 { return "normal" }
+            return "high"
+        case "BP_SYSTOLIC":
+            if value < 90 { return "low" }
+            if value < 130 { return "healthy" }
+            if value < 140 { return "slightly_high" }
+            return "high"
+        case "BP_DIASTOLIC":
+            if value < 60 { return "low" }
+            if value < 70 { return "slightly_low" }
+            if value < 80 { return "healthy" }
+            if value < 90 { return "slightly_high" }
+            return "high"
+        case "HBA1C_RISK_PROB", "HDLTC_RISK_PROB", "TG_RISK_PROB":
+            if value < 25 { return "very_low" }
+            if value < 45 { return "low" }
+            if value < 55 { return "moderate" }
+            if value < 77.5 { return "high" }
+            return "very_high"
+        default:
+            return "low"
+        }
+    }
+
+    static func message(for metricKey: String, value: Double) -> String {
+        let bucket = riskBucket(for: metricKey, value: value)
+        let interpretationJSON = ResultScreenStrings.Metrics.interpretations
+        return interpretationJSON[metricKey]?[bucket] ?? interpretationJSON[metricKey]?["low"] ?? ""
     }
 }
 
 fileprivate func getTaggedMessage(metricKey: String, value: Double) -> String {
-    let bucket = riskBucket(for: metricKey, value: value)
-    let interpretationJSON = ResultScreenStrings.Metrics.interpretations
-    return interpretationJSON[metricKey]?[bucket] ?? interpretationJSON[metricKey]?["low"] ?? ""
+    ResultInterpretationResolver.message(for: metricKey, value: value)
 }
 
 fileprivate func formattedValue(_ value: Double, for metricKey: String) -> String {

@@ -20,6 +20,16 @@
 		96B740092EA01D510004A505 /* Starscream in Frameworks */ = {isa = PBXBuildFile; productRef = 96B740082EA01D510004A505 /* Starscream */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		A0000000000000000000000A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 96B73F872EA014890004A505 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 96B73F8E2EA014890004A505;
+			remoteInfo = HH_Kiosk_B2B;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXCopyFilesBuildPhase section */
 		96B73FDA2EA017110004A505 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -44,6 +54,7 @@
 		96B73FDB2EA0171F0004A505 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		96B73FDD2EA017360004A505 /* FaceMesh.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = FaceMesh.xcframework; path = Frameworks/FaceMesh.xcframework; sourceTree = "<group>"; };
 		96B73FDE2EA017360004A505 /* libdfx.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = libdfx.xcframework; path = Frameworks/libdfx.xcframework; sourceTree = "<group>"; };
+		A00000000000000000000001 /* HH_Kiosk_B2BTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HH_Kiosk_B2BTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -65,6 +76,11 @@
 			path = HH_Kiosk_B2B;
 			sourceTree = "<group>";
 		};
+		A00000000000000000000002 /* HH_Kiosk_B2BTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = HH_Kiosk_B2BTests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,6 +98,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A00000000000000000000004 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -89,6 +112,7 @@
 			isa = PBXGroup;
 			children = (
 				96B73F912EA014890004A505 /* HH_Kiosk_B2B */,
+				A00000000000000000000002 /* HH_Kiosk_B2BTests */,
 				96B73FD42EA016F70004A505 /* Frameworks */,
 				96B73F902EA014890004A505 /* Products */,
 				960016082F6AD75300C7F9CA /* CONTRIBUTING.md */,
@@ -99,6 +123,7 @@
 			isa = PBXGroup;
 			children = (
 				96B73F8F2EA014890004A505 /* HH_Kiosk_B2B.app */,
+				A00000000000000000000001 /* HH_Kiosk_B2BTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -143,6 +168,29 @@
 			productReference = 96B73F8F2EA014890004A505 /* HH_Kiosk_B2B.app */;
 			productType = "com.apple.product-type.application";
 		};
+		A00000000000000000000006 /* HH_Kiosk_B2BTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A00000000000000000000009 /* Build configuration list for PBXNativeTarget "HH_Kiosk_B2BTests" */;
+			buildPhases = (
+				A00000000000000000000003 /* Sources */,
+				A00000000000000000000004 /* Frameworks */,
+				A00000000000000000000005 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A0000000000000000000000B /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				A00000000000000000000002 /* HH_Kiosk_B2BTests */,
+			);
+			name = HH_Kiosk_B2BTests;
+			packageProductDependencies = (
+			);
+			productName = HH_Kiosk_B2BTests;
+			productReference = A00000000000000000000001 /* HH_Kiosk_B2BTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -155,6 +203,10 @@
 				TargetAttributes = {
 					96B73F8E2EA014890004A505 = {
 						CreatedOnToolsVersion = 16.0;
+					};
+					A00000000000000000000006 = {
+						CreatedOnToolsVersion = 16.0;
+						TestTargetID = 96B73F8E2EA014890004A505;
 					};
 				};
 			};
@@ -178,6 +230,7 @@
 			projectRoot = "";
 			targets = (
 				96B73F8E2EA014890004A505 /* HH_Kiosk_B2B */,
+				A00000000000000000000006 /* HH_Kiosk_B2BTests */,
 			);
 		};
 /* End PBXProject section */
@@ -191,6 +244,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A00000000000000000000005 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -201,7 +261,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A00000000000000000000003 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A0000000000000000000000B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 96B73F8E2EA014890004A505 /* HH_Kiosk_B2B */;
+			targetProxy = A0000000000000000000000A /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		96B73FB12EA0148A0004A505 /* Debug */ = {
@@ -350,7 +425,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.69;
+				MARKETING_VERSION = 1.1.70;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.nutritionApp.hibiscushealth.HH-Kiosk-B2B";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -387,13 +462,59 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.69;
+				MARKETING_VERSION = 1.1.70;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.nutritionApp.hibiscushealth.HH-Kiosk-B2B";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "";
+			};
+			name = Release;
+		};
+		A00000000000000000000007 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 7P2GHHGYQX;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.nutritionApp.hibiscushealth.HH-Kiosk-B2BTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/HH_Kiosk_B2B.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/HH_Kiosk_B2B";
+				TEST_TARGET_NAME = HH_Kiosk_B2B;
+			};
+			name = Debug;
+		};
+		A00000000000000000000008 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 7P2GHHGYQX;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.nutritionApp.hibiscushealth.HH-Kiosk-B2BTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/HH_Kiosk_B2B.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/HH_Kiosk_B2B";
+				TEST_TARGET_NAME = HH_Kiosk_B2B;
 			};
 			name = Release;
 		};
@@ -414,6 +535,15 @@
 			buildConfigurations = (
 				96B73FB42EA0148A0004A505 /* Debug */,
 				96B73FB52EA0148A0004A505 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A00000000000000000000009 /* Build configuration list for PBXNativeTarget "HH_Kiosk_B2BTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A00000000000000000000007 /* Debug */,
+				A00000000000000000000008 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
