@@ -265,21 +265,21 @@ enum ResultScreenStrings {
             "HBA1C_RISK_PROB": [
                 "very_low": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_your_HbA1c_markers_are_within_a_heal", defaultValue: "Your screening suggests your HbA1c markers are within a healthy, stable range."),
                 "low": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_your_HbA1c_is_likely_below_the_thres", defaultValue: "Your screening suggests your HbA1c is likely below the threshold for concern."),
-                "moderate": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_slightly_elevated_glycemic_markers_c", defaultValue: "Your screening suggests slightly elevated glycemic markers compared to the ideal range."),
+                "moderate": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_slightly_elevated_glycemic_markers_c", defaultValue: "Your screening suggests your HbA1c (blood sugar level) markers are slightly elevated compared to the ideal range."),
                 "high": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_that_your_blood_sugar_levels_are_cur", defaultValue: "Your screening suggests that your blood sugar levels are currently above the standard healthy range."),
                 "very_high": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_blood_sugar_markers_that_are_notably", defaultValue: "Your screening suggests blood sugar markers that are notably above the standard healthy range.")
             ],
             "HDLTC_RISK_PROB": [
                 "very_low": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_a_very_low_probability_of_elevated_c", defaultValue: "Your screening suggests a very low probability of elevated cholesterol levels."),
                 "low": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_your_cholesterol_markers_are_within", defaultValue: "Your screening suggests your cholesterol markers are within a standard, low-risk profile."),
-                "moderate": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_your_cholesterol_markers_are_current", defaultValue: "Your screening suggests your cholesterol markers are currently sitting in a moderate range."),
+                "moderate": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_your_cholesterol_markers_are_current", defaultValue: "Your screening suggests your cholesterol levels are within a moderate risk range."),
                 "high": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_cholesterol_levels_are_currently_abo", defaultValue: "Your screening suggests cholesterol levels are currently above the recommended healthy threshold."),
                 "very_high": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_indicators_consistent_with_a_high_co", defaultValue: "Your screening suggests indicators consistent with a high concentration of cholesterol in the blood.")
             ],
             "TG_RISK_PROB": [
                 "very_low": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_a_very_low_probability_of_elevated_t", defaultValue: "Your screening suggests a very low probability of elevated triglyceride levels."),
                 "low": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_your_triglyceride_markers_are_within", defaultValue: "Your screening suggests your triglyceride markers are within a standard, low-risk profile."),
-                "moderate": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_your_triglyceride_markers_are_curren", defaultValue: "Your screening suggests your triglyceride markers are currently sitting in a moderate range."),
+                "moderate": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_your_triglyceride_markers_are_curren", defaultValue: "Your screening suggests your triglyceride levels are within a moderate risk range."),
                 "high": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_triglyceride_levels_are_currently_ab", defaultValue: "Your screening suggests triglyceride levels are currently above the recommended healthy threshold."),
                 "very_high": AppLocalization.string("app.ResultScreenStrings.Metrics.Your_screening_suggests_indicators_consistent_with_a_high_co_2", defaultValue: "Your screening suggests indicators consistent with a high concentration of triglyceride in the blood.")
             ]
@@ -287,13 +287,13 @@ enum ResultScreenStrings {
 
         static func displayTitle(for key: String) -> String {
             switch key {
-            case "BP_CVD": return AppLocalization.string("app.ResultScreenStrings.Metrics.Cardiovascular_Disease_Risk_2", defaultValue: "Cardiovascular Disease Risk")
+            case "BP_CVD": return AppLocalization.string("app.ResultScreenStrings.Metrics.Cardiovascular_Disease_Risk_2", defaultValue: "Adverse Cardiovascular Event Risk")
             case "HR_BPM": return AppLocalization.string("app.ResultScreenStrings.Metrics.Heart_Rate_2", defaultValue: "Heart Rate")
-            case "HBA1C_RISK_PROB": return AppLocalization.string("app.ResultScreenStrings.Metrics.HbA1c_Risk_2", defaultValue: "HbA1c Risk")
+            case "HBA1C_RISK_PROB": return AppLocalization.string("app.ResultScreenStrings.Metrics.HbA1c_Risk_2", defaultValue: "Diabetes/Prediabetes Risk (HbA1c)")
             case "BP_SYSTOLIC": return AppLocalization.string("app.ResultScreenStrings.Metrics.Systolic_Blood_Pressure_2", defaultValue: "Systolic Blood Pressure")
             case "BP_DIASTOLIC": return AppLocalization.string("app.ResultScreenStrings.Metrics.Diastolic_Blood_Pressure_2", defaultValue: "Diastolic Blood Pressure")
-            case "HDLTC_RISK_PROB": return AppLocalization.string("app.ResultScreenStrings.Metrics.High_Risk_of_Cholesterol_2", defaultValue: "High Risk of Cholesterol")
-            case "TG_RISK_PROB": return AppLocalization.string("app.ResultScreenStrings.Metrics.High_Risk_of_Triglycerides_2", defaultValue: "High Risk of Triglycerides")
+            case "HDLTC_RISK_PROB": return AppLocalization.string("app.ResultScreenStrings.Metrics.High_Risk_of_Cholesterol_2", defaultValue: "Risk of High Cholesterol")
+            case "TG_RISK_PROB": return AppLocalization.string("app.ResultScreenStrings.Metrics.High_Risk_of_Triglycerides_2", defaultValue: "Risk of High Triglycerides")
             default: return key.replacingOccurrences(of: "_", with: " ")
             }
         }
@@ -309,13 +309,13 @@ enum ResultScreenStrings {
 
         static func description(for key: String) -> String {
             switch key {
-            case "BP_CVD": return AppLocalization.string("app.ResultScreenStrings.Metrics.Think_of_this_as_your_heart_s_10_year_weather_forecast_It_es", defaultValue: "Think of this as your heart's 10-year weather forecast. It estimates how likely you are to experience a heart attack or stroke based on signals from your face scan. The lower the number, the clearer the skies.")
-            case "BP_SYSTOLIC": return AppLocalization.string("app.ResultScreenStrings.Metrics.This_is_the_pressure_your_heart_creates_when_it_pumps_blood", defaultValue: "This is the pressure your heart creates when it pumps blood out. Too high over time and it puts extra strain on your arteries. A normal reading is usually around 90–120 mmHg.")
-            case "BP_DIASTOLIC": return AppLocalization.string("app.ResultScreenStrings.Metrics.This_is_the_pressure_in_your_arteries_when_your_heart_is_res", defaultValue: "This is the pressure in your arteries when your heart is resting between beats. It tells us how hard your cardiovascular system is working even when it's taking a breather. A normal reading is usually around 60–80 mmHg.")
-            case "HBA1C_RISK_PROB": return AppLocalization.string("app.ResultScreenStrings.Metrics.This_gives_you_a_sense_of_your_long_term_blood_sugar_pattern", defaultValue: "This gives you a sense of your long-term blood sugar patterns. High blood sugar over time is linked to pre-diabetes and type 2 diabetes. Think of it less like a snapshot and more like a three-month average of how your body handles sugar.")
-            case "HDLTC_RISK_PROB": return AppLocalization.string("app.ResultScreenStrings.Metrics.Too_much_cholesterol_in_your_blood_can_quietly_clog_your_art", defaultValue: "Too much cholesterol in your blood can quietly clog your arteries over time. This screening gives you an early signal of whether your cholesterol levels may be in a healthy range.")
-            case "TG_RISK_PROB": return AppLocalization.string("app.ResultScreenStrings.Metrics.Triglycerides_are_a_type_of_fat_your_body_stores_for_energy", defaultValue: "Triglycerides are a type of fat your body stores for energy. When there's too much of it in your blood, it can quietly raise your risk of heart disease and inflammation. This score flags whether your levels may be worth a closer look.")
-            case "HR_BPM": return AppLocalization.string("app.ResultScreenStrings.Metrics.How_many_times_your_heart_beats_in_a_minute_Most_healthy_adu", defaultValue: "How many times your heart beats in a minute. Most healthy adults land between 60–100 bpm at rest. Being consistently too high or too low can be worth discussing with your doctor.")
+            case "BP_CVD": return AppLocalization.string("app.ResultScreenStrings.Metrics.Think_of_this_as_your_heart_s_10_year_weather_forecast_It_es", defaultValue: "This is our estimation of how likely you are to experience a heart attack or stroke within the next 10 years. This is based on signals from your face scan.")
+            case "BP_SYSTOLIC": return AppLocalization.string("app.ResultScreenStrings.Metrics.This_is_the_pressure_your_heart_creates_when_it_pumps_blood", defaultValue: "This is the pressure your heart creates when it pumps blood out. Too high over time and it puts extra strain on your blood vessels. A normal reading is usually around 90–120 mmHg.")
+            case "BP_DIASTOLIC": return AppLocalization.string("app.ResultScreenStrings.Metrics.This_is_the_pressure_in_your_arteries_when_your_heart_is_res", defaultValue: "This is the pressure in your blood vessels when your heart is resting between beats. A normal reading is usually around 60–80 mmHg.")
+            case "HBA1C_RISK_PROB": return AppLocalization.string("app.ResultScreenStrings.Metrics.This_gives_you_a_sense_of_your_long_term_blood_sugar_pattern", defaultValue: "This is our estimation of your long term blood sugar patterns over the past three months based on signals from your face scan. High blood sugar over time is linked to pre-diabetes and type 2 diabetes.")
+            case "HDLTC_RISK_PROB": return AppLocalization.string("app.ResultScreenStrings.Metrics.Too_much_cholesterol_in_your_blood_can_quietly_clog_your_art", defaultValue: "This is our estimation of how likely you are to have high cholesterol levels based on signals from your face scan. Too much cholesterol in your blood can clog your blood vessels over time.")
+            case "TG_RISK_PROB": return AppLocalization.string("app.ResultScreenStrings.Metrics.Triglycerides_are_a_type_of_fat_your_body_stores_for_energy", defaultValue: "This is our estimation of how likely you are to have high triglyceride levels based on signals from your face scan. Triglycerides are the most common type of fat in your body. Having too much of them can increase your risk of heart disease and stroke.")
+            case "HR_BPM": return AppLocalization.string("app.ResultScreenStrings.Metrics.How_many_times_your_heart_beats_in_a_minute_Most_healthy_adu", defaultValue: "This is how many times your heart beats per minute during your scan. Most healthy adults are between 60 and 100 beats per minute (BPM) when resting. If this is too high or too low consistently, it is something to discuss with your doctor.")
             default: return ""
             }
         }

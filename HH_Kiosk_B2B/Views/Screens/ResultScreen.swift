@@ -19,13 +19,13 @@ public final class ResultsModel: ObservableObject {
     @Published public var results: ResultsMap = [:]
 
     private let displayOrder: [String] = [
-        "BP_CVD",
         "BP_SYSTOLIC",
         "BP_DIASTOLIC",
+        "HR_BPM",
         "HBA1C_RISK_PROB",
         "HDLTC_RISK_PROB",
         "TG_RISK_PROB",
-        "HR_BPM"
+        "BP_CVD"
     ]
 
     public var resultsArray: [(key: String, value: SignalResult)] {
