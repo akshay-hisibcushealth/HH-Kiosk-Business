@@ -93,7 +93,9 @@ struct ResultRow: View {
                         .scaledToFit()
                         .frame(width: 90.w, height: 90.h)
 
-                    buildBoldText(title, 36.sp, color: Color(AppColors.black))
+                    Text(title)
+                        .font(.system(size: 36.sp, weight: .bold))
+                        .foregroundColor(Color(AppColors.black))
                 }
 
                 Text(subtitle)
@@ -122,7 +124,9 @@ struct ResultRow: View {
                     .fill(indicatorColor)
                     .frame(width: 32.w, height: 32.h)
 
-                buildMediumText(message, 24.sp, color: Color(AppColors.black))
+                Text(message)
+                    .font(.system(size: 24.sp, weight: .medium))
+                    .foregroundColor(Color(AppColors.black))
                     .fixedSize(horizontal: false, vertical: true)
             }
             .padding(.horizontal, 24.w)

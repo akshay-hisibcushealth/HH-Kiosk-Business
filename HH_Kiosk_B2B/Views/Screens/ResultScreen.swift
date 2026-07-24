@@ -247,11 +247,9 @@ private struct TitleBlock: View {
     }
 
     var body: some View {
-        buildMediumText(
-            titleBlockDescription,
-            18.sp,
-            color: Color(AppColors.primary)
-        )
+        Text(titleBlockDescription)
+        .font(.system(size: 18.sp, weight: .medium))
+        .foregroundColor(Color(AppColors.primary))
         .italic()
         .lineSpacing(8.h)
         .padding(.horizontal, 28.w)
