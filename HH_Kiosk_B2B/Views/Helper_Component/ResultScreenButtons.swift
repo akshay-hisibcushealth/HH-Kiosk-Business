@@ -100,6 +100,10 @@ struct ResultPromptOverlay<Content: View>: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
+        // Keep the overlay's geometry tied to the full screen. Otherwise SwiftUI
+        // reduces the GeometryReader's height when the keyboard appears, which
+        // causes the percentage-based modal frame to shrink.
+        .ignoresSafeArea(.keyboard)
     }
 }
 
