@@ -117,11 +117,7 @@ public struct ResultScreen: View {
                 ResultEmailButton(result: result, placement: .bottom)
                     .padding(.horizontal, 30.w)
                     .padding(.top, 18.h)
-
-                Divider()
-                    .frame(width: 550.w)
-                    .padding(.top, 170.h)
-                    .padding(.bottom, 120.h)
+                    .padding(.bottom, 24.h)
             }
         }
         .frame(maxWidth: .infinity)

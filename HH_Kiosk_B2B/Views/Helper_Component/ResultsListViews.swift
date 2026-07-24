@@ -8,12 +8,13 @@ struct ResultsList: View {
 
     var body: some View {
         VStack(spacing: 28.h) {
-            ForEach(model.resultsArray, id: \.key) { pair in
+            ForEach(Array(model.resultsArray.enumerated()), id: \.element.key) { index, pair in
                 ResultRow(
                     metricKey: pair.key,
                     title: displayTitle(for: pair.key),
                     subtitle: descriptionText(for: pair.key),
-                    value: pair.value.value
+                    value: pair.value.value,
+                    showsDivider: index < model.resultsArray.count - 1
                 )
                 .padding(.horizontal, 20)
             }
@@ -27,6 +28,7 @@ struct ResultRow: View {
     let title: String
     let subtitle: String
     let value: Double
+    let showsDivider: Bool
 
     private var message: AttributedString {
         attributedText(from: getTaggedMessage(metricKey: metricKey, value: value), fontSize: 24.sp)
@@ -135,7 +137,9 @@ struct ResultRow: View {
             .background(Color(uiColor: .systemGray6))
             .clipShape(RoundedRectangle(cornerRadius: 24.r, style: .continuous))
             
-            Divider()
+            if showsDivider {
+                Divider()
+            }
         }
         .padding(.horizontal, 20.w)
         .padding(.vertical, 10.h)
