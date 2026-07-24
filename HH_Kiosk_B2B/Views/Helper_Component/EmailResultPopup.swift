@@ -184,27 +184,21 @@ struct EmailResultPopup: View {
                         .font(.system(size: 22.sp, weight: .bold))
                         .foregroundColor(Color(AppColors.black))
 
-                    ZStack(alignment: .leading) {
-                        Text(String(repeating: "•  ", count: pin.count))
-                            .font(.system(size: 28.sp, weight: .bold))
-                            .foregroundColor(Color(AppColors.black))
-                            .padding(.horizontal, 20.w)
-
-                        LocalizedEditMenuTextField(
-                            text: $pin,
-                            placeholder: ResultScreenStrings.EmailPopup.pinPlaceholder,
-                            returnKeyType: .done,
-                            autocorrectionType: .no,
-                            spellCheckingType: .no,
-                            textColor: AppColors.clear,
-                            font: .systemFont(ofSize: 28.sp, weight: .semibold)
-                        )
-                        .frame(height: 34.h)
-                        .padding(.vertical, 22.h)
-                        .padding(.horizontal, 20.w)
-                        .onChange(of: pin) { _, newValue in
-                            pin = String(newValue.prefix(4).filter(\.isNumber))
-                        }
+                    LocalizedEditMenuTextField(
+                        text: $pin,
+                        placeholder: ResultScreenStrings.EmailPopup.pinPlaceholder,
+                        returnKeyType: .done,
+                        autocorrectionType: .no,
+                        spellCheckingType: .no,
+                        textColor: AppColors.black,
+                        font: .systemFont(ofSize: 28.sp, weight: .semibold),
+                        masksTextImmediately: true
+                    )
+                    .frame(height: 34.h)
+                    .padding(.vertical, 22.h)
+                    .padding(.horizontal, 20.w)
+                    .onChange(of: pin) { _, newValue in
+                        pin = String(newValue.prefix(4).filter(\.isNumber))
                     }
                     .background(Color(uiColor: .systemGray6))
                     .overlay(

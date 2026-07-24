@@ -12,6 +12,8 @@ struct LocalizedEditMenuTextField: UIViewRepresentable {
     var spellCheckingType: UITextSpellCheckingType = .default
     var textColor: UIColor = .label
     var font: UIFont = .preferredFont(forTextStyle: .body)
+    var isSecureTextEntry: Bool = false
+    var masksTextImmediately: Bool = false
     var placeholderColor: UIColor?
     var placeholderFont: UIFont?
     var isFocused: Bool?
@@ -37,8 +39,11 @@ struct LocalizedEditMenuTextField: UIViewRepresentable {
     func updateUIView(_ textField: UITextField, context: Context) {
         context.coordinator.parent = self
 
-        if textField.text != text {
-            textField.text = text
+        let displayedText = masksTextImmediately
+            ? String(repeating: "*", count: text.count)
+            : text
+        if textField.text != displayedText {
+            textField.text = displayedText
         }
 
         applyConfiguration(to: textField)
@@ -59,6 +64,7 @@ struct LocalizedEditMenuTextField: UIViewRepresentable {
         textField.spellCheckingType = spellCheckingType
         textField.textColor = textColor
         textField.font = font
+        textField.isSecureTextEntry = isSecureTextEntry && !masksTextImmediately
 
         if placeholderColor != nil || placeholderFont != nil {
             var attributes: [NSAttributedString.Key: Any] = [:]
@@ -104,7 +110,42 @@ struct LocalizedEditMenuTextField: UIViewRepresentable {
         }
 
         @objc func textDidChange(_ textField: UITextField) {
+            guard !parent.masksTextImmediately else { return }
             parent.text = textField.text ?? ""
+        }
+
+        func textField(
+            _ textField: UITextField,
+            shouldChangeCharactersIn range: NSRange,
+            replacementString string: String
+        ) -> Bool {
+            guard parent.masksTextImmediately else { return true }
+
+            let currentText = parent.text as NSString
+            guard range.location <= currentText.length,
+                  NSMaxRange(range) <= currentText.length else {
+                return false
+            }
+
+            let updatedText = currentText.replacingCharacters(in: range, with: string)
+            parent.text = updatedText
+            textField.text = String(repeating: "*", count: updatedText.count)
+
+            let caretOffset = min(
+                range.location + (string as NSString).length,
+                (updatedText as NSString).length
+            )
+            if let caretPosition = textField.position(
+                from: textField.beginningOfDocument,
+                offset: caretOffset
+            ) {
+                textField.selectedTextRange = textField.textRange(
+                    from: caretPosition,
+                    to: caretPosition
+                )
+            }
+
+            return false
         }
 
         func textFieldDidBeginEditing(_ textField: UITextField) {
