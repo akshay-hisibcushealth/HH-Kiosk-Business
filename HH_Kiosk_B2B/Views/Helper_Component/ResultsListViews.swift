@@ -30,8 +30,8 @@ struct ResultRow: View {
     let value: Double
     let showsDivider: Bool
 
-    private var message: AttributedString {
-        attributedText(from: getTaggedMessage(metricKey: metricKey, value: value), fontSize: 24.sp)
+    private var message: String {
+        getTaggedMessage(metricKey: metricKey, value: value)
     }
 
     private var indicatorColor: Color {
@@ -127,7 +127,7 @@ struct ResultRow: View {
                     .frame(width: 32.w, height: 32.h)
 
                 Text(message)
-                    .font(.system(size: 24.sp, weight: .medium))
+                    .font(.system(size: 24.sp, weight: .semibold))
                     .foregroundColor(Color(AppColors.black))
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -437,11 +437,4 @@ func scaleValueToRange(_ value: Double, _ stops: [Double]) -> Double {
         }
     }
     return 1.0
-}
-
-fileprivate func attributedText(from text: String, fontSize: CGFloat = 16) -> AttributedString {
-    var result = AttributedString(text)
-    result.font = .custom("NewSpirit-Bold", size: fontSize)
-    result.foregroundColor = Color(AppColors.bodyText)
-    return result
 }

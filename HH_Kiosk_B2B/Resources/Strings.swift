@@ -181,7 +181,7 @@ enum ResultScreenStrings {
 
     enum EmailPopup {
         static var title: String { AppLocalization.string("app.ResultScreenStrings.EmailPopup.Send_result_to_your_mail", defaultValue: "Email me my results") }
-        static var subtitle: String { AppLocalization.string("app.ResultScreenStrings.EmailPopup.We_ll_send_a_secure_link", defaultValue: "We’ll send a secure link. Your 4-digit PIN\nunlocks the results, only you can open them") }
+        static var subtitle: String { AppLocalization.string("app.ResultScreenStrings.EmailPopup.We_ll_send_a_secure_link", defaultValue: "We'll send a secure document.\nYour 4-digit PIN unlocks the results, only you can open them.") }
         static var emailAddress: String { AppLocalization.string("app.ResultScreenStrings.EmailPopup.Email_address", defaultValue: "Email address") }
         static var emailPlaceholder: String { AppLocalization.string("app.ResultScreenStrings.EmailPopup.Email", defaultValue: "Email") }
         static var pinTitle: String { AppLocalization.string("app.ResultScreenStrings.EmailPopup.Create_a_4_digit_secret_key", defaultValue: "Create a 4-digit PIN (used to open your report)") }
@@ -198,7 +198,7 @@ enum ResultScreenStrings {
     enum PostSession {
         static var continueTitle: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Continue", defaultValue: "Continue") }
         static var allDoneTitle: String { AppLocalization.string("app.ResultScreenStrings.PostSession.All_done_Thank_you_for_visiting_our_kiosk", defaultValue: "All done.\nThank you for visiting our kiosk!") }
-        static var npsEyebrow: String { AppLocalization.string("app.ResultScreenStrings.PostSession.ONE_QUICK_QUESTION", defaultValue: "ONE QUICK QUESTION") }
+        static var npsEyebrow: String { AppLocalization.string("app.ResultScreenStrings.PostSession.ONE_QUICK_QUESTION", defaultValue: "ONE LAST QUESTION") }
         static var npsQuestion: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Would_you_recommend_this_experience_to_others", defaultValue: "Would you recommend this experience to others?") }
         static var notLikely: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Not_at_all_likely", defaultValue: "Not at all likely") }
         static var extremelyLikely: String { AppLocalization.string("app.ResultScreenStrings.PostSession.Extremely_likely", defaultValue: "Extremely likely") }

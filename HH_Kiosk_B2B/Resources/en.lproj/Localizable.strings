@@ -157,7 +157,7 @@
 "app.ResultScreenStrings.Print.Failed_to_generate_PDF_for_printing" = "Failed to generate PDF for printing.";
 "app.ResultScreenStrings.Print.Health_Report" = "Health Report";
 "app.ResultScreenStrings.EmailPopup.Send_result_to_your_mail" = "Email me my results";
-"app.ResultScreenStrings.EmailPopup.We_ll_send_a_secure_link" = "We’ll send a secure link. Your 4-digit PIN\nunlocks the results, only you can open them";
+"app.ResultScreenStrings.EmailPopup.We_ll_send_a_secure_link" = "We'll send a secure document.\nYour 4-digit PIN unlocks the results, only you can open them.";
 "app.ResultScreenStrings.EmailPopup.Email_address" = "Email Address";
 "app.ResultScreenStrings.EmailPopup.Email" = "Email";
 "app.ResultScreenStrings.EmailPopup.Create_a_4_digit_secret_key" = "Create a 4-digit PIN (used to open your report)";
@@ -170,7 +170,7 @@
 "app.ResultScreenStrings.EmailPopup.Done" = "Done";
 "app.ResultScreenStrings.PostSession.Continue" = "Continue";
 "app.ResultScreenStrings.PostSession.All_done_Thank_you_for_visiting_our_kiosk" = "Thank you for visiting our kiosk!";
-"app.ResultScreenStrings.PostSession.ONE_QUICK_QUESTION" = "ONE QUICK QUESTION";
+"app.ResultScreenStrings.PostSession.ONE_QUICK_QUESTION" = "ONE LAST QUESTION";
 "app.ResultScreenStrings.PostSession.Would_you_recommend_this_experience_to_others" = "Would you recommend this experience to others?";
 "app.ResultScreenStrings.PostSession.Not_at_all_likely" = "Not at all likely";
 "app.ResultScreenStrings.PostSession.Extremely_likely" = "Extremely likely";
