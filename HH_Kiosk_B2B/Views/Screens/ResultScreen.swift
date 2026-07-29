@@ -19,13 +19,13 @@ public final class ResultsModel: ObservableObject {
     @Published public var results: ResultsMap = [:]
 
     private let displayOrder: [String] = [
-        "BP_CVD",
         "BP_SYSTOLIC",
         "BP_DIASTOLIC",
+        "HR_BPM",
         "HBA1C_RISK_PROB",
         "HDLTC_RISK_PROB",
         "TG_RISK_PROB",
-        "HR_BPM"
+        "BP_CVD"
     ]
 
     public var resultsArray: [(key: String, value: SignalResult)] {
@@ -96,6 +96,9 @@ public struct ResultScreen: View {
                 },onPrint: {})
             }
         }
+        // Keep the underlying report and its footer stationary while a popup
+        // text field owns the keyboard.
+        .ignoresSafeArea(.keyboard)
         .onReceive(NotificationCenter.default.publisher(for: .screenDidChangeBounds)) { _ in
             refreshTrigger.toggle()
         }
@@ -110,11 +113,17 @@ public struct ResultScreen: View {
     private var mainContentView: some View {
         VStack(spacing: 0) {
             HeroHeader(result: result, showsEmailButton: showHeaderEmailButton)
-            TitleBlock()
             ResultsList(model: model)
+
+            if showHeaderEmailButton {
+                ResultEmailButton(result: result, placement: .bottom)
+                    .padding(.horizontal, 34.w)
+                    .padding(.top, 18.h)
+                    .padding(.bottom, 30.h)
+            }
         }
         .frame(maxWidth: .infinity)
-        .background(Color(AppColors.systemBackground))
+        .background(Color(AppColors.resultHeroBackground))
     }
     
     private func exportToPDF() {
@@ -133,50 +142,59 @@ private struct HeroHeader: View {
     let result: [String: MeasurementResults.SignalResult]
     let showsEmailButton: Bool
 
-    private let title = "Great job taking a proactive step\nfor your health!"
-
     var body: some View {
-        ZStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 0) {
+            ResultToolbar()
+
             VStack(alignment: .leading, spacing: 0) {
-                ResultToolbar()
-                Spacer(minLength: 20)
-
                 HStack(alignment: .center, spacing: 28.w) {
-                    VStack(alignment: .leading, spacing: 8.h) {
-                        buildSemiBoldText(title, 40.sp, color: Color(AppColors.primary))
-                            .font(.system(size: 34, weight: .bold))
-                            .foregroundColor(Color(AppColors.white))
-                            .lineLimit(2)
-                            .fixedSize(horizontal: false, vertical: true)
+                    Text(ResultScreenStrings.reportLabel)
+                        .font(.system(size: 20.sp, weight: .semibold))
+                        .tracking(1.2)
+                        .foregroundColor(Color(AppColors.resultReportLabel))
 
-                        Text(ResultScreenStrings.heroDescription)
-                            .foregroundColor(Color(AppColors.bodyTextMuted))
-                            .font(.system(size: 20.sp, weight: .light))
-                            .italic()
-                    }
-
-                    Spacer(minLength: 18.w)
+                    Spacer(minLength: 24.w)
 
                     if showsEmailButton {
                         ResultEmailButton(result: result)
                     }
                 }
-                .padding(.leading, 50.w)
-                .padding(.trailing, 34.w)
-                .padding(.top, 50.w)
-                .padding(.bottom, 24.w)
+
+                Text(ResultScreenStrings.title)
+                    .font(.system(size: 44.sp, weight: .medium))
+                    .foregroundColor(Color(AppColors.scheduleTitleText))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.78)
+                    .padding(.top, 26.h)
+
+                TitleBlock()
+                    .padding(.top, 28.h)
             }
+            .padding(.horizontal, 42.w)
+            .padding(.top, 48.h)
+            .padding(.bottom, 16.h)
+            .background(Color(AppColors.resultHeroBackground))
         }
         .frame(maxWidth: .infinity)
     }
 }
 
 private struct ResultEmailButton: View {
+    enum Placement {
+        case header
+        case bottom
+    }
+
     let result: [String: MeasurementResults.SignalResult]
+    var placement: Placement = .header
 
     @State private var showEmailPopUp = false
     @State private var isEmailSent = false
     private let buttonColor = Color(AppColors.resultTitleText)
+
+    private var cornerRadius: CGFloat {
+        placement == .header ? 8.r : 6.r
+    }
 
     var body: some View {
         Button {
@@ -185,24 +203,30 @@ private struct ResultEmailButton: View {
         } label: {
             HStack(spacing: 16.w) {
                 Image(AppIconNames.Asset.email)
+                    .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 24.w, height: 24.h)
+                    .frame(
+                        width: placement == .header ? 24.w : 32.w,
+                        height: placement == .header ? 24.h : 32.h
+                    )
                     .foregroundColor(buttonColor)
 
                 Text(ResultScreenStrings.Actions.emailResults)
                     .font(.system(size: 20.sp, weight: .semibold))
                     .foregroundColor(buttonColor)
             }
-            .frame(width: 270.w)
-            .frame(minHeight: 72.h)
-            .background(Color(AppColors.white))
+            .frame(width: placement == .header ? 308.w : nil)
+            .frame(maxWidth: placement == .bottom ? .infinity : nil)
+            .frame(minHeight: placement == .bottom ? 84.h : 74.h)
+            .background(Color.clear)
             .overlay(
-                RoundedRectangle(cornerRadius: 12.r, style: .continuous)
-                    .stroke(buttonColor, lineWidth: 2)
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .stroke(buttonColor, lineWidth: 1.5)
             )
-            .clipShape(RoundedRectangle(cornerRadius: 12.r, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
         }
+        .frame(maxWidth: placement == .bottom ? .infinity : nil)
         .fullScreenCover(isPresented: $showEmailPopUp, onDismiss: {
             isEmailSent = false
         }) {
@@ -223,24 +247,20 @@ private struct TitleBlock: View {
     }
 
     var body: some View {
-        buildMediumText(
-            titleBlockDescription,
-            18.sp,
-            color: Color(AppColors.primary)
-        )
+        Text(titleBlockDescription)
+        .font(.system(size: 24.sp, weight: .regular))
+        .foregroundColor(Color(AppColors.scheduleTitleText))
         .italic()
-        .lineSpacing(8.h)
-        .padding(.horizontal, 28.w)
-        .padding(.vertical, 22.h)
+        .lineSpacing(10.h)
+        .padding(.horizontal, 46.w)
+        .padding(.vertical, 24.h)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(uiColor: .systemGray6))
+        .background(Color(AppColors.white))
         .overlay(
-            RoundedRectangle(cornerRadius: 10.r, style: .continuous)
-                .stroke(Color(AppColors.formBorder), lineWidth: 1)
+            RoundedRectangle(cornerRadius: 16.r, style: .continuous)
+                .stroke(Color(AppColors.formBorder), lineWidth: 1.5)
         )
-        .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
-        .padding(.horizontal, 18.w)
-        .padding(.vertical, 16.h)
+        .clipShape(RoundedRectangle(cornerRadius: 16.r, style: .continuous))
     }
 }
 

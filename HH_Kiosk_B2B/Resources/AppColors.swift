@@ -38,6 +38,8 @@ struct AppColors {
     static let warningText = UIColor(hex: "#980B0B")
     static let companyAccentText = UIColor(hex: "#B32D0C")
     static let resultTitleText = UIColor(hex: "#1E4B86")
+    static let resultHeroBackground = UIColor(hex: "#F6F7FF")
+    static let resultReportLabel = UIColor(hex: "#C83412")
 
     static let scheduleEventPeach = UIColor(hex: "#FAA98A")
     static let scheduleEventBlue = UIColor(hex: "#C8D1EF")
@@ -82,6 +84,15 @@ struct AppColors {
     static let meterBarYellow = UIColor(hex: "#FFCB59")
     static let meterBarCoral = UIColor(hex: "#EF8F8C")
     static let meterBarRed = UIColor(hex: "#B32D0C")
+    static let resultGaugeYellow = UIColor(hex: "#FFEB55")
+    static let resultGaugeAmber = UIColor(hex: "#FFC85A")
+    static let resultGaugeBrightYellow = UIColor(hex: "#FFF05A")
+    static let resultGaugeRed = UIColor(hex: "#FF3214")
+    static let dialBandGreen = UIColor(hex: "#28A745")
+    static let dialBandLightGreen = UIColor(hex: "#82C91E")
+    static let dialBandYellow = UIColor(hex: "#FFC107")
+    static let dialBandLightRed = UIColor(hex: "#FD7E14")
+    static let dialBandRed = UIColor(hex: "#DC3545")
 
     static let tagRiskLow = "#1DC833"
     static let tagRiskMedium = "#FD895A"

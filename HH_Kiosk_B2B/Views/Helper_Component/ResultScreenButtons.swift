@@ -101,6 +101,9 @@ struct ResultPromptOverlay<Content: View>: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
+        // Keep the modal sized against the full screen while the keyboard is open.
+        // Otherwise SwiftUI reduces the GeometryReader height and shrinks the popup.
+        .ignoresSafeArea(.keyboard)
     }
 }
 

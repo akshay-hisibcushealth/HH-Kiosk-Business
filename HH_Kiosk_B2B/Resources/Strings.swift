@@ -131,6 +131,7 @@ enum ReadPdfScreenStrings {
 
 enum ResultScreenStrings {
     static let pdfFileName = "Hibiscus_Health_Report"
+    static let reportLabel = "YOUR 30-SECOND WELLNESS REPORT"
     static let title = "Great job taking a proactive step for your health!"
     static let heroDescription = "Below is a summary of your key biomarkers based on your 30-second scan."
     static let titleBlockDescription = "This report is intended to improve your awareness of general wellness. It is not a substitute for the clinical judgment of a health care professional.  These results provide a non-diagnostic screening to help you understand your current wellness trends."
@@ -163,13 +164,14 @@ enum ResultScreenStrings {
         static let supportSubtitle = "How can we support you from here?"
         static let close = "Close"
         static let confirm = "Confirm"
-        static let title = "Send result to your mail"
-        static let emailAddress = "Email address"
+        static let title = "Email me my results"
+        static let subtitle = "We'll send a secure document.\nYour 4-digit PIN unlocks the results, only you can open them."
+        static let emailAddress = "Email Address"
         static let emailPlaceholder = "Email"
-        static let pinTitle = "Create a 4-digit secret key"
+        static let pinTitle = "Create a 4-digit PIN (used to open your report)"
         static let pinPlaceholder = "* * * *"
         static let pinHelp = "This will be used to view your result"
-        static let sendMail = "Send mail"
+        static let sendMail = "Send my results"
         static let emailFailure = "Failed to send email. Please try again."
         static let secureAndPrivate = "Secure and Private"
         static let checkInboxTitle = "Check your inbox!"
@@ -219,7 +221,7 @@ enum ResultScreenStrings {
 
     enum Metrics {
         static let interpretations: [String: [String: String]] = [
-            "Cardiovascular Disease Risk": [
+            "Adverse Cardiovascular Event Risk": [
                 "very_low": "Your screening suggests a very low likelihood of a heart attack or stroke in the next 10 years.",
                 "low": "Your screening suggests a low likelihood of a heart attack or stroke in the next 10 years.",
                 "moderate_low": "Your screening suggests a moderate-low likelihood of a heart attack or stroke in the next 10 years.",
@@ -244,24 +246,24 @@ enum ResultScreenStrings {
                 "normal": "Your screening suggests your heart rate is within a normal resting range.",
                 "high": "Your screening suggests your heart rate is higher than the typical resting range."
             ],
-            "HbA1c Risk": [
+            "Diabetes/Prediabetes Risk (HbA1c)": [
                 "very_low": "Your screening suggests your HbA1c markers are within a healthy, stable range.",
                 "low": "Your screening suggests your HbA1c is likely below the threshold for concern.",
-                "moderate": "Your screening suggests slightly elevated glycemic markers compared to the ideal range.",
+                "moderate": "Your screening suggests your HbA1c (blood sugar level) markers are slightly elevated compared to the ideal range.",
                 "high": "Your screening suggests that your blood sugar levels are currently above the standard healthy range.",
                 "very_high": "Your screening suggests blood sugar markers that are notably above the standard healthy range."
             ],
-            "High Risk of Cholesterol": [
+            "Risk of High Cholesterol": [
                 "very_low": "Your screening suggests a very low probability of elevated cholesterol levels.",
                 "low": "Your screening suggests your cholesterol markers are within a standard, low-risk profile.",
-                "moderate": "Your screening suggests your cholesterol markers are currently sitting in a moderate range.",
+                "moderate": "Your screening suggests your cholesterol levels are within a moderate risk range.",
                 "high": "Your screening suggests cholesterol levels are currently above the recommended healthy threshold.",
                 "very_high": "Your screening suggests indicators consistent with a high concentration of cholesterol in the blood."
             ],
-            "High Risk of Triglycerides": [
+            "Risk of High Triglycerides": [
                 "very_low": "Your screening suggests a very low probability of elevated triglyceride levels.",
                 "low": "Your screening suggests your triglyceride markers are within a standard, low-risk profile.",
-                "moderate": "Your screening suggests your triglyceride markers are currently sitting in a moderate range.",
+                "moderate": "Your screening suggests your triglyceride levels are within a moderate risk range.",
                 "high": "Your screening suggests triglyceride levels are currently above the recommended healthy threshold.",
                 "very_high": "Your screening suggests indicators consistent with a high concentration of triglyceride in the blood."
             ]
@@ -269,13 +271,13 @@ enum ResultScreenStrings {
 
         static func displayTitle(for key: String) -> String {
             switch key {
-            case "BP_CVD": return "Cardiovascular Disease Risk"
+            case "BP_CVD": return "Adverse Cardiovascular Event Risk"
             case "HR_BPM": return "Heart Rate"
-            case "HBA1C_RISK_PROB": return "HbA1c Risk"
+            case "HBA1C_RISK_PROB": return "Diabetes/Prediabetes Risk (HbA1c)"
             case "BP_SYSTOLIC": return "Systolic Blood Pressure"
             case "BP_DIASTOLIC": return "Diastolic Blood Pressure"
-            case "HDLTC_RISK_PROB": return "High Risk of Cholesterol"
-            case "TG_RISK_PROB": return "High Risk of Triglycerides"
+            case "HDLTC_RISK_PROB": return "Risk of High Cholesterol"
+            case "TG_RISK_PROB": return "Risk of High Triglycerides"
             default: return key.replacingOccurrences(of: "_", with: " ")
             }
         }
@@ -291,13 +293,13 @@ enum ResultScreenStrings {
 
         static func description(for key: String) -> String {
             switch key {
-            case "BP_CVD": return "Think of this as your heart's 10-year weather forecast. It estimates how likely you are to experience a heart attack or stroke based on signals from your face scan. The lower the number, the clearer the skies."
-            case "BP_SYSTOLIC": return "This is the pressure your heart creates when it pumps blood out. Too high over time and it puts extra strain on your arteries. A normal reading is usually around 90–120 mmHg."
-            case "BP_DIASTOLIC": return "This is the pressure in your arteries when your heart is resting between beats. It tells us how hard your cardiovascular system is working even when it's taking a breather. A normal reading is usually around 60–80 mmHg."
-            case "HBA1C_RISK_PROB": return "This gives you a sense of your long-term blood sugar patterns. High blood sugar over time is linked to pre-diabetes and type 2 diabetes. Think of it less like a snapshot and more like a three-month average of how your body handles sugar."
-            case "HDLTC_RISK_PROB": return "Too much cholesterol in your blood can quietly clog your arteries over time. This screening gives you an early signal of whether your cholesterol levels may be in a healthy range."
-            case "TG_RISK_PROB": return "Triglycerides are a type of fat your body stores for energy. When there's too much of it in your blood, it can quietly raise your risk of heart disease and inflammation. This score flags whether your levels may be worth a closer look."
-            case "HR_BPM": return "How many times your heart beats in a minute. Most healthy adults land between 60–100 bpm at rest. Being consistently too high or too low can be worth discussing with your doctor."
+            case "BP_CVD": return "This is our estimation of how likely you are to experience a heart attack or stroke within the next 10 years. This is based on signals from your face scan."
+            case "BP_SYSTOLIC": return "This is the pressure your heart creates when it pumps blood out. Too high over time and it puts extra strain on your blood vessels. A normal reading is usually around 90–120 mmHg."
+            case "BP_DIASTOLIC": return "This is the pressure in your blood vessels when your heart is resting between beats.\nA normal reading is usually around 60–80 mmHg."
+            case "HBA1C_RISK_PROB": return "This is our estimation of your long term blood sugar patterns over the past three months based on signals from your face scan. High blood sugar over time is linked to pre-diabetes and type 2 diabetes."
+            case "HDLTC_RISK_PROB": return "This is our estimation of how likely you are to have high cholesterol levels based on signals from your face scan. Too much cholesterol in your blood can clog your blood vessels over time."
+            case "TG_RISK_PROB": return "This is our estimation of how likely you are to have high triglyceride levels based on signals from your face scan. Triglycerides are the most common type of fat in your body. Having too much of them can increase your risk of heart disease and stroke."
+            case "HR_BPM": return "This is how many times your heart beats per minute during your scan. Most healthy adults are between 60 and 100 beats per minute (BPM) when resting. If this is too high or too low consistently, it is something to discuss with your doctor."
             default: return ""
             }
         }

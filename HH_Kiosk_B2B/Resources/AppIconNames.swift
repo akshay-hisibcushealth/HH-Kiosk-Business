@@ -52,6 +52,7 @@ enum AppIconNames {
         static let infoCircle = "info.circle"
         static let lockShield = "lock.shield"
         static let moonFill = "moon.fill"
+        static let paperplane = "paperplane"
         static let photo = "photo"
         static let playCircleFill = "play.circle.fill"
         static let printerFill = "printer.fill"

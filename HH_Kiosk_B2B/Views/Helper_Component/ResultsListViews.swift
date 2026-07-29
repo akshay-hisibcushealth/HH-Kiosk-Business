@@ -12,18 +12,24 @@ struct ResultsList: View {
     @ObservedObject var model: ResultsModel
 
     var body: some View {
-        VStack(spacing: 28.h) {
-            ForEach(model.resultsArray, id: \.key) { pair in
+        LazyVStack(spacing: 22.h) {
+            ForEach(Array(model.resultsArray.enumerated()), id: \.element.key) { index, pair in
                 ResultRow(
                     metricKey: pair.key,
                     title: displayTitle(for: pair.key),
                     subtitle: descriptionText(for: pair.key),
                     value: pair.value.value
                 )
-                .padding(.horizontal, 20)
+
+                if index < model.resultsArray.count - 1 {
+                    Divider()
+                        .padding(.horizontal, 100.w)
+                }
             }
         }
-        .padding(.vertical, 16)
+        .padding(.horizontal, 34.w)
+        .padding(.top, 8.h)
+        .padding(.bottom, 30.h)
     }
 }
 
@@ -33,114 +39,95 @@ struct ResultRow: View {
     let subtitle: String
     let value: Double
 
-    private var message: AttributedString {
-        attributedText(from: getTaggedMessage(metricKey: metricKey, value: value), fontSize: 24.sp)
+    private var message: String {
+        getTaggedMessage(metricKey: metricKey, value: value)
     }
 
     private var indicatorColor: Color {
         meterBandColor(for: metricKey, value: value, colors: gaugeColors)
     }
 
-    // Color logic from Web (getResultsToDownload.tsx)
+    private var riskLabel: String {
+        displayRiskLabel(for: metricKey, value: value)
+    }
+
+    private var showsMeterValue: Bool {
+        ![
+            "HBA1C_RISK_PROB",
+            "HDLTC_RISK_PROB",
+            "TG_RISK_PROB",
+            "BP_CVD"
+        ].contains(metricKey)
+    }
+
+    // Use one consistent Figma palette for every vital meter.
     private var gaugeColors: [Color] {
-        switch metricKey {
-        case "BP_CVD", "HBA1C_RISK_PROB", "HDLTC_RISK_PROB", "TG_RISK_PROB":
-            return meterBarColors
-        case "HR_BPM":
-            return heartRateMeterBarColors
-        case "BP_SYSTOLIC", "BP_DIASTOLIC":
-            return bloodPressureMeterBarColors
-        case "BR_BPM":
-            return [Color(AppColors.riskWarning), Color(AppColors.riskLow), Color(AppColors.riskLow), Color(AppColors.riskLow), Color(AppColors.riskWarning)]
-        case "HRV_SDNN", "BP_TAU":
-            return [Color(AppColors.gaugeCoral), Color(AppColors.gaugeSoftCoral), Color(AppColors.gaugePaleYellow), Color(AppColors.gaugeSoftGreen), Color(AppColors.gaugeDeepGreen)]
-        case "BMI_CALC", "WAIST_TO_HEIGHT":
-            return [Color(AppColors.gaugePaleYellow), Color(AppColors.gaugeSoftGreen), Color(AppColors.gaugePaleYellow), Color(AppColors.gaugeSoftCoral), Color(AppColors.gaugeCoral)]
-        default:
-            return [Color(AppColors.riskLow), Color(AppColors.accent), Color(AppColors.riskWarning), Color(AppColors.riskMedium), Color(AppColors.riskHigh)]
-        }
-    }
-
-    private var meterBarColors: [Color] {
         [
-            Color(AppColors.meterBarGreen),
-            Color(AppColors.meterBarLime),
-            Color(AppColors.meterBarYellow),
-            Color(AppColors.meterBarCoral),
-            Color(AppColors.meterBarRed)
-        ]
-    }
-
-    private var bloodPressureMeterBarColors: [Color] {
-        [
-            Color(AppColors.meterBarYellow),
-            Color(AppColors.meterBarGreen),
-            Color(AppColors.meterBarLime),
-            Color(AppColors.meterBarYellow),
-            Color(AppColors.meterBarRed)
-        ]
-    }
-
-    private var heartRateMeterBarColors: [Color] {
-        [
-            Color(AppColors.meterBarYellow),
-            Color(AppColors.meterBarGreen),
-            Color(AppColors.meterBarYellow)
+            Color(AppColors.dialBandGreen),
+            Color(AppColors.dialBandLightGreen),
+            Color(AppColors.dialBandYellow),
+            Color(AppColors.dialBandLightRed),
+            Color(AppColors.dialBandRed)
         ]
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 24.h) {
-            VStack(alignment: .leading, spacing: 12.h) {
-                HStack(alignment: .center, spacing: 14.w) {
-                    Image(metricIconName(for: metricKey))
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 90.w, height: 90.h)
+        VStack(alignment: .leading, spacing: 0) {
+            Text(title)
+                .font(.system(size: 36.sp, weight: .bold))
+                .foregroundColor(Color(AppColors.black))
 
-                    buildBoldText(title, 36.sp, color: Color(AppColors.black))
-                }
+            Text(subtitle)
+                .font(.system(size: 28.sp, weight: .regular))
+                .foregroundColor(Color(AppColors.bodyText))
+                .lineSpacing(8.h)
+                .multilineTextAlignment(.leading)
+                .padding(.top, 10.h)
 
-                Text(subtitle)
-                    .font(.system(size: 28.sp))
-                    .foregroundColor(Color(AppColors.bodyText))
-                    .lineSpacing(8.h)
-                    .multilineTextAlignment(.leading)
-            }
+            MeterBar(
+                metricKey: metricKey,
+                value: value,
+                valueText: showsMeterValue ? formattedValue(value, for: metricKey) : nil,
+                colors: gaugeColors
+            )
+            .frame(width: Screen.width * 0.52)
+            .frame(height: 120.h)
+            .frame(maxWidth: .infinity)
+            .padding(.top, 24.h)
+
+            Text(riskLabel)
+                .font(.system(size: 34.sp, weight: .bold))
+                .foregroundColor(Color(AppColors.black))
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.top, 22.h)
 
             HStack(alignment: .center, spacing: 24.w) {
-                MeterBar(metricKey: metricKey, value: value, colors: gaugeColors)
-                    .frame(width: Screen.width * 0.55, alignment: .leading)
-                    .frame(minHeight: 86.h, maxHeight: 86.h)
-                    .padding(.leading, 28.w)
-
-                Spacer()
-
-                buildBoldText(formattedValue(value, for: metricKey), 48.sp, color: Color(AppColors.black))
-                    .frame(minWidth: 130.w, alignment: .trailing)
-                    .padding(.trailing, 100.w)
-            }
-            .padding(.top, 6.h)
-
-            HStack(alignment: .center, spacing: 18.w) {
                 Circle()
                     .fill(indicatorColor)
-                    .frame(width: 32.w, height: 32.h)
+                    .frame(width: 34.w, height: 34.h)
 
-                buildMediumText(message, 24.sp, color: Color(AppColors.black))
+                Text(message)
+                    .font(.system(size: 26.sp, weight: .semibold))
+                    .foregroundColor(Color(AppColors.black))
                     .fixedSize(horizontal: false, vertical: true)
             }
-            .padding(.horizontal, 24.w)
-            .padding(.vertical, 22.h)
+            .padding(.horizontal, 46.w)
+            .padding(.vertical, 30.h)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color(uiColor: .systemGray6))
-            .clipShape(RoundedRectangle(cornerRadius: 24.r, style: .continuous))
-            
-            Divider()
+            .background(Color(uiColor: .secondarySystemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 20.r, style: .continuous))
+            .padding(.horizontal, 12.w)
+            .padding(.top, 34.h)
         }
-        .padding(.horizontal, 20.w)
-        .padding(.vertical, 10.h)
+        .padding(.horizontal, 42.w)
+        .padding(.vertical, 40.h)
         .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(AppColors.white))
+        .overlay(
+            RoundedRectangle(cornerRadius: 24.r, style: .continuous)
+                .stroke(Color(AppColors.formBorder), lineWidth: 1.25)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 24.r, style: .continuous))
     }
 }
 
@@ -150,6 +137,7 @@ struct ResultRow: View {
 struct MeterBar: View {
     let metricKey: String
     let value: Double
+    let valueText: String?
     let colors: [Color]
     
     // Scale stops exactly matching Web (getResultsToDownload.tsx)
@@ -163,39 +151,36 @@ struct MeterBar: View {
             let thumbWidth: CGFloat = 16.w
             let usableWidth = max(0, totalWidth - thumbWidth)
             let thumbX = CGFloat(fraction) * usableWidth
+            let segmentSpacing: CGFloat = 6.w
+            let segmentWidth = max(0, (totalWidth - segmentSpacing * CGFloat(max(colors.count - 1, 0))) / CGFloat(max(colors.count, 1)))
             
-            ZStack(alignment: .leading) {
-                LinearGradient(
-                    stops: gradientStops,
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-                .frame(height: 28.h)
-                .clipShape(Capsule())
+            ZStack(alignment: .topLeading) {
+                HStack(spacing: segmentSpacing) {
+                    ForEach(Array(colors.enumerated()), id: \.offset) { _, color in
+                        RoundedRectangle(cornerRadius: 4.r, style: .continuous)
+                            .fill(color)
+                            .frame(width: segmentWidth, height: 28.h)
+                    }
+                }
+                .offset(y: 70.h)
+
+                if let valueText {
+                    Text(valueText)
+                        .font(.system(size: 34.sp, weight: .bold))
+                        .foregroundColor(Color(AppColors.black))
+                        .fixedSize()
+                        .position(
+                            x: min(max(thumbX + thumbWidth / 2, 86.w), totalWidth - 86.w),
+                            y: 20.h
+                        )
+                }
                 
                 Rectangle()
                     .fill(Color(AppColors.black))
-                    .frame(width: thumbWidth, height: 68.h)
+                    .frame(width: thumbWidth, height: 72.h)
                     .offset(x: thumbX)
+                    .offset(y: 48.h)
             }
-        }
-    }
-
-    private var gradientStops: [Gradient.Stop] {
-        guard !colors.isEmpty else {
-            return [Gradient.Stop(color: Color.clear, location: 0)]
-        }
-
-        if colors.count == 1 {
-            return [
-                Gradient.Stop(color: colors[0], location: 0),
-                Gradient.Stop(color: colors[0], location: 1)
-            ]
-        }
-
-        let step = 1.0 / Double(colors.count - 1)
-        return colors.enumerated().map { index, color in
-            Gradient.Stop(color: color, location: step * Double(index))
         }
     }
 }
@@ -243,6 +228,46 @@ fileprivate func getTaggedMessage(metricKey: String, value: Double) -> String {
     return interpretationJSON[title]?[bucket] ?? interpretationJSON[title]?["low"] ?? ""
 }
 
+fileprivate func displayRiskLabel(for key: String, value: Double) -> String {
+    switch key {
+    case "BP_CVD":
+        if value < 5 { return "Low Risk" }
+        if value < 7.25 { return "Mildly Elevated Risk" }
+        if value < 10 { return "Somewhat Elevated Risk" }
+        if value < 20 { return "Elevated Risk" }
+        return "Greatly Elevated Risk"
+
+    case "HBA1C_RISK_PROB", "HDLTC_RISK_PROB", "TG_RISK_PROB":
+        if value < 25 { return "Low Risk" }
+        if value < 45 { return "Mildly Elevated Risk" }
+        if value < 55 { return "Somewhat Elevated Risk" }
+        if value < 77.5 { return "Elevated Risk" }
+        return "Greatly Elevated Risk"
+
+    case "BP_SYSTOLIC":
+        if value < 90 { return "Below Expected Range" }
+        if value < 120 { return "Mildly Below Expected Range" }
+        if value < 130 { return "Within Expected Range" }
+        if value < 140 { return "Mildly Above Expected Range" }
+        return "Above Expected Range"
+
+    case "BP_DIASTOLIC":
+        if value < 60 { return "Below Expected Range" }
+        if value < 70 { return "Mildly Below Expected Range" }
+        if value < 80 { return "Within Expected Range" }
+        if value < 90 { return "Mildly Above Expected Range" }
+        return "Above Expected Range"
+
+    case "HR_BPM":
+        if value < 60 { return "Below Expected Range" }
+        if value < 100 { return "Within Expected Range" }
+        return "Above Expected Range"
+
+    default:
+        return "Low Risk"
+    }
+}
+
 fileprivate func formattedValue(_ value: Double, for metricKey: String) -> String {
     switch metricKey {
     case "BP_CVD", "HBA1C_RISK_PROB", "HDLTC_RISK_PROB", "TG_RISK_PROB":
@@ -258,25 +283,6 @@ fileprivate func formattedValue(_ value: Double, for metricKey: String) -> Strin
 
 fileprivate func displayTitle(for key: String) -> String {
     ResultScreenStrings.Metrics.displayTitle(for: key)
-}
-
-fileprivate func metricIconName(for key: String) -> String {
-    switch key {
-    case "BP_CVD":
-        return AppIconNames.Asset.cvdRiskIcon
-    case "BP_SYSTOLIC":
-        return AppIconNames.Asset.systolicBloodPressureIcon
-    case "BP_DIASTOLIC":
-        return AppIconNames.Asset.diastolicBloodPressureIcon
-    case "HBA1C_RISK_PROB":
-        return AppIconNames.Asset.hba1cIcon
-    case "HDLTC_RISK_PROB":
-        return AppIconNames.Asset.cholesterolIcon
-    case "TG_RISK_PROB":
-        return AppIconNames.Asset.triglyceridesIcon
-    default:
-        return AppIconNames.Asset.hrIcon
-    }
 }
 
 fileprivate func descriptionText(for key: String) -> String {
@@ -428,11 +434,4 @@ func scaleValueToRange(_ value: Double, _ stops: [Double]) -> Double {
         }
     }
     return 1.0
-}
-
-fileprivate func attributedText(from text: String, fontSize: CGFloat = 16) -> AttributedString {
-    var result = AttributedString(text)
-    result.font = .custom("NewSpirit-Bold", size: fontSize)
-    result.foregroundColor = Color(AppColors.bodyText)
-    return result
 }
