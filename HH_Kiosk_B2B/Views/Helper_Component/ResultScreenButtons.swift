@@ -24,21 +24,6 @@ struct ResultScreenButtons: View {
             .padding(.bottom, 26.h)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .shadow(color: Color(AppColors.black).opacity(0.18), radius: 14, x: 0, y: -4)
-        .overlay(alignment: .top) {
-            LinearGradient(
-                colors: [
-                    Color.clear,
-                    Color(AppColors.black).opacity(0.08),
-                    Color(AppColors.black).opacity(0.18)
-                ],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .frame(height: 28.h)
-            .offset(y: -28.h)
-            .allowsHitTesting(false)
-        }
     }
 
     private func footerPrimaryButton(title: String, action: @escaping () -> Void) -> some View {

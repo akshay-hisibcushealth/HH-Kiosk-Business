@@ -63,6 +63,8 @@ public struct ResultScreen: View {
     // PDF States
     @State private var pdfURL: URL?
     @State private var isSharing = false
+    @State private var isEmailPopupPresented = false
+    @State private var isEmailSent = false
 
     private let showBottomButtons: Bool
     private let showLoadingOverlay: Bool
@@ -90,7 +92,7 @@ public struct ResultScreen: View {
             }
             .ignoresSafeArea(edges: .top)
             
-            if showBottomButtons {
+            if showBottomButtons && !isEmailPopupPresented {
                 ResultScreenButtons(result: result, onDownloadPDF: {
                     exportToPDF()
                 },onPrint: {})
@@ -107,16 +109,35 @@ public struct ResultScreen: View {
                 ShareSheet(activityItems: [url])
             }
         }
+        .fullScreenCover(isPresented: $isEmailPopupPresented, onDismiss: {
+            isEmailSent = false
+        }) {
+            ResultPromptOverlay(layout: isEmailSent ? .emailSuccess : .emailEntry) {
+                EmailResultPopup(
+                    results: result,
+                    isEmailSent: $isEmailSent
+                )
+            }
+            .presentationBackground(Color.clear)
+        }
     }
     
     // Extracted content view so we can render it without the ScrollView wrapper for PDF
     private var mainContentView: some View {
         VStack(spacing: 0) {
-            HeroHeader(result: result, showsEmailButton: showHeaderEmailButton)
+            HeroHeader(
+                result: result,
+                showsEmailButton: showHeaderEmailButton,
+                onEmailPopupPresentationChange: { isEmailPopupPresented = $0 }
+            )
             ResultsList(model: model)
 
             if showHeaderEmailButton {
-                ResultEmailButton(result: result, placement: .bottom)
+                ResultEmailButton(
+                    result: result,
+                    placement: .bottom,
+                    onPresentationChange: { isEmailPopupPresented = $0 }
+                )
                     .padding(.horizontal, 34.w)
                     .padding(.top, 18.h)
                     .padding(.bottom, 30.h)
@@ -141,6 +162,7 @@ public struct ResultScreen: View {
 private struct HeroHeader: View {
     let result: [String: MeasurementResults.SignalResult]
     let showsEmailButton: Bool
+    let onEmailPopupPresentationChange: (Bool) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -156,7 +178,10 @@ private struct HeroHeader: View {
                     Spacer(minLength: 24.w)
 
                     if showsEmailButton {
-                        ResultEmailButton(result: result)
+                        ResultEmailButton(
+                            result: result,
+                            onPresentationChange: onEmailPopupPresentationChange
+                        )
                     }
                 }
 
@@ -187,9 +212,8 @@ private struct ResultEmailButton: View {
 
     let result: [String: MeasurementResults.SignalResult]
     var placement: Placement = .header
+    var onPresentationChange: (Bool) -> Void = { _ in }
 
-    @State private var showEmailPopUp = false
-    @State private var isEmailSent = false
     private let buttonColor = Color(AppColors.resultTitleText)
 
     private var cornerRadius: CGFloat {
@@ -198,8 +222,7 @@ private struct ResultEmailButton: View {
 
     var body: some View {
         Button {
-            isEmailSent = false
-            showEmailPopUp = true
+            onPresentationChange(true)
         } label: {
             HStack(spacing: 16.w) {
                 Image(AppIconNames.Asset.email)
@@ -227,17 +250,6 @@ private struct ResultEmailButton: View {
             .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
         }
         .frame(maxWidth: placement == .bottom ? .infinity : nil)
-        .fullScreenCover(isPresented: $showEmailPopUp, onDismiss: {
-            isEmailSent = false
-        }) {
-            ResultPromptOverlay(layout: isEmailSent ? .emailSuccess : .emailEntry) {
-                EmailResultPopup(
-                    results: result,
-                    isEmailSent: $isEmailSent
-                )
-            }
-            .presentationBackground(Color.clear)
-        }
     }
 }
 
