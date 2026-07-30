@@ -83,7 +83,7 @@ class ResultCardCell: UICollectionViewCell {
             configureCell(icon: icon,title: title, value: value, unit: unit,segments: [
                 (AppColors.gaugeYellow, 0.2),
                 (AppColors.gaugeGreen, 0.2),
-                (AppColors.gaugeGreen, 0.2),
+                (AppColors.gaugeLime, 0.2),
                 (AppColors.gaugeYellow, 0.2),
                 (AppColors.gaugeRed, 0.2)
             ]  ,minValue: minValue, maxValue: maxValue)

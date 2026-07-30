@@ -13,18 +13,13 @@ struct ResultsList: View {
 
     var body: some View {
         LazyVStack(spacing: 22.h) {
-            ForEach(Array(model.resultsArray.enumerated()), id: \.element.key) { index, pair in
+            ForEach(model.resultsArray, id: \.key) { pair in
                 ResultRow(
                     metricKey: pair.key,
                     title: displayTitle(for: pair.key),
                     subtitle: descriptionText(for: pair.key),
                     value: pair.value.value
                 )
-
-                if index < model.resultsArray.count - 1 {
-                    Divider()
-                        .padding(.horizontal, 100.w)
-                }
             }
         }
         .padding(.horizontal, 34.w)
@@ -60,15 +55,34 @@ struct ResultRow: View {
         ].contains(metricKey)
     }
 
-    // Use one consistent Figma palette for every vital meter.
+    // Match the reference result screen's metric-specific band patterns.
     private var gaugeColors: [Color] {
-        [
-            Color(AppColors.dialBandGreen),
-            Color(AppColors.dialBandLightGreen),
-            Color(AppColors.dialBandYellow),
-            Color(AppColors.dialBandLightRed),
-            Color(AppColors.dialBandRed)
-        ]
+        switch metricKey {
+        case "BP_SYSTOLIC", "BP_DIASTOLIC":
+            return [
+                Color(AppColors.dialBandYellow),
+                Color(AppColors.dialBandGreen),
+                Color(AppColors.dialBandLightGreen),
+                Color(AppColors.dialBandYellow),
+                Color(AppColors.dialBandRed)
+            ]
+
+        case "HR_BPM":
+            return [
+                Color(AppColors.dialBandYellow),
+                Color(AppColors.dialBandGreen),
+                Color(AppColors.dialBandYellow)
+            ]
+
+        default:
+            return [
+                Color(AppColors.dialBandGreen),
+                Color(AppColors.dialBandLightGreen),
+                Color(AppColors.dialBandYellow),
+                Color(AppColors.dialBandLightRed),
+                Color(AppColors.dialBandRed)
+            ]
+        }
     }
 
     var body: some View {
@@ -151,7 +165,7 @@ struct MeterBar: View {
             let thumbWidth: CGFloat = 16.w
             let usableWidth = max(0, totalWidth - thumbWidth)
             let thumbX = CGFloat(fraction) * usableWidth
-            let segmentSpacing: CGFloat = 6.w
+            let segmentSpacing: CGFloat = 4.w
             let segmentWidth = max(0, (totalWidth - segmentSpacing * CGFloat(max(colors.count - 1, 0))) / CGFloat(max(colors.count, 1)))
             
             ZStack(alignment: .topLeading) {
