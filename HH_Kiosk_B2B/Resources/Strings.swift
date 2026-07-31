@@ -87,6 +87,13 @@ enum PhysicalAttributesScreenStrings {
         static let missingGender = "Please select your gender."
     }
 
+    enum Debug {
+        static let fillDummyData = "Fill Dummy Data"
+        static let submitScanAPI = "Submit Debug Scan API"
+        static let scanAPISubmitted = "Debug scan API submitted successfully."
+        static let scanAPIFailed = "Failed to submit debug scan API."
+    }
+
     enum Form {
         static let emailLabel = "Email"
         static let emailPlaceholder = "Enter email"

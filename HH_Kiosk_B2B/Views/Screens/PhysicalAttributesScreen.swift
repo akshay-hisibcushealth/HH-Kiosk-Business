@@ -19,11 +19,11 @@ struct PhysicalAttributesScreen: View {
     private let validWeightRangeInPounds = 75...400
     
     private enum DeveloperAutofill {
-        static let email = "akshay@hibiscushealth.com"
+        static let email = "sachin@hibiscushealth.com"
         static let heightFeet = 5
         static let heightInches = 11
-        static let weightLbs = 185
-        static let age = 28
+        static let weightLbs = 180
+        static let age = 25
         static let gender = "Male"
     }
 
@@ -42,6 +42,10 @@ struct PhysicalAttributesScreen: View {
     @State private var refreshTrigger = false
     @StateObject private var keyboardObserver = KeyboardObserver()
     @FocusState private var focusedInputField: PhysicalAttributesInputField?
+    #if DEBUG
+    @State private var isSubmittingDebugVitals = false
+    private let debugSubmissionService: KioskSubmissionServiceProtocol = KioskSubmissionService()
+    #endif
 
     
     // EXTERNAL CAMERA VARIABLES
@@ -320,31 +324,58 @@ struct PhysicalAttributesScreen: View {
             }
 
             #if DEBUG
-            Button(action: {
-                hideKeyboard()
-                hitFaceScanAPIForTesting()
-            }) {
-                Text(PhysicalAttributesScreenStrings.debugHitAPI)
-                    .font(.system(size: 18.sp, weight: .bold))
-                    .foregroundColor(Color(AppColors.white))
-                    .frame(width: 190.w, height: 46.h)
-                    .background(Color(AppColors.primary))
-                    .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
-            }
-            .buttonStyle(.plain)
+            HStack(spacing: 12.w) {
+                Button(action: {
+                    dismissPhysicalAttributeInputs()
+                    applyDeveloperAutofill()
+                }) {
+                    Text(PhysicalAttributesScreenStrings.Debug.fillDummyData)
+                        .font(.system(size: 18.sp, weight: .bold))
+                        .foregroundColor(Color(AppColors.white))
+                        .frame(width: 190.w, height: 46.h)
+                        .background(Color(AppColors.primary))
+                        .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
+                }
+                .buttonStyle(.plain)
 
-            Button(action: {
-                hideKeyboard()
-                skipFaceScanForTesting()
-            }) {
-                Text(PhysicalAttributesScreenStrings.debugProceedToResults)
-                    .font(.system(size: 18.sp, weight: .bold))
-                    .foregroundColor(Color(AppColors.white))
-                    .frame(width: 190.w, height: 46.h)
-                    .background(Color(AppColors.primary))
-                    .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
+                Button(action: {
+                    hideKeyboard()
+                    submitDebugVitals()
+                }) {
+                    ZStack {
+                        Text(PhysicalAttributesScreenStrings.Debug.submitScanAPI)
+                            .font(.system(size: 18.sp, weight: .bold))
+                            .foregroundColor(Color(AppColors.white))
+                            .frame(width: 240.w, height: 46.h)
+                            .background(Color(AppColors.primary))
+                            .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
+                            .opacity(isSubmittingDebugVitals ? 0 : 1)
+
+                        if isSubmittingDebugVitals {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: Color(AppColors.white)))
+                                .frame(width: 240.w, height: 46.h)
+                                .background(Color(AppColors.primary))
+                                .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
+                        }
+                    }
+                }
+                .buttonStyle(.plain)
+                .disabled(isSubmittingDebugVitals)
+
+                Button(action: {
+                    hideKeyboard()
+                    skipFaceScanForTesting()
+                }) {
+                    Text(PhysicalAttributesScreenStrings.debugProceedToResults)
+                        .font(.system(size: 18.sp, weight: .bold))
+                        .foregroundColor(Color(AppColors.white))
+                        .frame(width: 190.w, height: 46.h)
+                        .background(Color(AppColors.primary))
+                        .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
             #endif
         }
     }
@@ -449,22 +480,47 @@ struct PhysicalAttributesScreen: View {
     }
 
     #if DEBUG
-    private func hitFaceScanAPIForTesting() {
+    private func submitDebugVitals() {
+        guard !isSubmittingDebugVitals else { return }
+
+        dismissPhysicalAttributeInputs()
         guard validateInputs() else { return }
         saveCurrentUser()
 
-        let controller = ResultsViewController(appState: appState)
-        controller.modalPresentationStyle = .fullScreen
+        isSubmittingDebugVitals = true
 
-        if let topVC = UIApplication.topViewController() {
-            topVC.present(controller, animated: true) {
-                controller.submitMockScanResultsForBackendDebug()
+        Task {
+            do {
+                _ = try await debugSubmissionService.saveUserVitals(testResults: Self.debugScanResults)
+
+                await MainActor.run {
+                    isSubmittingDebugVitals = false
+                    validationMessage = PhysicalAttributesScreenStrings.Debug.scanAPISubmitted
+                    showValidationAlert = true
+                }
+            } catch {
+                print("Debug scan API submission error:", error.localizedDescription)
+                await MainActor.run {
+                    isSubmittingDebugVitals = false
+                    validationMessage = PhysicalAttributesScreenStrings.Debug.scanAPIFailed
+                    showValidationAlert = true
+                }
             }
-        } else {
-            validationMessage = "Unable to open results screen."
-            showValidationAlert = true
         }
     }
+
+    private static let debugScanResults: ResultsMap = [
+        "BP_CVD": SignalResult(notes: [], value: 0.2024),
+        "HR_BPM": SignalResult(notes: [], value: 70.4494),
+        "HBA1C_RISK_PROB": SignalResult(notes: [], value: 26.295),
+        "BP_SYSTOLIC": SignalResult(notes: [], value: 112.4425),
+        "BP_DIASTOLIC": SignalResult(notes: [], value: 83.7584),
+        "HDLTC_RISK_PROB": SignalResult(notes: [], value: 54.1508),
+        "TG_RISK_PROB": SignalResult(notes: [], value: 47.1745),
+        "BMI_CALC": SignalResult(notes: [], value: 27.6816),
+        "BR_BPM": SignalResult(notes: [], value: 12),
+        "HEALTH_SCORE": SignalResult(notes: [], value: 72.5714)
+    ]
 
     private func saveCurrentUser() {
         LocalUserStorage.saveUser(
