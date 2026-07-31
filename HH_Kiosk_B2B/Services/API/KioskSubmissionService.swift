@@ -5,9 +5,7 @@ protocol KioskSubmissionServiceProtocol {
     func sendEmailResults(email: String, pin: String) async throws
     func sendUserResponse(email: String, nextSteps: [KioskNextStepResponse], npsScore: Int?) async throws -> KioskUserResponseResult
     func saveUserVitals(results: [String: MeasurementResults.SignalResult]?) async throws -> ResultsMap
-    #if DEBUG
     func saveUserVitals(testResults: ResultsMap?) async throws -> ResultsMap
-    #endif
 }
 
 struct KioskUserResponseResult: Decodable {
@@ -102,11 +100,9 @@ struct KioskSubmissionService: KioskSubmissionServiceProtocol {
         try await saveUserVitalsPayload(data: mapResults(results ?? [:]))
     }
 
-    #if DEBUG
     func saveUserVitals(testResults: ResultsMap?) async throws -> ResultsMap {
         try await saveUserVitalsPayload(data: mapResults(testResults ?? [:]))
     }
-    #endif
 
     private func saveUserVitalsPayload(data: [String: ResultEntry]) async throws -> ResultsMap {
         guard let user = LocalUserStorage.loadUser() else {

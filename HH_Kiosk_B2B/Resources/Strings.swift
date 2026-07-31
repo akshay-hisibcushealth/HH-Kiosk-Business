@@ -69,10 +69,7 @@ enum PhysicalAttributesScreenStrings {
     static let privacyMessage = "We value your privacy. Your information will NOT be shared externally."
     static let watchQuickDemo = "Watch Demo"
     static let proceedToScan = "Proceed to Scan"
-    #if DEBUG
-    static let debugHitAPI = "Hit API"
     static let debugProceedToResults = "Skip to Results"
-    #endif
     static let alertDismiss = "OK"
     static let demoURL = "https://drive.google.com/file/d/1dPJs1A6aptEh3yTCVxR5BUlRfyLWa3rL/view?usp=sharing"
 

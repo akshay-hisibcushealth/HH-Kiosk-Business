@@ -42,10 +42,8 @@ struct PhysicalAttributesScreen: View {
     @State private var refreshTrigger = false
     @StateObject private var keyboardObserver = KeyboardObserver()
     @FocusState private var focusedInputField: PhysicalAttributesInputField?
-    #if DEBUG
     @State private var isSubmittingDebugVitals = false
     private let debugSubmissionService: KioskSubmissionServiceProtocol = KioskSubmissionService()
-    #endif
 
     
     // EXTERNAL CAMERA VARIABLES
@@ -323,60 +321,60 @@ struct PhysicalAttributesScreen: View {
                 .buttonStyle(.plain)
             }
 
-            #if DEBUG
-            HStack(spacing: 12.w) {
-                Button(action: {
-                    dismissPhysicalAttributeInputs()
-                    applyDeveloperAutofill()
-                }) {
-                    Text(PhysicalAttributesScreenStrings.Debug.fillDummyData)
-                        .font(.system(size: 18.sp, weight: .bold))
-                        .foregroundColor(Color(AppColors.white))
-                        .frame(width: 190.w, height: 46.h)
-                        .background(Color(AppColors.primary))
-                        .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
-                }
-                .buttonStyle(.plain)
-
-                Button(action: {
-                    hideKeyboard()
-                    submitDebugVitals()
-                }) {
-                    ZStack {
-                        Text(PhysicalAttributesScreenStrings.Debug.submitScanAPI)
+            if AppConfig.qaToolsEnabled {
+                HStack(spacing: 12.w) {
+                    Button(action: {
+                        dismissPhysicalAttributeInputs()
+                        applyDeveloperAutofill()
+                    }) {
+                        Text(PhysicalAttributesScreenStrings.Debug.fillDummyData)
                             .font(.system(size: 18.sp, weight: .bold))
                             .foregroundColor(Color(AppColors.white))
-                            .frame(width: 240.w, height: 46.h)
+                            .frame(width: 190.w, height: 46.h)
                             .background(Color(AppColors.primary))
                             .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
-                            .opacity(isSubmittingDebugVitals ? 0 : 1)
+                    }
+                    .buttonStyle(.plain)
 
-                        if isSubmittingDebugVitals {
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle(tint: Color(AppColors.white)))
+                    Button(action: {
+                        hideKeyboard()
+                        submitDebugVitals()
+                    }) {
+                        ZStack {
+                            Text(PhysicalAttributesScreenStrings.Debug.submitScanAPI)
+                                .font(.system(size: 18.sp, weight: .bold))
+                                .foregroundColor(Color(AppColors.white))
                                 .frame(width: 240.w, height: 46.h)
                                 .background(Color(AppColors.primary))
                                 .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
+                                .opacity(isSubmittingDebugVitals ? 0 : 1)
+
+                            if isSubmittingDebugVitals {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle(tint: Color(AppColors.white)))
+                                    .frame(width: 240.w, height: 46.h)
+                                    .background(Color(AppColors.primary))
+                                    .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
+                            }
                         }
                     }
-                }
-                .buttonStyle(.plain)
-                .disabled(isSubmittingDebugVitals)
+                    .buttonStyle(.plain)
+                    .disabled(isSubmittingDebugVitals)
 
-                Button(action: {
-                    hideKeyboard()
-                    skipFaceScanForTesting()
-                }) {
-                    Text(PhysicalAttributesScreenStrings.debugProceedToResults)
-                        .font(.system(size: 18.sp, weight: .bold))
-                        .foregroundColor(Color(AppColors.white))
-                        .frame(width: 190.w, height: 46.h)
-                        .background(Color(AppColors.primary))
-                        .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
+                    Button(action: {
+                        hideKeyboard()
+                        skipFaceScanForTesting()
+                    }) {
+                        Text(PhysicalAttributesScreenStrings.debugProceedToResults)
+                            .font(.system(size: 18.sp, weight: .bold))
+                            .foregroundColor(Color(AppColors.white))
+                            .frame(width: 190.w, height: 46.h)
+                            .background(Color(AppColors.primary))
+                            .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
             }
-            #endif
         }
     }
 
@@ -479,8 +477,8 @@ struct PhysicalAttributesScreen: View {
         gender = DeveloperAutofill.gender
     }
 
-    #if DEBUG
     private func submitDebugVitals() {
+        guard AppConfig.qaToolsEnabled else { return }
         guard !isSubmittingDebugVitals else { return }
 
         dismissPhysicalAttributeInputs()
@@ -536,6 +534,7 @@ struct PhysicalAttributesScreen: View {
     }
 
     private func skipFaceScanForTesting() {
+        guard AppConfig.qaToolsEnabled else { return }
         saveDeveloperTestUser()
 
         let controller = ResultsViewController(appState: appState)
@@ -576,8 +575,6 @@ struct PhysicalAttributesScreen: View {
 
         print("Saved developer test user for skip face scan flow.")
     }
-    #endif
-
     private static func heightInCentimeters(feet: Int, inches: Int) -> Int {
         let totalInches = (feet * 12) + inches
         return Int(Double(totalInches) * 2.54)

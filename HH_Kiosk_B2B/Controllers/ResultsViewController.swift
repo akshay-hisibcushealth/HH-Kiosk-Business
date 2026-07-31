@@ -91,8 +91,8 @@ class ResultsViewController: UIViewController {
         print("✅ Mock backend data injected — check SwiftUI Results screen now.")
     }
 
-    #if DEBUG
     func submitMockScanResultsForBackendDebug() {
+        guard AppConfig.qaToolsEnabled else { return }
         print("ResultsViewController: Skipping face scan and submitting mock scan results to backend")
         updateUI(for: .loading)
 
@@ -134,9 +134,6 @@ class ResultsViewController: UIViewController {
         "BR_BPM": SignalResult(notes: [], value: 12),
         "HEALTH_SCORE": SignalResult(notes: [], value: 72.5714)
     ]
-    #endif
-    
-    
     private func exportPDF() {
         // 1. Create the view
         let pdfView = makeResultScreen(
@@ -644,7 +641,6 @@ class ResultsViewController: UIViewController {
         }
     }
 
-    #if DEBUG
     private func prepareTestDataForAPI(_ results: ResultsMap?) async -> ResultsMap? {
         let defaults = UserDefaults.standard
 
@@ -667,8 +663,6 @@ class ResultsViewController: UIViewController {
             return nil
         }
     }
-    #endif
-
     private func filterVisibleResults(_ results: ResultsMap) -> ResultsMap {
         var filtered: ResultsMap = [:]
         for key in visibleKeys {

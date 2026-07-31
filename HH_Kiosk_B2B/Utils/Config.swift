@@ -15,6 +15,10 @@
 import Foundation
 
 enum AppConfig {
+
+    // Set to true for QA TestFlight builds and false for client builds.
+    // This controls all Physical Attributes QA buttons and their actions.
+    static let qaToolsEnabled = true
     
     static let deepaffexLicenseKey = "d7e81b25-81bc-452d-a884-ea137511248f"
     static let deepaffexStudyID = "47a013a2-5d8b-4dc5-a5ed-a2135adc53be"
