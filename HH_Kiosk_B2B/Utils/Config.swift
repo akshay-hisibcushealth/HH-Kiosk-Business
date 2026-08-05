@@ -23,7 +23,7 @@ enum AppConfig {
     static let deepaffexLicenseKey = "d7e81b25-81bc-452d-a884-ea137511248f"
     static let deepaffexStudyID = "47a013a2-5d8b-4dc5-a5ed-a2135adc53be"
     static let deepaffexAPIHostname = "api.deepaffex.ai"
-    static let openweatherApiKey = "f011104215b265af5c8fa381274ba594"
+    static let openweatherApiKey = "715cd8cc257664a7b393c54dcdb6ed2b"
     static let baseURL = "https://coremobileapidev.hibiscushealth.com"
     static let brandCode = "XSEWVGNV"
     static let scanType = "Kiosk"

@@ -217,7 +217,7 @@ struct EmailResultPopup: View {
         title: String,
         placeholder: String,
         text: Binding<String>,
-        keyboardType: UIKeyboardType = .numberPad,
+        keyboardType: UIKeyboardType = .default,
         masksTextImmediately: Bool = false
     ) -> some View {
         VStack(alignment: .leading, spacing: 12.h) {
