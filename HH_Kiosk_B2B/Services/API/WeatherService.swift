@@ -16,33 +16,27 @@ struct WeatherService: WeatherServiceProtocol {
     }
 
     func fetchWeather(lat: Double, lon: Double) async throws -> WeatherSnapshot {
-        async let currentResponse = client.get(OpenWeatherCurrentResponse.self, from: AppAPIEndpoints.currentWeather(lat: lat, lon: lon))
-        async let forecastResponse = client.get(OpenWeatherForecastResponse.self, from: AppAPIEndpoints.forecast(lat: lat, lon: lon))
+        let response = try await client.get(
+            KioskWeatherResponse.self,
+            from: AppAPIEndpoints.kioskWeather(lat: lat, lon: lon)
+        )
+        hourFormatter.timeZone = TimeZone(secondsFromGMT: response.timezoneOffset)
 
-        let (current, forecast) = try await (currentResponse, forecastResponse)
-        guard let firstWeather = current.weather.first else {
-            throw AppAPIError.invalidResponse
-        }
-
-        let forecastItems = forecast.list.prefix(6).compactMap { item -> ForecastItem? in
-            guard let condition = item.weather.first?.main else { return nil }
-            let date = Date(timeIntervalSince1970: item.dt)
+        let forecastItems = response.hourly.map { item in
             return ForecastItem(
-                hour: hourFormatter.string(from: date),
-                temperature: Int(item.main.temp),
-                condition: condition
+                hour: hourFormatter.string(from: Date(timeIntervalSince1970: item.timestamp)),
+                temperature: item.temperature,
+                condition: item.condition
             )
         }
 
-        let forecastTemps = forecast.list.prefix(6).map(\.main.temp)
-
         return WeatherSnapshot(
-            currentTemp: Int(current.main.temp),
-            high: Int(forecastTemps.max() ?? current.main.tempMax),
-            low: Int(forecastTemps.min() ?? current.main.tempMin),
-            condition: firstWeather.main,
-            iconCode: firstWeather.icon,
-            cityName: current.name,
+            currentTemp: response.currentTemp,
+            high: response.high,
+            low: response.low,
+            condition: response.condition,
+            iconCode: response.iconCode,
+            cityName: response.cityName,
             hourly: forecastItems
         )
     }

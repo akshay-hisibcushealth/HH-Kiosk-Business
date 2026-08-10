@@ -19,11 +19,17 @@ enum AppConfig {
     // Set to true for QA TestFlight builds and false for client builds.
     // This controls all Physical Attributes QA buttons and their actions.
     static let qaToolsEnabled = true
+
+    // Screen capture is useful during development, but patient information must
+    // be protected in TestFlight and production builds. Change either value when
+    // a specific build needs different behavior.
+#if DEBUG
+static let sensitiveScreenCaptureEnabled = false // Test protection
+#else
+static let sensitiveScreenCaptureEnabled = false
+#endif
     
-    static let deepaffexLicenseKey = "d7e81b25-81bc-452d-a884-ea137511248f"
-    static let deepaffexStudyID = "47a013a2-5d8b-4dc5-a5ed-a2135adc53be"
     static let deepaffexAPIHostname = "api.deepaffex.ai"
-    static let openweatherApiKey = "715cd8cc257664a7b393c54dcdb6ed2b"
     static let baseURL = "https://coremobileapidev.hibiscushealth.com"
     static let brandCode = "XSEWVGNV"
     static let scanType = "Kiosk"

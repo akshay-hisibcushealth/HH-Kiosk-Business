@@ -28,15 +28,6 @@ struct AnuraMeasurementView: View {
             }
             .disabled(isPresentingMeasurement)
         }
-        .onAppear {
-            checkEmbeddedLicense()
-        }
-    }
-
-    private func checkEmbeddedLicense() {
-        if AppConfig.deepaffexLicenseKey.isEmpty || AppConfig.deepaffexStudyID.isEmpty {
-            fatalError("You must provide a license key and study ID to use this app")
-        }
     }
 
     private func startAnuraMeasurement() {

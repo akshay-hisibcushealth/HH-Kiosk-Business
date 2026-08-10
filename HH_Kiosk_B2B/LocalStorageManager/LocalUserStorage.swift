@@ -19,12 +19,18 @@ struct StoredUser {
 
 struct LocalUserStorage {
 
+    private static let clientIDKey = "client_id"
     private static let emailKey = "user_email"
     private static let heightKey = "user_height"
     private static let weightKey = "user_weight"
     private static let weightInPoundsKey = "user_weight_lbs"
     private static let ageKey = "user_age"
     private static let genderKey = "user_gender"
+    private static let measurementResultsKey = "measurement_results"
+
+    static func clearClientID() {
+        UserDefaults.standard.removeObject(forKey: clientIDKey)
+    }
 
     static func saveUser(
         email: String,
@@ -56,6 +62,7 @@ struct LocalUserStorage {
         defaults.removeObject(forKey: weightInPoundsKey)
         defaults.removeObject(forKey: ageKey)
         defaults.removeObject(forKey: genderKey)
+        defaults.removeObject(forKey: measurementResultsKey)
     }
 
     static func loadUser() -> StoredUser? {

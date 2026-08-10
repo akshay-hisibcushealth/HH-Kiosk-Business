@@ -21,9 +21,13 @@ class DeepAffexMiniAPIClient : DeepAffexMiniAPIProtocol {
         case tokenVerificationFailed
         case registerLicenseFailed
         case sdkConfigFailed
+        case credentialsFailed
     }
     
     var network : WebServiceProtocol
+    private let contentService: KioskContentServiceProtocol
+    private(set) var studyID = ""
+    private var licenseKey = ""
     
     // Note: We do not reccomend storing the DFX API token in in UserDefaults
     // Please use secure storage, such as system keychain
@@ -62,12 +66,53 @@ class DeepAffexMiniAPIClient : DeepAffexMiniAPIProtocol {
             UserDefaults.standard.set(newValue, forKey: #function)
         }
     }
+
+    private var registeredLicenseKey: String {
+        get {
+            UserDefaults.standard.string(forKey: #function) ?? ""
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: #function)
+        }
+    }
     
-    init(network: WebServiceProtocol) {
+    init(
+        network: WebServiceProtocol,
+        contentService: KioskContentServiceProtocol = KioskContentService()
+    ) {
         self.network = network
+        self.contentService = contentService
     }
     
     func beginStartupFlow(_ completion: @escaping ResultCallback<Data>) {
+        Task { [weak self] in
+            guard let self else { return }
+
+            do {
+                let credentials = try await contentService.fetchAnuraCredentials()
+                guard !credentials.licenseKey.isEmpty, !credentials.studyId.isEmpty else {
+                    completion(.failure(Error.credentialsFailed))
+                    return
+                }
+
+                if registeredLicenseKey != credentials.licenseKey {
+                    token = ""
+                    refreshToken = ""
+                    lastSDKConfigHash = nil
+                    lastSDKConfig = nil
+                    registeredLicenseKey = credentials.licenseKey
+                }
+
+                licenseKey = credentials.licenseKey
+                studyID = credentials.studyId
+                continueStartupFlow(completion)
+            } catch {
+                completion(.failure(Error.credentialsFailed))
+            }
+        }
+    }
+
+    private func continueStartupFlow(_ completion: @escaping ResultCallback<Data>) {
         if token.isEmpty {
             // License hasn't been registered yet
             registerLicenseAndRetrieveSDKConfig(completion)
@@ -210,7 +255,12 @@ class DeepAffexMiniAPIClient : DeepAffexMiniAPIProtocol {
             return
         }
         
-        let license = License(key: AppConfig.deepaffexLicenseKey,
+        guard !licenseKey.isEmpty else {
+            completion(.failure(Error.credentialsFailed))
+            return
+        }
+
+        let license = License(key: licenseKey,
                               deviceTypeID: "IPHONE",
                               name: appName,
                               identifier: bundleIdentifier,
@@ -227,7 +277,12 @@ class DeepAffexMiniAPIClient : DeepAffexMiniAPIProtocol {
     }
     
     func retrieveSDKConfig(_ completion: @escaping ResultCallback<Data>) {
-        retrieveStudySDKConfig(studyID: AppConfig.deepaffexStudyID,
+        guard !studyID.isEmpty else {
+            completion(.failure(Error.credentialsFailed))
+            return
+        }
+
+        retrieveStudySDKConfig(studyID: studyID,
                                    sdkID: "default",
                                    completion)
     }

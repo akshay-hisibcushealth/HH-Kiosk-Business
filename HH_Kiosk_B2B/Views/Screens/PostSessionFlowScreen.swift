@@ -99,6 +99,12 @@ struct PostSessionFlowScreen: View {
             footer
         }
         .background(Color(AppColors.systemBackground))
+        .onAppear {
+            SensitiveScreenPrivacy.beginProtecting(owner: "post-session")
+        }
+        .onDisappear {
+            SensitiveScreenPrivacy.endProtecting(owner: "post-session")
+        }
     }
 
 

@@ -3,6 +3,12 @@ import Foundation
 protocol KioskContentServiceProtocol {
     func fetchDashboardData() async throws -> APIResponse
     func fetchScreenSaverData() async throws -> ScreenSaverData
+    func fetchAnuraCredentials() async throws -> AnuraCredentials
+}
+
+struct AnuraCredentials: Decodable {
+    let licenseKey: String
+    let studyId: String
 }
 
 struct KioskContentService: KioskContentServiceProtocol {
@@ -35,6 +41,13 @@ struct KioskContentService: KioskContentServiceProtocol {
             subtitle: ScreenSaverStrings.subtitle,
             actionButtonText: ScreenSaverStrings.actionButton,
             carouselImages: carouselImages
+        )
+    }
+
+    func fetchAnuraCredentials() async throws -> AnuraCredentials {
+        try await client.get(
+            AnuraCredentials.self,
+            from: AppAPIEndpoints.kioskAnuraCredentials
         )
     }
 }

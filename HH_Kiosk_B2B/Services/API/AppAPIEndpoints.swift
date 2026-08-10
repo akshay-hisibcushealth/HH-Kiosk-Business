@@ -21,21 +21,14 @@ enum AppAPIEndpoints {
         appURL(path: "/custom-kiosk-user-response/")
     }
 
-    static func currentWeather(lat: Double, lon: Double) -> URL {
-        weatherURL(path: "/data/2.5/weather", queryItems: [
-            URLQueryItem(name: "lat", value: String(lat)),
-            URLQueryItem(name: "lon", value: String(lon)),
-            URLQueryItem(name: "appid", value: AppConfig.openweatherApiKey),
-            URLQueryItem(name: "units", value: "metric")
-        ])
+    static var kioskAnuraCredentials: URL {
+        appURL(path: "/kiosk-anura-credentials/")
     }
 
-    static func forecast(lat: Double, lon: Double) -> URL {
-        weatherURL(path: "/data/2.5/forecast", queryItems: [
+    static func kioskWeather(lat: Double, lon: Double) -> URL {
+        appURL(path: "/kiosk-weather/", queryItems: [
             URLQueryItem(name: "lat", value: String(lat)),
-            URLQueryItem(name: "lon", value: String(lon)),
-            URLQueryItem(name: "appid", value: AppConfig.openweatherApiKey),
-            URLQueryItem(name: "units", value: "metric")
+            URLQueryItem(name: "lon", value: String(lon))
         ])
     }
 
@@ -49,12 +42,4 @@ enum AppAPIEndpoints {
         return components.url!
     }
 
-    private static func weatherURL(path: String, queryItems: [URLQueryItem]) -> URL {
-        var components = URLComponents()
-        components.scheme = "https"
-        components.host = "api.openweathermap.org"
-        components.path = path
-        components.queryItems = queryItems
-        return components.url!
-    }
 }

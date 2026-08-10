@@ -97,6 +97,8 @@ func navigateToHome(animated: Bool = true, showResponseToast: Bool = false) {
           let window = windowScene.windows.first else { return }
 
     ScanSessionStorage.clearMeasurementID()
+    LocalUserStorage.clearUser()
+    LocalUserStorage.clearClientID()
 
     if showResponseToast {
         UserDefaults.standard.set(true, forKey: AppStorageKeys.responseReceivedToastPending)

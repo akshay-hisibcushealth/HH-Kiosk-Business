@@ -25,14 +25,7 @@ class FaceScanManager: ObservableObject{
     var useOnlyExternalCamera: Bool = false
     
     func initMethods(){
-        checkEmbeddedLicense()
         initializeAPI()
-    }
-    
-    func checkEmbeddedLicense() {
-        if AppConfig.deepaffexLicenseKey.isEmpty || AppConfig.deepaffexStudyID.isEmpty {
-            fatalError("You must provide a license key and study ID to use this app")
-        }
     }
     
     func initializeAPI() {
@@ -70,10 +63,10 @@ class FaceScanManager: ObservableObject{
         useOnlyExternalCamera = currentUseOnlyExternalCamera
         
         // Startup flow does the following:
-        //  1- Registers your device with DeepAffex using the embedded license key
-        //  2- Validates the device token if a license was already registered
-        //  3- Renews the token if it's expired
-        //  4- Downloads the latest SDK study configuration associated with the embedded study ID
+        //  1- Retrieves the license key and study ID from the kiosk API
+        //  2- Registers your device with DeepAffex using the retrieved license key
+        //  3- Validates or renews an existing device token
+        //  4- Downloads the latest SDK study configuration for the retrieved study ID
         
         api.beginStartupFlow { (sdkConfigResult) in
             switch sdkConfigResult {
@@ -110,6 +103,9 @@ class FaceScanManager: ObservableObject{
             registerLicenseError()
         case .sdkConfigFailed:
             sdkConfigurationFileError()
+        case .credentialsFailed:
+            showAlert(title: "Credentials Error",
+                      message: "There was an error retrieving the Anura credentials. Please try again.")
         case .none:
             print("There was an error in starting up Anura Core: \(error.localizedDescription)")
         }

@@ -62,6 +62,9 @@ class MeasurementDelegate : AnuraMeasurementDelegate {
     // Called when the measurement controller appears on the screen
     func anuraMeasurementControllerDidAppear(_ controller: AnuraMeasurementViewController) {
         print("***** anuraMeasurementControllerDidAppear")
+        Task { @MainActor in
+            SensitiveScreenPrivacy.beginProtecting(owner: "measurement")
+        }
         measurementBanner.installIfNeeded(in: controller)
         controller.view.layoutIfNeeded()
         measurementBanner.refreshLayout()
@@ -71,6 +74,9 @@ class MeasurementDelegate : AnuraMeasurementDelegate {
     // Called when the measurement controller disappears from the screen
     func anuraMeasurementControllerDidDisappear(_ controller: AnuraMeasurementViewController) {
         print("***** anuraMeasurementControllerDidDisappear")
+        Task { @MainActor in
+            SensitiveScreenPrivacy.endProtecting(owner: "measurement")
+        }
         measurementBanner.teardown()
         setMeasurementScreenSaverSuppressed(false)
         return
@@ -558,7 +564,7 @@ extension MeasurementDelegate {
         // Connect measurement results subscriber
         measurementResultsSubscriber.connect()
         
-        api.createMeasurement(studyID: AppConfig.deepaffexStudyID,
+        api.createMeasurement(studyID: api.studyID,
                               resolution: 0,
                               partnerID: user?.partnerID) { (result : NetworkResult<ID>) in
             defer { self.measurementQueue?.isSuspended = false }

@@ -73,10 +73,14 @@ struct PhysicalAttributesScreen: View {
             dismissPhysicalAttributeInputs()
         }
         .onAppear {
+            SensitiveScreenPrivacy.beginProtecting(owner: "physical-attributes")
             appState.setScreenSaverSuppressed(true, reason: screenSuppressionReason)
             previewOrientation = Self.loadSavedPreviewOrientation()
 //         DispatchQueue.main.async { applyDeveloperAutofill() }
             detectExternalCameraConfiguration()
+        }
+        .onDisappear {
+            SensitiveScreenPrivacy.endProtecting(owner: "physical-attributes")
         }
         .onChange(of: previewOrientation) { _, newValue in
             Self.savePreviewOrientation(newValue)

@@ -17,12 +17,14 @@ import AnuraCore
 
 protocol DeepAffexMiniAPIProtocol {
     var token: String { get }
+    var studyID: String { get }
     
     // Startup flow does the following:
-    //  1- Registers your device with DeepAffex using the embedded license key
-    //  2- Validates the device token if a license was already registered
-    //  3- Renews the token if it's expired
-    //  4- Downloads the latest SDK study configuration associated with the embedded study ID
+    //  1- Retrieves the license key and study ID from the kiosk API
+    //  2- Registers your device with DeepAffex using the retrieved license key
+    //  3- Validates the device token if a license was already registered
+    //  4- Renews the token if it's expired
+    //  5- Downloads the latest SDK study configuration for the retrieved study ID
     func beginStartupFlow(_ completion: @escaping ResultCallback<Data>)
     
     // https://dfxapiversion10.docs.apiary.io/#reference/0/organizations/register-license

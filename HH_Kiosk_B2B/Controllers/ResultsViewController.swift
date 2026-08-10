@@ -23,6 +23,8 @@ class ResultsViewController: UIViewController {
     private var errorLabel: UILabel!
     private var exitButton: UIButton!
     private let submissionService: KioskSubmissionServiceProtocol = KioskSubmissionService()
+    private var inactivityTimer: Timer?
+    private let inactivityLimit: TimeInterval = 60
 
     private enum UIState {
         case loading, success, failure
@@ -58,11 +60,65 @@ class ResultsViewController: UIViewController {
         setupBottomButtons()
         setupLoadingAndErrorViews()
         setupConstraints()
+        setupInactivityTracking()
 
         updateUI(for: .loading)
 
         // ⚙️ Uncomment this line to show mock data during testing
 //        loadMockDataForDebug()
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        SensitiveScreenPrivacy.beginProtecting(owner: "results")
+        startInactivityTimer()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        SensitiveScreenPrivacy.endProtecting(owner: "results")
+        stopInactivityTimer()
+    }
+
+    deinit {
+        inactivityTimer?.invalidate()
+    }
+
+    // MARK: - Inactivity Timer
+
+    private func setupInactivityTracking() {
+        let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(userDidInteract))
+        tapRecognizer.cancelsTouchesInView = false
+        tapRecognizer.delegate = self
+        view.addGestureRecognizer(tapRecognizer)
+
+        let panRecognizer = UIPanGestureRecognizer(target: self, action: #selector(userDidInteract))
+        panRecognizer.cancelsTouchesInView = false
+        panRecognizer.delegate = self
+        view.addGestureRecognizer(panRecognizer)
+    }
+
+    private func startInactivityTimer() {
+        stopInactivityTimer()
+
+        let timer = Timer(timeInterval: inactivityLimit, target: self, selector: #selector(inactivityTimerDidFire), userInfo: nil, repeats: false)
+        inactivityTimer = timer
+        RunLoop.main.add(timer, forMode: .common)
+    }
+
+    private func stopInactivityTimer() {
+        inactivityTimer?.invalidate()
+        inactivityTimer = nil
+    }
+
+    @objc private func userDidInteract() {
+        guard viewIfLoaded?.window != nil else { return }
+        startInactivityTimer()
+    }
+
+    @objc private func inactivityTimerDidFire() {
+        stopInactivityTimer()
+        navigateToHome()
     }
 
     // MARK: - Mock Debug Data
@@ -676,5 +732,14 @@ class ResultsViewController: UIViewController {
     // MARK: - Exit
     @objc private func exitTapped() {
         dismiss(animated: true, completion: dismissBlock)
+    }
+}
+
+extension ResultsViewController: UIGestureRecognizerDelegate {
+    func gestureRecognizer(
+        _ gestureRecognizer: UIGestureRecognizer,
+        shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer
+    ) -> Bool {
+        true
     }
 }
