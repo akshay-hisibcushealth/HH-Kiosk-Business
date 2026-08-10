@@ -1,5 +1,53 @@
 import Foundation
 
+enum APIConsoleLogger {
+    static func logRequest(_ request: URLRequest) {
+        #if DEBUG
+        let method = request.httpMethod ?? "GET"
+        let url = request.url?.absoluteString ?? "<unknown URL>"
+        print("📤 API request: \(method) \(url)")
+        print("📤 API payload:\n\(formattedBody(request.httpBody, emptyValue: "<none>"))")
+        #endif
+    }
+
+    static func logResponse(data: Data, response: URLResponse) {
+        #if DEBUG
+        let methodURL = response.url?.absoluteString ?? "<unknown URL>"
+        let status: String
+        if let httpResponse = response as? HTTPURLResponse {
+            status = String(httpResponse.statusCode)
+        } else {
+            status = "<unknown status>"
+        }
+        print("📥 API response: \(status) \(methodURL)")
+        print("📥 API result:\n\(formattedBody(data, emptyValue: "<empty>"))")
+        #endif
+    }
+
+    static func logError(_ error: Error, request: URLRequest) {
+        #if DEBUG
+        let method = request.httpMethod ?? "GET"
+        let url = request.url?.absoluteString ?? "<unknown URL>"
+        print("❌ API error: \(method) \(url)\n\(error.localizedDescription)")
+        #endif
+    }
+
+    private static func formattedBody(_ data: Data?, emptyValue: String) -> String {
+        guard let data, !data.isEmpty else { return emptyValue }
+
+        if let object = try? JSONSerialization.jsonObject(with: data),
+           let prettyData = try? JSONSerialization.data(
+               withJSONObject: object,
+               options: [.prettyPrinted, .sortedKeys]
+           ),
+           let prettyString = String(data: prettyData, encoding: .utf8) {
+            return prettyString
+        }
+
+        return String(data: data, encoding: .utf8) ?? "<unreadable body>"
+    }
+}
+
 enum AppAPIError: LocalizedError {
     case invalidResponse
     case unexpectedStatusCode(Int, String)
@@ -53,9 +101,11 @@ struct AppURLSessionClient: AppURLSessionClientProtocol {
     }
 
     func get<T: Decodable>(_ type: T.Type, from url: URL) async throws -> T {
-        let (data, response) = try await session.data(from: url)
-        try validate(response: response, data: data)
-        return try decoder.decode(type, from: data)
+        let request = URLRequest(url: url)
+        return try await perform(request) { data, response in
+            try validate(response: response, data: data)
+            return try decoder.decode(type, from: data)
+        }
     }
 
     func send<Body: Encodable>(_ body: Body, to url: URL, method: String = "POST") async throws {
@@ -68,9 +118,26 @@ struct AppURLSessionClient: AppURLSessionClientProtocol {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try encoder.encode(body)
 
-        let (data, response) = try await session.data(for: request)
-        try validate(response: response, data: data)
-        return data
+        return try await perform(request) { data, response in
+            try validate(response: response, data: data)
+            return data
+        }
+    }
+
+    private func perform<T>(
+        _ request: URLRequest,
+        transform: (Data, URLResponse) throws -> T
+    ) async throws -> T {
+        APIConsoleLogger.logRequest(request)
+
+        do {
+            let (data, response) = try await session.data(for: request)
+            APIConsoleLogger.logResponse(data: data, response: response)
+            return try transform(data, response)
+        } catch {
+            APIConsoleLogger.logError(error, request: request)
+            throw error
+        }
     }
 
     private func validate(response: URLResponse, data: Data) throws {

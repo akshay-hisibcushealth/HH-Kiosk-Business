@@ -66,14 +66,7 @@ struct KioskSubmissionService: KioskSubmissionServiceProtocol {
             pin: pin
         )
 
-        printAPIRequest(endpointName: "/custom-facescan/report-email/", url: AppAPIEndpoints.emailResults, payload: payload)
-        do {
-            let responseData = try await client.sendAndReturnData(payload, to: AppAPIEndpoints.emailResults, method: "POST")
-            printAPIResponse(endpointName: "/custom-facescan/report-email/", data: responseData)
-        } catch {
-            printAPIError(endpointName: "/custom-facescan/report-email/", error: error)
-            throw error
-        }
+        _ = try await client.sendAndReturnData(payload, to: AppAPIEndpoints.emailResults, method: "POST")
     }
 
     func sendUserResponse(email: String, nextSteps: [KioskNextStepResponse], npsScore: Int?) async throws -> KioskUserResponseResult {
@@ -84,12 +77,9 @@ struct KioskSubmissionService: KioskSubmissionServiceProtocol {
             npsScore: npsScore
         )
 
-        printUserResponseRequest(payload)
         let responseData = try await client.sendAndReturnData(payload, to: AppAPIEndpoints.kioskUserResponse, method: "POST")
-        printUserResponseResponse(responseData)
 
         let result = try JSONDecoder().decode(KioskUserResponseResult.self, from: responseData)
-        print("✅ /custom-kiosk-user-response/ decoded result: success=\(result.success), id=\(String(describing: result.id)), email=\(String(describing: result.email)), message=\(String(describing: result.message))")
         guard result.success else {
             throw AppAPIError.invalidResponse
         }
@@ -122,16 +112,9 @@ struct KioskSubmissionService: KioskSubmissionServiceProtocol {
             results: data
         )
 
-        printAPIRequest(endpointName: "/custom-facescan/save/", url: AppAPIEndpoints.saveKioskHealth, payload: payload)
-        do {
-            let responseData = try await client.sendAndReturnData(payload, to: AppAPIEndpoints.saveKioskHealth, method: "POST")
-            printAPIResponse(endpointName: "/custom-facescan/save/", data: responseData)
-            ScanSessionStorage.saveMeasurementID(extractMeasurementID(from: responseData))
-            return try mapBackendResults(from: responseData)
-        } catch {
-            printAPIError(endpointName: "/custom-facescan/save/", error: error)
-            throw error
-        }
+        let responseData = try await client.sendAndReturnData(payload, to: AppAPIEndpoints.saveKioskHealth, method: "POST")
+        ScanSessionStorage.saveMeasurementID(extractMeasurementID(from: responseData))
+        return try mapBackendResults(from: responseData)
     }
 
     private func mapResults(_ results: [String: MeasurementResults.SignalResult]) -> [String: ResultEntry] {
@@ -140,44 +123,6 @@ struct KioskSubmissionService: KioskSubmissionServiceProtocol {
 
     private func mapResults(_ results: ResultsMap) -> [String: ResultEntry] {
         results.mapValues { ResultEntry(value: $0.value, notes: $0.notes) }
-    }
-
-    private func printUserResponseRequest(_ payload: KioskUserResponsePayload) {
-        printAPIRequest(endpointName: "/custom-kiosk-user-response/", url: AppAPIEndpoints.kioskUserResponse, payload: payload)
-    }
-
-    private func printUserResponseResponse(_ data: Data) {
-        printAPIResponse(endpointName: "/custom-kiosk-user-response/", data: data)
-    }
-
-    private func printAPIRequest<Payload: Encodable>(endpointName: String, url: URL, payload: Payload) {
-        print("📤 \(endpointName) request: POST \(url.absoluteString)")
-
-        if let data = try? JSONEncoder().encode(payload),
-           let jsonObject = try? JSONSerialization.jsonObject(with: data),
-           let prettyData = try? JSONSerialization.data(withJSONObject: jsonObject, options: [.prettyPrinted, .sortedKeys]),
-           let prettyString = String(data: prettyData, encoding: .utf8) {
-            print("📤 \(endpointName) payload:\n\(prettyString)")
-            return
-        }
-
-        print("📤 \(endpointName) payload: <unable to encode payload for logging>")
-    }
-
-    private func printAPIResponse(endpointName: String, data: Data) {
-        if let jsonObject = try? JSONSerialization.jsonObject(with: data),
-           let prettyData = try? JSONSerialization.data(withJSONObject: jsonObject, options: [.prettyPrinted, .sortedKeys]),
-           let prettyString = String(data: prettyData, encoding: .utf8) {
-            print("📥 \(endpointName) response:\n\(prettyString)")
-            return
-        }
-
-        let body = String(data: data, encoding: .utf8) ?? "<unreadable response body>"
-        print("📥 \(endpointName) response:\n\(body)")
-    }
-
-    private func printAPIError(endpointName: String, error: Error) {
-        print("❌ \(endpointName) error: \(error.localizedDescription)")
     }
 
     private func extractMeasurementID(from data: Data) -> String? {

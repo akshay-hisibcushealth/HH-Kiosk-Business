@@ -4,12 +4,7 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="69d70bab-ae17-4888-9c12-3f3dde572849" name="Changes" comment="Added: Print Functionality">
-      <change beforePath="$PROJECT_DIR$/HH_Kiosk_B2B.xcodeproj/project.pbxproj" beforeDir="false" afterPath="$PROJECT_DIR$/HH_Kiosk_B2B.xcodeproj/project.pbxproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/HH_Kiosk_B2B/App/MyApp.swift" beforeDir="false" afterPath="$PROJECT_DIR$/HH_Kiosk_B2B/App/MyApp.swift" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/HH_Kiosk_B2B/Controllers/ResultsViewController.swift" beforeDir="false" afterPath="$PROJECT_DIR$/HH_Kiosk_B2B/Controllers/ResultsViewController.swift" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/HH_Kiosk_B2B/Resources/Strings.swift" beforeDir="false" afterPath="$PROJECT_DIR$/HH_Kiosk_B2B/Resources/Strings.swift" afterDir="false" />
-    </list>
+    <list default="true" id="69d70bab-ae17-4888-9c12-3f3dde572849" name="Changes" comment="Added: Print Functionality" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

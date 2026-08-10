@@ -106,6 +106,8 @@ public class WebService: WebServiceProtocol {
             failRequest(NetworkStackError.invalidRequest)
             return
         }
+
+        APIConsoleLogger.logRequest(request)
         
         networkOperationQueue.addOperation {
             sleep(UInt32(duration))
@@ -138,23 +140,31 @@ public class WebService: WebServiceProtocol {
                                          waitFor: 3.0,
                                          completion: completion)
                         } else {
+                            APIConsoleLogger.logError(error, request: request)
                             failRequest(error)
                         }
                         return
                     default:
+                        APIConsoleLogger.logError(error, request: request)
                         failRequest(error)
                         return
                     }
                 }
                 
                 if let error = error {
+                    APIConsoleLogger.logError(error, request: request)
                     failRequest(error)
                     return
                 }
                 
                 guard let data = data else {
+                    APIConsoleLogger.logError(NetworkStackError.dataMissing, request: request)
                     failRequest(NetworkStackError.dataMissing)
                     return
+                }
+
+                if let response {
+                    APIConsoleLogger.logResponse(data: data, response: response)
                 }
                 
                 if let statusCode = HTTPStatusCode(rawValue: (response as? HTTPURLResponse)?.statusCode ?? -1) {
