@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct StoredUser {
+struct StoredUser: Codable {
     let email: String
     let height: Int
     let weight: Int
@@ -27,6 +27,7 @@ struct LocalUserStorage {
     private static let ageKey = "user_age"
     private static let genderKey = "user_gender"
     private static let measurementResultsKey = "measurement_results"
+    private static let secureUserKey = "patient_demographics"
 
     static func clearClientID() {
         UserDefaults.standard.removeObject(forKey: clientIDKey)
@@ -41,31 +42,41 @@ struct LocalUserStorage {
         gender: String
     ) {
 
-        let defaults = UserDefaults.standard
-
-        defaults.set(email, forKey: emailKey)
-        defaults.set(height, forKey: heightKey)
-        defaults.set(weight, forKey: weightKey)
-        defaults.set(weightInPounds, forKey: weightInPoundsKey)
-        defaults.set(age, forKey: ageKey)
-        defaults.set(gender, forKey: genderKey)
-
-        defaults.synchronize()
+        let user = StoredUser(
+            email: email,
+            height: height,
+            weight: weight,
+            weightInPounds: weightInPounds,
+            age: age,
+            gender: gender
+        )
+        if let data = try? JSONEncoder().encode(user),
+           SecureStorage.set(data, forKey: secureUserKey) {
+            removeLegacyUserDefaults()
+        }
     }
 
     static func clearUser() {
-        let defaults = UserDefaults.standard
-
-        defaults.removeObject(forKey: emailKey)
-        defaults.removeObject(forKey: heightKey)
-        defaults.removeObject(forKey: weightKey)
-        defaults.removeObject(forKey: weightInPoundsKey)
-        defaults.removeObject(forKey: ageKey)
-        defaults.removeObject(forKey: genderKey)
-        defaults.removeObject(forKey: measurementResultsKey)
+        SecureStorage.removeValue(forKey: secureUserKey)
+        removeLegacyUserDefaults()
+        UserDefaults.standard.removeObject(forKey: measurementResultsKey)
     }
 
     static func loadUser() -> StoredUser? {
+        if let data = SecureStorage.data(forKey: secureUserKey),
+           let user = try? JSONDecoder().decode(StoredUser.self, from: data) {
+            removeLegacyUserDefaults()
+            return user
+        }
+
+        return migrateLegacyUserIfNeeded()
+    }
+
+    static func loadEmail() -> String? {
+        loadUser()?.email
+    }
+
+    private static func migrateLegacyUserIfNeeded() -> StoredUser? {
         let defaults = UserDefaults.standard
         guard let email = defaults.string(forKey: emailKey),
               let gender = defaults.string(forKey: genderKey) else {
@@ -75,7 +86,7 @@ struct LocalUserStorage {
         let weight = defaults.integer(forKey: weightKey)
         let savedWeightInPounds = defaults.integer(forKey: weightInPoundsKey)
 
-        return StoredUser(
+        let user = StoredUser(
             email: email,
             height: defaults.integer(forKey: heightKey),
             weight: weight,
@@ -83,9 +94,17 @@ struct LocalUserStorage {
             age: defaults.integer(forKey: ageKey),
             gender: gender
         )
+        if let data = try? JSONEncoder().encode(user),
+           SecureStorage.set(data, forKey: secureUserKey) {
+            removeLegacyUserDefaults()
+        }
+        return user
     }
 
-    static func loadEmail() -> String? {
-        UserDefaults.standard.string(forKey: emailKey)
+    private static func removeLegacyUserDefaults() {
+        let defaults = UserDefaults.standard
+        [emailKey, heightKey, weightKey, weightInPoundsKey, ageKey, genderKey].forEach {
+            defaults.removeObject(forKey: $0)
+        }
     }
 }

@@ -20,14 +20,8 @@ enum AppConfig {
     // This controls all Physical Attributes QA buttons and their actions.
     static let qaToolsEnabled = true
 
-    // Screen capture is useful during development, but patient information must
-    // be protected in TestFlight and production builds. Change either value when
-    // a specific build needs different behavior.
-#if DEBUG
-static let sensitiveScreenCaptureEnabled = false // Test protection
-#else
-static let sensitiveScreenCaptureEnabled = false
-#endif
+    // Set to true to allow screen capture, or false to protect sensitive screens.
+    static let screenCaptureEnabled = false
     
     static let deepaffexAPIHostname = "api.deepaffex.ai"
     static let baseURL = "https://coremobileapidev.hibiscushealth.com"

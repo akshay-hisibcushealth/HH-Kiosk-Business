@@ -29,23 +29,31 @@ class DeepAffexMiniAPIClient : DeepAffexMiniAPIProtocol {
     private(set) var studyID = ""
     private var licenseKey = ""
     
-    // Note: We do not reccomend storing the DFX API token in in UserDefaults
-    // Please use secure storage, such as system keychain
+    private enum SecureKey {
+        static let token = "deepaffex_token"
+        static let refreshToken = "deepaffex_refresh_token"
+        static let registeredLicense = "deepaffex_registered_license_key"
+    }
+
     var token : String {
        get {
-        return UserDefaults.standard.string(forKey: #function) ?? ""
+           SecureStorage.string(forKey: SecureKey.token, migratingFromUserDefaultsKey: "token") ?? ""
        }
        set {
-           UserDefaults.standard.set(newValue, forKey: #function)
+           if SecureStorage.setString(newValue, forKey: SecureKey.token) {
+               UserDefaults.standard.removeObject(forKey: "token")
+           }
        }
     }
     
     var refreshToken : String {
        get {
-        return UserDefaults.standard.string(forKey: #function) ?? ""
+           SecureStorage.string(forKey: SecureKey.refreshToken, migratingFromUserDefaultsKey: "refreshToken") ?? ""
        }
        set {
-           UserDefaults.standard.set(newValue, forKey: #function)
+           if SecureStorage.setString(newValue, forKey: SecureKey.refreshToken) {
+               UserDefaults.standard.removeObject(forKey: "refreshToken")
+           }
        }
     }
     
@@ -69,10 +77,15 @@ class DeepAffexMiniAPIClient : DeepAffexMiniAPIProtocol {
 
     private var registeredLicenseKey: String {
         get {
-            UserDefaults.standard.string(forKey: #function) ?? ""
+            SecureStorage.string(
+                forKey: SecureKey.registeredLicense,
+                migratingFromUserDefaultsKey: "registeredLicenseKey"
+            ) ?? ""
         }
         set {
-            UserDefaults.standard.set(newValue, forKey: #function)
+            if SecureStorage.setString(newValue, forKey: SecureKey.registeredLicense) {
+                UserDefaults.standard.removeObject(forKey: "registeredLicenseKey")
+            }
         }
     }
     

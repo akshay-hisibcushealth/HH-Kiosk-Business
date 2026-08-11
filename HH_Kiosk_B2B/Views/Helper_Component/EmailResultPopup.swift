@@ -8,7 +8,7 @@ struct EmailResultPopup: View {
     @Environment(\.dismiss) var dismiss
     private let submissionService: KioskSubmissionServiceProtocol
     @Binding private var isEmailSent: Bool
-    @State private var email: String = UserDefaults.standard.string(forKey: "user_email") ?? ""
+    @State private var email: String = LocalUserStorage.loadEmail() ?? ""
     @State private var pin: String = ""
     @State private var isLoading: Bool = false
     @FocusState private var isPinFocused: Bool

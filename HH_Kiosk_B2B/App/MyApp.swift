@@ -69,7 +69,7 @@ enum SensitiveScreenPrivacy {
     }
 
     static func refreshCaptureProtection() {
-        let shouldHideSensitiveContent = !AppConfig.sensitiveScreenCaptureEnabled
+        let shouldHideSensitiveContent = !AppConfig.screenCaptureEnabled
             && !activeOwners.isEmpty
             && UIScreen.main.isCaptured
 
