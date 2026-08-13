@@ -92,6 +92,7 @@ struct ResultPromptOverlay<Content: View>: View {
     }
 }
 
+@MainActor
 func navigateToHome(animated: Bool = true, showResponseToast: Bool = false) {
     guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
           let window = windowScene.windows.first else { return }
@@ -99,6 +100,7 @@ func navigateToHome(animated: Bool = true, showResponseToast: Bool = false) {
     ScanSessionStorage.clearMeasurementID()
     LocalUserStorage.clearUser()
     LocalUserStorage.clearClientID()
+    PDFGenerator.removeAllTemporaryPHIFiles()
 
     if showResponseToast {
         UserDefaults.standard.set(true, forKey: AppStorageKeys.responseReceivedToastPending)

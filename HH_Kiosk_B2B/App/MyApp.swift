@@ -37,6 +37,11 @@ struct RootView: View {
         }
         .animation(.easeInOut(duration: 0.5), value: appState.showScreenSaver)
         .onAppear {
+            // Remove legacy PHI persistence as soon as an upgraded app launches.
+            _ = ScanSessionStorage.measurementID
+            UserDefaults.standard.removeObject(forKey: "measurement_results")
+            PDFGenerator.removeAllTemporaryPHIFiles()
+
             if UIApplication.shared.applicationState != .active {
                 PrivacyScreenShield.show()
             }

@@ -4,7 +4,7 @@ import SwiftUI
 struct PDFGenerator {
     static func generatePDF<Content: View>(view: Content, fileName: String) -> URL? {
         let directory = FileManager.default.temporaryDirectory
-        let url = directory.appendingPathComponent("\(fileName).pdf")
+        let url = directory.appendingPathComponent("\(fileName)_\(UUID().uuidString).pdf")
         
         let pageWidth: CGFloat = 595.2
         let pageHeight: CGFloat = 841.8
@@ -45,7 +45,45 @@ struct PDFGenerator {
         }
         
         context.closePDF()
+        guard protectTemporaryPHIFile(at: url) else {
+            removeTemporaryPHIFile(at: url)
+            return nil
+        }
         print("✅ PDF successfully created at: \(url.path)")
         return url
+    }
+
+    static func protectTemporaryPHIFile(at url: URL) -> Bool {
+        do {
+            try FileManager.default.setAttributes(
+                [.protectionKey: FileProtectionType.complete],
+                ofItemAtPath: url.path
+            )
+            var values = URLResourceValues()
+            values.isExcludedFromBackup = true
+            var mutableURL = url
+            try mutableURL.setResourceValues(values)
+            return true
+        } catch {
+            print("❌ Failed to protect temporary PHI file: \(error.localizedDescription)")
+            return false
+        }
+    }
+
+    static func removeTemporaryPHIFile(at url: URL?) {
+        guard let url else { return }
+        try? FileManager.default.removeItem(at: url)
+    }
+
+    static func removeAllTemporaryPHIFiles() {
+        let directory = FileManager.default.temporaryDirectory
+        guard let files = try? FileManager.default.contentsOfDirectory(
+            at: directory,
+            includingPropertiesForKeys: nil
+        ) else { return }
+
+        for file in files where file.lastPathComponent.hasPrefix("HealthReport") {
+            removeTemporaryPHIFile(at: file)
+        }
     }
 }

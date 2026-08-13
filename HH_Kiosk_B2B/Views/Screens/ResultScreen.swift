@@ -104,7 +104,10 @@ public struct ResultScreen: View {
         .onReceive(NotificationCenter.default.publisher(for: .screenDidChangeBounds)) { _ in
             refreshTrigger.toggle()
         }
-        .sheet(isPresented: $isSharing) {
+        .sheet(isPresented: $isSharing, onDismiss: {
+            PDFGenerator.removeTemporaryPHIFile(at: pdfURL)
+            pdfURL = nil
+        }) {
             if let url = pdfURL {
                 ShareSheet(activityItems: [url])
             }

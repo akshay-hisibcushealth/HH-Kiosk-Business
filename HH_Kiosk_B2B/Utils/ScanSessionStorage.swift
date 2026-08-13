@@ -1,8 +1,13 @@
 import Foundation
 
 enum ScanSessionStorage {
+    private static let secureMeasurementIDKey = "session_measurement_id"
+
     static var measurementID: String? {
-        let value = UserDefaults.standard.string(forKey: AppStorageKeys.measurementID)
+        let value = SecureStorage.string(
+            forKey: secureMeasurementIDKey,
+            migratingFromUserDefaultsKey: AppStorageKeys.measurementID
+        )
         return value?.isEmpty == false ? value : nil
     }
 
@@ -12,10 +17,13 @@ enum ScanSessionStorage {
             return
         }
 
-        UserDefaults.standard.set(measurementID, forKey: AppStorageKeys.measurementID)
+        if SecureStorage.setString(measurementID, forKey: secureMeasurementIDKey) {
+            UserDefaults.standard.removeObject(forKey: AppStorageKeys.measurementID)
+        }
     }
 
     static func clearMeasurementID() {
+        SecureStorage.removeValue(forKey: secureMeasurementIDKey)
         UserDefaults.standard.removeObject(forKey: AppStorageKeys.measurementID)
     }
 }

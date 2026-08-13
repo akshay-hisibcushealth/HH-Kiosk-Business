@@ -203,6 +203,9 @@ class ResultsViewController: UIViewController {
         // 2. Attempt generation
         if let url = PDFGenerator.generatePDF(view: pdfView, fileName: "HealthReport") {
             let activityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+            activityVC.completionWithItemsHandler = { _, _, _, _ in
+                PDFGenerator.removeTemporaryPHIFile(at: url)
+            }
             
             if let popover = activityVC.popoverPresentationController {
                 popover.sourceView = self.resultButtonsHost.view
@@ -444,10 +447,13 @@ class ResultsViewController: UIViewController {
         printController.printingItem = pdfURL
 
         // 8. Present print controller anchored to buttons view (popover on iPad)
+        let cleanup: UIPrintInteractionController.CompletionHandler = { _, _, _ in
+            PDFGenerator.removeTemporaryPHIFile(at: pdfURL)
+        }
         if UIDevice.current.userInterfaceIdiom == .pad {
-            printController.present(from: resultButtonsHost.view.bounds, in: resultButtonsHost.view, animated: true, completionHandler: nil)
+            printController.present(from: resultButtonsHost.view.bounds, in: resultButtonsHost.view, animated: true, completionHandler: cleanup)
         } else {
-            printController.present(animated: true, completionHandler: nil)
+            printController.present(animated: true, completionHandler: cleanup)
         }
     }
     
@@ -647,10 +653,14 @@ class ResultsViewController: UIViewController {
 
         // Write PDF to temp file
         let tempDir = FileManager.default.temporaryDirectory
-        let fileURL = tempDir.appendingPathComponent("HealthReport_Print.pdf")
+        let fileURL = tempDir.appendingPathComponent("HealthReport_Print_\(UUID().uuidString).pdf")
 
         do {
             try pdfData.write(to: fileURL, options: .atomic)
+            guard PDFGenerator.protectTemporaryPHIFile(at: fileURL) else {
+                PDFGenerator.removeTemporaryPHIFile(at: fileURL)
+                return nil
+            }
             return fileURL
         } catch {
             print("❌ Failed to write PDF file: \(error)")
@@ -659,28 +669,7 @@ class ResultsViewController: UIViewController {
     }
     
     private func prepareDataForAPI(_ results: [String: MeasurementResults.SignalResult]?) async -> ResultsMap? {
-
-        let defaults = UserDefaults.standard
-
-        if let results = results, !results.isEmpty {
-
-            var storedResults: [String: Double] = [:]
-
-            for (key, value) in results {
-                storedResults[key] = value.value
-            }
-
-            defaults.set(storedResults, forKey: "measurement_results")
-
-            print("📊 Saved measurement results:", storedResults)
-
-        } else {
-
-            defaults.set([:], forKey: "measurement_results")
-
-            print("📊 Saved measurement result = NA")
-        }
-
+        UserDefaults.standard.removeObject(forKey: "measurement_results")
         return await saveUserAndResultData(results: results)
     }
     
@@ -698,17 +687,7 @@ class ResultsViewController: UIViewController {
     }
 
     private func prepareTestDataForAPI(_ results: ResultsMap?) async -> ResultsMap? {
-        let defaults = UserDefaults.standard
-
-        if let results = results, !results.isEmpty {
-            let storedResults = results.mapValues(\.value)
-            defaults.set(storedResults, forKey: "measurement_results")
-            print("📊 Saved mock measurement results:", storedResults)
-        } else {
-            defaults.set([:], forKey: "measurement_results")
-            print("📊 Saved mock measurement result = NA")
-        }
-
+        UserDefaults.standard.removeObject(forKey: "measurement_results")
         do {
             let backendResults = try await submissionService.saveUserVitals(testResults: results)
             print("✅ Saved mock user vitals and received backend results.")
