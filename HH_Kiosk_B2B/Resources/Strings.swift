@@ -229,47 +229,47 @@ enum ResultScreenStrings {
                 "very_low": "Your screening suggests a very low likelihood of a heart attack or stroke in the next 10 years.",
                 "low": "Your screening suggests a low likelihood of a heart attack or stroke in the next 10 years.",
                 "moderate_low": "Your screening suggests a moderate-low likelihood of a heart attack or stroke in the next 10 years.",
-                "moderate": "Your screening suggests a moderate likelihood of a heart attack or stroke in the next 10 years.",
-                "high": "Your screening suggests a higher likelihood of a heart attack or stroke in the next 10 years."
+                "moderate": "Your screening suggests a moderate likelihood of a heart attack or stroke in the next 10 years. Follow-up with a healthcare professional is advised.",
+                "high": "Your screening suggests a higher likelihood of a heart attack or stroke in the next 10 years. Follow-up with a healthcare professional is advised."
             ],
             "Systolic Blood Pressure": [
-                "healthy": "Your screening suggests your systolic blood pressure is within a healthy range.",
-                "low": "Your screening suggests your systolic blood pressure may be lower than the healthy range.",
-                "slightly_high": "Your screening suggests your systolic blood pressure may be slightly above the healthy range.",
-                "high": "Your screening suggests your systolic blood pressure may be significantly elevated."
+                "low": "Your screening suggests your systolic blood pressure may be lower than the healthy range. If it is persistently low, or if you experience symptoms, like fatigue, dizziness or blurred vision, follow-up with a healthcare professional is advised.",
+                "healthy": "Your screening suggests that your systolic blood pressure is within a healthy range. Continue monitoring your health and making healthy lifestyle choices.",
+                "slightly_high": "Your screening suggests your systolic blood pressure may be slightly higher than normal. Usually, this is not a cause for concern, continue monitoring your health and making healthy lifestyle choices. If your blood pressure is persistently elevated, or you experience symptoms, checking with a healthcare professional is advised.",
+                "high": "Your screening suggests your diastolic blood pressure may be elevated. If your blood pressure is persistently elevated, or you experience symptoms such as blurred vision or dizziness, checking with a healthcare professional is advised.",
+                "very_high": "Your screening suggests your diastolic blood pressure may be significantly elevated. You should sit for 5 minutes and recheck your blood pressure. Follow-up with a health professional is recommended if it is persistently elevated or if you experience any symptoms such as headaches, blurry vision, dizziness or difficulty breathing."
             ],
             "Diastolic Blood Pressure": [
-                "healthy": "Your screening suggests your diastolic blood pressure is within a healthy range.",
-                "low": "Your screening suggests your diastolic blood pressure may be lower than the healthy range.",
-                "slightly_low": "Your screening suggests your diastolic blood pressure may be slightly lower the healthy range.",
-                "slightly_high": "Your screening suggests your diastolic blood pressure may be slightly above the healthy range.",
-                "high": "Your screening suggests your diastolic blood pressure may be significantly elevated."
+                "low": "Your screening suggests your diastolic blood pressure may be lower than the healthy range. If it is persistently low, or if you experience any symptoms like fatigue, dizziness or blurred vision, follow-up with a healthcare professional is advised.",
+                "healthy": "Your screening suggests your diastolic blood pressure is within a healthy range. Continue monitoring your health and making healthy lifestyle choices.",
+                "high": "Your screening suggests your diastolic blood pressure may be elevated. If your blood pressure is persistently elevated, or you experience symptoms such as blurred vision or dizziness, checking with a healthcare professional is advised.",
+                "very_high": "Your screening diastolic your systolic blood pressure may be significantly elevated. You should sit for 5 minutes and recheck your blood pressure. Follow-up with a health professional is recommended if it is persistently elevated or if you experience any symptoms such as headaches, blurry vision, dizziness or difficulty breathing."
             ],
             "Heart Rate": [
-                "low": "Your screening suggests your heart rate is below a normal resting range.",
-                "normal": "Your screening suggests your heart rate is within a normal resting range.",
-                "high": "Your screening suggests your heart rate is higher than the typical resting range."
+                "low": "Your screening suggests your heart rate may be lower than the typical resting range. If your heart rate is persistently low, or if you experience any symptoms, follow up with your doctor is advised.",
+                "normal": "Your screening suggests that your heart rate is within a normal resting range.",
+                "high": "Your screening suggests your heart rate may be higher than the typical resting range. If your heart rate is persistently high, or if you experience any symptoms, follow up with your doctor is advised."
             ],
             "Diabetes/Prediabetes Risk (HbA1c)": [
-                "very_low": "Your screening suggests your HbA1c markers are within a healthy, stable range.",
-                "low": "Your screening suggests your HbA1c is likely below the threshold for concern.",
-                "moderate": "Your screening suggests your HbA1c (blood sugar level) markers are slightly elevated compared to the ideal range.",
-                "high": "Your screening suggests that your blood sugar levels are currently above the standard healthy range.",
-                "very_high": "Your screening suggests blood sugar markers that are notably above the standard healthy range."
+                "very_low": "Your screening suggests a very low risk for A1c levels outside the healthy range. Continue monitoring your health and making healthy lifestyle choices.",
+                "low": "Your screening suggests a low risk for A1c levels outside the healthy range. Continue monitoring your health and making healthy lifestyle choices.",
+                "moderate": "Your screening suggests a medium risk for A1c levels outside the healthy range. Your risk assessment should be monitored over time, consider periodic HbA1c monitoring.",
+                "high": "Your screening suggests an elevated risk for A1c levels outside the healthy range. This may be associated with pre-diabetes or diabetes, and follow-up with a doctor is recommended.",
+                "very_high": "Your screening suggests a greatly elevated risk for A1c levels outside the healthy range. This may be associated with pre-diabetes or diabetes, and follow-up with a doctor is recommended."
             ],
             "Risk of High Cholesterol": [
-                "very_low": "Your screening suggests a very low probability of elevated cholesterol levels.",
-                "low": "Your screening suggests your cholesterol markers are within a standard, low-risk profile.",
-                "moderate": "Your screening suggests your cholesterol levels are within a moderate risk range.",
-                "high": "Your screening suggests cholesterol levels are currently above the recommended healthy threshold.",
-                "very_high": "Your screening suggests indicators consistent with a high concentration of cholesterol in the blood."
+                "very_low": "Your screening suggests a very low risk for Cholesterol levels outside the healthy range. Continue monitoring your health and making healthy lifestyle choices.",
+                "low": "Your screening suggests a low risk for Cholesterol levels outside the healthy range. Continue monitoring your health and making healthy lifestyle choices.",
+                "moderate": "Your screening suggests a medium risk for Cholesterol levels outside the healthy range. Your risk assessment should be monitored over time, consider periodic cholesterol monitoring.",
+                "high": "Your screening suggests an elevated risk for Cholesterol levels outside the healthy range, follow-up with a doctor is recommended.",
+                "very_high": "Your screening suggests a greatly elevated risk for Cholesterol levels outside the healthy range, follow-up with a doctor is recommended."
             ],
             "Risk of High Triglycerides": [
-                "very_low": "Your screening suggests a very low probability of elevated triglyceride levels.",
-                "low": "Your screening suggests your triglyceride markers are within a standard, low-risk profile.",
-                "moderate": "Your screening suggests your triglyceride levels are within a moderate risk range.",
-                "high": "Your screening suggests triglyceride levels are currently above the recommended healthy threshold.",
-                "very_high": "Your screening suggests indicators consistent with a high concentration of triglyceride in the blood."
+                "very_low": "Your screening suggests a very low risk for Triglyceride levels outside the healthy range. Continue monitoring your health and making healthy lifestyle choices.",
+                "low": "Your screening suggests a low risk for Triglyceride levels outside the healthy range. Continue monitoring your health and making healthy lifestyle choices.",
+                "moderate": "Your screening suggests a medium risk for Triglyceride levels outside the healthy range. Your risk assessment should be monitored over time, consider periodic cholesterol monitoring.",
+                "high": "Your screening suggests an elevated risk for Triglyceride levels outside the healthy range, follow-up with a doctor is recommended.",
+                "very_high": "Your screening suggests a greatly elevated risk for Triglyceride levels outside the healthy range, follow-up with a doctor is recommended."
             ]
         ]
 

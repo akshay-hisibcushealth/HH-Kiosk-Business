@@ -216,15 +216,15 @@ fileprivate func riskBucket(for key: String, value: Double) -> String {
         return "high"
     case "BP_SYSTOLIC":
         if value < 90 { return "low" }
-        if value < 130 { return "healthy" }
-        if value < 140 { return "slightly_high" }
-        return "high"
+        if value < 120 { return "healthy" }
+        if value < 130 { return "slightly_high" }
+        if value < 140 { return "high" }
+        return "very_high"
     case "BP_DIASTOLIC":
         if value < 60 { return "low" }
-        if value < 70 { return "slightly_low" }
         if value < 80 { return "healthy" }
-        if value < 90 { return "slightly_high" }
-        return "high"
+        if value < 90 { return "high" }
+        return "very_high"
     case "HBA1C_RISK_PROB", "HDLTC_RISK_PROB", "TG_RISK_PROB":
         if value < 25 { return "very_low" }
         if value < 45 { return "low" }
@@ -252,28 +252,27 @@ fileprivate func displayRiskLabel(for key: String, value: Double) -> String {
         return "Greatly Elevated Risk"
 
     case "HBA1C_RISK_PROB", "HDLTC_RISK_PROB", "TG_RISK_PROB":
-        if value < 25 { return "Low Risk" }
-        if value < 45 { return "Mildly Elevated Risk" }
-        if value < 55 { return "Somewhat Elevated Risk" }
+        if value < 25 { return "Very Low Risk" }
+        if value < 45 { return "Low Risk" }
+        if value < 55 { return "Medium Risk" }
         if value < 77.5 { return "Elevated Risk" }
         return "Greatly Elevated Risk"
 
     case "BP_SYSTOLIC":
         if value < 90 { return "Below Expected Range" }
-        if value < 120 { return "Mildly Below Expected Range" }
-        if value < 130 { return "Within Expected Range" }
-        if value < 140 { return "Mildly Above Expected Range" }
-        return "Above Expected Range"
+        if value < 120 { return "Within Expected Range" }
+        if value < 130 { return "Mildly Above Expected Range" }
+        if value < 140 { return "Above Expected Range" }
+        return "Greatly Above Expected Range"
 
     case "BP_DIASTOLIC":
         if value < 60 { return "Below Expected Range" }
-        if value < 70 { return "Mildly Below Expected Range" }
         if value < 80 { return "Within Expected Range" }
-        if value < 90 { return "Mildly Above Expected Range" }
-        return "Above Expected Range"
+        if value < 90 { return "Above Expected Range" }
+        return "Greatly Above Expected Range"
 
     case "HR_BPM":
-        if value < 60 { return "Below Expected Range" }
+        if value < 60 { return "Lower Than Expected Range" }
         if value < 100 { return "Within Expected Range" }
         return "Above Expected Range"
 
