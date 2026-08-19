@@ -37,6 +37,7 @@ enum AppIconNames {
         static let snow = "snow"
         static let sun = "sun"
         static let systolicBloodPressureIcon = "sys_bp_icon"
+        static let thanksImage = "thanks_image"
         static let triglyceridesIcon = "trig_icon"
         static let hiby = "hiby_icon"
         static let hibyLeft = "hiby_left"

@@ -17,6 +17,7 @@ struct PhysicalAttributesScreen: View {
     private static let previewOrientationStorageKey = "physicalAttributes.previewOrientation"
     private let validAgeRange = 13...120
     private let validWeightRangeInPounds = 75...400
+    var onBack: (() -> Void)? = nil
     
     private enum DeveloperAutofill {
         static let email = "sachin@hibiscushealth.com"
@@ -68,6 +69,11 @@ struct PhysicalAttributesScreen: View {
             keyboardAwareContent
         }
         .background(Color(AppColors.white))
+        .overlay(alignment: .topLeading) {
+            backButton
+                .padding(.leading, 14)
+                .padding(.top, 5)
+        }
         .contentShape(Rectangle())
         .onTapGesture {
             dismissPhysicalAttributeInputs()
@@ -214,6 +220,22 @@ struct PhysicalAttributesScreen: View {
 
     private var keyboardAwareBottomPadding: CGFloat {
         keyboardObserver.isKeyboardVisible ? keyboardObserver.height + 8.h : 0
+    }
+
+    private var backButton: some View {
+        Button(action: handleBack) {
+            Image(systemName: "chevron.left")
+                .font(.system(size: 30.sp, weight: .semibold))
+                .foregroundColor(Color(AppColors.white))
+                .frame(width: 58.w, height: 58.w)
+                .background(Color(AppColors.primary).opacity(0.74))
+                .clipShape(Circle())
+                .overlay(
+                    Circle()
+                        .stroke(Color(AppColors.white).opacity(0.12), lineWidth: 1.5)
+                )
+        }
+        .buttonStyle(.plain)
     }
 
     private var privacyBanner: some View {
@@ -385,6 +407,15 @@ struct PhysicalAttributesScreen: View {
     private func dismissPhysicalAttributeInputs() {
         NotificationCenter.default.post(name: .physicalAttributesDismissInputFocus, object: nil)
         hideKeyboard()
+    }
+
+    private func handleBack() {
+        dismissPhysicalAttributeInputs()
+        if let onBack {
+            onBack()
+        } else {
+            dismiss()
+        }
     }
     
     private func validateInputs() -> Bool {

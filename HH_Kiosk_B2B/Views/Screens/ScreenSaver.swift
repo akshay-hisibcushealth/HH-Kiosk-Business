@@ -3,6 +3,7 @@ import SwiftUI
 struct ScreenSaver: View {
     @EnvironmentObject private var appState: AppState
     @State private var refreshTrigger = false
+    let onStartFaceScan: () -> Void
 
     private enum ScreenSaverAssetTitle {
         static let qrImage = "qr"
@@ -88,7 +89,7 @@ struct ScreenSaver: View {
                     }
                     
                     // Button
-                    HealthJourneyButton(text: actionButtonText)
+                    HealthJourneyButton(text: actionButtonText, action: onStartFaceScan)
                         .padding(.vertical, 100.h)
                     
                     // Dynamic QR code section

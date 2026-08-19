@@ -19,23 +19,29 @@ struct MyApp: App {
 
 struct RootView: View {
     @StateObject private var appState = AppState()
+    @StateObject private var faceManager = FaceScanManager()
+    @State private var isShowingPhysicalAttributes = false
 
     var body: some View {
         ZStack {
-            if appState.showScreenSaver {
-                ScreenSaver()
+            if isShowingPhysicalAttributes {
+                PhysicalAttributesScreen {
+                    isShowingPhysicalAttributes = false
+                }
                     .environmentObject(appState)
+                    .environmentObject(faceManager)
                     .transition(.opacity)
                     .zIndex(1)
             } else {
-//             ResultsViewWrapper()
-                HomeScreen()
+                ScreenSaver {
+                    isShowingPhysicalAttributes = true
+                }
                     .environmentObject(appState)
                     .transition(.opacity)
                     .zIndex(0)
             }
         }
-        .animation(.easeInOut(duration: 0.5), value: appState.showScreenSaver)
+        .animation(.easeInOut(duration: 0.5), value: isShowingPhysicalAttributes)
         .onAppear {
             // Remove legacy PHI persistence as soon as an upgraded app launches.
             _ = ScanSessionStorage.measurementID

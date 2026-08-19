@@ -42,25 +42,25 @@ struct PostSessionFlowScreen: View {
             PostSessionNextStepOption(
                 id: 0,
                 displayTitle: ResultScreenStrings.PostSession.NextSteps.annualPhysical,
-                responseTitle: "Schedule an annual physical",
+                responseTitle: "Schedule an exam with my primary care provider",
                 description: ResultScreenStrings.PostSession.NextSteps.annualPhysical
             ),
             PostSessionNextStepOption(
                 id: 1,
                 displayTitle: ResultScreenStrings.PostSession.NextSteps.biometricScreening,
-                responseTitle: "Sign up for an on-site biometric screening",
+                responseTitle: "Schedule follow-up screening or labs",
                 description: ResultScreenStrings.PostSession.NextSteps.biometricScreening
             ),
             PostSessionNextStepOption(
                 id: 2,
                 displayTitle: ResultScreenStrings.PostSession.NextSteps.nutritionCounseling,
-                responseTitle: "Sign up for nutrition counseling",
+                responseTitle: "Get support from a Registered Dietitian",
                 description: ResultScreenStrings.PostSession.NextSteps.nutritionCounseling
             ),
             PostSessionNextStepOption(
                 id: 3,
                 displayTitle: ResultScreenStrings.PostSession.NextSteps.ongoingMonitoring,
-                responseTitle: "Keep monitoring my health",
+                responseTitle: "Continue tracking my health biomarkers",
                 description: ResultScreenStrings.PostSession.NextSteps.ongoingMonitoring
             )
         ]
@@ -76,7 +76,7 @@ struct PostSessionFlowScreen: View {
         return [
             KioskNextStepResponse(
                 id: 0,
-                title: "Based on you results, here are some common next steps",
+                title: ResultScreenStrings.PostSession.nextStepsSubtitle,
                 description: selectedDescriptions.joined(separator: " | ")
             )
         ]
@@ -154,11 +154,11 @@ struct PostSessionFlowScreen: View {
     private var nextStepsContent: some View {
         VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: .leading, spacing: 8.h) {
-                buildSemiBoldText(ResultScreenStrings.PostSession.nextStepsHeading, 42.sp, color: Color(AppColors.black))
+                buildSemiBoldText(ResultScreenStrings.PostSession.nextStepsHeading, 48.sp, color: Color(AppColors.black))
                     .lineLimit(2)
 
                 Text(ResultScreenStrings.PostSession.nextStepsSubtitle)
-                    .font(.system(size: 32.sp, weight: .regular))
+                    .font(.system(size: 37.sp, weight: .regular))
                     .foregroundColor(Color(AppColors.black))
             }
             .padding(.top, 58.h)
@@ -207,7 +207,7 @@ struct PostSessionFlowScreen: View {
                 }
 
                 Text(option.displayTitle)
-                    .font(.system(size: 28.sp, weight: isSelected ? .bold : .regular))
+                    .font(.system(size: 34.sp, weight: isSelected ? .bold : .regular))
                     .foregroundColor(Color(AppColors.black))
                     .multilineTextAlignment(.leading)
                     .lineLimit(2)
@@ -233,7 +233,10 @@ struct PostSessionFlowScreen: View {
         VStack(spacing: 0) {
             Spacer(minLength: 86.h)
 
-            successMark
+            Image(AppIconNames.Asset.thanksImage)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 150.w, height: 177.h)
                 .padding(.bottom, 38.h)
 
             Text(ResultScreenStrings.PostSession.allDoneTitle)
@@ -255,22 +258,6 @@ struct PostSessionFlowScreen: View {
             }
 
             Spacer(minLength: 58.h)
-        }
-    }
-
-    private var successMark: some View {
-        ZStack {
-            Circle()
-                .fill(Color(AppColors.ctaGreen).opacity(0.32))
-                .frame(width: 180.w, height: 180.w)
-
-            Circle()
-                .fill(Color(red: 0.47, green: 0.78, blue: 0.0))
-                .frame(width: 140.w, height: 140.w)
-
-            Image(systemName: "checkmark")
-                .font(.system(size: 56.sp, weight: .black))
-                .foregroundColor(Color(AppColors.black))
         }
     }
 
