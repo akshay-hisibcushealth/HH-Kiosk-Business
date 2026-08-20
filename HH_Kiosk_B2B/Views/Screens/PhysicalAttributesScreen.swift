@@ -245,12 +245,9 @@ struct PhysicalAttributesScreen: View {
         ZStack {
             Color.white
 
-//            AppLottieView(name: "face_scan")
-//                .frame(width: 400.w, height: 400.w)
-            Image(AppIconNames.Asset.avatarImage)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            AppLottieView(name: "face_scan")
+                .frame(width: 400.w, height: 400.w)
+
         }
     }
 
