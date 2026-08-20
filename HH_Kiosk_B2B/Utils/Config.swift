@@ -21,7 +21,7 @@ enum AppConfig {
     static let qaToolsEnabled = true
 
     // Set to true to allow screen capture, or false to protect sensitive screens.
-    static let screenCaptureEnabled = false
+    static let screenCaptureEnabled = true
     
     static let deepaffexAPIHostname = "api.deepaffex.ai"
     static let baseURL = "https://coremobileapidev.hibiscushealth.com"

@@ -245,9 +245,9 @@ fileprivate func getTaggedMessage(metricKey: String, value: Double) -> String {
 fileprivate func displayRiskLabel(for key: String, value: Double) -> String {
     switch key {
     case "BP_CVD":
-        if value < 5 { return "Low Risk" }
-        if value < 7.25 { return "Mildly Elevated Risk" }
-        if value < 10 { return "Somewhat Elevated Risk" }
+        if value < 5 { return "Very Low Risk" }
+        if value < 7.25 { return "Low Risk" }
+        if value < 10 { return "Medium Risk" }
         if value < 20 { return "Elevated Risk" }
         return "Greatly Elevated Risk"
 
