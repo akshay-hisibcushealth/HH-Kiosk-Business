@@ -153,7 +153,9 @@ class ResultsViewController: UIViewController {
         updateUI(for: .loading)
 
         Task {
-            guard let backendResults = await self.prepareTestDataForAPI(Self.mockScanResults) else {
+            let mockScanResults = Self.makeMockScanResults()
+            Self.printMockScanResults(mockScanResults)
+            guard let backendResults = await self.prepareTestDataForAPI(mockScanResults) else {
                 await MainActor.run {
                     self.errorLabel.text = "Unable to load results. Please try again."
                     self.updateUI(for: .failure)
@@ -161,8 +163,12 @@ class ResultsViewController: UIViewController {
                 return
             }
 
+            let displayResults = backendResults.reduce(into: ResultsMap()) { results, entry in
+                results[entry.key] = mockScanResults[entry.key] ?? entry.value
+            }
+
             await MainActor.run {
-                self.resultsModel.update(with: backendResults)
+                self.resultsModel.update(with: displayResults)
                 self.resultButtonsHost.rootView = ResultScreenButtons(
                     result: [:],
                     onDownloadPDF: { [weak self] in
@@ -178,18 +184,42 @@ class ResultsViewController: UIViewController {
         }
     }
 
-    private static let mockScanResults: ResultsMap = [
-        "BP_CVD": SignalResult(notes: [], value: 0.2024),
-        "HR_BPM": SignalResult(notes: [], value: 70.4494),
-        "HBA1C_RISK_PROB": SignalResult(notes: [], value: 26.295),
-        "BP_SYSTOLIC": SignalResult(notes: [], value: 112.4425),
-        "BP_DIASTOLIC": SignalResult(notes: [], value: 83.7584),
-        "HDLTC_RISK_PROB": SignalResult(notes: [], value: 54.1508),
-        "TG_RISK_PROB": SignalResult(notes: [], value: 47.1745),
-        "BMI_CALC": SignalResult(notes: [], value: 27.6816),
-        "BR_BPM": SignalResult(notes: [], value: 12),
-        "HEALTH_SCORE": SignalResult(notes: [], value: 72.5714)
-    ]
+    private static func makeMockScanResults() -> ResultsMap {
+        [
+            "BP_CVD": SignalResult(notes: [], value: randomValue(in: 0...100)),
+            "HR_BPM": SignalResult(notes: [], value: randomValue(in: 0...140)),
+            "HBA1C_RISK_PROB": SignalResult(notes: [], value: randomValue(in: 0...100)),
+            "BP_SYSTOLIC": SignalResult(notes: [], value: randomValue(in: 45...180)),
+            "BP_DIASTOLIC": SignalResult(notes: [], value: randomValue(in: 30...120)),
+            "HDLTC_RISK_PROB": SignalResult(notes: [], value: randomValue(in: 0...100)),
+            "TG_RISK_PROB": SignalResult(notes: [], value: randomValue(in: 0...100)),
+            "BMI_CALC": SignalResult(notes: [], value: 27.6816),
+            "BR_BPM": SignalResult(notes: [], value: 12),
+            "HEALTH_SCORE": SignalResult(notes: [], value: 72.5714)
+        ]
+    }
+
+    private static func randomValue(in range: ClosedRange<Int>) -> Double {
+        Double(Int.random(in: range))
+    }
+
+    private static func printMockScanResults(_ results: ResultsMap) {
+        let metricOrder = [
+            "BP_SYSTOLIC",
+            "BP_DIASTOLIC",
+            "HR_BPM",
+            "HDLTC_RISK_PROB",
+            "TG_RISK_PROB",
+            "BP_CVD",
+            "HBA1C_RISK_PROB"
+        ]
+
+        print("🎲 Skip to result — generated dummy values:")
+        for metric in metricOrder {
+            guard let value = results[metric]?.value else { continue }
+            print("  \(metric): \(Int(value))")
+        }
+    }
     private func exportPDF() {
         // 1. Create the view
         let pdfView = makeResultScreen(

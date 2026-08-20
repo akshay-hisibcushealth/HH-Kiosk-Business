@@ -18,7 +18,7 @@ enum AppConfig {
 
     // Set to true for QA TestFlight builds and false for client builds.
     // This controls all Physical Attributes QA buttons and their actions.
-    static let qaToolsEnabled = true
+    static let qaToolsEnabled = false
 
     // Set to true to allow screen capture, or false to protect sensitive screens.
     static let screenCaptureEnabled = false
