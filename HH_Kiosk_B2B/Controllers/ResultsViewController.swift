@@ -28,11 +28,13 @@ class ResultsViewController: UIViewController {
     private let inactivityLimit: TimeInterval = 25
     private let inactivityWarningDuration = 15
     private var inactivitySecondsRemaining = 15
+    private let inactivityDimmingView = UIView()
     private let inactivityWarningView = UIView()
     private let inactivityWarningIcon = UIImageView()
     private let inactivityWarningTitleLabel = UILabel()
     private let inactivityWarningLabel = UILabel()
     private let inactivityCountdownLabel = UILabel()
+    private let inactivityStayButton = UIButton(type: .system)
 
     private enum UIState {
         case loading, success, failure
@@ -122,6 +124,7 @@ class ResultsViewController: UIViewController {
         inactivityTimer = nil
         inactivityCountdownTimer?.invalidate()
         inactivityCountdownTimer = nil
+        inactivityDimmingView.isHidden = true
         inactivityWarningView.isHidden = true
     }
 
@@ -139,7 +142,9 @@ class ResultsViewController: UIViewController {
     private func startInactivityCountdown() {
         inactivitySecondsRemaining = inactivityWarningDuration
         updateInactivityWarning()
+        inactivityDimmingView.isHidden = false
         inactivityWarningView.isHidden = false
+        view.bringSubviewToFront(inactivityDimmingView)
         view.bringSubviewToFront(inactivityWarningView)
         UIAccessibility.post(notification: .announcement, argument: inactivityWarningView.accessibilityLabel)
 
@@ -166,19 +171,26 @@ class ResultsViewController: UIViewController {
         inactivityWarningView.accessibilityLabel = "You’ve been inactive. You’ll be returned to the Home Screen in \(inactivitySecondsRemaining) \(unit)."
     }
 
+    @objc private func stayOnPage() {
+        startInactivityTimer()
+        UIAccessibility.post(notification: .announcement, argument: "Staying on this page")
+    }
+
     private func setupInactivityWarning() {
+        inactivityDimmingView.translatesAutoresizingMaskIntoConstraints = false
+        inactivityDimmingView.backgroundColor = AppColors.primary.withAlphaComponent(0.34)
+        inactivityDimmingView.isHidden = true
+
         inactivityWarningView.translatesAutoresizingMaskIntoConstraints = false
-        inactivityWarningView.backgroundColor = AppColors.resultHeroBackground
-        inactivityWarningView.layer.cornerRadius = 20
-        inactivityWarningView.layer.borderWidth = 1.5
-        inactivityWarningView.layer.borderColor = AppColors.primary.withAlphaComponent(0.18).cgColor
+        inactivityWarningView.backgroundColor = AppColors.white
+        inactivityWarningView.layer.cornerRadius = 24
         inactivityWarningView.layer.shadowColor = UIColor.black.cgColor
-        inactivityWarningView.layer.shadowOpacity = 0.14
-        inactivityWarningView.layer.shadowRadius = 16
-        inactivityWarningView.layer.shadowOffset = CGSize(width: 0, height: 6)
+        inactivityWarningView.layer.shadowOpacity = 0.16
+        inactivityWarningView.layer.shadowRadius = 20
+        inactivityWarningView.layer.shadowOffset = CGSize(width: 0, height: 8)
         inactivityWarningView.isHidden = true
         inactivityWarningView.accessibilityViewIsModal = true
-        inactivityWarningView.isAccessibilityElement = true
+        inactivityWarningView.isAccessibilityElement = false
 
         inactivityWarningIcon.translatesAutoresizingMaskIntoConstraints = false
         inactivityWarningIcon.image = UIImage(systemName: "clock.badge.exclamationmark.fill")
@@ -205,36 +217,56 @@ class ResultsViewController: UIViewController {
         inactivityCountdownLabel.layer.cornerRadius = 16
         inactivityCountdownLabel.clipsToBounds = true
 
+        inactivityStayButton.translatesAutoresizingMaskIntoConstraints = false
+        inactivityStayButton.setTitle("Stay on this page", for: .normal)
+        inactivityStayButton.setTitleColor(AppColors.black, for: .normal)
+        inactivityStayButton.titleLabel?.font = .systemFont(ofSize: 20, weight: .semibold)
+        inactivityStayButton.backgroundColor = AppColors.ctaGreen
+        inactivityStayButton.layer.cornerRadius = 8
+        inactivityStayButton.addTarget(self, action: #selector(stayOnPage), for: .touchUpInside)
+        inactivityStayButton.accessibilityHint = "Dismisses this warning and resets the inactivity timer"
+
+        view.addSubview(inactivityDimmingView)
         view.addSubview(inactivityWarningView)
         inactivityWarningView.addSubview(inactivityWarningIcon)
         inactivityWarningView.addSubview(inactivityWarningTitleLabel)
         inactivityWarningView.addSubview(inactivityWarningLabel)
         inactivityWarningView.addSubview(inactivityCountdownLabel)
+        inactivityWarningView.addSubview(inactivityStayButton)
 
         NSLayoutConstraint.activate([
-            inactivityWarningView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            inactivityWarningView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
-            inactivityWarningView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.84),
-            inactivityWarningView.widthAnchor.constraint(lessThanOrEqualToConstant: 820),
+            inactivityDimmingView.topAnchor.constraint(equalTo: view.topAnchor),
+            inactivityDimmingView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            inactivityDimmingView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            inactivityDimmingView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
-            inactivityWarningIcon.leadingAnchor.constraint(equalTo: inactivityWarningView.leadingAnchor, constant: 24),
+            inactivityWarningView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            inactivityWarningView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            inactivityWarningView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.86),
+            inactivityWarningView.widthAnchor.constraint(lessThanOrEqualToConstant: 980),
+            inactivityWarningView.heightAnchor.constraint(equalToConstant: 154),
+
+            inactivityWarningIcon.leadingAnchor.constraint(equalTo: inactivityWarningView.leadingAnchor, constant: 36),
             inactivityWarningIcon.centerYAnchor.constraint(equalTo: inactivityWarningView.centerYAnchor),
             inactivityWarningIcon.widthAnchor.constraint(equalToConstant: 44),
             inactivityWarningIcon.heightAnchor.constraint(equalToConstant: 44),
 
-            inactivityWarningTitleLabel.topAnchor.constraint(equalTo: inactivityWarningView.topAnchor, constant: 20),
+            inactivityWarningTitleLabel.topAnchor.constraint(equalTo: inactivityWarningView.topAnchor, constant: 41),
             inactivityWarningTitleLabel.leadingAnchor.constraint(equalTo: inactivityWarningIcon.trailingAnchor, constant: 18),
-            inactivityWarningTitleLabel.trailingAnchor.constraint(lessThanOrEqualTo: inactivityCountdownLabel.leadingAnchor, constant: -20),
+            inactivityWarningTitleLabel.trailingAnchor.constraint(lessThanOrEqualTo: inactivityStayButton.leadingAnchor, constant: -28),
 
-            inactivityWarningLabel.topAnchor.constraint(equalTo: inactivityWarningTitleLabel.bottomAnchor, constant: 4),
+            inactivityWarningLabel.topAnchor.constraint(equalTo: inactivityWarningTitleLabel.bottomAnchor, constant: 6),
             inactivityWarningLabel.leadingAnchor.constraint(equalTo: inactivityWarningTitleLabel.leadingAnchor),
-            inactivityWarningLabel.trailingAnchor.constraint(lessThanOrEqualTo: inactivityCountdownLabel.leadingAnchor, constant: -20),
-            inactivityWarningLabel.bottomAnchor.constraint(equalTo: inactivityWarningView.bottomAnchor, constant: -20),
+            inactivityWarningLabel.trailingAnchor.constraint(equalTo: inactivityCountdownLabel.leadingAnchor, constant: -14),
 
-            inactivityCountdownLabel.trailingAnchor.constraint(equalTo: inactivityWarningView.trailingAnchor, constant: -24),
-            inactivityCountdownLabel.centerYAnchor.constraint(equalTo: inactivityWarningView.centerYAnchor),
-            inactivityCountdownLabel.widthAnchor.constraint(equalToConstant: 76),
-            inactivityCountdownLabel.heightAnchor.constraint(equalToConstant: 48)
+            inactivityCountdownLabel.centerYAnchor.constraint(equalTo: inactivityWarningLabel.centerYAnchor),
+            inactivityCountdownLabel.widthAnchor.constraint(equalToConstant: 72),
+            inactivityCountdownLabel.heightAnchor.constraint(equalToConstant: 44),
+
+            inactivityStayButton.trailingAnchor.constraint(equalTo: inactivityWarningView.trailingAnchor, constant: -36),
+            inactivityStayButton.centerYAnchor.constraint(equalTo: inactivityWarningView.centerYAnchor),
+            inactivityStayButton.widthAnchor.constraint(equalToConstant: 270),
+            inactivityStayButton.heightAnchor.constraint(equalToConstant: 76)
         ])
     }
 

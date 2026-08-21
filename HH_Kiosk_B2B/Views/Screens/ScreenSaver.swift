@@ -3,6 +3,7 @@ import SwiftUI
 struct ScreenSaver: View {
     @EnvironmentObject private var appState: AppState
     @State private var refreshTrigger = false
+    @State private var showResponseReceivedToast = false
     let onStartFaceScan: () -> Void
 
     private enum ScreenSaverAssetTitle {
@@ -126,5 +127,57 @@ struct ScreenSaver: View {
                 await appState.warmScreenSaverData()
             }
         }
+        .overlay(alignment: .top) {
+            if showResponseReceivedToast {
+                ScreenSaverResponseReceivedToast()
+                    .padding(.top, 214.h)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .zIndex(2)
+            }
+        }
+        .onAppear {
+            presentResponseReceivedToastIfNeeded()
+        }
+    }
+
+    private func presentResponseReceivedToastIfNeeded() {
+        guard UserDefaults.standard.bool(forKey: AppStorageKeys.responseReceivedToastPending) else { return }
+        UserDefaults.standard.removeObject(forKey: AppStorageKeys.responseReceivedToastPending)
+
+        withAnimation(.easeOut(duration: 0.25)) {
+            showResponseReceivedToast = true
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            withAnimation(.easeIn(duration: 0.2)) {
+                showResponseReceivedToast = false
+            }
+        }
+    }
+}
+
+private struct ScreenSaverResponseReceivedToast: View {
+    var body: some View {
+        HStack(spacing: 18.w) {
+            ZStack {
+                Circle()
+                    .fill(Color(AppColors.white))
+                    .frame(width: 44.w, height: 44.w)
+
+                Image(systemName: "checkmark")
+                    .font(.system(size: 26.sp, weight: .bold))
+                    .foregroundColor(Color(red: 0.39, green: 0.76, blue: 0.0))
+            }
+
+            Text(HomeScreenStrings.responseReceivedToast)
+                .font(.system(size: 28.sp, weight: .bold))
+                .foregroundColor(Color(AppColors.white))
+
+            Spacer()
+        }
+        .padding(.horizontal, 34.w)
+        .frame(width: 980.w, height: 88.h)
+        .background(Color(red: 0.39, green: 0.76, blue: 0.0))
+        .clipShape(RoundedRectangle(cornerRadius: 8.r, style: .continuous))
     }
 }
