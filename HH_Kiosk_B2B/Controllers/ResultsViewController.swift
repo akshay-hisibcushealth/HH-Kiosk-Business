@@ -24,7 +24,15 @@ class ResultsViewController: UIViewController {
     private var exitButton: UIButton!
     private let submissionService: KioskSubmissionServiceProtocol = KioskSubmissionService()
     private var inactivityTimer: Timer?
-    private let inactivityLimit: TimeInterval = 60
+    private var inactivityCountdownTimer: Timer?
+    private let inactivityLimit: TimeInterval = 25
+    private let inactivityWarningDuration = 15
+    private var inactivitySecondsRemaining = 15
+    private let inactivityWarningView = UIView()
+    private let inactivityWarningIcon = UIImageView()
+    private let inactivityWarningTitleLabel = UILabel()
+    private let inactivityWarningLabel = UILabel()
+    private let inactivityCountdownLabel = UILabel()
 
     private enum UIState {
         case loading, success, failure
@@ -61,6 +69,7 @@ class ResultsViewController: UIViewController {
         setupLoadingAndErrorViews()
         setupConstraints()
         setupInactivityTracking()
+        setupInactivityWarning()
 
         updateUI(for: .loading)
 
@@ -82,6 +91,7 @@ class ResultsViewController: UIViewController {
 
     deinit {
         inactivityTimer?.invalidate()
+        inactivityCountdownTimer?.invalidate()
     }
 
     // MARK: - Inactivity Timer
@@ -101,7 +111,8 @@ class ResultsViewController: UIViewController {
     private func startInactivityTimer() {
         stopInactivityTimer()
 
-        let timer = Timer(timeInterval: inactivityLimit, target: self, selector: #selector(inactivityTimerDidFire), userInfo: nil, repeats: false)
+        let warningDelay = inactivityLimit - TimeInterval(inactivityWarningDuration)
+        let timer = Timer(timeInterval: warningDelay, target: self, selector: #selector(inactivityTimerDidFire), userInfo: nil, repeats: false)
         inactivityTimer = timer
         RunLoop.main.add(timer, forMode: .common)
     }
@@ -109,6 +120,9 @@ class ResultsViewController: UIViewController {
     private func stopInactivityTimer() {
         inactivityTimer?.invalidate()
         inactivityTimer = nil
+        inactivityCountdownTimer?.invalidate()
+        inactivityCountdownTimer = nil
+        inactivityWarningView.isHidden = true
     }
 
     @objc private func userDidInteract() {
@@ -117,8 +131,111 @@ class ResultsViewController: UIViewController {
     }
 
     @objc private func inactivityTimerDidFire() {
-        stopInactivityTimer()
-        navigateToHome()
+        inactivityTimer?.invalidate()
+        inactivityTimer = nil
+        startInactivityCountdown()
+    }
+
+    private func startInactivityCountdown() {
+        inactivitySecondsRemaining = inactivityWarningDuration
+        updateInactivityWarning()
+        inactivityWarningView.isHidden = false
+        view.bringSubviewToFront(inactivityWarningView)
+        UIAccessibility.post(notification: .announcement, argument: inactivityWarningView.accessibilityLabel)
+
+        let timer = Timer(timeInterval: 1, target: self, selector: #selector(inactivityCountdownDidTick), userInfo: nil, repeats: true)
+        inactivityCountdownTimer = timer
+        RunLoop.main.add(timer, forMode: .common)
+    }
+
+    @objc private func inactivityCountdownDidTick() {
+        inactivitySecondsRemaining -= 1
+
+        guard inactivitySecondsRemaining > 0 else {
+            stopInactivityTimer()
+            navigateToHome()
+            return
+        }
+
+        updateInactivityWarning()
+    }
+
+    private func updateInactivityWarning() {
+        let unit = inactivitySecondsRemaining == 1 ? "second" : "seconds"
+        inactivityCountdownLabel.text = "\(inactivitySecondsRemaining)s"
+        inactivityWarningView.accessibilityLabel = "You’ve been inactive. You’ll be returned to the Home Screen in \(inactivitySecondsRemaining) \(unit)."
+    }
+
+    private func setupInactivityWarning() {
+        inactivityWarningView.translatesAutoresizingMaskIntoConstraints = false
+        inactivityWarningView.backgroundColor = AppColors.resultHeroBackground
+        inactivityWarningView.layer.cornerRadius = 20
+        inactivityWarningView.layer.borderWidth = 1.5
+        inactivityWarningView.layer.borderColor = AppColors.primary.withAlphaComponent(0.18).cgColor
+        inactivityWarningView.layer.shadowColor = UIColor.black.cgColor
+        inactivityWarningView.layer.shadowOpacity = 0.14
+        inactivityWarningView.layer.shadowRadius = 16
+        inactivityWarningView.layer.shadowOffset = CGSize(width: 0, height: 6)
+        inactivityWarningView.isHidden = true
+        inactivityWarningView.accessibilityViewIsModal = true
+        inactivityWarningView.isAccessibilityElement = true
+
+        inactivityWarningIcon.translatesAutoresizingMaskIntoConstraints = false
+        inactivityWarningIcon.image = UIImage(systemName: "clock.badge.exclamationmark.fill")
+        inactivityWarningIcon.tintColor = AppColors.primary
+        inactivityWarningIcon.contentMode = .scaleAspectFit
+
+        inactivityWarningTitleLabel.translatesAutoresizingMaskIntoConstraints = false
+        inactivityWarningTitleLabel.text = "You’ve been inactive"
+        inactivityWarningTitleLabel.font = .systemFont(ofSize: 24, weight: .bold)
+        inactivityWarningTitleLabel.textColor = AppColors.primary
+        inactivityWarningTitleLabel.adjustsFontForContentSizeCategory = true
+
+        inactivityWarningLabel.translatesAutoresizingMaskIntoConstraints = false
+        inactivityWarningLabel.text = "Returning to the Home Screen in"
+        inactivityWarningLabel.font = .systemFont(ofSize: 19, weight: .medium)
+        inactivityWarningLabel.textColor = AppColors.textSecondary
+        inactivityWarningLabel.adjustsFontForContentSizeCategory = true
+
+        inactivityCountdownLabel.translatesAutoresizingMaskIntoConstraints = false
+        inactivityCountdownLabel.backgroundColor = AppColors.primaryActionOrange
+        inactivityCountdownLabel.textColor = AppColors.white
+        inactivityCountdownLabel.font = .monospacedDigitSystemFont(ofSize: 24, weight: .bold)
+        inactivityCountdownLabel.textAlignment = .center
+        inactivityCountdownLabel.layer.cornerRadius = 16
+        inactivityCountdownLabel.clipsToBounds = true
+
+        view.addSubview(inactivityWarningView)
+        inactivityWarningView.addSubview(inactivityWarningIcon)
+        inactivityWarningView.addSubview(inactivityWarningTitleLabel)
+        inactivityWarningView.addSubview(inactivityWarningLabel)
+        inactivityWarningView.addSubview(inactivityCountdownLabel)
+
+        NSLayoutConstraint.activate([
+            inactivityWarningView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            inactivityWarningView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
+            inactivityWarningView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.84),
+            inactivityWarningView.widthAnchor.constraint(lessThanOrEqualToConstant: 820),
+
+            inactivityWarningIcon.leadingAnchor.constraint(equalTo: inactivityWarningView.leadingAnchor, constant: 24),
+            inactivityWarningIcon.centerYAnchor.constraint(equalTo: inactivityWarningView.centerYAnchor),
+            inactivityWarningIcon.widthAnchor.constraint(equalToConstant: 44),
+            inactivityWarningIcon.heightAnchor.constraint(equalToConstant: 44),
+
+            inactivityWarningTitleLabel.topAnchor.constraint(equalTo: inactivityWarningView.topAnchor, constant: 20),
+            inactivityWarningTitleLabel.leadingAnchor.constraint(equalTo: inactivityWarningIcon.trailingAnchor, constant: 18),
+            inactivityWarningTitleLabel.trailingAnchor.constraint(lessThanOrEqualTo: inactivityCountdownLabel.leadingAnchor, constant: -20),
+
+            inactivityWarningLabel.topAnchor.constraint(equalTo: inactivityWarningTitleLabel.bottomAnchor, constant: 4),
+            inactivityWarningLabel.leadingAnchor.constraint(equalTo: inactivityWarningTitleLabel.leadingAnchor),
+            inactivityWarningLabel.trailingAnchor.constraint(lessThanOrEqualTo: inactivityCountdownLabel.leadingAnchor, constant: -20),
+            inactivityWarningLabel.bottomAnchor.constraint(equalTo: inactivityWarningView.bottomAnchor, constant: -20),
+
+            inactivityCountdownLabel.trailingAnchor.constraint(equalTo: inactivityWarningView.trailingAnchor, constant: -24),
+            inactivityCountdownLabel.centerYAnchor.constraint(equalTo: inactivityWarningView.centerYAnchor),
+            inactivityCountdownLabel.widthAnchor.constraint(equalToConstant: 76),
+            inactivityCountdownLabel.heightAnchor.constraint(equalToConstant: 48)
+        ])
     }
 
     // MARK: - Mock Debug Data
