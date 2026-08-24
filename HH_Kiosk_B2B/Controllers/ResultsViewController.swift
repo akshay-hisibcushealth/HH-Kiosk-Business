@@ -26,7 +26,7 @@ class ResultsViewController: UIViewController {
     private var inactivityTimer: Timer?
     private var inactivityCountdownTimer: Timer?
     private var isEmailPopupPresented = false
-    private let inactivityLimit: TimeInterval = 25
+    private let inactivityLimit: TimeInterval = 60*5
     private let inactivityWarningDuration = 15
     private var inactivitySecondsRemaining = 15
     private let inactivityDimmingView = UIView()
