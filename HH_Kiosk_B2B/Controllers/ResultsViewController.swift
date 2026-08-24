@@ -25,6 +25,7 @@ class ResultsViewController: UIViewController {
     private let submissionService: KioskSubmissionServiceProtocol = KioskSubmissionService()
     private var inactivityTimer: Timer?
     private var inactivityCountdownTimer: Timer?
+    private var isEmailPopupPresented = false
     private let inactivityLimit: TimeInterval = 25
     private let inactivityWarningDuration = 15
     private var inactivitySecondsRemaining = 15
@@ -112,6 +113,7 @@ class ResultsViewController: UIViewController {
 
     private func startInactivityTimer() {
         stopInactivityTimer()
+        guard !isEmailPopupPresented else { return }
 
         let warningDelay = inactivityLimit - TimeInterval(inactivityWarningDuration)
         let timer = Timer(timeInterval: warningDelay, target: self, selector: #selector(inactivityTimerDidFire), userInfo: nil, repeats: false)
@@ -136,6 +138,7 @@ class ResultsViewController: UIViewController {
     @objc private func inactivityTimerDidFire() {
         inactivityTimer?.invalidate()
         inactivityTimer = nil
+        guard !isEmailPopupPresented else { return }
         startInactivityCountdown()
     }
 
@@ -154,6 +157,11 @@ class ResultsViewController: UIViewController {
     }
 
     @objc private func inactivityCountdownDidTick() {
+        guard !isEmailPopupPresented else {
+            stopInactivityTimer()
+            return
+        }
+
         inactivitySecondsRemaining -= 1
 
         guard inactivitySecondsRemaining > 0 else {
@@ -174,6 +182,16 @@ class ResultsViewController: UIViewController {
     @objc private func stayOnPage() {
         startInactivityTimer()
         UIAccessibility.post(notification: .announcement, argument: "Staying on this page")
+    }
+
+    private func emailPopupPresentationDidChange(isPresented: Bool) {
+        isEmailPopupPresented = isPresented
+
+        if isPresented {
+            stopInactivityTimer()
+        } else if viewIfLoaded?.window != nil {
+            startInactivityTimer()
+        }
     }
 
     private func setupInactivityWarning() {
@@ -398,7 +416,14 @@ class ResultsViewController: UIViewController {
 
     // MARK: - Setup Views
     private func setupSwiftUIScreen() {
-        let screen = makeResultScreen(model: resultsModel, showBottomButtons: false, showLoadingOverlay: false)
+        let screen = makeResultScreen(
+            model: resultsModel,
+            showBottomButtons: false,
+            showLoadingOverlay: false,
+            onEmailPopupPresentationChange: { [weak self] isPresented in
+                self?.emailPopupPresentationDidChange(isPresented: isPresented)
+            }
+        )
         resultScreenHost = UIHostingController(rootView: screen)
         addChild(resultScreenHost)
         resultScreenHost.view.translatesAutoresizingMaskIntoConstraints = false
@@ -673,13 +698,15 @@ class ResultsViewController: UIViewController {
         model: ResultsModel,
         result: [String: MeasurementResults.SignalResult] = [:],
         showBottomButtons: Bool,
-        showLoadingOverlay: Bool
+        showLoadingOverlay: Bool,
+        onEmailPopupPresentationChange: @escaping (Bool) -> Void = { _ in }
     ) -> AnyView {
         let screen = ResultScreen(
             model: model,
             result: result,
             showBottomButtons: showBottomButtons,
-            showLoadingOverlay: showLoadingOverlay
+            showLoadingOverlay: showLoadingOverlay,
+            onEmailPopupPresentationChange: onEmailPopupPresentationChange
         )
 
         if let appState {

@@ -503,6 +503,7 @@ struct PostSessionFlowScreen: View {
 
     private func submitUserResponse(nextSteps: [KioskNextStepResponse], npsScore: Int?, action: PostSessionSubmissionAction) {
         guard !isSubmitting else { return }
+        let hasSurveyResponse = !nextSteps.isEmpty || npsScore != nil
 
         Task {
             await MainActor.run {
@@ -524,7 +525,7 @@ struct PostSessionFlowScreen: View {
                 )
 
                 await MainActor.run {
-                    navigateToHome(showResponseToast: true)
+                    navigateToHome(showResponseToast: hasSurveyResponse)
                 }
             } catch {
                 print("Kiosk post-session response error:", error.localizedDescription)

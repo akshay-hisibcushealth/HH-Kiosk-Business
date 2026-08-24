@@ -69,19 +69,22 @@ public struct ResultScreen: View {
     private let showBottomButtons: Bool
     private let showLoadingOverlay: Bool
     private let showHeaderEmailButton: Bool
+    private let onEmailPopupPresentationChange: (Bool) -> Void
     
     public init(
         model: ResultsModel = ResultsModel(),
         result: [String: MeasurementResults.SignalResult] = [:],
         showBottomButtons: Bool = true,
         showLoadingOverlay: Bool = true,
-        showHeaderEmailButton: Bool = true
+        showHeaderEmailButton: Bool = true,
+        onEmailPopupPresentationChange: @escaping (Bool) -> Void = { _ in }
     ) {
         _model = StateObject(wrappedValue: model)
         self.result = result
         self.showBottomButtons = showBottomButtons
         self.showLoadingOverlay = showLoadingOverlay
         self.showHeaderEmailButton = showHeaderEmailButton
+        self.onEmailPopupPresentationChange = onEmailPopupPresentationChange
     }
     
     public var body: some View {
@@ -122,6 +125,9 @@ public struct ResultScreen: View {
                 )
             }
             .presentationBackground(Color.clear)
+        }
+        .onChange(of: isEmailPopupPresented) { _, isPresented in
+            onEmailPopupPresentationChange(isPresented)
         }
     }
     
