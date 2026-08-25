@@ -6,31 +6,6 @@ struct ScreenSaver: View {
     @State private var showResponseReceivedToast = false
     let onStartFaceScan: () -> Void
 
-    private enum ScreenSaverAssetTitle {
-        static let qrImage = "qr"
-    }
-
-    private var carouselImages: [String] {
-        guard let data = appState.screenSaverData else { return [] }
-
-        return data.carouselImages
-            .filter { !$0.title.lowercased().contains(ScreenSaverAssetTitle.qrImage) }
-            .sorted { lhs, rhs in
-                if lhs.order == rhs.order {
-                    return lhs.title.localizedCaseInsensitiveCompare(rhs.title) == .orderedAscending
-                }
-
-                return lhs.order < rhs.order
-            }
-            .map(\.imageURL)
-    }
-
-    private var qrImageURL: String? {
-        appState.screenSaverData?.carouselImages.first(where: {
-            $0.title.lowercased().contains(ScreenSaverAssetTitle.qrImage)
-        })?.imageURL
-    }
-
     private var welcomeText: String {
         appState.screenSaverData?.welcomeText ?? ScreenSaverStrings.title
     }
@@ -43,83 +18,57 @@ struct ScreenSaver: View {
         appState.screenSaverData?.actionButtonText ?? ScreenSaverStrings.actionButton
     }
 
-    
     var body: some View {
         ZStack {
-            // Background
-            //here we need to add a ractangle background that cover whole screen color will be AppColors.primary
             Rectangle()
-                   .fill(Color(AppColors.primary))
-                   .ignoresSafeArea()
+                .fill(Color(AppColors.primary))
+                .ignoresSafeArea()
+
             Image(AppIconNames.Asset.screensaverBackground)
                 .resizable()
                 .scaledToFill()
                 .ignoresSafeArea()
             
-            if appState.isScreenSaverDataLoading && appState.screenSaverData == nil {
-                ProgressView(ScreenSaverStrings.loading)
-                    .foregroundColor(Color(AppColors.white))
-                    .font(.system(size: 28.sp))
-            } else {
-                VStack(spacing: 0) {
-                    // Toolbar (Logo + Time)
-                    Toolbar()
-                        .padding(.horizontal, 48.w)
-                        .padding(.top, 75.h)
-                        .frame(maxWidth: .infinity, alignment: .top)
+            VStack(spacing: 0) {
+                Toolbar()
+                    .padding(.horizontal, 48.w)
+                    .padding(.top, 75.h)
+                    .frame(maxWidth: .infinity, alignment: .top)
                     
-                    Spacer(minLength: 100.h)
+                    Spacer(minLength: 40.h)
                     
                     // Title text
-                    VStack(spacing: 24.h) {
-                        buildSemiBoldText(welcomeText,40.sp,color: Color(AppColors.white))
+                    VStack(spacing: 18.h) {
+                        buildSemiBoldText(welcomeText, 42.sp, color: Color(AppColors.white))
+                            .multilineTextAlignment(.center)
+                            .lineLimit(2)
+                            .minimumScaleFactor(0.72)
                         
                         Text(subtitle)
-                            .foregroundColor(Color(AppColors.white))
+                            .foregroundColor(Color(AppColors.white).opacity(0.84))
                             .font(.system(size: 34.sp, weight: .regular))
                             .multilineTextAlignment(.center)
-                            .padding(.top, -15.h)
+                            .lineSpacing(8.h)
+                            .lineLimit(2)
+                            .minimumScaleFactor(0.78)
                     }
-                    .padding(.horizontal, 60.w)
+                    .padding(.horizontal, 70.w)
+
+                    Image(AppIconNames.Asset.screenSaverAvatar)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 630.w, height: 670.h)
+                        .padding(.top, 48.h)
+                        .padding(.horizontal, 12.w)
                     
-                    Spacer(minLength: 80.h)
+                    ScreenSaverFaceScanButton(text: actionButtonText, action: onStartFaceScan)
+                        .padding(.top, 54.h)
                     
-                    // Dynamic carousel
-                    if !carouselImages.isEmpty {
-                        ImageCarouselView(imageURLs: carouselImages)
-                    }
-                    
-                    // Button
-                    HealthJourneyButton(text: actionButtonText, action: onStartFaceScan)
-                        .padding(.vertical, 100.h)
-                    
-                    // Dynamic QR code section
-                    if let qrURL = qrImageURL, let url = URL(string: qrURL) {
-                        VStack(spacing: 24.h) {
-                            CachedAsyncImage(
-                                url: url,
-                                width: 200.w,
-                                height: 200.h,
-                                cornerRadius: 24.r
-                            ) { image in
-                                image
-                                    .resizable()
-                                    .scaledToFill()
-                            }
-                            .padding(.trailing, 12.w)
-                            .padding(.bottom, 12.w)
-                            buildBoldText(ScreenSaverStrings.qrPrompt,30.sp,color: Color(AppColors.white))
-                                .padding(.top, 12.h)
-                            
-                        }
-                    }
-                    
-                    Spacer(minLength: 60.h)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .onReceive(NotificationCenter.default.publisher(for: .screenDidChangeBounds)) { _ in
-                           refreshTrigger.toggle()
-                       }
+                    Spacer()
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .onReceive(NotificationCenter.default.publisher(for: .screenDidChangeBounds)) { _ in
+                refreshTrigger.toggle()
             }
         }
         .task {
@@ -153,6 +102,58 @@ struct ScreenSaver: View {
                 showResponseReceivedToast = false
             }
         }
+    }
+}
+
+private struct ScreenSaverFaceScanButton: View {
+    let text: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 34.w) {
+                assetSVG(AppIconNames.SvgAsset.smile, tintColor: Color(AppColors.white))
+                    .scaledToFit()
+                    .frame(width: 52.w, height: 52.h)
+
+                Text(text)
+                    .font(.system(size: 42.sp, weight: .bold))
+                    .foregroundColor(Color(AppColors.white))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.72)
+                    .layoutPriority(1)
+
+                Image(systemName: AppIconNames.Symbol.arrowRight)
+                    .font(.system(size: 34.sp, weight: .regular))
+                    .foregroundColor(Color(AppColors.white))
+                    .frame(width: 88.w, height: 88.h)
+                    .background(Color(AppColors.white).opacity(0.20))
+                    .clipShape(Circle())
+            }
+            .padding(.leading, 70.w)
+            .padding(.trailing, 32.w)
+            .frame(minWidth: 600.w, minHeight: 130.h)
+            .fixedSize(horizontal: true, vertical: false)
+            .background(
+                LinearGradient(
+                    colors: [
+                        Color(red: 1.0, green: 0.22, blue: 0.02),
+                        Color(red: 1.0, green: 0.34, blue: 0.04),
+                        Color(red: 1.0, green: 0.55, blue: 0.0)
+                    ],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+            )
+            .clipShape(Capsule())
+            .shadow(
+                color: Color(red: 1.0, green: 0.45, blue: 0.0).opacity(0.34),
+                radius: 28,
+                x: 0,
+                y: 22
+            )
+        }
+        .buttonStyle(.plain)
     }
 }
 
