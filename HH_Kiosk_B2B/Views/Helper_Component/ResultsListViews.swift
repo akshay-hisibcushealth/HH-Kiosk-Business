@@ -34,8 +34,20 @@ struct ResultRow: View {
     let subtitle: String
     let value: Double
 
+    @State private var isShowingDetails = false
+    @State private var collapsedMessageHeight: CGFloat = 0
+    @State private var fullMessageHeight: CGFloat = 0
+
     private var message: String {
         getTaggedMessage(metricKey: metricKey, value: value)
+            .components(separatedBy: .whitespacesAndNewlines)
+            .filter { !$0.isEmpty }
+            .joined(separator: " ")
+            .replacingOccurrences(of: ",like", with: ", like")
+    }
+
+    private var isMessageTruncated: Bool {
+        fullMessageHeight > collapsedMessageHeight + 1
     }
 
     private var indicatorColor: Color {
@@ -115,18 +127,83 @@ struct ResultRow: View {
                 .frame(maxWidth: .infinity, alignment: .center)
                 .padding(.top, 22.h)
 
-            HStack(alignment: .center, spacing: 24.w) {
-                Circle()
-                    .fill(indicatorColor)
-                    .frame(width: 34.w, height: 34.h)
+            VStack(spacing: 22.h) {
+                HStack(alignment: .top, spacing: 30.w) {
+                    Image("vitalFlag")
+                        .renderingMode(.template)
+                        .resizable()
+                        .scaledToFit()
+                        .foregroundStyle(indicatorColor)
+                        .frame(width: 32.w, height: 35.h)
+                        .accessibilityHidden(true)
 
-                Text(message)
-                    .font(.system(size: 26.sp, weight: .semibold))
-                    .foregroundColor(Color(AppColors.black))
-                    .fixedSize(horizontal: false, vertical: true)
+                    Text(message)
+                        .font(.system(size: 26.sp, weight: .regular))
+                        .foregroundColor(Color(AppColors.bodyText))
+                        .lineSpacing(7.h)
+                        .multilineTextAlignment(.leading)
+                        .lineLimit(isShowingDetails ? nil : 2)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background {
+                            Text(message)
+                                .font(.system(size: 26.sp, weight: .regular))
+                                .lineSpacing(7.h)
+                                .lineLimit(2)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .hidden()
+                                .background {
+                                    GeometryReader { geometry in
+                                        Color.clear.preference(
+                                            key: CollapsedMessageHeightKey.self,
+                                            value: geometry.size.height
+                                        )
+                                    }
+                                }
+                        }
+                        .background {
+                            Text(message)
+                                .font(.system(size: 26.sp, weight: .regular))
+                                .lineSpacing(7.h)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .hidden()
+                                .background {
+                                    GeometryReader { geometry in
+                                        Color.clear.preference(
+                                            key: FullMessageHeightKey.self,
+                                            value: geometry.size.height
+                                        )
+                                    }
+                                }
+                        }
+                }
+
+                if isMessageTruncated {
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            isShowingDetails.toggle()
+                        }
+                    } label: {
+                        HStack(spacing: 14.w) {
+                            Text(isShowingDetails ? "Show less" : "Read more details")
+                                .font(.system(size: 26.sp, weight: .bold))
+
+                            Image(systemName: "chevron.down")
+                                .font(.system(size: 22.sp, weight: .bold))
+                                .rotationEffect(.degrees(isShowingDetails ? 180 : 0))
+                        }
+                        .foregroundColor(Color(AppColors.primary))
+                        .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(isShowingDetails ? "Hide details" : "Read more details")
+                    .accessibilityValue(title)
+                }
             }
+            .onPreferenceChange(CollapsedMessageHeightKey.self) { collapsedMessageHeight = $0 }
+            .onPreferenceChange(FullMessageHeightKey.self) { fullMessageHeight = $0 }
             .padding(.horizontal, 46.w)
-            .padding(.vertical, 30.h)
+            .padding(.vertical, 34.h)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Color(uiColor: .secondarySystemBackground))
             .clipShape(RoundedRectangle(cornerRadius: 20.r, style: .continuous))
@@ -142,6 +219,22 @@ struct ResultRow: View {
                 .stroke(Color(AppColors.formBorder), lineWidth: 1.25)
         )
         .clipShape(RoundedRectangle(cornerRadius: 24.r, style: .continuous))
+    }
+}
+
+private struct CollapsedMessageHeightKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
+    }
+}
+
+private struct FullMessageHeightKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
     }
 }
 
