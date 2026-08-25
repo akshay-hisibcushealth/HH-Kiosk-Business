@@ -70,6 +70,7 @@ public struct ResultScreen: View {
     private let showLoadingOverlay: Bool
     private let showHeaderEmailButton: Bool
     private let onEmailPopupPresentationChange: (Bool) -> Void
+    private let debugSkipToResultsAction: (() -> Void)?
     
     public init(
         model: ResultsModel = ResultsModel(),
@@ -77,7 +78,8 @@ public struct ResultScreen: View {
         showBottomButtons: Bool = true,
         showLoadingOverlay: Bool = true,
         showHeaderEmailButton: Bool = true,
-        onEmailPopupPresentationChange: @escaping (Bool) -> Void = { _ in }
+        onEmailPopupPresentationChange: @escaping (Bool) -> Void = { _ in },
+        debugSkipToResultsAction: (() -> Void)? = nil
     ) {
         _model = StateObject(wrappedValue: model)
         self.result = result
@@ -85,6 +87,7 @@ public struct ResultScreen: View {
         self.showLoadingOverlay = showLoadingOverlay
         self.showHeaderEmailButton = showHeaderEmailButton
         self.onEmailPopupPresentationChange = onEmailPopupPresentationChange
+        self.debugSkipToResultsAction = debugSkipToResultsAction
     }
     
     public var body: some View {
@@ -100,6 +103,29 @@ public struct ResultScreen: View {
                     exportToPDF()
                 },onPrint: {})
             }
+
+            #if DEBUG
+            if !isEmailPopupPresented, let debugSkipToResultsAction {
+                Button(action: debugSkipToResultsAction) {
+                    Label(
+                        PhysicalAttributesScreenStrings.debugRefresh,
+                        systemImage: "arrow.clockwise"
+                    )
+                    .font(.system(size: 18.sp, weight: .bold))
+                    .foregroundColor(Color(AppColors.white))
+                    .padding(.horizontal, 24.w)
+                    .frame(minHeight: 52.h)
+                    .background(Color(AppColors.primary))
+                    .clipShape(Capsule())
+                    .shadow(color: Color.black.opacity(0.18), radius: 8.r, y: 4.h)
+                }
+                .buttonStyle(.plain)
+                .padding(.trailing, 28.w)
+                .padding(.bottom, showBottomButtons ? 130.h : 28.h)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+                .accessibilityHint("Submits mock scan data and reloads the results")
+            }
+            #endif
         }
         // Keep the underlying report and its footer stationary while a popup
         // text field owns the keyboard.

@@ -26,7 +26,7 @@ class ResultsViewController: UIViewController {
     private var inactivityTimer: Timer?
     private var inactivityCountdownTimer: Timer?
     private var isEmailPopupPresented = false
-    private let inactivityLimit: TimeInterval = 60*5
+    private let inactivityLimit: TimeInterval = 300
     private let inactivityWarningDuration = 15
     private var inactivitySecondsRemaining = 15
     private let inactivityDimmingView = UIView()
@@ -220,12 +220,18 @@ class ResultsViewController: UIViewController {
         inactivityWarningTitleLabel.font = .systemFont(ofSize: 24, weight: .bold)
         inactivityWarningTitleLabel.textColor = AppColors.primary
         inactivityWarningTitleLabel.adjustsFontForContentSizeCategory = true
+        inactivityWarningTitleLabel.numberOfLines = 1
+        inactivityWarningTitleLabel.adjustsFontSizeToFitWidth = true
+        inactivityWarningTitleLabel.minimumScaleFactor = 0.85
 
         inactivityWarningLabel.translatesAutoresizingMaskIntoConstraints = false
         inactivityWarningLabel.text = "Returning to the Home Screen in"
         inactivityWarningLabel.font = .systemFont(ofSize: 19, weight: .medium)
         inactivityWarningLabel.textColor = AppColors.textSecondary
         inactivityWarningLabel.adjustsFontForContentSizeCategory = true
+        inactivityWarningLabel.numberOfLines = 1
+        inactivityWarningLabel.adjustsFontSizeToFitWidth = true
+        inactivityWarningLabel.minimumScaleFactor = 0.8
 
         inactivityCountdownLabel.translatesAutoresizingMaskIntoConstraints = false
         inactivityCountdownLabel.backgroundColor = AppColors.primaryActionOrange
@@ -243,6 +249,7 @@ class ResultsViewController: UIViewController {
         inactivityStayButton.layer.cornerRadius = 8
         inactivityStayButton.addTarget(self, action: #selector(stayOnPage), for: .touchUpInside)
         inactivityStayButton.accessibilityHint = "Dismisses this warning and resets the inactivity timer"
+        inactivityStayButton.setContentCompressionResistancePriority(.required, for: .horizontal)
 
         view.addSubview(inactivityDimmingView)
         view.addSubview(inactivityWarningView)
@@ -280,10 +287,12 @@ class ResultsViewController: UIViewController {
             inactivityCountdownLabel.centerYAnchor.constraint(equalTo: inactivityWarningLabel.centerYAnchor),
             inactivityCountdownLabel.widthAnchor.constraint(equalToConstant: 72),
             inactivityCountdownLabel.heightAnchor.constraint(equalToConstant: 44),
+            inactivityCountdownLabel.trailingAnchor.constraint(lessThanOrEqualTo: inactivityStayButton.leadingAnchor, constant: -24),
 
             inactivityStayButton.trailingAnchor.constraint(equalTo: inactivityWarningView.trailingAnchor, constant: -36),
             inactivityStayButton.centerYAnchor.constraint(equalTo: inactivityWarningView.centerYAnchor),
-            inactivityStayButton.widthAnchor.constraint(equalToConstant: 270),
+            inactivityStayButton.widthAnchor.constraint(equalTo: inactivityWarningView.widthAnchor, multiplier: 0.27),
+            inactivityStayButton.widthAnchor.constraint(lessThanOrEqualToConstant: 270),
             inactivityStayButton.heightAnchor.constraint(equalToConstant: 76)
         ])
     }
@@ -706,7 +715,10 @@ class ResultsViewController: UIViewController {
             result: result,
             showBottomButtons: showBottomButtons,
             showLoadingOverlay: showLoadingOverlay,
-            onEmailPopupPresentationChange: onEmailPopupPresentationChange
+            onEmailPopupPresentationChange: onEmailPopupPresentationChange,
+            debugSkipToResultsAction: { [weak self] in
+                self?.submitMockScanResultsForBackendDebug()
+            }
         )
 
         if let appState {
