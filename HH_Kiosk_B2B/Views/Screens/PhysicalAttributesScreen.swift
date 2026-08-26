@@ -335,11 +335,13 @@ struct PhysicalAttributesScreen: View {
                         ProgressView()
                             .progressViewStyle(CircularProgressViewStyle(tint: Color(AppColors.black)))
                             .frame(maxWidth: .infinity, minHeight: 88.h)
+                            .contentShape(Rectangle())
                     } else {
                         Text(PhysicalAttributesScreenStrings.proceedToScan)
                             .font(.system(size: 28.sp, weight: .bold))
                             .foregroundColor(Color(AppColors.clientIDDialogBackground))
                             .frame(maxWidth: .infinity, minHeight: 88.h)
+                            .contentShape(Rectangle())
                     }
                 }
                 .background(Color(AppColors.ctaGreen))
