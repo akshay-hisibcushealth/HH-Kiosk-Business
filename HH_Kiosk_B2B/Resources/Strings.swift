@@ -77,6 +77,7 @@ enum PhysicalAttributesScreenStrings {
     enum Validation {
         static let missingEmail = "Please enter your email."
         static let invalidEmail = "Please enter a valid email."
+        static let invalidPIN = "Please enter a 4-digit PIN."
         static let missingHeight = "Please select your height."
         static let missingWeight = "Weight cannot be empty."
         static let invalidWeight = "Weight cannot be less than 75 lbs."
@@ -96,6 +97,8 @@ enum PhysicalAttributesScreenStrings {
         static let emailLabel = "Email"
         static let emailPlaceholder = "Enter email"
         static let emailInlineError = "Enter a valid email address"
+        static let pinLabel = "Enter 4-digit PIN (used to open your report)"
+        static let pinPlaceholder = "_ _ _ _"
         static let ageLabel = "Age"
         static let agePlaceholder = "How old are you?"
         static let heightLabel = "Height"
@@ -153,8 +156,6 @@ enum ResultScreenStrings {
 
     enum Actions {
         static let closeResult = "Close result"
-        static let emailMyResults = "Email my results"
-        static let emailResults = "Email Results"
         static let back = "Back"
         static let secureAndPrivate = "Secure and Private"
         static let print = "Print"
@@ -162,42 +163,9 @@ enum ResultScreenStrings {
         static let viewNextSteps = "View Next Steps"
     }
 
-    enum EmailPopup {
-        static let emailSentConfirmation = "Your result has been sent to your email!"
-        static let whatNextTitle = "What next?"
-        static let oneLastThingTitle = "One last thing before you leave,"
-        static let supportSubtitle = "How can we support you from here?"
-        static let close = "Close"
-        static let confirm = "Confirm"
-        static let title = "Email me my results"
-        static let subtitle = "We'll send a secure document.\nYour 4-digit PIN unlocks the results, only you can open them."
-        static let emailAddress = "Email Address"
-        static let emailPlaceholder = "Email"
-        static let pinTitle = "Create a 4-digit PIN (used to open your report)"
-        static let pinPlaceholder = "* * * *"
-        static let pinHelp = "This will be used to view your result"
-        static let sendMail = "Send my results"
-        static let emailFailure = "Failed to send email. Please try again."
-        static let secureAndPrivate = "Secure and Private"
-        static let checkInboxTitle = "Check your inbox!"
-        static let emailSentMessage = "Your result has been sent to your email!\nTell a colleague about our Kiosk!"
-        static let done = "Done"
-
-        enum NextSteps {
-            static let talkToDoctorTitle = "Talk to a Hibiscus Doctor"
-            static let talkToDoctorSubtitle = "Connect with a Hibiscus Health physician to review your results."
-            static let talkToDoctorBodyPrefix = "Your results are in -- and a Hibiscus Health physician is ready to walk you through them. Schedule at this link: "
-            static let talkToDoctorLink = "https://calendly.com/david-hibiscushealth/30min"
-            static let talkToDoctorBodySuffix = ". Alternatively, the scheduling link will be emailed to you if you emailed your results."
-            static let dietitianTitle = "Explore Hibiscus Dietitian Care"
-            static let dietitianSubtitle = "Get personalized nutrition guidance from a registered dietitian."
-            static let dietitianBody = "Turn your data into a plan. A Registered Dietitian can review your results and build a nutrition plan around your specific needs to improve your health. A scheduling link will be sent to your email."
-            static let monitoringTitle = "Keep monitoring my health"
-            static let monitoringSubtitle = "Schedule regular scans to track my biomarkers over time."
-            static let monitoringBodyPrefix = "One scan is a snapshot. Regular scans show the full picture. Download the mobile app by scanning the appropriate QR code and use dietitian code "
-            static let monitoringCode = "\"KIRKLAND\""
-            static let monitoringBodySuffix = " to sign-up. Take a picture of this pop-up to remember the code later on."
-        }
+    enum EmailDelivery {
+        static let success = "Your results have been sent to your email!"
+        static let failure = "Unable to email your results. Please contact kiosk support."
     }
 
     enum PostSession {

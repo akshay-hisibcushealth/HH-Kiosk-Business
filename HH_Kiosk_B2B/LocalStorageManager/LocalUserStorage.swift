@@ -15,6 +15,7 @@ struct StoredUser: Codable {
     let weightInPounds: Int
     let age: Int
     let gender: String
+    var pin: String? = nil
 }
 
 struct LocalUserStorage {
@@ -39,7 +40,8 @@ struct LocalUserStorage {
         weight: Int,
         weightInPounds: Int,
         age: Int,
-        gender: String
+        gender: String,
+        pin: String? = nil
     ) {
 
         let user = StoredUser(
@@ -48,7 +50,8 @@ struct LocalUserStorage {
             weight: weight,
             weightInPounds: weightInPounds,
             age: age,
-            gender: gender
+            gender: gender,
+            pin: pin
         )
         if let data = try? JSONEncoder().encode(user),
            SecureStorage.set(data, forKey: secureUserKey) {

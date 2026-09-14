@@ -23,9 +23,13 @@ class ResultsViewController: UIViewController {
     private var errorLabel: UILabel!
     private var exitButton: UIButton!
     private let submissionService: KioskSubmissionServiceProtocol = KioskSubmissionService()
+    private let automaticReportEmail = AutomaticReportEmail()
+    private var readyEmailMeasurementID: String?
+    private var emailToast: UIView?
+    private var emailToastDismissal: DispatchWorkItem?
+    private var pendingEmailOutcome: AutomaticReportEmail.Outcome?
     private var inactivityTimer: Timer?
     private var inactivityCountdownTimer: Timer?
-    private var isEmailPopupPresented = false
     private let inactivityLimit: TimeInterval = 300
     private let inactivityWarningDuration = 15
     private var inactivitySecondsRemaining = 15
@@ -84,17 +88,23 @@ class ResultsViewController: UIViewController {
         super.viewDidAppear(animated)
         SensitiveScreenPrivacy.beginProtecting(owner: "results")
         startInactivityTimer()
+        sendReportEmailIfReady()
+        showPendingEmailToast()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         SensitiveScreenPrivacy.endProtecting(owner: "results")
         stopInactivityTimer()
+        emailToastDismissal?.cancel()
+        emailToast?.removeFromSuperview()
+        emailToast = nil
     }
 
     deinit {
         inactivityTimer?.invalidate()
         inactivityCountdownTimer?.invalidate()
+        emailToastDismissal?.cancel()
     }
 
     // MARK: - Inactivity Timer
@@ -113,7 +123,6 @@ class ResultsViewController: UIViewController {
 
     private func startInactivityTimer() {
         stopInactivityTimer()
-        guard !isEmailPopupPresented else { return }
 
         let warningDelay = inactivityLimit - TimeInterval(inactivityWarningDuration)
         let timer = Timer(timeInterval: warningDelay, target: self, selector: #selector(inactivityTimerDidFire), userInfo: nil, repeats: false)
@@ -138,7 +147,6 @@ class ResultsViewController: UIViewController {
     @objc private func inactivityTimerDidFire() {
         inactivityTimer?.invalidate()
         inactivityTimer = nil
-        guard !isEmailPopupPresented else { return }
         startInactivityCountdown()
     }
 
@@ -157,11 +165,6 @@ class ResultsViewController: UIViewController {
     }
 
     @objc private func inactivityCountdownDidTick() {
-        guard !isEmailPopupPresented else {
-            stopInactivityTimer()
-            return
-        }
-
         inactivitySecondsRemaining -= 1
 
         guard inactivitySecondsRemaining > 0 else {
@@ -182,16 +185,6 @@ class ResultsViewController: UIViewController {
     @objc private func stayOnPage() {
         startInactivityTimer()
         UIAccessibility.post(notification: .announcement, argument: "Staying on this page")
-    }
-
-    private func emailPopupPresentationDidChange(isPresented: Bool) {
-        isEmailPopupPresented = isPresented
-
-        if isPresented {
-            stopInactivityTimer()
-        } else if viewIfLoaded?.window != nil {
-            startInactivityTimer()
-        }
     }
 
     private func setupInactivityWarning() {
@@ -354,6 +347,7 @@ class ResultsViewController: UIViewController {
                         self?.printResults()
                     }
                 )
+                self.readyEmailMeasurementID = ScanSessionStorage.measurementID
                 self.updateUI(for: .success)
                 print("✅ Mock scan results submitted and backend results displayed successfully.")
             }
@@ -428,10 +422,7 @@ class ResultsViewController: UIViewController {
         let screen = makeResultScreen(
             model: resultsModel,
             showBottomButtons: false,
-            showLoadingOverlay: false,
-            onEmailPopupPresentationChange: { [weak self] isPresented in
-                self?.emailPopupPresentationDidChange(isPresented: isPresented)
-            }
+            showLoadingOverlay: false
         )
         resultScreenHost = UIHostingController(rootView: screen)
         addChild(resultScreenHost)
@@ -513,6 +504,7 @@ class ResultsViewController: UIViewController {
     private func updateUI(for state: UIState) {
         switch state {
         case .loading:
+            readyEmailMeasurementID = nil
             activityIndicator.startAnimating()
             errorLabel.isHidden = true
             exitButton.isHidden = true
@@ -525,6 +517,7 @@ class ResultsViewController: UIViewController {
             exitButton.isHidden = true
             resultButtonsHost.view.isHidden = false
             resultScreenHost.view.isHidden = false
+            sendReportEmailIfReady()
 
         case .failure:
             activityIndicator.stopAnimating()
@@ -533,6 +526,74 @@ class ResultsViewController: UIViewController {
             resultButtonsHost.view.isHidden = true
             resultScreenHost.view.isHidden = true
         }
+    }
+
+    private func sendReportEmailIfReady() {
+        guard viewIfLoaded?.window != nil,
+              let measurementID = readyEmailMeasurementID else { return }
+        guard let user = LocalUserStorage.loadUser(), let pin = user.pin else {
+            pendingEmailOutcome = .failed
+            showPendingEmailToast()
+            return
+        }
+
+        let service = submissionService
+        Task { [weak self] in
+            guard let self else { return }
+            let outcome = await automaticReportEmail.sendOnce(
+                measurementID: measurementID,
+                email: user.email,
+                pin: pin
+            ) { email, pin, measurementID in
+                try await service.sendEmailResults(email: email, pin: pin, measurementID: measurementID)
+            }
+            guard outcome != .alreadyAttempted,
+                  readyEmailMeasurementID == measurementID else { return }
+            pendingEmailOutcome = outcome
+            showPendingEmailToast()
+        }
+    }
+
+    private func showPendingEmailToast() {
+        guard viewIfLoaded?.window != nil, let outcome = pendingEmailOutcome else { return }
+        pendingEmailOutcome = nil
+        emailToastDismissal?.cancel()
+        emailToast?.removeFromSuperview()
+
+        let succeeded = outcome == .sent
+        let message = succeeded ? ResultScreenStrings.EmailDelivery.success : ResultScreenStrings.EmailDelivery.failure
+        let toast = UIView()
+        toast.translatesAutoresizingMaskIntoConstraints = false
+        toast.backgroundColor = succeeded ? UIColor(red: 0.39, green: 0.76, blue: 0, alpha: 1) : AppColors.error
+        toast.layer.cornerRadius = 14
+        toast.isUserInteractionEnabled = false
+
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = message
+        label.textColor = AppColors.white
+        label.font = .systemFont(ofSize: 22, weight: .semibold)
+        label.textAlignment = .center
+        label.numberOfLines = 0
+        toast.addSubview(label)
+        view.addSubview(toast)
+        NSLayoutConstraint.activate([
+            toast.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            toast.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
+            toast.widthAnchor.constraint(lessThanOrEqualTo: view.widthAnchor, multiplier: 0.9),
+            label.leadingAnchor.constraint(equalTo: toast.leadingAnchor, constant: 24),
+            label.trailingAnchor.constraint(equalTo: toast.trailingAnchor, constant: -24),
+            label.topAnchor.constraint(equalTo: toast.topAnchor, constant: 18),
+            label.bottomAnchor.constraint(equalTo: toast.bottomAnchor, constant: -18)
+        ])
+        emailToast = toast
+        UIAccessibility.post(notification: .announcement, argument: message)
+        let dismissal = DispatchWorkItem { [weak self, weak toast] in
+            toast?.removeFromSuperview()
+            self?.emailToast = nil
+        }
+        emailToastDismissal = dismissal
+        DispatchQueue.main.asyncAfter(deadline: .now() + 4, execute: dismissal)
     }
 
     // MARK: - Public Methods (required by MeasurementDelegate)
@@ -595,6 +656,7 @@ class ResultsViewController: UIViewController {
                             self?.printResults()
                         }
                     )
+                    self.readyEmailMeasurementID = ScanSessionStorage.measurementID
                     self.updateUI(for: .success)
                     print("✅ Backend results displayed successfully.")
                 }
@@ -707,15 +769,13 @@ class ResultsViewController: UIViewController {
         model: ResultsModel,
         result: [String: MeasurementResults.SignalResult] = [:],
         showBottomButtons: Bool,
-        showLoadingOverlay: Bool,
-        onEmailPopupPresentationChange: @escaping (Bool) -> Void = { _ in }
+        showLoadingOverlay: Bool
     ) -> AnyView {
         let screen = ResultScreen(
             model: model,
             result: result,
             showBottomButtons: showBottomButtons,
             showLoadingOverlay: showLoadingOverlay,
-            onEmailPopupPresentationChange: onEmailPopupPresentationChange,
             debugSkipToResultsAction: { [weak self] in
                 self?.submitMockScanResultsForBackendDebug()
             }

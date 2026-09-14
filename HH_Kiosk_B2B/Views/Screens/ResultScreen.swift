@@ -63,13 +63,9 @@ public struct ResultScreen: View {
     // PDF States
     @State private var pdfURL: URL?
     @State private var isSharing = false
-    @State private var isEmailPopupPresented = false
-    @State private var isEmailSent = false
 
     private let showBottomButtons: Bool
     private let showLoadingOverlay: Bool
-    private let showHeaderEmailButton: Bool
-    private let onEmailPopupPresentationChange: (Bool) -> Void
     private let debugSkipToResultsAction: (() -> Void)?
     
     public init(
@@ -77,16 +73,12 @@ public struct ResultScreen: View {
         result: [String: MeasurementResults.SignalResult] = [:],
         showBottomButtons: Bool = true,
         showLoadingOverlay: Bool = true,
-        showHeaderEmailButton: Bool = true,
-        onEmailPopupPresentationChange: @escaping (Bool) -> Void = { _ in },
         debugSkipToResultsAction: (() -> Void)? = nil
     ) {
         _model = StateObject(wrappedValue: model)
         self.result = result
         self.showBottomButtons = showBottomButtons
         self.showLoadingOverlay = showLoadingOverlay
-        self.showHeaderEmailButton = showHeaderEmailButton
-        self.onEmailPopupPresentationChange = onEmailPopupPresentationChange
         self.debugSkipToResultsAction = debugSkipToResultsAction
     }
     
@@ -98,14 +90,14 @@ public struct ResultScreen: View {
             }
             .ignoresSafeArea(edges: .top)
             
-            if showBottomButtons && !isEmailPopupPresented {
+            if showBottomButtons {
                 ResultScreenButtons(result: result, onDownloadPDF: {
                     exportToPDF()
                 },onPrint: {})
             }
 
             #if DEBUG
-            if !isEmailPopupPresented, let debugSkipToResultsAction {
+            if let debugSkipToResultsAction {
                 Button(action: debugSkipToResultsAction) {
                     Label(
                         PhysicalAttributesScreenStrings.debugRefresh,
@@ -127,9 +119,6 @@ public struct ResultScreen: View {
             }
             #endif
         }
-        // Keep the underlying report and its footer stationary while a popup
-        // text field owns the keyboard.
-        .ignoresSafeArea(.keyboard)
         .onReceive(NotificationCenter.default.publisher(for: .screenDidChangeBounds)) { _ in
             refreshTrigger.toggle()
         }
@@ -141,42 +130,14 @@ public struct ResultScreen: View {
                 ShareSheet(activityItems: [url])
             }
         }
-        .fullScreenCover(isPresented: $isEmailPopupPresented, onDismiss: {
-            isEmailSent = false
-        }) {
-            ResultPromptOverlay(layout: isEmailSent ? .emailSuccess : .emailEntry) {
-                EmailResultPopup(
-                    results: result,
-                    isEmailSent: $isEmailSent
-                )
-            }
-            .presentationBackground(Color.clear)
-        }
-        .onChange(of: isEmailPopupPresented) { _, isPresented in
-            onEmailPopupPresentationChange(isPresented)
-        }
+
     }
     
     // Extracted content view so we can render it without the ScrollView wrapper for PDF
     private var mainContentView: some View {
         VStack(spacing: 0) {
-            HeroHeader(
-                result: result,
-                showsEmailButton: showHeaderEmailButton,
-                onEmailPopupPresentationChange: { isEmailPopupPresented = $0 }
-            )
+            HeroHeader()
             ResultsList(model: model)
-
-            if showHeaderEmailButton {
-                ResultEmailButton(
-                    result: result,
-                    placement: .bottom,
-                    onPresentationChange: { isEmailPopupPresented = $0 }
-                )
-                    .padding(.horizontal, 34.w)
-                    .padding(.top, 18.h)
-                    .padding(.bottom, 30.h)
-            }
         }
         .frame(maxWidth: .infinity)
         .background(Color(AppColors.resultHeroBackground))
@@ -195,10 +156,6 @@ public struct ResultScreen: View {
 
 // MARK: - Subviews
 private struct HeroHeader: View {
-    let result: [String: MeasurementResults.SignalResult]
-    let showsEmailButton: Bool
-    let onEmailPopupPresentationChange: (Bool) -> Void
-
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             ResultToolbar()
@@ -211,13 +168,6 @@ private struct HeroHeader: View {
                         .foregroundColor(Color(AppColors.resultReportLabel))
 
                     Spacer(minLength: 24.w)
-
-                    if showsEmailButton {
-                        ResultEmailButton(
-                            result: result,
-                            onPresentationChange: onEmailPopupPresentationChange
-                        )
-                    }
                 }
 
                 Text(ResultScreenStrings.title)
@@ -236,55 +186,6 @@ private struct HeroHeader: View {
             .background(Color(AppColors.resultHeroBackground))
         }
         .frame(maxWidth: .infinity)
-    }
-}
-
-private struct ResultEmailButton: View {
-    enum Placement {
-        case header
-        case bottom
-    }
-
-    let result: [String: MeasurementResults.SignalResult]
-    var placement: Placement = .header
-    var onPresentationChange: (Bool) -> Void = { _ in }
-
-    private let buttonColor = Color(AppColors.resultTitleText)
-
-    private var cornerRadius: CGFloat {
-        placement == .header ? 8.r : 6.r
-    }
-
-    var body: some View {
-        Button {
-            onPresentationChange(true)
-        } label: {
-            HStack(spacing: 16.w) {
-                Image(AppIconNames.Asset.email)
-                    .renderingMode(.template)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(
-                        width: placement == .header ? 24.w : 32.w,
-                        height: placement == .header ? 24.h : 32.h
-                    )
-                    .foregroundColor(buttonColor)
-
-                Text(ResultScreenStrings.Actions.emailResults)
-                    .font(.system(size: 20.sp, weight: .semibold))
-                    .foregroundColor(buttonColor)
-            }
-            .frame(width: placement == .header ? 308.w : nil)
-            .frame(maxWidth: placement == .bottom ? .infinity : nil)
-            .frame(minHeight: placement == .bottom ? 84.h : 74.h)
-            .background(Color.clear)
-            .overlay(
-                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .stroke(buttonColor, lineWidth: 1.5)
-            )
-            .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
-        }
-        .frame(maxWidth: placement == .bottom ? .infinity : nil)
     }
 }
 

@@ -46,52 +46,6 @@ struct ResultScreenButtons: View {
     }
 }
 
-enum ResultPromptOverlayLayout {
-    case emailEntry
-    case emailSuccess
-
-    func width(in proxy: GeometryProxy) -> CGFloat {
-        min(proxy.size.width * 0.79, 1088.w)
-    }
-
-    func height(in proxy: GeometryProxy) -> CGFloat {
-        min(proxy.size.height * 0.53, 1040.h)
-    }
-}
-
-struct ResultPromptOverlay<Content: View>: View {
-    let layout: ResultPromptOverlayLayout
-    let content: () -> Content
-
-    init(layout: ResultPromptOverlayLayout = .emailEntry, @ViewBuilder content: @escaping () -> Content) {
-        self.layout = layout
-        self.content = content
-    }
-
-    var body: some View {
-        GeometryReader { proxy in
-            ZStack {
-                Color(AppColors.black)
-                    .opacity(0.28)
-                    .ignoresSafeArea()
-
-                content()
-                    .frame(
-                        width: layout.width(in: proxy),
-                        height: layout.height(in: proxy)
-                    )
-                    .background(Color(AppColors.white))
-                    .clipShape(RoundedRectangle(cornerRadius: 54.r, style: .continuous))
-                    .shadow(color: Color(AppColors.black).opacity(0.16), radius: 28, x: 0, y: 22)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-        }
-        // Keep the modal sized against the full screen while the keyboard is open.
-        // Otherwise SwiftUI reduces the GeometryReader height and shrinks the popup.
-        .ignoresSafeArea(.keyboard)
-    }
-}
-
 @MainActor
 func navigateToHome(animated: Bool = true, showResponseToast: Bool = false) {
     guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,

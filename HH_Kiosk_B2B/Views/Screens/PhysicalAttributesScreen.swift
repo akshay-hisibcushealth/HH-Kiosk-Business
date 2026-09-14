@@ -4,6 +4,7 @@ import AnuraCore
 
 enum PhysicalAttributesInputField: Hashable {
     case email
+    case pin
     case height
     case weight
     case age
@@ -21,6 +22,7 @@ struct PhysicalAttributesScreen: View {
     
     private enum DeveloperAutofill {
         static let email = "sachin@hibiscushealth.com"
+        static let pin = "1234"
         static let heightFeet = 5
         static let heightInches = 11
         static let weightLbs = 180
@@ -39,6 +41,7 @@ struct PhysicalAttributesScreen: View {
     @State private var age: Int? = nil      // Make optional
     @State private var gender: String = ""
     @State private var email: String? = nil
+    @State private var pin: String = ""
     @State private var showSettings = false
     @State private var refreshTrigger = false
     @StateObject private var keyboardObserver = KeyboardObserver()
@@ -279,6 +282,7 @@ struct PhysicalAttributesScreen: View {
     private var formColumn: some View {
         VStack(alignment: .leading, spacing: 42.h) {
             ProfileEmailSection(email: $email, focusedField: $focusedInputField)
+            ProfilePINSection(pin: $pin, focusedField: $focusedInputField)
             ProfileHeightSection(selectedHeight: $height, focusedField: $focusedInputField)
             ProfileWeightSection(
                 selectedWeight: $weight,
@@ -429,6 +433,9 @@ struct PhysicalAttributesScreen: View {
         case !isValidEmail(email!):
             validationMessage = PhysicalAttributesScreenStrings.Validation.invalidEmail
 
+        case pin.count != 4 || !pin.allSatisfy({ $0 >= "0" && $0 <= "9" }):
+            validationMessage = PhysicalAttributesScreenStrings.Validation.invalidPIN
+
         case height == nil:
             validationMessage = PhysicalAttributesScreenStrings.Validation.missingHeight
 
@@ -479,7 +486,8 @@ struct PhysicalAttributesScreen: View {
             weight: weight!,
             weightInPounds: weightInPounds!,
             age: age!,
-            gender: gender
+            gender: gender,
+            pin: pin
         )
 
         // Create User for Anura
@@ -505,22 +513,41 @@ struct PhysicalAttributesScreen: View {
         }
     }
     
-    private func applyDeveloperAutofill() {
-        email = DeveloperAutofill.email
-        height = Self.heightInCentimeters(feet: DeveloperAutofill.heightFeet, inches: DeveloperAutofill.heightInches)
-        weight = Int(Double(DeveloperAutofill.weightLbs) / 2.20462)
-        weightInPounds = DeveloperAutofill.weightLbs
-        age = DeveloperAutofill.age
-        gender = DeveloperAutofill.gender
+    private func applyDeveloperAutofill(onlyMissingValues: Bool = false) {
+        if !onlyMissingValues || (email ?? "").isEmpty {
+            email = DeveloperAutofill.email
+        }
+        if !onlyMissingValues || pin.isEmpty {
+            pin = DeveloperAutofill.pin
+        }
+        if !onlyMissingValues || height == nil {
+            height = Self.heightInCentimeters(feet: DeveloperAutofill.heightFeet, inches: DeveloperAutofill.heightInches)
+        }
+        if !onlyMissingValues || (weight == nil && weightInPounds == nil) {
+            weight = Int(Double(DeveloperAutofill.weightLbs) / 2.20462)
+            weightInPounds = DeveloperAutofill.weightLbs
+        }
+        if !onlyMissingValues || age == nil {
+            age = DeveloperAutofill.age
+        }
+        if !onlyMissingValues || gender.isEmpty {
+            gender = DeveloperAutofill.gender
+        }
+    }
+
+    private func prepareDebugUser() -> Bool {
+        dismissPhysicalAttributeInputs()
+        applyDeveloperAutofill(onlyMissingValues: true)
+        guard validateInputs() else { return false }
+        saveCurrentUser()
+        return true
     }
 
     private func submitDebugVitals() {
         guard AppConfig.qaToolsEnabled else { return }
         guard !isSubmittingDebugVitals else { return }
 
-        dismissPhysicalAttributeInputs()
-        guard validateInputs() else { return }
-        saveCurrentUser()
+        guard prepareDebugUser() else { return }
 
         isSubmittingDebugVitals = true
 
@@ -564,7 +591,8 @@ struct PhysicalAttributesScreen: View {
             weight: weight!,
             weightInPounds: weightInPounds!,
             age: age!,
-            gender: gender
+            gender: gender,
+            pin: pin
         )
 
         print("Saved current user for debug API hit flow.")
@@ -572,7 +600,7 @@ struct PhysicalAttributesScreen: View {
 
     private func skipFaceScanForTesting() {
         guard AppConfig.qaToolsEnabled else { return }
-        saveDeveloperTestUser()
+        guard prepareDebugUser() else { return }
 
         let controller = ResultsViewController(appState: appState)
         controller.modalPresentationStyle = .fullScreen
@@ -587,31 +615,6 @@ struct PhysicalAttributesScreen: View {
         }
     }
 
-    private func saveDeveloperTestUser() {
-        let testHeight = Self.heightInCentimeters(
-            feet: DeveloperAutofill.heightFeet,
-            inches: DeveloperAutofill.heightInches
-        )
-        let testWeight = Int(Double(DeveloperAutofill.weightLbs) / 2.20462)
-
-        email = DeveloperAutofill.email
-        height = testHeight
-        weight = testWeight
-        weightInPounds = DeveloperAutofill.weightLbs
-        age = DeveloperAutofill.age
-        gender = DeveloperAutofill.gender
-
-        LocalUserStorage.saveUser(
-            email: DeveloperAutofill.email,
-            height: testHeight,
-            weight: testWeight,
-            weightInPounds: DeveloperAutofill.weightLbs,
-            age: DeveloperAutofill.age,
-            gender: DeveloperAutofill.gender
-        )
-
-        print("Saved developer test user for skip face scan flow.")
-    }
     private static func heightInCentimeters(feet: Int, inches: Int) -> Int {
         let totalInches = (feet * 12) + inches
         return Int(Double(totalInches) * 2.54)
