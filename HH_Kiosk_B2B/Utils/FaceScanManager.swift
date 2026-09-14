@@ -8,6 +8,296 @@
 import Foundation
 import class AVFoundation.AVCaptureDevice
 import AnuraCore
+import MetalKit
+import UIKit
+
+private extension UIDeviceOrientation {
+    var consoleName: String {
+        switch self {
+        case .portrait: "portrait"
+        case .portraitUpsideDown: "portrait upside down"
+        case .landscapeLeft: "landscape left"
+        case .landscapeRight: "landscape right"
+        case .faceUp: "face up"
+        case .faceDown: "face down"
+        default: "unknown"
+        }
+    }
+}
+
+/// AnuraCore renders the built-in camera through an MTKView but keeps those
+/// pixels in their portrait basis when the iPad UI rotates. Rotate only that
+/// renderer so the SDK controls and measurement outline remain upright.
+@MainActor
+private final class OrientationAwareAnuraMeasurementViewController: AnuraMeasurementViewController, MeasurementPreviewLayoutProviding, MeasurementBrightnessProviding, UIViewControllerTransitioningDelegate, UIGestureRecognizerDelegate {
+    
+    var startedInLandscape = false
+    var requiredContentSize: CGSize?
+    var restartAfterOrientationChange: (() -> Void)?
+    var onOutsideDismissal: (() -> Void)?
+    var measurementBrightness: MeasurementBrightnessSession?
+    private lazy var outsideTapGesture: UITapGestureRecognizer = {
+        let gesture = UITapGestureRecognizer(target: self, action: #selector(dismissFromOutsideTap))
+        gesture.delegate = self
+        return gesture
+    }()
+    private var lastReportedWasLandscape: Bool?
+    private let landscapeLayout = LandscapeMeasurementLayout()
+    private let screenLightURL = Bundle(for: AnuraMeasurementViewController.self)
+        .url(forResource: "white", withExtension: "mp4")
+
+    var measurementPreviewFrame: CGRect? {
+        let frame = landscapeLayout.previewFrame
+        return startedInLandscape && !frame.isEmpty ? frame : nil
+    }
+
+    func presentationController(
+        forPresented presented: UIViewController,
+        presenting: UIViewController?,
+        source: UIViewController
+    ) -> UIPresentationController? {
+        LandscapeScanPresentationController(presentedViewController: presented, presenting: presenting)
+    }
+
+    override var shouldAutorotate: Bool {
+        true
+    }
+
+    override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
+        UIDevice.current.userInterfaceIdiom == .pad ? .all : .allButUpsideDown
+    }
+
+    override var preferredInterfaceOrientationForPresentation: UIInterfaceOrientation {
+        if let orientation = viewIfLoaded?.window?.windowScene?.interfaceOrientation {
+            return orientation
+        }
+
+        return UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .first(where: { $0.activationState == .foregroundActive })?
+            .interfaceOrientation ?? .portrait
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        overrideUserInterfaceStyle = .unspecified
+        view.backgroundColor = .white
+        
+        applyRequiredContentSize()
+        normalizeDialogAppearance()
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        UIDevice.current.beginGeneratingDeviceOrientationNotifications()
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(deviceOrientationDidChange),
+            name: UIDevice.orientationDidChangeNotification,
+            object: nil
+        )
+        lastReportedWasLandscape = view.window?.windowScene?
+            .interfaceOrientation.isLandscape ?? startedInLandscape
+        applyRequiredContentSize()
+        updateOrientationLayout()
+        normalizeDialogAppearance()
+        // The presentation container includes the backdrop in both the custom
+        // landscape popup and UIKit's portrait form sheet.
+        presentationController?.containerView?.addGestureRecognizer(outsideTapGesture)
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        outsideTapGesture.view?.removeGestureRecognizer(outsideTapGesture)
+        NotificationCenter.default.removeObserver(
+            self,
+            name: UIDevice.orientationDidChangeNotification,
+            object: nil
+        )
+        UIDevice.current.endGeneratingDeviceOrientationNotifications()
+        super.viewDidDisappear(animated)
+        measurementBrightness?.restoreNow()
+    }
+
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        guard gestureRecognizer === outsideTapGesture,
+              presentedViewController == nil,
+              !isBeingDismissed else { return false }
+        return !view.bounds.contains(touch.location(in: view))
+    }
+
+    @objc private func dismissFromOutsideTap() {
+        guard presentedViewController == nil, !isBeingDismissed else { return }
+        restartAfterOrientationChange = nil
+        stopExtracting()
+        stop()
+        onOutsideDismissal?()
+        dismiss(animated: true)
+    }
+
+    @objc private func deviceOrientationDidChange() {
+        let orientation = UIDevice.current.orientation
+        guard orientation == .portrait
+                || orientation == .portraitUpsideDown
+                || orientation == .landscapeLeft
+                || orientation == .landscapeRight else {
+            return
+        }
+
+        let isLandscape = orientation == .landscapeLeft || orientation == .landscapeRight
+        guard isLandscape != lastReportedWasLandscape else { return }
+
+        if lastReportedWasLandscape != nil {
+            let restart = restartAfterOrientationChange
+            restartAfterOrientationChange = nil
+            let completion = {
+                print("✅ Face scan dialog closed; starting restart delay")
+                restart?()
+            }
+            print("🛑 Closing face scan dialog after orientation change")
+            if let presenter = presentingViewController {
+                presenter.dismiss(animated: false, completion: completion)
+            } else {
+                dismiss(animated: false, completion: completion)
+            }
+        }
+        lastReportedWasLandscape = isLandscape
+        print("🔄 Face scan detected iPad orientation change: \(orientation.consoleName)")
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        updateOrientationLayout()
+        normalizeDialogAppearance()
+    }
+
+    override func viewWillTransition(
+        to size: CGSize,
+        with coordinator: UIViewControllerTransitionCoordinator
+    ) {
+        super.viewWillTransition(to: size, with: coordinator)
+
+        coordinator.animate(alongsideTransition: { [weak self] _ in
+            self?.applyRequiredContentSize()
+            self?.updateOrientationLayout()
+            self?.normalizeDialogAppearance()
+        })
+    }
+
+    private func normalizeDialogAppearance() {
+        normalizeDialogBackgrounds(in: view)
+        MeasurementScreenLightAppearance.useStandardWhite(
+            in: view.layer, screenLightURL: screenLightURL
+        )
+    }
+
+    /// Anura uses more than one near-white backing view. Those views become
+    /// visible beside each other while its content is relaid out after an iPad
+    /// rotation, which makes the form sheet look white and off-white. Keep all
+    /// neutral, near-white backing surfaces on the same solid white color.
+    private func normalizeDialogBackgrounds(in rootView: UIView) {
+        if !(rootView is MTKView), isNearWhite(rootView.backgroundColor) {
+            rootView.backgroundColor = .white
+        }
+
+        if let layerColor = rootView.layer.backgroundColor,
+           isNearWhite(UIColor(cgColor: layerColor)) {
+            rootView.layer.backgroundColor = UIColor.white.cgColor
+        }
+
+        rootView.subviews.forEach(normalizeDialogBackgrounds(in:))
+    }
+
+    private func isNearWhite(_ color: UIColor?) -> Bool {
+        guard let color else { return false }
+
+        var red: CGFloat = 0
+        var green: CGFloat = 0
+        var blue: CGFloat = 0
+        var alpha: CGFloat = 0
+        guard color.getRed(&red, green: &green, blue: &blue, alpha: &alpha) else {
+            return false
+        }
+
+        return alpha > 0.9 && red > 0.88 && green > 0.88 && blue > 0.88
+    }
+
+    private func applyRequiredContentSize() {
+        guard let requiredContentSize,
+              preferredContentSize != requiredContentSize else {
+            return
+        }
+
+        preferredContentSize = requiredContentSize
+        presentationController?.containerView?.setNeedsLayout()
+        presentationController?.containerView?.layoutIfNeeded()
+    }
+
+    private func updateOrientationLayout() {
+        guard let orientation = view.window?.windowScene?.interfaceOrientation else {
+            return
+        }
+
+        // Anura keeps the built-in camera pixels in their portrait basis when
+        // the controller starts in landscape. Rotate the renderer upright, but
+        // do not apply an additional fill scale: that zoom crops half the face.
+        if startedInLandscape {
+            view.layer.sublayerTransform = CATransform3DIdentity
+            landscapeLayout.update(in: view)
+            if let cameraPreview = firstMetalView(in: view) {
+                cameraPreview.transform = landscapeRotation(for: orientation)
+            }
+            return
+        }
+
+        // Anura lays out its scan controls using portrait proportions. Scale
+        // all child content in landscape so its countdown and heart-rate UI
+        // remain inside the sheet, while leaving the sheet background intact.
+        let contentScale: CGFloat = orientation.isLandscape ? 0.82 : 1
+        view.layer.sublayerTransform = CATransform3DMakeScale(contentScale, contentScale, 1)
+
+        correctBuiltInCameraPreviewOrientation(for: orientation)
+    }
+
+    private func landscapeRotation(for orientation: UIInterfaceOrientation) -> CGAffineTransform {
+        let angle: CGFloat = orientation == .landscapeRight ? -.pi / 2 : .pi / 2
+        return CGAffineTransform(rotationAngle: angle)
+    }
+
+    private func correctBuiltInCameraPreviewOrientation(for orientation: UIInterfaceOrientation) {
+        guard UIDevice.current.userInterfaceIdiom == .pad,
+              let cameraPreview = firstMetalView(in: view) else {
+            return
+        }
+
+        let angle: CGFloat
+        switch orientation {
+        case .landscapeLeft:
+            angle = .pi / 2
+        case .landscapeRight:
+            angle = -.pi / 2
+        case .portraitUpsideDown:
+            angle = .pi
+        default:
+            angle = 0
+        }
+
+        cameraPreview.transform = CGAffineTransform(rotationAngle: angle)
+    }
+
+    private func firstMetalView(in rootView: UIView) -> MTKView? {
+        if let metalView = rootView as? MTKView {
+            return metalView
+        }
+
+        for subview in rootView.subviews {
+            if let metalView = firstMetalView(in: subview) {
+                return metalView
+            }
+        }
+
+        return nil
+    }
+}
 
 class FaceScanManager: ObservableObject{
     @Published var isPresentingMeasurementView = false
@@ -33,8 +323,6 @@ class FaceScanManager: ObservableObject{
         measurementDelegate = MeasurementDelegate(api: self.api)
         measurementDelegate.appState = appState
     }
-    
-
     
     /// <#Description#>
     /// - Parameters:
@@ -136,9 +424,13 @@ class FaceScanManager: ObservableObject{
     }
     
     
+    @MainActor
     func presentAnuraMeasurementViewController(sdkConfig: Data) {
         let measurementConfig = MeasurementConfiguration.defaultConfiguration
         measurementConfig.studyFile = sdkConfig
+        // Preserve Anura's automatic screen-brightness boost in low light.
+        // The controller normalizes only the decorative HDR white overlay.
+        measurementConfig.screenLightControlEnabled = true
 
         measurementConfig.externalCameraPreset = cameraPreset
         measurementConfig.externalCameraPreviewOrientation = previewOrientation
@@ -150,9 +442,11 @@ class FaceScanManager: ObservableObject{
         uiConfig.showStatusMessages = false
         uiConfig.showMeasurementStartedMessage = false
         uiConfig.showLightingQualityStars = false
+        // Match the dialog backing even when the SDK redraws the face overlay.
+        uiConfig.overlayBackgroundColor = .white
         let faceTracker = MediaPipeFaceTracker(quality: .high)
         
-        let viewController = AnuraMeasurementViewController(
+        let viewController = OrientationAwareAnuraMeasurementViewController(
             measurementConfiguration: measurementConfig,
             uiConfiguration: uiConfig,
             faceTracker: faceTracker
@@ -160,15 +454,57 @@ class FaceScanManager: ObservableObject{
         
         viewController.delegate = measurementDelegate
         measurementDelegate.user = user
+        viewController.onOutsideDismissal = { [weak self] in
+            guard let self else { return }
+            self.measurementDelegate.resetMeasurementID()
+            self.isPresentingMeasurementView = false
+            self.setScreenSaverSuppressed(false)
+        }
+        viewController.restartAfterOrientationChange = { [weak self] in
+            guard let self else { return }
+            self.measurementDelegate.resetMeasurementID()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) { [weak self] in
+                guard let self else { return }
+                self.setScreenSaverSuppressed(true)
+                self.presentAnuraMeasurementViewController(sdkConfig: sdkConfig)
+            }
+        }
 
         // 🧠 Present from the top UIViewController
         if let topVC = UIApplication.topViewController() {
-            let screenBounds = UIScreen.main.bounds
-            let targetWidth = screenBounds.width * 0.8
-            let targetHeight = screenBounds.height * 0.7
+            let windowScene = topVC.view.window?.windowScene
+                ?? UIApplication.shared.connectedScenes
+                    .compactMap { $0 as? UIWindowScene }
+                    .first(where: { $0.activationState == .foregroundActive })
+            let interfaceOrientation = windowScene?.interfaceOrientation ?? .portrait
+            viewController.startedInLandscape = interfaceOrientation.isLandscape
+            // Capture before presentation loads the SDK view and boosts brightness.
+            viewController.measurementBrightness = MeasurementBrightnessSession(
+                screen: topVC.view.window?.screen ?? windowScene?.screen ?? UIScreen.main
+            )
+
+            let availableBounds = topVC.view.window?.bounds ?? topVC.view.bounds
+            // Keep the SDK sheet at its proven portrait proportions in both
+            // orientations. A landscape-shaped sheet expands Anura's circular
+            // scan viewport into an oversized oval and crops the camera feed.
+            let portraitWidth = min(availableBounds.width, availableBounds.height)
+            let portraitHeight = max(availableBounds.width, availableBounds.height)
+            let isLandscapeIPad = UIDevice.current.userInterfaceIdiom == .pad && interfaceOrientation.isLandscape
+            let targetWidth = portraitWidth * (isLandscapeIPad ? 0.90 : 0.80)
+            let targetHeight = portraitHeight * 0.70
+            let targetSize = CGSize(width: targetWidth, height: targetHeight)
+            viewController.requiredContentSize = targetSize
             
-            viewController.modalPresentationStyle = .formSheet
-            viewController.preferredContentSize = CGSize(width: targetWidth, height: targetHeight)
+            if isLandscapeIPad {
+                // A system form sheet caps landscape height even when a larger
+                // preferred size is requested. Use a centered, safe-area-bounded
+                // card so the preview gains height as well as width.
+                viewController.modalPresentationStyle = .custom
+                viewController.transitioningDelegate = viewController
+            } else {
+                viewController.modalPresentationStyle = .formSheet
+            }
+            viewController.preferredContentSize = targetSize
             
             topVC.present(viewController, animated: true) {
                 DispatchQueue.main.async {
