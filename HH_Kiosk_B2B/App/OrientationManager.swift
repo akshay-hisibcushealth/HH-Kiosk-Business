@@ -2,16 +2,16 @@ import SwiftUI
 import Combine
 
 final class OrientationManager: ObservableObject {
-    @Published var id = UUID() // just a trigger value
+    @Published private(set) var isLandscape = false
 
-    private var cancellable: AnyCancellable?
+    var isPortrait: Bool { !isLandscape }
 
-    init() {
-        cancellable = NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)
-            .sink { [weak self] _ in
-                guard let self else { return }
-                self.id = UUID() // force UI refresh
-                print("🔄 Orientation changed, UI will update")
-            }
+    /// Use the app's actual layout size, not Screen's normalized dimensions.
+    /// Called by the window root on launch, rotation, and window resizing.
+    func update(for size: CGSize) {
+        guard size.width > 0, size.height > 0 else { return }
+        let newIsLandscape = size.width > size.height
+        guard isLandscape != newIsLandscape else { return }
+        isLandscape = newIsLandscape
     }
 }

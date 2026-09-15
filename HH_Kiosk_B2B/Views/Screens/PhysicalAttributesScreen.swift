@@ -30,6 +30,7 @@ struct PhysicalAttributesScreen: View {
         static let gender = "Male"
     }
 
+    @EnvironmentObject private var orientation: OrientationManager
     @EnvironmentObject private var appState: AppState
     @EnvironmentObject private var faceManager: FaceScanManager
     @Environment(\.dismiss) private var dismiss
@@ -194,30 +195,79 @@ struct PhysicalAttributesScreen: View {
                 }
                 .buttonStyle(.plain)
             }
-            .padding(.top, 54.h)
+            .padding(.top, orientation.isLandscape ? 28.h : 54.h)
             .padding(.horizontal, 50.w)
 
             privacyBanner
-                .padding(.top, 34.h)
+                .padding(.top, orientation.isLandscape ? 24.h : 34.h)
                 .padding(.horizontal, 58.w)
 
-            HStack(alignment: .top, spacing: 90.w) {
-                bodyImage
-                    .frame(width: 410.w, height: 700.h)
-                    .clipped()
-                    .padding(.top,40.h)
+            if orientation.isLandscape {
+                landscapeForm
+                    .padding(.top, 26.h)
+                    .padding(.horizontal, 58.w)
+                    .padding(.bottom, 28.h)
+            } else {
+                HStack(alignment: .top, spacing: 90.w) {
+                    bodyImage
+                        .frame(width: 410.w, height: 700.h)
+                        .clipped()
+                        .padding(.top,40.h)
 
-                formColumn
-                    .frame(maxWidth: 548.w)
+                    formColumn
+                        .frame(maxWidth: 548.w)
+                }
+                .padding(.top, 26.h)
+                .padding(.horizontal, 96.w)
+
+                Spacer(minLength: 24.h)
+
+                actionButtons
+                    .padding(.horizontal, 58.w)
+                    .padding(.bottom, 44.h)
             }
-            .padding(.top, 26.h)
-            .padding(.horizontal, 96.w)
+        }
+    }
 
-            Spacer(minLength: 24.h)
+    private var landscapeForm: some View {
+        HStack(alignment: .top, spacing: 32.w) {
+            AppLottieView(name: "face_scan")
+                .frame(width: 264.w, height: 320.h)
+                .scaleEffect(1.4)
+                .padding(.top, 70.h)
+                .accessibilityHidden(true)
 
-            actionButtons
-                .padding(.horizontal, 58.w)
-                .padding(.bottom, 44.h)
+            VStack(spacing: 32.h) {
+                Grid(alignment: .topLeading, horizontalSpacing: 60.w, verticalSpacing: 24.h) {
+                    GridRow {
+                        ProfileEmailSection(email: $email, focusedField: $focusedInputField)
+                            .padding(.top, 24.h)
+                        ProfileWeightSection(
+                            selectedWeight: $weight,
+                            selectedWeightInPounds: $weightInPounds,
+                            focusedField: $focusedInputField
+                        )
+                        .padding(.top, 24.h)
+                    }
+                    GridRow {
+                        ProfilePINSection(pin: $pin, focusedField: $focusedInputField)
+                            .padding(.top, 24.h)
+                        ProfileAgeSection(selectedAge: $age, focusedField: $focusedInputField)
+                            .padding(.top, 24.h)
+                            .id(PhysicalAttributesScrollTarget.age)
+                    }
+                    GridRow {
+                        ProfileHeightSection(selectedHeight: $height, focusedField: $focusedInputField)
+                            .padding(.top, 24.h)
+                        ProfileGenderSection(selectedGender: $gender)
+                            .padding(.top, 24.h)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+                actionButtons
+            }
+            .frame(maxWidth: .infinity)
         }
     }
 

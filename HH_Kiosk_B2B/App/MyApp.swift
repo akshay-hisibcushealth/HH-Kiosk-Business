@@ -3,7 +3,6 @@ import SwiftUI
 
 @main
 struct MyApp: App {
-    @StateObject private var orientation = OrientationManager()
     init() {
           Screen.startMonitoring()
       }
@@ -11,13 +10,13 @@ struct MyApp: App {
     var body: some Scene {
         WindowGroup {
             RootView()
-                .environmentObject(orientation)
         }
     }
 }
 
 
 struct RootView: View {
+    @StateObject private var orientation = OrientationManager()
     @StateObject private var appState = AppState()
     @StateObject private var faceManager = FaceScanManager()
     @State private var isShowingPhysicalAttributes = false
@@ -40,6 +39,12 @@ struct RootView: View {
                     .transition(.opacity)
                     .zIndex(0)
             }
+        }
+        .environmentObject(orientation)
+        .onGeometryChange(for: CGSize.self) { geometry in
+            geometry.size
+        } action: { size in
+            orientation.update(for: size)
         }
         .animation(.easeInOut(duration: 0.5), value: isShowingPhysicalAttributes)
         .onAppear {

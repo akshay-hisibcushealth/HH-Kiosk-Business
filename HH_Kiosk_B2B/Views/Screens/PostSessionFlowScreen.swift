@@ -86,17 +86,24 @@ struct PostSessionFlowScreen: View {
         VStack(spacing: 0) {
             ResultToolbar()
 
-            Group {
-                switch step {
-                case .nextSteps:
-                    nextStepsContent
-                case .nps:
-                    npsContent
+            GeometryReader { geometry in
+                ScrollView {
+                    Group {
+                        switch step {
+                        case .nextSteps:
+                            nextStepsContent
+                        case .nps:
+                            npsContent
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(minHeight: geometry.size.height, alignment: .top)
                 }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
             footer
+                .fixedSize(horizontal: false, vertical: true)
         }
         .background(Color(AppColors.systemBackground))
         .onAppear {
@@ -367,24 +374,7 @@ struct PostSessionFlowScreen: View {
         .padding(.top, 24.h)
         .padding(.horizontal, 30.w)
         .padding(.bottom, 24.h)
-        .background(
-            Color(AppColors.white)
-                .shadow(color: Color(AppColors.black).opacity(0.18), radius: 14, x: 0, y: -4)
-        )
-        .overlay(alignment: .top) {
-            LinearGradient(
-                colors: [
-                    Color.clear,
-                    Color(AppColors.black).opacity(0.08),
-                    Color(AppColors.black).opacity(0.18)
-                ],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .frame(height: 28.h)
-            .offset(y: -28.h)
-            .allowsHitTesting(false)
-        }
+        .background(Color(AppColors.white))
     }
 
     private var weightedNextStepsFooter: some View {
@@ -432,7 +422,7 @@ struct PostSessionFlowScreen: View {
             .lineLimit(1)
             .minimumScaleFactor(0.72)
             .frame(width: width)
-            .frame(minHeight: 90.h)
+            .frame(minHeight: 72.h)
             .background(Color(AppColors.white))
             .overlay(
                 RoundedRectangle(cornerRadius: 12.r, style: .continuous)

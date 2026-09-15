@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ScreenSaver: View {
     @EnvironmentObject private var appState: AppState
+    @EnvironmentObject private var orientation: OrientationManager
     @State private var refreshTrigger = false
     @State private var showResponseReceivedToast = false
     let onStartFaceScan: () -> Void
@@ -19,23 +20,18 @@ struct ScreenSaver: View {
     }
 
     var body: some View {
-        ZStack {
-            Rectangle()
-                .fill(Color(AppColors.primary))
-                .ignoresSafeArea()
-
-            Image(AppIconNames.Asset.screensaverBackground)
-                .resizable()
-                .scaledToFill()
-                .ignoresSafeArea()
-            
+        GeometryReader { geometry in
             VStack(spacing: 0) {
                 Toolbar()
                     .padding(.horizontal, 48.w)
-                    .padding(.top, 75.h)
+                    .padding(.top, orientation.isLandscape ? 12.h : 75.h)
                     .frame(maxWidth: .infinity, alignment: .top)
                     
-                    Spacer(minLength: 40.h)
+                    if orientation.isLandscape {
+                        Spacer().frame(height: 12.h)
+                    } else {
+                        Spacer(minLength: 40.h)
+                    }
                     
                     // Title text
                     VStack(spacing: 18.h) {
@@ -54,19 +50,29 @@ struct ScreenSaver: View {
                     }
                     .padding(.horizontal, 70.w)
 
-                    Image(AppIconNames.Asset.screenSaverAvatar)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 630.w, height: 670.h)
-                        .padding(.top, 48.h)
+                    avatar
+                        .padding(.top, orientation.isLandscape ? 16.h : 48.h)
                         .padding(.horizontal, 12.w)
                     
                     ScreenSaverFaceScanButton(text: actionButtonText, action: onStartFaceScan)
-                        .padding(.top, 54.h)
-                    
-                    Spacer()
+                        .padding(.top, orientation.isLandscape ? 16.h : 54.h)
+                        .padding(.bottom, orientation.isLandscape ? 20.h : 0)
+
+                    if !orientation.isLandscape {
+                        Spacer()
+                    }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .frame(width: geometry.size.width, height: geometry.size.height)
+            .background {
+                Color(AppColors.primary)
+                    .overlay {
+                        Image(AppIconNames.Asset.screensaverBackground)
+                            .resizable()
+                            .scaledToFill()
+                    }
+                    .clipped()
+                    .ignoresSafeArea()
+            }
             .onReceive(NotificationCenter.default.publisher(for: .screenDidChangeBounds)) { _ in
                 refreshTrigger.toggle()
             }
@@ -86,6 +92,28 @@ struct ScreenSaver: View {
         }
         .onAppear {
             presentResponseReceivedToastIfNeeded()
+        }
+    }
+
+    @ViewBuilder
+    private var avatar: some View {
+        if orientation.isLandscape {
+            // The toolbar, text, and button keep their space; the avatar fits what remains.
+            GeometryReader { geometry in
+                Image(AppIconNames.Asset.screenSaverAvatar)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(
+                        width: min(630.w * 0.8, geometry.size.width),
+                        height: min(670.h * 0.8, geometry.size.height)
+                    )
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+        } else {
+            Image(AppIconNames.Asset.screenSaverAvatar)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 630.w, height: 670.h)
         }
     }
 
