@@ -7,10 +7,7 @@ struct ResultScreenButtons: View {
     let onPrint: () -> Void
 
     var body: some View {
-        ZStack(alignment: .top) {
-            Color(AppColors.white)
-                .ignoresSafeArea(edges: .bottom)
-
+        VStack(spacing: 0) {
             HStack(alignment: .center, spacing: 20.w) {
                 footerPrimaryButton(
                     title: ResultScreenStrings.Actions.viewNextSteps,
@@ -21,9 +18,10 @@ struct ResultScreenButtons: View {
             }
             .padding(.top, 26.h)
             .padding(.horizontal, 30.w)
-            .padding(.bottom, 26.h)
+            .padding(.bottom, 12.h)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: .infinity)
+        .background(Color(AppColors.white).ignoresSafeArea(edges: .bottom))
     }
 
     private func footerPrimaryButton(title: String, action: @escaping () -> Void) -> some View {

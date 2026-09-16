@@ -10,6 +10,7 @@ let interpretationJSON = ResultScreenStrings.Metrics.interpretations
 // ----------------------
 struct ResultsList: View {
     @ObservedObject var model: ResultsModel
+    var isLandscape = false
 
     var body: some View {
         LazyVStack(spacing: 22.h) {
@@ -18,7 +19,8 @@ struct ResultsList: View {
                     metricKey: pair.key,
                     title: displayTitle(for: pair.key),
                     subtitle: descriptionText(for: pair.key),
-                    value: pair.value.value
+                    value: pair.value.value,
+                    isLandscape: isLandscape
                 )
             }
         }
@@ -33,6 +35,7 @@ struct ResultRow: View {
     let title: String
     let subtitle: String
     let value: Double
+    var isLandscape = false
 
     @State private var isShowingDetails = false
     @State private var collapsedMessageHeight: CGFloat = 0
@@ -110,22 +113,31 @@ struct ResultRow: View {
                 .multilineTextAlignment(.leading)
                 .padding(.top, 10.h)
 
-            MeterBar(
-                metricKey: metricKey,
-                value: value,
-                valueText: showsMeterValue ? formattedValue(value, for: metricKey) : nil,
-                colors: gaugeColors
-            )
-            .frame(width: Screen.width * 0.52)
-            .frame(height: 120.h)
-            .frame(maxWidth: .infinity)
-            .padding(.top, 24.h)
+            if isLandscape {
+                GeometryReader { geometry in
+                    HStack(alignment: .center, spacing: 40.w) {
+                        meter
+                            .frame(width: geometry.size.width * 0.62, height: 120.h)
+                            // Align the title with the colored band, below the optional value.
+                            .alignmentGuide(VerticalAlignment.center) { _ in 84.h }
 
-            Text(riskLabel)
-                .font(.system(size: 34.sp, weight: .bold))
-                .foregroundColor(Color(AppColors.black))
-                .frame(maxWidth: .infinity, alignment: .center)
-                .padding(.top, 22.h)
+                        riskTitle
+                            .frame(maxWidth: .infinity, alignment: .center)
+                    }
+                }
+                .frame(height: 120.h)
+                .padding(.top, 24.h)
+            } else {
+                meter
+                    .frame(width: Screen.width * 0.52)
+                    .frame(height: 120.h)
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, 24.h)
+
+                riskTitle
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.top, 22.h)
+            }
 
             VStack(spacing: 22.h) {
                 HStack(alignment: .top, spacing: 30.w) {
@@ -220,6 +232,23 @@ struct ResultRow: View {
         )
         .clipShape(RoundedRectangle(cornerRadius: 24.r, style: .continuous))
     }
+
+    private var meter: some View {
+        MeterBar(
+            metricKey: metricKey,
+            value: value,
+            valueText: showsMeterValue ? formattedValue(value, for: metricKey) : nil,
+            colors: gaugeColors
+        )
+    }
+
+    private var riskTitle: some View {
+        Text(riskLabel)
+            .font(.system(size: 34.sp, weight: .bold))
+            .foregroundColor(Color(AppColors.black))
+            .multilineTextAlignment(.center)
+    }
+
 }
 
 private struct CollapsedMessageHeightKey: PreferenceKey {

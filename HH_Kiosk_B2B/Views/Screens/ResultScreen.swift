@@ -59,6 +59,7 @@ public struct ResultScreen: View {
     @StateObject private var model: ResultsModel
     let result: [String: MeasurementResults.SignalResult]
     @State private var refreshTrigger = false
+    @State private var isLandscape = false
     
     // PDF States
     @State private var pdfURL: URL?
@@ -85,7 +86,7 @@ public struct ResultScreen: View {
     public var body: some View {
         ZStack(alignment: .bottom) {
             ScrollView(showsIndicators: false) {
-                mainContentView // Extracted for reuse in PDF
+                mainContentView(isLandscape: isLandscape) // Extracted for reuse in PDF
                     .padding(.bottom, showBottomButtons ? 150.h : 0)
             }
             .ignoresSafeArea(edges: .top)
@@ -119,6 +120,11 @@ public struct ResultScreen: View {
             }
             #endif
         }
+        .onGeometryChange(for: Bool.self) { geometry in
+            geometry.size.width > geometry.size.height
+        } action: { newValue in
+            isLandscape = newValue
+        }
         .onReceive(NotificationCenter.default.publisher(for: .screenDidChangeBounds)) { _ in
             refreshTrigger.toggle()
         }
@@ -134,10 +140,10 @@ public struct ResultScreen: View {
     }
     
     // Extracted content view so we can render it without the ScrollView wrapper for PDF
-    private var mainContentView: some View {
+    private func mainContentView(isLandscape: Bool = false) -> some View {
         VStack(spacing: 0) {
             HeroHeader()
-            ResultsList(model: model)
+            ResultsList(model: model, isLandscape: isLandscape)
         }
         .frame(maxWidth: .infinity)
         .background(Color(AppColors.resultHeroBackground))
@@ -145,7 +151,7 @@ public struct ResultScreen: View {
     
     private func exportToPDF() {
         // We render the raw content (without the ScrollView) to ensure we get the full length
-        let pdfView = mainContentView.frame(width: 595) // Fix width to A4
+        let pdfView = mainContentView().frame(width: 595) // Fix width to A4
         
         if let url = PDFGenerator.generatePDF(view: pdfView, fileName: ResultScreenStrings.pdfFileName) {
             self.pdfURL = url

@@ -485,7 +485,8 @@ class ResultsViewController: UIViewController {
             resultButtonsHost.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             resultButtonsHost.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             resultButtonsHost.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            resultButtonsHost.view.heightAnchor.constraint(equalToConstant: 130),
+            // Reserve only the button and its padding above the home-indicator safe area.
+            resultButtonsHost.view.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -(26.h + 72.h + 12.h)),
 
             activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),

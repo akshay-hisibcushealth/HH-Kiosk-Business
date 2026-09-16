@@ -21,54 +21,24 @@ struct ScreenSaver: View {
 
     var body: some View {
         GeometryReader { geometry in
-            VStack(spacing: 0) {
-                Toolbar()
-                    .padding(.horizontal, 48.w)
-                    .padding(.top, orientation.isLandscape ? 12.h : 75.h)
-                    .frame(maxWidth: .infinity, alignment: .top)
-                    
-                    if orientation.isLandscape {
-                        Spacer().frame(height: 12.h)
-                    } else {
-                        Spacer(minLength: 40.h)
-                    }
-                    
-                    // Title text
-                    VStack(spacing: 18.h) {
-                        buildSemiBoldText(welcomeText, 42.sp, color: Color(AppColors.white))
-                            .multilineTextAlignment(.center)
-                            .lineLimit(2)
-                            .minimumScaleFactor(0.72)
-                        
-                        Text(subtitle)
-                            .foregroundColor(Color(AppColors.white).opacity(0.84))
-                            .font(.system(size: 34.sp, weight: .regular))
-                            .multilineTextAlignment(.center)
-                            .lineSpacing(8.h)
-                            .lineLimit(2)
-                            .minimumScaleFactor(0.78)
-                    }
-                    .padding(.horizontal, 70.w)
-
-                    avatar
-                        .padding(.top, orientation.isLandscape ? 16.h : 48.h)
-                        .padding(.horizontal, 12.w)
-                    
-                    ScreenSaverFaceScanButton(text: actionButtonText, action: onStartFaceScan)
-                        .padding(.top, orientation.isLandscape ? 16.h : 54.h)
-                        .padding(.bottom, orientation.isLandscape ? 20.h : 0)
-
-                    if !orientation.isLandscape {
-                        Spacer()
-                    }
+            Group {
+                if orientation.isLandscape {
+                    landscapeContent(size: geometry.size)
+                } else {
+                    portraitContent
+                }
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
             .background {
                 Color(AppColors.primary)
                     .overlay {
-                        Image(AppIconNames.Asset.screensaverBackground)
-                            .resizable()
-                            .scaledToFill()
+                        if orientation.isLandscape {
+                            ScreenSaverCircuitBackground()
+                        } else {
+                            Image(AppIconNames.Asset.screensaverBackground)
+                                .resizable()
+                                .scaledToFill()
+                        }
                     }
                     .clipped()
                     .ignoresSafeArea()
@@ -95,25 +65,97 @@ struct ScreenSaver: View {
         }
     }
 
-    @ViewBuilder
+    private var portraitContent: some View {
+            VStack(spacing: 0) {
+                Toolbar()
+                    .padding(.horizontal, 48.w)
+                    .padding(.top, 75.h)
+                    .frame(maxWidth: .infinity, alignment: .top)
+
+                    Spacer(minLength: 40.h)
+
+                    // Title text
+                    VStack(spacing: 18.h) {
+                        buildSemiBoldText(welcomeText, 42.sp, color: Color(AppColors.white))
+                            .multilineTextAlignment(.center)
+                            .lineLimit(2)
+                            .minimumScaleFactor(0.72)
+
+                        Text(subtitle)
+                            .foregroundColor(Color(AppColors.white).opacity(0.84))
+                            .font(.system(size: 34.sp, weight: .regular))
+                            .multilineTextAlignment(.center)
+                            .lineSpacing(8.h)
+                            .lineLimit(2)
+                            .minimumScaleFactor(0.78)
+                    }
+                    .padding(.horizontal, 70.w)
+
+                    avatar
+                        .padding(.top, 48.h)
+                        .padding(.horizontal, 12.w)
+
+                    ScreenSaverFaceScanButton(text: actionButtonText, action: onStartFaceScan)
+                        .padding(.top, 54.h)
+
+                    Spacer()
+            }
+    }
+
     private var avatar: some View {
-        if orientation.isLandscape {
-            // The toolbar, text, and button keep their space; the avatar fits what remains.
-            GeometryReader { geometry in
+        Image(AppIconNames.Asset.screenSaverAvatar)
+            .resizable()
+            .scaledToFit()
+            .frame(width: 630.w, height: 670.h)
+    }
+
+    private func landscapeContent(size: CGSize) -> some View {
+        VStack(spacing: 0) {
+            HStack(alignment: .top) {
+                Image(AppIconNames.Asset.logo)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: size.width * 0.15, height: size.height * 0.09)
+
+                Spacer()
+
+                Text(ScreenSaverStrings.landscapeCompanyLogo)
+                    .font(.system(size: 24.sp, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .multilineTextAlignment(.center)
+                    .frame(width: size.width * 0.15, height: size.height * 0.085)
+                    .overlay(Rectangle().stroke(.white, lineWidth: 4.w))
+            }
+            .padding(.horizontal, size.width * 0.05)
+            .padding(.top, size.height * 0.035)
+
+            HStack(spacing: size.width * 0.035) {
                 Image(AppIconNames.Asset.screenSaverAvatar)
                     .resizable()
                     .scaledToFit()
-                    .frame(
-                        width: min(630.w * 0.8, geometry.size.width),
-                        height: min(670.h * 0.8, geometry.size.height)
-                    )
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .frame(width: size.width * 0.38, height: size.height * 0.64)
+
+                VStack(spacing: 0) {
+                    buildSemiBoldText(ScreenSaverStrings.landscapeTitle, 42.sp, color: .white)
+                        .multilineTextAlignment(.center)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.8)
+
+                    Text(ScreenSaverStrings.landscapeSubtitle)
+                        .font(.system(size: 32.sp, weight: .regular))
+                        .foregroundColor(Color(red: 0.76, green: 0.89, blue: 0.97))
+                        .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.top, size.height * 0.055)
+
+                    ScreenSaverFaceScanButton(text: ScreenSaverStrings.landscapeActionButton, action: onStartFaceScan)
+                        .padding(.top, size.height * 0.10)
+                }
+                .frame(maxWidth: .infinity)
             }
-        } else {
-            Image(AppIconNames.Asset.screenSaverAvatar)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 630.w, height: 670.h)
+            .padding(.horizontal, size.width * 0.05)
+            .padding(.top, size.height * 0.055)
+            .frame(maxHeight: .infinity, alignment: .top)
         }
     }
 
@@ -208,5 +250,47 @@ private struct ScreenSaverResponseReceivedToast: View {
         .frame(width: 980.w, height: 88.h)
         .background(Color(red: 0.39, green: 0.76, blue: 0.0))
         .clipShape(RoundedRectangle(cornerRadius: 8.r, style: .continuous))
+    }
+}
+
+/// Decorative circuit traces scale with the landscape screen, without affecting its layout.
+private struct ScreenSaverCircuitBackground: View {
+    var body: some View {
+        LinearGradient(
+            colors: [Color(red: 0.06, green: 0.12, blue: 0.32), Color(red: 0.11, green: 0.20, blue: 0.40)],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+        .overlay {
+            Canvas { context, size in
+                let routes: [[CGPoint]] = [
+                    [.init(x: 0, y: 0.18), .init(x: 0.22, y: 0.18), .init(x: 0.34, y: 0)],
+                    [.init(x: 0, y: 0.85), .init(x: 0.25, y: 0.85), .init(x: 0.43, y: 0.60), .init(x: 0.43, y: 0.42)],
+                    [.init(x: 0.10, y: 1), .init(x: 0.35, y: 0.72), .init(x: 0.35, y: 0.60)],
+                    [.init(x: 0.63, y: 0), .init(x: 0.63, y: 0.30), .init(x: 0.54, y: 0.42), .init(x: 0.54, y: 0.68)],
+                    [.init(x: 0.69, y: 0), .init(x: 0.69, y: 0.36), .init(x: 0.79, y: 0.49), .init(x: 1, y: 0.49)],
+                    [.init(x: 1, y: 0.19), .init(x: 0.82, y: 0.19), .init(x: 0.74, y: 0.31)],
+                    [.init(x: 1, y: 0.73), .init(x: 0.86, y: 0.73), .init(x: 0.71, y: 0.90), .init(x: 0.71, y: 1)],
+                    [.init(x: 0.43, y: 1), .init(x: 0.56, y: 0.84), .init(x: 0.80, y: 0.84)]
+                ]
+                for route in routes {
+                    for offset in [CGFloat(0), 0.012, 0.024] {
+                        var path = Path()
+                        for (index, point) in route.enumerated() {
+                            let position = CGPoint(x: (point.x + offset) * size.width, y: (point.y + offset) * size.height)
+                            if index == 0 { path.move(to: position) } else { path.addLine(to: position) }
+                        }
+                        context.stroke(path, with: .color(.white.opacity(0.045)), lineWidth: 2)
+                    }
+                }
+                for index in 0..<55 {
+                    let x = CGFloat((index * 137 + 23) % 997) / 997 * size.width
+                    let y = CGFloat((index * 239 + 61) % 991) / 991 * size.height
+                    context.fill(Path(CGRect(x: x, y: y, width: 3, height: 3)), with: .color(.white.opacity(0.10)))
+                }
+            }
+        }
+        .accessibilityHidden(true)
+        .allowsHitTesting(false)
     }
 }

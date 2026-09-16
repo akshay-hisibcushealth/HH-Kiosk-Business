@@ -330,44 +330,47 @@ struct PostSessionFlowScreen: View {
             if step == .nextSteps {
                 weightedNextStepsFooter
             } else {
-                HStack(alignment: .top, spacing: 20.w) {
-                    Button(action: {
-                        submitUserResponse(nextSteps: selectedResponses, npsScore: nil, action: .npsSkip)
-                    }) {
-                        ZStack {
-                            footerText(ResultScreenStrings.PostSession.skip, width: 250.w, foreground: Color(AppColors.black), background: Color(AppColors.white), bordered: true)
-                                .opacity(activeSubmissionAction == .npsSkip ? 0 : 1)
+                GeometryReader { proxy in
+                    let availableWidth = proxy.size.width - 20.w
 
-                            if activeSubmissionAction == .npsSkip {
-                                ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle(tint: Color(AppColors.black)))
+                    HStack(alignment: .top, spacing: 20.w) {
+                        Button(action: {
+                            submitUserResponse(nextSteps: selectedResponses, npsScore: nil, action: .npsSkip)
+                        }) {
+                            ZStack {
+                                footerText(ResultScreenStrings.PostSession.skip, width: availableWidth * (2 / 7.5), foreground: Color(AppColors.black), background: Color(AppColors.white), bordered: true)
+                                    .opacity(activeSubmissionAction == .npsSkip ? 0 : 1)
+
+                                if activeSubmissionAction == .npsSkip {
+                                    ProgressView()
+                                        .progressViewStyle(CircularProgressViewStyle(tint: Color(AppColors.black)))
+                                }
                             }
                         }
-                    }
-                    .disabled(isSubmitting)
+                        .disabled(isSubmitting)
 
-                    Spacer(minLength: 24.w)
+                        Button(action: primaryAction) {
+                            ZStack {
+                                footerText(
+                                    ResultScreenStrings.PostSession.submitAndReturnHome,
+                                    width: availableWidth * (5.5 / 7.5),
+                                    foreground: Color(AppColors.black),
+                                    background: Color(AppColors.ctaGreen),
+                                    bordered: false
+                                )
+                                .opacity(activeSubmissionAction == .npsSubmit ? 0 : 1)
 
-                    Button(action: primaryAction) {
-                        ZStack {
-                            footerText(
-                                ResultScreenStrings.PostSession.submitAndReturnHome,
-                                width: 680.w,
-                                foreground: Color(AppColors.black),
-                                background: Color(AppColors.ctaGreen),
-                                bordered: false
-                            )
-                            .opacity(activeSubmissionAction == .npsSubmit ? 0 : 1)
-
-                            if activeSubmissionAction == .npsSubmit {
-                                ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle(tint: Color(AppColors.black)))
+                                if activeSubmissionAction == .npsSubmit {
+                                    ProgressView()
+                                        .progressViewStyle(CircularProgressViewStyle(tint: Color(AppColors.black)))
+                                }
                             }
                         }
+                        .disabled(isSubmitting || selectedScore == nil)
+                        .opacity(selectedScore != nil ? 1 : 0.55)
                     }
-                    .disabled(isSubmitting || selectedScore == nil)
-                    .opacity(selectedScore != nil ? 1 : 0.55)
                 }
+                .frame(height: 72.h)
             }
         }
         .frame(maxWidth: .infinity)
@@ -450,8 +453,12 @@ struct PostSessionFlowScreen: View {
             .font(.system(size: 28.sp, weight: .semibold))
             .foregroundColor(Color(AppColors.black))
             .frame(width: width)
-            .frame(minHeight: 90.h)
+            .frame(minHeight: 72.h)
             .background(Color(AppColors.ctaGreen))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12.r, style: .continuous)
+                    .stroke(Color(AppColors.ctaGreen), lineWidth: 1)
+            )
             .clipShape(RoundedRectangle(cornerRadius: 12.r, style: .continuous))
         }
     }
@@ -463,11 +470,11 @@ struct PostSessionFlowScreen: View {
             .lineLimit(1)
             .minimumScaleFactor(0.72)
             .frame(width: width)
-            .frame(minHeight: 80.h)
+            .frame(minHeight: 72.h)
             .background(background)
             .overlay(
                 RoundedRectangle(cornerRadius: 12.r, style: .continuous)
-                    .stroke(bordered ? Color(AppColors.black).opacity(0.7) : Color.clear, lineWidth: 1)
+                    .stroke(bordered ? Color(AppColors.black).opacity(0.7) : Color(AppColors.ctaGreen), lineWidth: 1)
             )
             .clipShape(RoundedRectangle(cornerRadius: 12.r, style: .continuous))
     }
