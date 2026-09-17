@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ProfileAgeSection: View {
     @Binding var selectedAge: Int?
-    var focusedField: FocusState<PhysicalAttributesInputField?>.Binding
+    var focusedField: Binding<PhysicalAttributesInputField?>
     @State private var ageInput: String = ""
     
     private let ageRange = 13...120
@@ -13,13 +13,14 @@ struct ProfileAgeSection: View {
                 .font(.system(size: 24.sp, weight: .bold))
                 .foregroundColor(Color(AppColors.black))
 
-            TextField(PhysicalAttributesScreenStrings.Form.agePlaceholder, text: $ageInput)
-                .font(.system(size: 28.sp, weight: .regular))
-                .foregroundColor(Color(AppColors.black))
-                .submitLabel(.done)
-                .focused(focusedField, equals: .age)
-                .textContentType(.none)
-                .autocorrectionDisabled()
+            KioskTextField(
+                text: $ageInput,
+                isFocused: PhysicalAttributesInputField.age.focusBinding(in: focusedField),
+                placeholder: PhysicalAttributesScreenStrings.Form.agePlaceholder,
+                title: PhysicalAttributesScreenStrings.Form.ageLabel,
+                kind: .integer
+            )
+                .frame(height: 34.h)
                 .padding(.vertical, 26.h)
                 .padding(.horizontal, 28.w)
                 .frame(maxWidth: .infinity, minHeight: 94.h)
@@ -38,11 +39,8 @@ struct ProfileAgeSection: View {
             .onChange(of: selectedAge) { _, _ in
                 syncAgeInput()
             }
-            .onSubmit {
-                focusedField.wrappedValue = nil
-                hideKeyboard()
-            }
         }
+        .id(PhysicalAttributesInputField.age)
     }
 
     private func syncAgeInput() {

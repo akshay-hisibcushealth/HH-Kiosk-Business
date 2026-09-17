@@ -2,18 +2,6 @@ import SwiftUI
 import UIKit
 import AnuraCore
 
-enum PhysicalAttributesInputField: Hashable {
-    case email
-    case pin
-    case height
-    case weight
-    case age
-}
-
-private enum PhysicalAttributesScrollTarget {
-    case age
-}
-
 struct PhysicalAttributesScreen: View {
     private static let previewOrientationStorageKey = "physicalAttributes.previewOrientation"
     private let validAgeRange = 13...120
@@ -46,7 +34,9 @@ struct PhysicalAttributesScreen: View {
     @State private var showSettings = false
     @State private var refreshTrigger = false
     @StateObject private var keyboardObserver = KeyboardObserver()
-    @FocusState private var focusedInputField: PhysicalAttributesInputField?
+    // UIKit owns first responder status for our custom fields. SwiftUI FocusState
+    // has no native .focused view here and can reset during a text update.
+    @State private var focusedInputField: PhysicalAttributesInputField?
     @State private var isSubmittingDebugVitals = false
     private let debugSubmissionService: KioskSubmissionServiceProtocol = KioskSubmissionService()
 
@@ -139,15 +129,6 @@ struct PhysicalAttributesScreen: View {
                 dismissButton: .default(Text(PhysicalAttributesScreenStrings.alertDismiss))
             )
         }
-        .toolbar {
-            ToolbarItemGroup(placement: .keyboard) {
-                Spacer()
-                Button("Done") {
-                    focusedInputField = nil
-                    hideKeyboard()
-                }
-            }
-        }
     }
 
     private var keyboardAwareContent: some View {
@@ -157,15 +138,15 @@ struct PhysicalAttributesScreen: View {
                     contentStack
                         .frame(minHeight: geometry.size.height, alignment: .topLeading)
                         .frame(maxWidth: .infinity, alignment: .topLeading)
-                        .padding(.bottom, keyboardAwareBottomPadding)
+                        .padding(.bottom, 16.h)
                 }
                 .scrollDismissesKeyboard(.interactively)
                 .onChange(of: focusedInputField) { _, focusedField in
-                    scrollToAgeIfNeeded(focusedField: focusedField, scrollProxy: scrollProxy)
+                    scrollToFocusedField(focusedField: focusedField, scrollProxy: scrollProxy)
                 }
-                .onChange(of: keyboardObserver.isKeyboardVisible) { _, isVisible in
-                    guard isVisible else { return }
-                    scrollToAgeIfNeeded(focusedField: focusedInputField, scrollProxy: scrollProxy)
+                .onChange(of: keyboardObserver.height) { _, height in
+                    guard height > 0 else { return }
+                    scrollToFocusedField(focusedField: focusedInputField, scrollProxy: scrollProxy)
                 }
             }
         }
@@ -255,7 +236,6 @@ struct PhysicalAttributesScreen: View {
                             .padding(.top, 24.h)
                         ProfileAgeSection(selectedAge: $age, focusedField: $focusedInputField)
                             .padding(.top, 24.h)
-                            .id(PhysicalAttributesScrollTarget.age)
                     }
                     GridRow {
                         ProfileHeightSection(selectedHeight: $height, focusedField: $focusedInputField)
@@ -270,10 +250,6 @@ struct PhysicalAttributesScreen: View {
             }
             .frame(maxWidth: .infinity)
         }
-    }
-
-    private var keyboardAwareBottomPadding: CGFloat {
-        keyboardObserver.isKeyboardVisible ? keyboardObserver.height + 8.h : 0
     }
 
     private var backButton: some View {
@@ -341,20 +317,20 @@ struct PhysicalAttributesScreen: View {
                 focusedField: $focusedInputField
             )
             ProfileAgeSection(selectedAge: $age, focusedField: $focusedInputField)
-                .id(PhysicalAttributesScrollTarget.age)
             ProfileGenderSection(selectedGender: $gender)
         }
     }
 
-    private func scrollToAgeIfNeeded(
+    private func scrollToFocusedField(
         focusedField: PhysicalAttributesInputField?,
         scrollProxy: ScrollViewProxy
     ) {
-        guard focusedField == .age else { return }
+        guard let focusedField, focusedField != .height else { return }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+            guard focusedInputField == focusedField else { return }
             withAnimation(.easeInOut(duration: 0.25)) {
-                scrollProxy.scrollTo(PhysicalAttributesScrollTarget.age, anchor: .center)
+                scrollProxy.scrollTo(focusedField, anchor: .center)
             }
         }
     }
@@ -462,6 +438,7 @@ struct PhysicalAttributesScreen: View {
     }
 
     private func dismissPhysicalAttributeInputs() {
+        focusedInputField = nil
         NotificationCenter.default.post(name: .physicalAttributesDismissInputFocus, object: nil)
         hideKeyboard()
     }

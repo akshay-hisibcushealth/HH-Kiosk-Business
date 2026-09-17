@@ -4,7 +4,7 @@ import UIKit
 struct ProfileWeightSection: View {
     @Binding var selectedWeight: Int?  // Stored in kg
     @Binding var selectedWeightInPounds: Int?
-    var focusedField: FocusState<PhysicalAttributesInputField?>.Binding
+    var focusedField: Binding<PhysicalAttributesInputField?>
     @State private var weightInput: String = "" // Local input in lbs
     
     private let weightRange = 75...400
@@ -15,13 +15,14 @@ struct ProfileWeightSection: View {
                 .font(.system(size: 24.sp, weight: .bold))
                 .foregroundColor(Color(AppColors.black))
 
-            TextField(PhysicalAttributesScreenStrings.Form.weightPlaceholder, text: $weightInput)
-                .font(.system(size: 28.sp, weight: .regular))
-                .foregroundColor(Color(AppColors.black))
-                .submitLabel(.done)
-                .focused(focusedField, equals: .weight)
-                .textContentType(.none)
-                .autocorrectionDisabled()
+            KioskTextField(
+                text: $weightInput,
+                isFocused: PhysicalAttributesInputField.weight.focusBinding(in: focusedField),
+                placeholder: PhysicalAttributesScreenStrings.Form.weightPlaceholder,
+                title: PhysicalAttributesScreenStrings.Form.weightLabel,
+                kind: .integer
+            )
+                .frame(height: 34.h)
                 .padding(.vertical, 26.h)
                 .padding(.horizontal, 28.w)
                 .frame(maxWidth: .infinity, minHeight: 94.h)
@@ -40,11 +41,8 @@ struct ProfileWeightSection: View {
             .onChange(of: selectedWeight) { _, _ in
                 syncWeightInput()
             }
-            .onSubmit {
-                focusedField.wrappedValue = nil
-                hideKeyboard()
-            }
         }
+        .id(PhysicalAttributesInputField.weight)
     }
 
     private var selectedWeightConvertedToPounds: Int? {

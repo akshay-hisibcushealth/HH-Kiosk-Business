@@ -11,7 +11,7 @@ import SwiftUI
 struct ProfileEmailSection: View {
 
     @Binding var email: String?
-    var focusedField: FocusState<PhysicalAttributesInputField?>.Binding
+    var focusedField: Binding<PhysicalAttributesInputField?>
 
     @State private var localEmail: String = ""
     @State private var showError = false
@@ -23,24 +23,14 @@ struct ProfileEmailSection: View {
                 .font(.system(size: 24.sp, weight: .bold))
                 .foregroundColor(Color(AppColors.black))
 
-            TextField(
-                "",
+            KioskTextField(
                 text: $localEmail,
-                prompt: Text(PhysicalAttributesScreenStrings.Form.emailPlaceholder)
-                    .foregroundColor(Color(AppColors.physicalAttributeFieldPlaceholder))
+                isFocused: PhysicalAttributesInputField.email.focusBinding(in: focusedField),
+                placeholder: PhysicalAttributesScreenStrings.Form.emailPlaceholder,
+                title: PhysicalAttributesScreenStrings.Form.emailLabel,
+                kind: .email
             )
-                .keyboardType(.emailAddress)
-                .textContentType(.emailAddress)
-                .submitLabel(.done)
-                .onSubmit {
-                    focusedField.wrappedValue = nil
-                    hideKeyboard()
-                }
-                .autocapitalization(.none)
-                .disableAutocorrection(true)
-                .focused(focusedField, equals: .email)
-                .foregroundColor(Color(AppColors.black))
-                .font(.system(size: 28.sp, weight: .regular))
+                .frame(height: 34.h)
                 .padding(.vertical, 26.h)
                 .padding(.horizontal, 28.w)
                 .frame(maxWidth: .infinity, minHeight: 94.h)
@@ -88,6 +78,7 @@ struct ProfileEmailSection: View {
                     .foregroundColor(.red)
             }
         }
+        .id(PhysicalAttributesInputField.email)
     }
 
     private func isValidEmail(_ email: String) -> Bool {

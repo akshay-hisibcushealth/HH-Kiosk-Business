@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ProfilePINSection: View {
     @Binding var pin: String
-    var focusedField: FocusState<PhysicalAttributesInputField?>.Binding
+    var focusedField: Binding<PhysicalAttributesInputField?>
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -11,10 +11,12 @@ struct ProfilePINSection: View {
                 .foregroundColor(Color(AppColors.black))
                 .fixedSize(horizontal: false, vertical: true)
 
-            ImmediateMaskingTextField(
+            KioskTextField(
                 text: $pin,
+                isFocused: PhysicalAttributesInputField.pin.focusBinding(in: focusedField),
                 placeholder: PhysicalAttributesScreenStrings.Form.pinPlaceholder,
-                masksTextImmediately: true
+                title: PhysicalAttributesScreenStrings.Form.pinLabel,
+                kind: .pin
             )
             .accessibilityLabel(PhysicalAttributesScreenStrings.Form.pinLabel)
             .frame(height: 34.h)
@@ -39,5 +41,6 @@ struct ProfilePINSection: View {
                 hideKeyboard()
             }
         }
+        .id(PhysicalAttributesInputField.pin)
     }
 }

@@ -3,7 +3,7 @@ import UIKit
 
 struct ProfileHeightSection: View {
     @Binding var selectedHeight: Int?
-    var focusedField: FocusState<PhysicalAttributesInputField?>.Binding
+    var focusedField: Binding<PhysicalAttributesInputField?>
 
     @State private var committedFeet: Int? = nil
     @State private var committedInches: Int? = nil
@@ -89,6 +89,12 @@ struct ProfileHeightSection: View {
         .onAppear {
             syncCommittedHeight()
         }
+        .onChange(of: focusedField.wrappedValue) { _, field in
+            if field == .height {
+                preparePickerValues()
+                openPickerAfterDismissingKeyboard()
+            }
+        }
         .onChange(of: selectedHeight) { _, _ in
             syncCommittedHeight()
         }
@@ -129,6 +135,7 @@ struct ProfileHeightSection: View {
         selectedHeight = Int(Double(totalInches) * 2.54)
 
         showPicker = false
+        focusedField.wrappedValue = .weight
         UIDevice.current.playInputClick()
     }
 

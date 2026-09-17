@@ -12,7 +12,7 @@ final class KeyboardObserver: ObservableObject {
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(show),
-            name: UIResponder.keyboardWillShowNotification,
+            name: UIResponder.keyboardWillChangeFrameNotification,
             object: nil
         )
         NotificationCenter.default.addObserver(
@@ -27,8 +27,9 @@ final class KeyboardObserver: ObservableObject {
         if let frame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
             // UI updates must happen on the Main Thread
             DispatchQueue.main.async {
-                self.height = frame.height
-                self.isKeyboardVisible = true
+                let overlap = UIScreen.main.bounds.intersection(frame)
+                self.height = overlap.isNull ? 0 : overlap.height
+                self.isKeyboardVisible = self.height > 0
             }
         }
     }
