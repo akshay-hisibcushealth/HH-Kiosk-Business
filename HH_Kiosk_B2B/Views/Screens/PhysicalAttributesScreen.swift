@@ -69,6 +69,7 @@ struct PhysicalAttributesScreen: View {
     var body: some View {
         VStack(spacing: 0) {
             Toolbar()
+            ScanProgressView(currentStep: .faceScan)
 
             keyboardAwareContent
         }

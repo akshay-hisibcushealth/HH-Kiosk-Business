@@ -140,9 +140,9 @@ public struct ResultScreen: View {
     }
     
     // Extracted content view so we can render it without the ScrollView wrapper for PDF
-    private func mainContentView(isLandscape: Bool = false) -> some View {
+    private func mainContentView(isLandscape: Bool = false, showsProgress: Bool = true) -> some View {
         VStack(spacing: 0) {
-            HeroHeader()
+            HeroHeader(showsProgress: showsProgress)
             ResultsList(model: model, isLandscape: isLandscape)
         }
         .frame(maxWidth: .infinity)
@@ -151,7 +151,7 @@ public struct ResultScreen: View {
     
     private func exportToPDF() {
         // We render the raw content (without the ScrollView) to ensure we get the full length
-        let pdfView = mainContentView().frame(width: 595) // Fix width to A4
+        let pdfView = mainContentView(showsProgress: false).frame(width: 595) // Fix width to A4
         
         if let url = PDFGenerator.generatePDF(view: pdfView, fileName: ResultScreenStrings.pdfFileName) {
             self.pdfURL = url
@@ -162,9 +162,15 @@ public struct ResultScreen: View {
 
 // MARK: - Subviews
 private struct HeroHeader: View {
+    let showsProgress: Bool
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             ResultToolbar()
+
+            if showsProgress {
+                ScanProgressView(currentStep: .report)
+            }
 
             VStack(alignment: .leading, spacing: 0) {
                 HStack(alignment: .center, spacing: 28.w) {

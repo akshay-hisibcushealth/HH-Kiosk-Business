@@ -86,6 +86,10 @@ struct PostSessionFlowScreen: View {
         VStack(spacing: 0) {
             ResultToolbar()
 
+            if step == .nextSteps {
+                ScanProgressView(currentStep: .nextSteps)
+            }
+
             GeometryReader { geometry in
                 ScrollView {
                     Group {
@@ -138,24 +142,6 @@ struct PostSessionFlowScreen: View {
         }
         .padding(.horizontal, 30.w)
         .background(Color(AppColors.primary))
-    }
-
-    private func progressItem(number: String, title: String, isActive: Bool) -> some View {
-        HStack(spacing: 8.w) {
-            Text(number)
-                .font(.system(size: 10.sp, weight: .bold))
-                .foregroundColor(isActive ? Color(AppColors.white) : Color(AppColors.gray).opacity(0.45))
-                .frame(width: 16.w, height: 16.w)
-                .background(isActive ? Color(AppColors.primary) : Color(AppColors.gray).opacity(0.12))
-                .clipShape(Circle())
-
-            Text(title)
-                .font(.system(size: 12.sp, weight: isActive ? .bold : .semibold))
-                .foregroundColor(isActive ? Color(AppColors.black) : Color(AppColors.gray).opacity(0.48))
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
-        }
-        .frame(maxWidth: .infinity)
     }
 
     private var nextStepsContent: some View {

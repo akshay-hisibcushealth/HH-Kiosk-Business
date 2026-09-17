@@ -5,6 +5,10 @@ struct AppColors {
     static let accent = UIColor(hex: "#DA400D")
     static let ctaContent = UIColor.white
     static let ctaGreen = UIColor(hex: "#B8EB5E")
+    static let scanProgressActiveTrack = UIColor(hex: "#8CD211")
+    static let scanProgressInactiveTrack = UIColor(hex: "#F5FAEB")
+    static let scanProgressInactiveBadge = UIColor(hex: "#E6E9EF")
+    static let scanProgressInactiveText = UIColor(hex: "#E4E4E4")
     static let highlightedDayBackground = UIColor(hex: "#EE4B0E")
     static let scheduleBackground = UIColor(hex: "#FBDBCF")
 
