@@ -199,9 +199,11 @@ struct ResultRow: View {
                         HStack(spacing: 14.w) {
                             Text(isShowingDetails ? "Show less" : "Read more details")
                                 .font(.system(size: 26.sp, weight: .bold))
+                                .foregroundColor(Color(AppColors.primary))
 
                             Image(systemName: "chevron.down")
                                 .font(.system(size: 22.sp, weight: .bold))
+                                .foregroundColor(.primary)
                                 .rotationEffect(.degrees(isShowingDetails ? 180 : 0))
                         }
                         .foregroundColor(Color(AppColors.primary))

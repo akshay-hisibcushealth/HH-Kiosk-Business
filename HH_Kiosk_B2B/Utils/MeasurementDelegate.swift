@@ -258,7 +258,7 @@ private final class AdaptiveMeasurementBanner {
         static let holdStill = "Hold Still"
         static let moveCloser = "Move Closer"
         static let moveFurther = "Move Further"
-        static let faceCamera = "Look Directly at the Camera"
+        static let faceCamera = "Please look ahead"
         static let timeline: [TimelineEntry] = [
             TimelineEntry(offset: 0, message: "Breathe Naturally and Stay Still"),
             TimelineEntry(offset: 5, message: "Reading Your Pulse from Facial Blood Flow"),

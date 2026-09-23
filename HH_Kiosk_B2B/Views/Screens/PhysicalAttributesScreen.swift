@@ -95,7 +95,7 @@ struct PhysicalAttributesScreen: View {
                 faceManager.isPresentingMeasurementView = false
             }
         }
-        .sheet(isPresented: $showWebView) {
+        .fullScreenCover(isPresented: $showWebView) {
             WebViewSheetView(url: URL(string: PhysicalAttributesScreenStrings.demoURL)!)
         }
         .sheet(isPresented: $showSettings) {
@@ -190,17 +190,14 @@ struct PhysicalAttributesScreen: View {
                     .padding(.horizontal, 58.w)
                     .padding(.bottom, 28.h)
             } else {
-                HStack(alignment: .top, spacing: 90.w) {
+                VStack(spacing: 48.h) {
                     bodyImage
-                        .frame(width: 410.w, height: 700.h)
-                        .clipped()
-                        .padding(.top,40.h)
+                        .frame(maxWidth: .infinity)
 
-                    formColumn
-                        .frame(maxWidth: 548.w)
+                    formGrid
                 }
-                .padding(.top, 26.h)
-                .padding(.horizontal, 96.w)
+                .padding(.top, 40.h)
+                .padding(.horizontal, 58.w)
 
                 Spacer(minLength: 24.h)
 
@@ -220,31 +217,8 @@ struct PhysicalAttributesScreen: View {
                 .accessibilityHidden(true)
 
             VStack(spacing: 32.h) {
-                Grid(alignment: .topLeading, horizontalSpacing: 60.w, verticalSpacing: 24.h) {
-                    GridRow {
-                        ProfileEmailSection(email: $email, focusedField: $focusedInputField)
-                            .padding(.top, 24.h)
-                        ProfileWeightSection(
-                            selectedWeight: $weight,
-                            selectedWeightInPounds: $weightInPounds,
-                            focusedField: $focusedInputField
-                        )
-                        .padding(.top, 24.h)
-                    }
-                    GridRow {
-                        ProfilePINSection(pin: $pin, focusedField: $focusedInputField)
-                            .padding(.top, 24.h)
-                        ProfileAgeSection(selectedAge: $age, focusedField: $focusedInputField)
-                            .padding(.top, 24.h)
-                    }
-                    GridRow {
-                        ProfileHeightSection(selectedHeight: $height, focusedField: $focusedInputField)
-                            .padding(.top, 24.h)
-                        ProfileGenderSection(selectedGender: $gender)
-                            .padding(.top, 24.h)
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
+                formGrid
+                    .padding(.top, 24.h)
 
                 actionButtons
             }
@@ -294,31 +268,34 @@ struct PhysicalAttributesScreen: View {
 
 
     private var bodyImage: some View {
-        ZStack {
-            Color.white
-
-            AppLottieView(name: "face_scan")
-                .frame(width: 400.w, height: 400.w)
-//            Image(AppIconNames.Asset.avatarImage)
-//                .resizable()
-//                .aspectRatio(contentMode: .fit)
-//                .frame(maxWidth: .infinity, maxHeight: .infinity)
-        }
+        AppLottieView(name: "face_scan")
+            .frame(width: 300.w, height: 300.w)
+            .accessibilityHidden(true)
     }
 
-    private var formColumn: some View {
-        VStack(alignment: .leading, spacing: 42.h) {
-            ProfileEmailSection(email: $email, focusedField: $focusedInputField)
-            ProfilePINSection(pin: $pin, focusedField: $focusedInputField)
-            ProfileHeightSection(selectedHeight: $height, focusedField: $focusedInputField)
-            ProfileWeightSection(
-                selectedWeight: $weight,
-                selectedWeightInPounds: $weightInPounds,
-                focusedField: $focusedInputField
-            )
-            ProfileAgeSection(selectedAge: $age, focusedField: $focusedInputField)
-            ProfileGenderSection(selectedGender: $gender)
+    // Share the paired rows so both orientations present the same field order.
+    private var formGrid: some View {
+        Grid(alignment: .topLeading,
+             horizontalSpacing: orientation.isLandscape ? 60.w : 32.w,
+             verticalSpacing: orientation.isLandscape ? 48.h : 42.h) {
+            GridRow {
+                ProfileEmailSection(email: $email, focusedField: $focusedInputField)
+                ProfilePINSection(pin: $pin, focusedField: $focusedInputField)
+            }
+            GridRow {
+                ProfileWeightSection(
+                    selectedWeight: $weight,
+                    selectedWeightInPounds: $weightInPounds,
+                    focusedField: $focusedInputField
+                )
+                ProfileHeightSection(selectedHeight: $height, focusedField: $focusedInputField)
+            }
+            GridRow {
+                ProfileAgeSection(selectedAge: $age, focusedField: $focusedInputField)
+                ProfileGenderSection(selectedGender: $gender)
+            }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private func scrollToFocusedField(

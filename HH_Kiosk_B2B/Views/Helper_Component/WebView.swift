@@ -16,18 +16,31 @@ struct WebView: UIViewRepresentable {
 
 
 struct WebViewSheetView: View {
+    @EnvironmentObject private var appState: AppState
     @Environment(\.dismiss) var dismiss
     let url: URL
 
+    private let screenSaverSuppressionReason = "faceScanDemo.fullScreen"
+
     var body: some View {
-        NavigationView {
+        NavigationStack {
             WebView(url: url)
-                .navigationBarTitle(SharedViewStrings.WebView.faceScanDemoTitle, displayMode: .inline)
-                .navigationBarItems(leading:
-                    Button(SharedViewStrings.WebView.doneButtonTitle) {
-                        dismiss()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .navigationTitle(SharedViewStrings.WebView.faceScanDemoTitle)
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button(SharedViewStrings.WebView.doneButtonTitle) {
+                            dismiss()
+                        }
                     }
-                )
+                }
+        }
+        .onAppear {
+            appState.setScreenSaverSuppressed(true, reason: screenSaverSuppressionReason)
+        }
+        .onDisappear {
+            appState.setScreenSaverSuppressed(false, reason: screenSaverSuppressionReason)
         }
     }
 }

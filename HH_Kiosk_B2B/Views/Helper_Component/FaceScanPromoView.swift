@@ -46,7 +46,7 @@ struct FaceScanPromoView: View {
         .frame(height: 240.h)
         .background(Color(AppColors.accent))
         .clipShape(RoundedRectangle(cornerRadius: 24.r))
-        .sheet(isPresented: $showWebView) {
+        .fullScreenCover(isPresented: $showWebView) {
             WebViewSheetView(url: URL(string: HomeScreenStrings.Promo.demoURL)!)
         }
         .onChange(of: showWebView) { _, isPresented in
