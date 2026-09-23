@@ -142,7 +142,7 @@ public struct ResultScreen: View {
     // Extracted content view so we can render it without the ScrollView wrapper for PDF
     private func mainContentView(isLandscape: Bool = false, showsProgress: Bool = true) -> some View {
         VStack(spacing: 0) {
-            HeroHeader(showsProgress: showsProgress)
+            HeroHeader(showsProgress: showsProgress, isLandscape: isLandscape)
             ResultsList(model: model, isLandscape: isLandscape)
         }
         .frame(maxWidth: .infinity)
@@ -163,10 +163,11 @@ public struct ResultScreen: View {
 // MARK: - Subviews
 private struct HeroHeader: View {
     let showsProgress: Bool
+    let isLandscape: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            ResultToolbar()
+            ResultToolbar(isLandscape: isLandscape)
 
             if showsProgress {
                 ScanProgressView(currentStep: .report)
