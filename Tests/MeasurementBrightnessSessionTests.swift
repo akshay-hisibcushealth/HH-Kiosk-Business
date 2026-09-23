@@ -1,67 +1,69 @@
-import AnuraCore
 import UIKit
 
-// Run in an iOS simulator with MeasurementBrightnessSession.swift and AnuraCore.
+// Standalone simulator checks; compile with MeasurementBrightnessSession.swift.
 @main
 struct MeasurementBrightnessSessionTests {
-    @MainActor static func main() async {
-        for mode in [UIModalPresentationStyle.formSheet, .custom] {
-            let host = UIViewController()
-            host.modalPresentationStyle = mode
-            host.view.frame = mode == .formSheet
-                ? CGRect(x: 0, y: 0, width: 650, height: 900)
-                : CGRect(x: 0, y: 0, width: 738, height: 750)
-            var brightness: CGFloat = 0.34
-            let session = MeasurementBrightnessSession(read: { brightness }, write: { brightness = $0 })
+    @MainActor static func main() {
+        for baseline: CGFloat in [0, 0.34, 1] {
+            var brightness = baseline
+            var writes: [CGFloat] = []
+            let session = MeasurementBrightnessSession(
+                read: { brightness }, write: { brightness = $0; writes.append($0) }
+            )
+            precondition(brightness == baseline, "Preparing a scan must not change brightness")
+            session.setPopupVisible(false)
+            session.setApplicationActive(true)
+            precondition(writes.isEmpty, "A popup that was never shown must not write brightness")
 
             for _ in 0..<20 {
-                // Simulate the SDK boosting twice: neither boost becomes our baseline.
-                brightness = 1
-                brightness = 1
-                session.handleWarning(.darkness)
-                await drainCallbacks()
-                precondition(brightness == 1, "Low-light boost must remain enabled")
+                session.setPopupVisible(true)
+                precondition(brightness == 1, "Opening the popup must immediately maximize brightness")
+                let writesAtPresentation = writes.count
+                for _ in 0..<100 {
+                    // Repeated appearance/active notifications must neither dim
+                    // the popup nor replace its pre-scan baseline with 100%.
+                    session.setPopupVisible(true)
+                    session.setApplicationActive(true)
+                    precondition(brightness == 1)
+                }
+                precondition(writes.count == writesAtPresentation, "Avoid redundant screen writes")
 
-                let missing = FaceConstraintsStatus(rawValue:
-                    FaceConstraintsStatus.warning.rawValue | FaceConstraintsStatus.faceMissing.rawValue)
-                session.handleWarning(missing)
-                brightness = 1 // A late SDK write after its warning callback.
-                await drainCallbacks()
-                precondition(brightness == 0.34, "Missing face must restore the pre-scan value")
+                session.setApplicationActive(false)
+                precondition(brightness == baseline, "Backgrounding must restore the original value")
+                session.setApplicationActive(true)
+                precondition(brightness == 1, "Returning to a visible scan must maximize brightness")
 
-                session.resumeSDKControl()
-                brightness = 1 // SDK raises brightness again when the face returns.
-                session.handleState(.measuring)
-                await drainCallbacks()
-                precondition(brightness == 1, "Resumed scan must retain the SDK boost")
-
-                session.handleWarning(.faceOffTarget)
-                await drainCallbacks()
-                precondition(brightness == 0.34, "Leaving the circle must also restore brightness")
+                // Closing, rotation-driven dismissal, and full-screen results
+                // all use the same disappearance event.
+                session.setPopupVisible(false)
+                precondition(brightness == baseline, "Disappearance must restore the original value")
+                session.setApplicationActive(false)
+                session.setApplicationActive(true)
+                precondition(brightness == baseline, "Foregrounding must not brighten a hidden scan")
             }
 
-            brightness = 1
-            session.handleWarning(.faceMissing)
-            session.resumeSDKControl()
-            await drainCallbacks()
-            precondition(brightness == 1, "A stale restoration must not dim a resumed scan")
+            // A popup presented in an inactive app must wait until activation.
+            session.setApplicationActive(false)
+            session.setPopupVisible(true)
+            precondition(brightness == baseline)
+            session.setApplicationActive(true)
+            precondition(brightness == 1)
+            session.setApplicationActive(false)
+            precondition(brightness == baseline)
 
-            for state in [MeasurementPipelineInfo.State.idle, .locked, .complete, .failure, .off] {
-                brightness = 1
-                session.handleState(state)
-                await drainCallbacks()
-                precondition(brightness == 0.34)
-            }
-            brightness = 1
-            session.restoreAfterSDKUpdate()
-            session.restoreNow() // Closing/rotating the popup cancels pending work.
-            await drainCallbacks()
-            precondition(brightness == 0.34)
-            print("PASS: \(mode == .formSheet ? "portrait form sheet" : "landscape custom popup") brightness baseline, face loss, return, retries and completion")
+            // Once restored, hidden/inactive callbacks must not overwrite a
+            // subsequent brightness choice made outside the popup.
+            brightness = 0.57
+            session.setPopupVisible(false)
+            session.setApplicationActive(true)
+            precondition(brightness == 0.57)
+
+            let nextSession = MeasurementBrightnessSession(read: { brightness }, write: { brightness = $0 })
+            nextSession.setPopupVisible(true)
+            precondition(brightness == 1)
+            nextSession.setPopupVisible(false)
+            precondition(brightness == 0.57, "A new scan captures its own baseline")
         }
-    }
-
-    private static func drainCallbacks() async {
-        try? await Task.sleep(nanoseconds: 10_000_000)
+        print("PASS: maximum while visible, repeated appearance, dismissal/results/rotation, background/foreground, new scans and baselines 0%, 34%, 100%")
     }
 }

@@ -29,7 +29,7 @@ private extension UIDeviceOrientation {
 /// pixels in their portrait basis when the iPad UI rotates. Rotate only that
 /// renderer so the SDK controls and measurement outline remain upright.
 @MainActor
-private final class OrientationAwareAnuraMeasurementViewController: AnuraMeasurementViewController, MeasurementPreviewLayoutProviding, MeasurementBrightnessProviding, UIViewControllerTransitioningDelegate, UIGestureRecognizerDelegate {
+private final class OrientationAwareAnuraMeasurementViewController: AnuraMeasurementViewController, MeasurementPreviewLayoutProviding, UIViewControllerTransitioningDelegate, UIGestureRecognizerDelegate {
     
     var startedInLandscape = false
     var requiredContentSize: CGSize?
@@ -43,6 +43,14 @@ private final class OrientationAwareAnuraMeasurementViewController: AnuraMeasure
     }()
     private var lastReportedWasLandscape: Bool?
     private let landscapeLayout = LandscapeMeasurementLayout()
+    // Anura prefers a connected external camera even when external-only is off.
+    // Resolve this for each new scan, before our first preview layout.
+    private lazy var cameraPreviewOrientation = MeasurementCameraPreviewOrientation(
+        externalCameraOnly: measurementConfiguration.isUseExternalCameraOnly,
+        hasExternalCamera: !AVCaptureDevice.DiscoverySession(
+            deviceTypes: [.external], mediaType: .video, position: .unspecified
+        ).devices.isEmpty
+    )
     private let screenLightURL = Bundle(for: AnuraMeasurementViewController.self)
         .url(forResource: "white", withExtension: "mp4")
 
@@ -85,6 +93,20 @@ private final class OrientationAwareAnuraMeasurementViewController: AnuraMeasure
         
         applyRequiredContentSize()
         normalizeDialogAppearance()
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(applicationWillResignActive),
+            name: UIApplication.willResignActiveNotification, object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(applicationDidBecomeActive),
+            name: UIApplication.didBecomeActiveNotification, object: nil
+        )
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        measurementBrightness?.setApplicationActive(UIApplication.shared.applicationState == .active)
+        measurementBrightness?.setPopupVisible(true)
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -115,7 +137,15 @@ private final class OrientationAwareAnuraMeasurementViewController: AnuraMeasure
         )
         UIDevice.current.endGeneratingDeviceOrientationNotifications()
         super.viewDidDisappear(animated)
-        measurementBrightness?.restoreNow()
+        measurementBrightness?.setPopupVisible(false)
+    }
+
+    @objc private func applicationWillResignActive() {
+        measurementBrightness?.setApplicationActive(false)
+    }
+
+    @objc private func applicationDidBecomeActive() {
+        measurementBrightness?.setApplicationActive(true)
     }
 
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
@@ -237,65 +267,21 @@ private final class OrientationAwareAnuraMeasurementViewController: AnuraMeasure
             return
         }
 
-        // Anura keeps the built-in camera pixels in their portrait basis when
-        // the controller starts in landscape. Rotate the renderer upright, but
-        // do not apply an additional fill scale: that zoom crops half the face.
         if startedInLandscape {
             view.layer.sublayerTransform = CATransform3DIdentity
             landscapeLayout.update(in: view)
-            if let cameraPreview = firstMetalView(in: view) {
-                cameraPreview.transform = landscapeRotation(for: orientation)
-            }
-            return
+        } else {
+            // Keep Anura's portrait controls inside the sheet during rotation.
+            let contentScale: CGFloat = orientation.isLandscape ? 0.82 : 1
+            view.layer.sublayerTransform = CATransform3DMakeScale(contentScale, contentScale, 1)
         }
 
-        // Anura lays out its scan controls using portrait proportions. Scale
-        // all child content in landscape so its countdown and heart-rate UI
-        // remain inside the sheet, while leaving the sheet background intact.
-        let contentScale: CGFloat = orientation.isLandscape ? 0.82 : 1
-        view.layer.sublayerTransform = CATransform3DMakeScale(contentScale, contentScale, 1)
-
-        correctBuiltInCameraPreviewOrientation(for: orientation)
-    }
-
-    private func landscapeRotation(for orientation: UIInterfaceOrientation) -> CGAffineTransform {
-        let angle: CGFloat = orientation == .landscapeRight ? -.pi / 2 : .pi / 2
-        return CGAffineTransform(rotationAngle: angle)
-    }
-
-    private func correctBuiltInCameraPreviewOrientation(for orientation: UIInterfaceOrientation) {
-        guard UIDevice.current.userInterfaceIdiom == .pad,
-              let cameraPreview = firstMetalView(in: view) else {
-            return
-        }
-
-        let angle: CGFloat
-        switch orientation {
-        case .landscapeLeft:
-            angle = .pi / 2
-        case .landscapeRight:
-            angle = -.pi / 2
-        case .portraitUpsideDown:
-            angle = .pi
-        default:
-            angle = 0
-        }
-
-        cameraPreview.transform = CGAffineTransform(rotationAngle: angle)
-    }
-
-    private func firstMetalView(in rootView: UIView) -> MTKView? {
-        if let metalView = rootView as? MTKView {
-            return metalView
-        }
-
-        for subview in rootView.subviews {
-            if let metalView = firstMetalView(in: subview) {
-                return metalView
-            }
-        }
-
-        return nil
+        // Both layouts must preserve the SDK's external-camera orientation.
+        cameraPreviewOrientation.update(
+            in: view,
+            interfaceOrientation: orientation,
+            correctBuiltInPreview: startedInLandscape || UIDevice.current.userInterfaceIdiom == .pad
+        )
     }
 }
 
@@ -428,9 +414,9 @@ class FaceScanManager: ObservableObject{
     func presentAnuraMeasurementViewController(sdkConfig: Data) {
         let measurementConfig = MeasurementConfiguration.defaultConfiguration
         measurementConfig.studyFile = sdkConfig
-        // Preserve Anura's automatic screen-brightness boost in low light.
-        // The controller normalizes only the decorative HDR white overlay.
-        measurementConfig.screenLightControlEnabled = true
+        // Popup visibility owns brightness. SDK face-loss and low-light updates
+        // must not dim or boost the screen during the same visible scan.
+        measurementConfig.screenLightControlEnabled = false
 
         measurementConfig.externalCameraPreset = cameraPreset
         measurementConfig.externalCameraPreviewOrientation = previewOrientation
@@ -479,7 +465,7 @@ class FaceScanManager: ObservableObject{
                     .first(where: { $0.activationState == .foregroundActive })
             let interfaceOrientation = windowScene?.interfaceOrientation ?? .portrait
             viewController.startedInLandscape = interfaceOrientation.isLandscape
-            // Capture before presentation loads the SDK view and boosts brightness.
+            // Capture the baseline before the popup raises brightness on appearance.
             viewController.measurementBrightness = MeasurementBrightnessSession(
                 screen: topVC.view.window?.screen ?? windowScene?.screen ?? UIScreen.main
             )

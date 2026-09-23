@@ -91,14 +91,12 @@ class MeasurementDelegate : AnuraMeasurementDelegate {
     // Called when the camera stops
     func anuraMeasurementControllerDidStopCamera(_ controller: AnuraMeasurementViewController) {
         print("***** anuraMeasurementControllerDidStopCamera")
-        updateBrightness(controller) { $0.restoreAfterSDKUpdate() }
         return
     }
     
     // Called when the camera is calibrated and ready to measure
     func anuraMeasurementControllerIsReadyToMeasure(_ controller: AnuraMeasurementViewController) {
         print("***** anuraMeasurementControllerIsReadyToMeasure")
-        updateBrightness(controller) { $0.resumeSDKControl() }
         
         // Here is where you can set measurement properties
         // Such as setting user demographics
@@ -120,7 +118,6 @@ class MeasurementDelegate : AnuraMeasurementDelegate {
     // Called when countdown has finished and Anura is about to start the measurement
     func anuraMeasurementControllerDidStartMeasuring(_ controller: AnuraMeasurementViewController) {
         print("***** anuraMeasurementControllerDidStartMeasuring")
-        updateBrightness(controller) { $0.resumeSDKControl() }
         measurementBanner.handleMeasurementStart()
         
         // Send a request to DeepAffex API to create a new measurement
@@ -130,7 +127,6 @@ class MeasurementDelegate : AnuraMeasurementDelegate {
     // Called when the measurement is complete
     func anuraMeasurementControllerDidFinishMeasuring(_ controller: AnuraMeasurementViewController) {
         print("***** anuraMeasurementControllerDidFinishMeasuring")
-        updateBrightness(controller) { $0.restoreAfterSDKUpdate() }
         measurementBanner.clear()
         
         // Blood Flow Extraction is complete - Present results view controller
@@ -198,14 +194,12 @@ class MeasurementDelegate : AnuraMeasurementDelegate {
     
     // Called when receiving a constraint warning from Anura. Check the `status` variable for information about the warning.
     func anuraMeasurementControllerDidGetConstraintsWarning(_ controller: AnuraMeasurementViewController, status: FaceConstraintsStatus) {
-        updateBrightness(controller) { $0.handleWarning(status) }
         measurementBanner.handleWarning(status)
     }
     
     // Called when a measurement is canclled due to a constraint failure. Check the `status` variable for information about the failure.
     func anuraMeasurementControllerDidCancelMeasurement(_ controller: AnuraMeasurementViewController, status: FaceConstraintsStatus) {
         print("***** anuraMeasurementControllerDidCancelMeasurement: \(status.identifier)")
-        updateBrightness(controller) { $0.restoreAfterSDKUpdate() }
         measurementBanner.clear()
         setMeasurementScreenSaverSuppressed(false)
         
@@ -218,23 +212,12 @@ class MeasurementDelegate : AnuraMeasurementDelegate {
     // Called on every frame update - Here you can inspect MeasurementPipelineInfo
     // for current lighting quality score and pipeline state
     func anuraMeasurementControllerDidUpdate(_ controller: AnuraMeasurementViewController, info: MeasurementPipelineInfo) {
-        updateBrightness(controller) { $0.handleState(info.state) }
         measurementBanner.handlePipelineUpdate(info)
 
         // For debugging, you may print the info contained in MeasurementPipelineInfo
         // Example:
         // print(info.currentLightingQuality)
         // print(info.state)
-    }
-
-    private func updateBrightness(
-        _ controller: AnuraMeasurementViewController,
-        action: @escaping @MainActor (MeasurementBrightnessSession) -> Void
-    ) {
-        DispatchQueue.main.async { [weak controller] in
-            guard let session = (controller as? MeasurementBrightnessProviding)?.measurementBrightness else { return }
-            action(session)
-        }
     }
 
     private func setMeasurementScreenSaverSuppressed(_ suppressed: Bool) {
