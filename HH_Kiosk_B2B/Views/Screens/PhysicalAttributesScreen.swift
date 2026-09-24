@@ -63,6 +63,9 @@ struct PhysicalAttributesScreen: View {
 
             keyboardAwareContent
         }
+        // No input is active when the form first opens or after dismissal.
+        // In those states, don't reserve an old keyboard safe-area inset.
+        .ignoresSafeArea(focusedInputField == nil ? .keyboard : [], edges: .bottom)
         .background {
             Color(AppColors.white)
                 .onTapGesture { dismissPhysicalAttributeInputs() }

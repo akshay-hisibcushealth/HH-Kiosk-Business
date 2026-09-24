@@ -48,6 +48,27 @@ struct ProfileRegressionForm: View {
     }
 }
 
+@MainActor final class ScrollSizingModel: ObservableObject {
+    @Published var showExtraContent = true
+}
+
+struct ScrollSizingForm: View {
+    @ObservedObject var model: ScrollSizingModel
+    @State private var focus: PhysicalAttributesInputField?
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Color.blue.frame(height: 200)
+            PhysicalAttributesScrollView(focusedField: $focus) {
+                VStack(spacing: 0) {
+                    if model.showExtraContent { Color.gray.frame(height: 900) }
+                    Color.green.frame(height: 300)
+                }
+            }
+        }
+    }
+}
+
 @main final class PreviewDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     var keyboardHideCount = 0
@@ -58,7 +79,7 @@ struct ProfileRegressionForm: View {
         keyboardHideObserver = NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: .main) { [weak self] _ in
             MainActor.assumeIsolated { self?.keyboardHideCount += 1 }
         }
-        for result in ["result.txt", "rotation.txt", "profile.txt", "scroll.txt"] {
+        for result in ["result.txt", "rotation.txt", "profile.txt", "scroll.txt", "sizing.txt"] {
             try? FileManager.default.removeItem(at: documents.appendingPathComponent(result))
         }
         let window = UIWindow(frame: UIScreen.main.bounds)
@@ -139,6 +160,7 @@ struct ProfileRegressionForm: View {
             try! "PASS: portrait editing, Done, rotation in both directions, focus preservation; portrait keyboard height \(activeKeyboard.bounds.height)\n".write(to: documents.appendingPathComponent("rotation.txt"), atomically: true, encoding: .utf8)
             await runProfileRegression()
             await runScrollRegression()
+            await runScrollSizingRegression()
             exit(0)
         }
     }
@@ -254,6 +276,26 @@ struct ProfileRegressionForm: View {
             }
         }
         try! "PASS: Age scrolls into view and Done/background dismissal restore both top and manually scrolled positions in portrait and landscape\n".write(to: documents.appendingPathComponent("scroll.txt"), atomically: true, encoding: .utf8)
+    }
+
+    func runScrollSizingRegression() async {
+        for orientation: UIInterfaceOrientationMask in [.portrait, .landscapeLeft] {
+            let model = ScrollSizingModel()
+            window?.windowScene?.requestGeometryUpdate(.iOS(interfaceOrientations: orientation))
+            window?.rootViewController = UIHostingController(rootView: ScrollSizingForm(model: model))
+            try? await Task.sleep(for: .seconds(1))
+            let scroll = descendants(window!).compactMap { $0 as? UIScrollView }.first!
+            let maxOffset = scroll.contentSize.height - scroll.bounds.height + scroll.adjustedContentInset.bottom
+            precondition(maxOffset > 0, "Long content must be scrollable")
+            scroll.setContentOffset(CGPoint(x: 0, y: maxOffset), animated: false)
+            model.showExtraContent = false
+            try? await Task.sleep(for: .seconds(1))
+            precondition(abs(scroll.contentSize.height - (300 + 16.h)) < 2, "Content must shrink to its actual height without a blank filler")
+            precondition(abs(scroll.contentOffset.y + scroll.adjustedContentInset.top) < 2, "Content that now fits must return to the top")
+            precondition(scroll.contentSize.height <= scroll.bounds.height - scroll.adjustedContentInset.bottom, "Short content must not leave a scroll range")
+            precondition(abs(scroll.convert(scroll.bounds, to: window).maxY - window!.bounds.maxY) < 2, "Scroll viewport must fill the available screen")
+        }
+        try! "PASS: shrinking content removes blank scroll range and the viewport fills the screen in both orientations\n".write(to: documents.appendingPathComponent("sizing.txt"), atomically: true, encoding: .utf8)
     }
 
     func renderKeyboards() {

@@ -22,9 +22,11 @@ struct PhysicalAttributesScrollView<Content: View>: View {
                 ScrollView(.vertical, showsIndicators: false) {
                     content()
                         .padding(.bottom, 16.h)
-                        .frame(minHeight: geometry.size.height, alignment: .topLeading)
                         .frame(maxWidth: .infinity, alignment: .topLeading)
                 }
+                // Keep the viewport full-sized without adding filler to short content.
+                .frame(width: geometry.size.width, height: geometry.size.height, alignment: .top)
+                .scrollBounceBehavior(.basedOnSize)
                 .scrollPosition($scrollPosition)
                 .coordinateSpace(name: PhysicalAttributeFieldFrames.coordinateSpace)
                 .onPreferenceChange(PhysicalAttributeFieldFrames.self) { fieldFrames = $0 }

@@ -185,6 +185,7 @@ enum ResultScreenStrings {
         static let submitFailure = "Failed to submit response. Please try again."
 
         enum NextSteps {
+            static let talkToDoctorToday = "Talk to my doctor today"
             static let annualPhysical = "Schedule an exam with my primary care provider and share these results"
             static let biometricScreening = "Schedule a biometric screening or other follow-up labs (i.e. HBA1c for blood sugar)"
             static let nutritionCounseling = "Get support from a Registered Dietitian"
