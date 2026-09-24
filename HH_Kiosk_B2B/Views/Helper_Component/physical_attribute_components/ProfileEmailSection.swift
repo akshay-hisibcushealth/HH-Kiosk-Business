@@ -28,7 +28,8 @@ struct ProfileEmailSection: View {
                 isFocused: PhysicalAttributesInputField.email.focusBinding(in: focusedField),
                 placeholder: PhysicalAttributesScreenStrings.Form.emailPlaceholder,
                 title: PhysicalAttributesScreenStrings.Form.emailLabel,
-                kind: .email
+                kind: .email,
+                onDone: { focusedField.wrappedValue = .pin }
             )
                 .frame(height: 34.h)
                 .padding(.vertical, 26.h)
@@ -78,7 +79,7 @@ struct ProfileEmailSection: View {
                     .foregroundColor(.red)
             }
         }
-        .id(PhysicalAttributesInputField.email)
+        .physicalAttributeScrollTarget(.email)
     }
 
     private func isValidEmail(_ email: String) -> Bool {

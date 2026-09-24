@@ -32,8 +32,8 @@ struct PhysicalAttributesScreen: View {
     @State private var email: String? = nil
     @State private var pin: String = ""
     @State private var showSettings = false
+    @State private var showPrivacyBanner = true
     @State private var refreshTrigger = false
-    @StateObject private var keyboardObserver = KeyboardObserver()
     // UIKit owns first responder status for our custom fields. SwiftUI FocusState
     // has no native .focused view here and can reset during a text update.
     @State private var focusedInputField: PhysicalAttributesInputField?
@@ -63,15 +63,26 @@ struct PhysicalAttributesScreen: View {
 
             keyboardAwareContent
         }
-        .background(Color(AppColors.white))
+        .background {
+            Color(AppColors.white)
+                .onTapGesture { dismissPhysicalAttributeInputs() }
+        }
         .overlay(alignment: .topLeading) {
             backButton
                 .padding(.leading, 14)
                 .padding(.top, 5)
         }
-        .contentShape(Rectangle())
-        .onTapGesture {
-            dismissPhysicalAttributeInputs()
+        .simultaneousGesture(
+            TapGesture().onEnded { showPrivacyBanner = false }
+        )
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 10).onChanged { _ in
+                if showPrivacyBanner { showPrivacyBanner = false }
+            }
+        )
+        .onChange(of: focusedInputField) { _, field in
+            // UIKit text fields can take focus without a SwiftUI tap gesture.
+            if field != nil { showPrivacyBanner = false }
         }
         .onAppear {
             SensitiveScreenPrivacy.beginProtecting(owner: "physical-attributes")
@@ -132,23 +143,12 @@ struct PhysicalAttributesScreen: View {
     }
 
     private var keyboardAwareContent: some View {
-        GeometryReader { geometry in
-            ScrollViewReader { scrollProxy in
-                ScrollView(.vertical, showsIndicators: false) {
-                    contentStack
-                        .frame(minHeight: geometry.size.height, alignment: .topLeading)
-                        .frame(maxWidth: .infinity, alignment: .topLeading)
-                        .padding(.bottom, 16.h)
+        PhysicalAttributesScrollView(focusedField: $focusedInputField) {
+            contentStack
+                .background {
+                    Color(AppColors.white)
+                        .onTapGesture { dismissPhysicalAttributeInputs() }
                 }
-                .scrollDismissesKeyboard(.interactively)
-                .onChange(of: focusedInputField) { _, focusedField in
-                    scrollToFocusedField(focusedField: focusedField, scrollProxy: scrollProxy)
-                }
-                .onChange(of: keyboardObserver.height) { _, height in
-                    guard height > 0 else { return }
-                    scrollToFocusedField(focusedField: focusedInputField, scrollProxy: scrollProxy)
-                }
-            }
         }
     }
 
@@ -180,9 +180,11 @@ struct PhysicalAttributesScreen: View {
             .padding(.top, orientation.isLandscape ? 28.h : 54.h)
             .padding(.horizontal, 50.w)
 
-            privacyBanner
-                .padding(.top, orientation.isLandscape ? 24.h : 34.h)
-                .padding(.horizontal, 58.w)
+            if showPrivacyBanner {
+                privacyBanner
+                    .padding(.top, orientation.isLandscape ? 24.h : 34.h)
+                    .padding(.horizontal, 58.w)
+            }
 
             if orientation.isLandscape {
                 landscapeForm
@@ -292,24 +294,10 @@ struct PhysicalAttributesScreen: View {
             }
             GridRow {
                 ProfileAgeSection(selectedAge: $age, focusedField: $focusedInputField)
-                ProfileGenderSection(selectedGender: $gender)
+                ProfileGenderSection(selectedGender: $gender, onSelect: dismissPhysicalAttributeInputs)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    private func scrollToFocusedField(
-        focusedField: PhysicalAttributesInputField?,
-        scrollProxy: ScrollViewProxy
-    ) {
-        guard let focusedField, focusedField != .height else { return }
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-            guard focusedInputField == focusedField else { return }
-            withAnimation(.easeInOut(duration: 0.25)) {
-                scrollProxy.scrollTo(focusedField, anchor: .center)
-            }
-        }
     }
 
     private var actionButtons: some View {

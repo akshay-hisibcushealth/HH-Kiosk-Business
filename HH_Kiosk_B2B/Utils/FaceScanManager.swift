@@ -425,7 +425,6 @@ class FaceScanManager: ObservableObject{
         
         
         let uiConfig: MeasurementUIConfiguration = .defaultConfiguration
-        uiConfig.timerFont = UIFont.systemFont(ofSize: 80.sp)
         uiConfig.showStatusMessages = false
         uiConfig.showMeasurementStartedMessage = false
         uiConfig.showLightingQualityStars = false

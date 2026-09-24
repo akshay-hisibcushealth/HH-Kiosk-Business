@@ -16,7 +16,8 @@ struct ProfilePINSection: View {
                 isFocused: PhysicalAttributesInputField.pin.focusBinding(in: focusedField),
                 placeholder: PhysicalAttributesScreenStrings.Form.pinPlaceholder,
                 title: PhysicalAttributesScreenStrings.Form.pinLabel,
-                kind: .pin
+                kind: .pin,
+                onDone: { focusedField.wrappedValue = .weight }
             )
             .accessibilityLabel(PhysicalAttributesScreenStrings.Form.pinLabel)
             .frame(height: 34.h)
@@ -41,6 +42,6 @@ struct ProfilePINSection: View {
                 hideKeyboard()
             }
         }
-        .id(PhysicalAttributesInputField.pin)
+        .physicalAttributeScrollTarget(.pin)
     }
 }

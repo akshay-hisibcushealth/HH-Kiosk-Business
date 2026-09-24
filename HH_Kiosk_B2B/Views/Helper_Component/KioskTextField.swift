@@ -1,12 +1,30 @@
 import SwiftUI
 import UIKit
 
+/// One keyboard per form, so UIKit does not replace the input view on each field.
+final class KioskKeyboardSession: ObservableObject {
+    let keyboard = CompactKeyboardView(kind: .email, fieldTitle: "")
+}
+
+private struct KioskKeyboardSessionKey: EnvironmentKey {
+    static let defaultValue: KioskKeyboardSession? = nil
+}
+
+extension EnvironmentValues {
+    var kioskKeyboardSession: KioskKeyboardSession? {
+        get { self[KioskKeyboardSessionKey.self] }
+        set { self[KioskKeyboardSessionKey.self] = newValue }
+    }
+}
+
 struct KioskTextField: UIViewRepresentable {
+    @Environment(\.kioskKeyboardSession) private var keyboardSession
     @Binding var text: String
     @Binding var isFocused: Bool
     let placeholder: String
     let title: String
     let kind: KioskKeyboardKind
+    var onDone: (() -> Void)? = nil
 
     func makeCoordinator() -> Coordinator { Coordinator(parent: self) }
 
@@ -33,9 +51,9 @@ struct KioskTextField: UIViewRepresentable {
         field.accessibilityLabel = title
         field.inputAssistantItem.leadingBarButtonGroups = []
         field.inputAssistantItem.trailingBarButtonGroups = []
-        let keyboard = CompactKeyboardView(kind: kind, fieldTitle: title)
-        keyboard.textField = field
-        field.inputView = keyboard
+        field.keyboardKind = kind
+        field.keyboardTitle = title
+        field.inputView = keyboardSession?.keyboard ?? CompactKeyboardView(kind: kind, fieldTitle: title)
         return field
     }
 
@@ -43,11 +61,9 @@ struct KioskTextField: UIViewRepresentable {
         context.coordinator.parent = self
         context.coordinator.display(text, in: field)
         field.returnKeyType = .done
-        if let keyboard = field.inputView as? CompactKeyboardView {
-            keyboard.onDone = { [weak field, weak coordinator = context.coordinator] in
-                coordinator?.parent.isFocused = false
-                field?.resignFirstResponder()
-            }
+        field.onDone = { [weak field, weak coordinator = context.coordinator] in
+            guard let field, let coordinator else { return }
+            coordinator.finishEditing(field)
         }
         // Defer responder changes until SwiftUI finishes updating the view hierarchy.
         DispatchQueue.main.async { [weak field, weak coordinator = context.coordinator] in
@@ -55,7 +71,13 @@ struct KioskTextField: UIViewRepresentable {
             if coordinator.parent.isFocused, !field.isFirstResponder, field.window != nil {
                 field.becomeFirstResponder()
             } else if !coordinator.parent.isFocused, field.isFirstResponder {
-                field.resignFirstResponder()
+                // Give the next field's queued focus update a chance to take over
+                // directly, without dismissing and presenting the keyboard again.
+                DispatchQueue.main.async { [weak field, weak coordinator] in
+                    guard let field, let coordinator,
+                          !coordinator.parent.isFocused, field.isFirstResponder else { return }
+                    field.resignFirstResponder()
+                }
             }
         }
     }
@@ -105,16 +127,38 @@ struct KioskTextField: UIViewRepresentable {
         }
 
         func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-            parent.isFocused = false
-            textField.resignFirstResponder()
+            finishEditing(textField)
             return false
+        }
+
+        func finishEditing(_ textField: UITextField) {
+            if let onDone = parent.onDone {
+                // Advancing focus must not resign the current responder first.
+                onDone()
+            } else {
+                parent.isFocused = false
+                textField.resignFirstResponder()
+            }
         }
     }
 }
 
 final class KioskUITextField: UITextField {
     var masksPIN = false
+    var keyboardKind: KioskKeyboardKind = .email
+    var keyboardTitle = ""
+    var onDone: (() -> Void)?
     private var lastWindowSize: CGSize = .zero
+
+    @discardableResult
+    override func becomeFirstResponder() -> Bool {
+        if let keyboard = inputView as? CompactKeyboardView {
+            keyboard.configure(for: self, kind: keyboardKind, title: keyboardTitle) { [weak self] in
+                self?.onDone?()
+            }
+        }
+        return super.becomeFirstResponder()
+    }
 
     override func layoutSubviews() {
         super.layoutSubviews()
@@ -123,7 +167,7 @@ final class KioskUITextField: UITextField {
         // Both iPad orientations can have regular size classes. Track window geometry
         // and explicitly ask UIKit to resize an already-presented custom input view.
         DispatchQueue.main.async { [weak self] in
-            guard let self, let keyboard = inputView as? CompactKeyboardView else { return }
+            guard let self, isFirstResponder, let keyboard = inputView as? CompactKeyboardView else { return }
             keyboard.invalidateIntrinsicContentSize()
             keyboard.frame.size.height = keyboard.intrinsicContentSize.height
             if isFirstResponder { reloadInputViews() }

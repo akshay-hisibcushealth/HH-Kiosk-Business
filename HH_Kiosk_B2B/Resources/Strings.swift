@@ -94,7 +94,7 @@ enum PhysicalAttributesScreenStrings {
     }
 
     enum Form {
-        static let emailLabel = "Email"
+        static let emailLabel = "Email (We send your results here)"
         static let emailPlaceholder = "Enter email"
         static let emailInlineError = "Enter a valid email address"
         static let pinLabel = "Enter 4-digit PIN (used to open your report)"

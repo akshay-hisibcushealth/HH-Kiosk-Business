@@ -26,6 +26,7 @@ struct TestForm: View {
 
 // Exercise the actual profile sections, including their validation-driven view updates.
 struct ProfileRegressionForm: View {
+    var testsScrolling = false
     @State private var focus: PhysicalAttributesInputField?
     @State private var email: String?
     @State private var pin = ""
@@ -34,12 +35,14 @@ struct ProfileRegressionForm: View {
     @State private var pounds: Int?
 
     var body: some View {
-        ScrollView {
+        PhysicalAttributesScrollView(focusedField: $focus) {
             VStack(spacing: 20) {
+                if testsScrolling { Color.clear.frame(height: 400) }
                 ProfileEmailSection(email: $email, focusedField: $focus)
                 ProfilePINSection(pin: $pin, focusedField: $focus)
                 ProfileWeightSection(selectedWeight: $weight, selectedWeightInPounds: $pounds, focusedField: $focus)
                 ProfileAgeSection(selectedAge: $age, focusedField: $focus)
+                if testsScrolling { Color.clear.frame(height: 400) }
             }.padding(30)
         }
     }
@@ -47,11 +50,17 @@ struct ProfileRegressionForm: View {
 
 @main final class PreviewDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
+    var keyboardHideCount = 0
+    var keyboardHideObserver: NSObjectProtocol?
     let model = TestModel()
     let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        try? FileManager.default.removeItem(at: documents.appendingPathComponent("rotation.txt"))
-        try? FileManager.default.removeItem(at: documents.appendingPathComponent("profile.txt"))
+        keyboardHideObserver = NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated { self?.keyboardHideCount += 1 }
+        }
+        for result in ["result.txt", "rotation.txt", "profile.txt", "scroll.txt"] {
+            try? FileManager.default.removeItem(at: documents.appendingPathComponent(result))
+        }
         let window = UIWindow(frame: UIScreen.main.bounds)
         window.rootViewController = UIHostingController(rootView: TestForm(model: model))
         window.makeKeyAndVisible()
@@ -129,6 +138,7 @@ struct ProfileRegressionForm: View {
             precondition(abs(activeKeyboard.bounds.height - activeKeyboard.intrinsicContentSize.height) < 2, "Portrait keyboard height")
             try! "PASS: portrait editing, Done, rotation in both directions, focus preservation; portrait keyboard height \(activeKeyboard.bounds.height)\n".write(to: documents.appendingPathComponent("rotation.txt"), atomically: true, encoding: .utf8)
             await runProfileRegression()
+            await runScrollRegression()
             exit(0)
         }
     }
@@ -157,12 +167,93 @@ struct ProfileRegressionForm: View {
                     try? await Task.sleep(for: .milliseconds(250))
                     precondition(input.isFirstResponder && keyboard.window != nil, "Profile keyboard closed after typing in \(title)")
                 }
+                let scroll = descendants(window!).compactMap { $0 as? UIScrollView }.first!
+                let nextInput: UITextField? = title == PhysicalAttributesScreenStrings.Form.emailLabel
+                    ? field(PhysicalAttributesScreenStrings.Form.pinLabel)
+                    : title == PhysicalAttributesScreenStrings.Form.pinLabel
+                        ? field(PhysicalAttributesScreenStrings.Form.weightLabel) : nil
+                // Let the opening keyboard finish its layout before measuring handoff.
+                try? await Task.sleep(for: .milliseconds(500))
+                let offsetBeforeHandoff = scroll.contentOffset.y
+                let visibleRect = scroll.bounds.inset(by: scroll.adjustedContentInset)
+                let nextFieldAlreadyVisible = nextInput.map { visibleRect.contains($0.convert($0.bounds, to: scroll)) } ?? false
+                let hidesBeforeDone = keyboardHideCount
+                let keyboardWindow = keyboard.window
+                let keyboardSuperview = keyboard.superview
+                let keyboardFrame = keyboard.convert(keyboard.bounds, to: keyboardWindow)
+                if let nextInput {
+                    precondition(nextInput.inputView === keyboard, "The form must reuse one keyboard across fields")
+                }
                 keyboard.onDone?()
-                try? await Task.sleep(for: .milliseconds(250))
-                precondition(!input.isFirstResponder, "Done still dismisses profile keyboard")
+                if nextInput != nil {
+                    for _ in 0..<42 {
+                        try? await Task.sleep(for: .milliseconds(17))
+                        precondition(keyboard.window === keyboardWindow && keyboard.superview === keyboardSuperview, "Keyboard must stay attached throughout handoff")
+                        let frame = keyboard.convert(keyboard.bounds, to: keyboardWindow)
+                        precondition(abs(frame.minY - keyboardFrame.minY) < 2 && abs(frame.height - keyboardFrame.height) < 2, "Keyboard must stay stationary throughout handoff")
+                    }
+                    precondition(keyboard.textField === nextInput, "Shared keyboard must route input to the newly focused field")
+                } else {
+                    try? await Task.sleep(for: .milliseconds(700))
+                }
+                precondition(!input.isFirstResponder, "Done leaves the current field")
+                let nextTitle: String?
+                switch title {
+                case PhysicalAttributesScreenStrings.Form.emailLabel:
+                    nextTitle = PhysicalAttributesScreenStrings.Form.pinLabel
+                case PhysicalAttributesScreenStrings.Form.pinLabel:
+                    nextTitle = PhysicalAttributesScreenStrings.Form.weightLabel
+                default:
+                    nextTitle = nil
+                }
+                if let nextTitle {
+                    precondition(field(nextTitle).isFirstResponder, "Done must advance from \(title) to \(nextTitle)")
+                    precondition(keyboardHideCount == hidesBeforeDone, "Done must keep the keyboard open between fields")
+                    if nextFieldAlreadyVisible {
+                        precondition(abs(scroll.contentOffset.y - offsetBeforeHandoff) < 2, "An already-visible field must not cause the form to jump")
+                    }
+                    // Hardware Return must follow the same route as the custom Done key.
+                    input.becomeFirstResponder()
+                    try? await Task.sleep(for: .milliseconds(250))
+                    precondition(keyboardHideCount == hidesBeforeDone, "Direct field selection must keep the keyboard open")
+                    _ = input.delegate?.textFieldShouldReturn?(input)
+                    try? await Task.sleep(for: .milliseconds(250))
+                    precondition(field(nextTitle).isFirstResponder, "Return must advance from \(title) to \(nextTitle)")
+                    precondition(keyboardHideCount == hidesBeforeDone, "Return must keep the keyboard open between fields")
+                }
             }
         }
-        try! "PASS: repeated key presses in all four actual profile sections preserve keyboard in portrait and landscape; Done dismisses\n".write(to: documents.appendingPathComponent("profile.txt"), atomically: true, encoding: .utf8)
+        try! "PASS: one shared keyboard stays attached and stationary during Email/PIN/Weight handoff; typing targets the current field; Done/Return and direct selection preserve focus in both orientations\n".write(to: documents.appendingPathComponent("profile.txt"), atomically: true, encoding: .utf8)
+    }
+
+    func runScrollRegression() async {
+        for orientation: UIInterfaceOrientationMask in [.portrait, .landscapeLeft] {
+            window?.windowScene?.requestGeometryUpdate(.iOS(interfaceOrientations: orientation))
+            window?.rootViewController = UIHostingController(rootView: ProfileRegressionForm(testsScrolling: true))
+            try? await Task.sleep(for: .seconds(1))
+            let scroll = descendants(window!).compactMap { $0 as? UIScrollView }.first!
+            for baseline: CGFloat in [0, 120] {
+                scroll.setContentOffset(CGPoint(x: 0, y: baseline - scroll.adjustedContentInset.top), animated: false)
+                try? await Task.sleep(for: .milliseconds(300))
+                let originalOffset = scroll.contentOffset.y + scroll.adjustedContentInset.top
+                let age = field(PhysicalAttributesScreenStrings.Form.ageLabel)
+                age.becomeFirstResponder()
+                try? await Task.sleep(for: .seconds(1))
+                let visibleRect = scroll.bounds.inset(by: scroll.adjustedContentInset)
+                let ageRect = age.convert(age.bounds, to: scroll)
+                precondition(visibleRect.insetBy(dx: -1, dy: -1).contains(ageRect), "Age must be visible above the keyboard: \(ageRect) in \(visibleRect)")
+                if baseline == 0 {
+                    (age.inputView as! CompactKeyboardView).onDone?()
+                } else {
+                    // The background-tap dismissal path also resigns first responder.
+                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                }
+                try? await Task.sleep(for: .seconds(1))
+                let restoredOffset = scroll.contentOffset.y + scroll.adjustedContentInset.top
+                precondition(abs(restoredOffset - originalOffset) < 2, "Keyboard dismissal must restore the original offset: \(originalOffset) -> \(restoredOffset)")
+            }
+        }
+        try! "PASS: Age scrolls into view and Done/background dismissal restore both top and manually scrolled positions in portrait and landscape\n".write(to: documents.appendingPathComponent("scroll.txt"), atomically: true, encoding: .utf8)
     }
 
     func renderKeyboards() {

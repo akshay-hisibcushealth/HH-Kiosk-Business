@@ -135,7 +135,7 @@ struct ProfileHeightSection: View {
         selectedHeight = Int(Double(totalInches) * 2.54)
 
         showPicker = false
-        focusedField.wrappedValue = .weight
+        focusedField.wrappedValue = .age
         UIDevice.current.playInputClick()
     }
 

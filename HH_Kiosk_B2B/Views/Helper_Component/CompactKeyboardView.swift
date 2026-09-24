@@ -6,8 +6,9 @@ final class CompactKeyboardView: UIInputView, UIInputViewAudioFeedback {
     var onDone: (() -> Void)?
     var enableInputClicksWhenVisible: Bool { true }
 
-    private let kind: KioskKeyboardKind
-    private let fieldTitle: String
+    private var kind: KioskKeyboardKind
+    private var fieldTitle: String
+    private weak var titleLabel: UILabel?
     private enum Page { case letters, numbers, symbols }
     private var page: Page = .letters
     private var shifted = false
@@ -29,6 +30,30 @@ final class CompactKeyboardView: UIInputView, UIInputViewAudioFeedback {
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+
+    func configure(for field: UITextField, kind: KioskKeyboardKind, title: String, onDone: @escaping () -> Void) {
+        let layoutChanged = self.kind.isNumeric != kind.isNumeric || (self.kind != kind && !kind.isNumeric)
+        if textField !== field {
+            deleteTimer?.invalidate()
+            deleteTimer = nil
+        }
+        textField = field
+        self.onDone = onDone
+        self.kind = kind
+        fieldTitle = title
+        // Keep the input view attached and at the same size during focus changes.
+        // Numeric fields only need a new title; Email changes the keys in place.
+        UIView.performWithoutAnimation {
+            if layoutChanged {
+                shifted = false
+                page = .letters
+                rebuildKeys()
+            } else {
+                titleLabel?.text = title
+            }
+            layoutIfNeeded()
+        }
+    }
 
     private var keyboardHeight: CGFloat {
         let size = textField?.window?.bounds.size ?? UIScreen.main.bounds.size
@@ -70,6 +95,7 @@ final class CompactKeyboardView: UIInputView, UIInputViewAudioFeedback {
         let toolbar = UIStackView()
         toolbar.spacing = 12
         let title = UILabel()
+        titleLabel = title
         title.text = fieldTitle
         title.font = .systemFont(ofSize: 15, weight: .semibold)
         title.textColor = .darkGray

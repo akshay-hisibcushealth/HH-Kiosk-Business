@@ -15,10 +15,12 @@ xcrun swiftc -sdk "$(xcrun --sdk iphonesimulator --show-sdk-path)" \
   Tests/CompactKeyboardSimulatorTests.swift \
   HH_Kiosk_B2B/Views/Helper_Component/KioskTextField.swift \
   HH_Kiosk_B2B/Views/Helper_Component/CompactKeyboardView.swift \
+  HH_Kiosk_B2B/Views/Helper_Component/PersistentVerticalScrollbar.swift \
   HH_Kiosk_B2B/Views/Helper_Component/physical_attribute_components/ProfileEmailSection.swift \
   HH_Kiosk_B2B/Views/Helper_Component/physical_attribute_components/ProfilePINSection.swift \
   HH_Kiosk_B2B/Views/Helper_Component/physical_attribute_components/ProfileWeightSection.swift \
   HH_Kiosk_B2B/Views/Helper_Component/physical_attribute_components/ProfileAgeSection.swift \
+  HH_Kiosk_B2B/Views/Helper_Component/physical_attribute_components/PhysicalAttributesScrollView.swift \
   HH_Kiosk_B2B/Views/Helper_Component/KeyboardObserver.swift \
   HH_Kiosk_B2B/Resources/Strings.swift \
   HH_Kiosk_B2B/Utils/KioskTextInput.swift \
@@ -33,4 +35,5 @@ container="$(xcrun simctl get_app_container "$device_id" local.codex.KeyboardPre
 cat "$container/Documents/result.txt"
 cat "$container/Documents/rotation.txt"
 cat "$container/Documents/profile.txt"
+cat "$container/Documents/scroll.txt"
 printf 'Keyboard previews: %s/Documents\n' "$container"

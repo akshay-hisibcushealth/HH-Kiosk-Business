@@ -42,7 +42,7 @@ struct ProfileWeightSection: View {
                 syncWeightInput()
             }
         }
-        .id(PhysicalAttributesInputField.weight)
+        .physicalAttributeScrollTarget(.weight)
     }
 
     private var selectedWeightConvertedToPounds: Int? {

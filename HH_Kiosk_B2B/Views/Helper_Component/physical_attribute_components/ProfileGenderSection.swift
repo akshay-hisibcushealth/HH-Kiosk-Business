@@ -3,6 +3,7 @@ import SwiftUI
 
 struct ProfileGenderSection: View {
     @Binding var selectedGender: String
+    var onSelect: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 22.h) {
@@ -23,6 +24,7 @@ struct ProfileGenderSection: View {
 
         return Button {
             selectedGender = gender
+            onSelect()
             HapticFeedback.light()
         } label: {
             HStack(spacing: 18.w) {

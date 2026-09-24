@@ -31,7 +31,6 @@ struct PostSessionFlowScreen: View {
     @State private var isSubmitting = false
     @State private var activeSubmissionAction: PostSessionSubmissionAction?
     @State private var showSubmitError = false
-    @State private var scrollIndicator = PostSessionScrollIndicatorMetrics()
 
     private let submissionService: KioskSubmissionServiceProtocol = KioskSubmissionService()
 
@@ -105,34 +104,7 @@ struct PostSessionFlowScreen: View {
                     .frame(maxWidth: .infinity)
                     .frame(minHeight: geometry.size.height, alignment: .top)
                 }
-                .scrollIndicators(.hidden)
-                .onScrollGeometryChange(for: PostSessionScrollIndicatorMetrics.self) { scroll in
-                    PostSessionScrollIndicatorMetrics(scroll: scroll)
-                } action: { _, metrics in
-                    scrollIndicator = metrics
-                }
-                .overlay(alignment: .trailing) {
-                    if scrollIndicator.visibleFraction < 1 {
-                        GeometryReader { track in
-                            let trackHeight = max(0, track.size.height)
-                            let thumbHeight = min(trackHeight, max(36, trackHeight * scrollIndicator.visibleFraction))
-
-                            ZStack(alignment: .top) {
-                                Capsule()
-                                    .fill(Color(AppColors.primary).opacity(0.12))
-                                Capsule()
-                                    .fill(Color(AppColors.primary).opacity(0.75))
-                                    .frame(height: thumbHeight)
-                                    .offset(y: (trackHeight - thumbHeight) * scrollIndicator.progress)
-                            }
-                        }
-                        .frame(width: 32.w)
-                        .padding(.vertical, 12)
-                        .padding(.trailing, 8)
-                        .allowsHitTesting(false)
-                        .accessibilityHidden(true)
-                    }
-                }
+                .persistentVerticalScrollbar()
             }
         }
         .onGeometryChange(for: Bool.self) { geometry in
@@ -552,27 +524,5 @@ struct PostSessionFlowScreen: View {
                 }
             }
         }
-    }
-}
-
-/// A persistent indicator for the scrollable content, excluding the fixed footer.
-private struct PostSessionScrollIndicatorMetrics: Equatable {
-    var visibleFraction: CGFloat = 1
-    var progress: CGFloat = 0
-
-    init() {}
-
-    init(scroll: ScrollGeometry) {
-        let viewportHeight = scroll.containerSize.height
-        // containerSize already excludes the safe-area inset occupied by the
-        // fixed footer. Adding that inset to contentSize counts it twice and
-        // prevents the thumb reaching the bottom at the actual scroll limit.
-        let contentHeight = scroll.contentSize.height
-        guard viewportHeight > 0, contentHeight > viewportHeight + 1 else { return }
-
-        visibleFraction = viewportHeight / contentHeight
-        let offset = scroll.contentOffset.y + scroll.contentInsets.top
-        // Clamp rubber-band overscroll so the thumb stays inside its track.
-        progress = min(1, max(0, offset / (contentHeight - viewportHeight)))
     }
 }

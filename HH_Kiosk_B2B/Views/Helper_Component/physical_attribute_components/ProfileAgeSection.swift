@@ -40,7 +40,7 @@ struct ProfileAgeSection: View {
                 syncAgeInput()
             }
         }
-        .id(PhysicalAttributesInputField.age)
+        .physicalAttributeScrollTarget(.age)
     }
 
     private func syncAgeInput() {
