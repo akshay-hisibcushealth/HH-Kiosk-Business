@@ -62,6 +62,7 @@ struct PhysicalAttributesScreen: View {
             ScanProgressView(currentStep: .faceScan)
 
             keyboardAwareContent
+            actionFooter
         }
         // No input is active when the form first opens or after dismissal.
         // In those states, don't reserve an old keyboard safe-area inset.
@@ -203,12 +204,6 @@ struct PhysicalAttributesScreen: View {
                 }
                 .padding(.top, 40.h)
                 .padding(.horizontal, 58.w)
-
-                Spacer(minLength: 24.h)
-
-                actionButtons
-                    .padding(.horizontal, 58.w)
-                    .padding(.bottom, 44.h)
             }
         }
     }
@@ -221,13 +216,9 @@ struct PhysicalAttributesScreen: View {
                 .padding(.top, 70.h)
                 .accessibilityHidden(true)
 
-            VStack(spacing: 32.h) {
-                formGrid
-                    .padding(.top, 24.h)
-
-                actionButtons
-            }
-            .frame(maxWidth: .infinity)
+            formGrid
+                .padding(.top, 24.h)
+                .frame(maxWidth: .infinity)
         }
     }
 
@@ -301,6 +292,16 @@ struct PhysicalAttributesScreen: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    // Reserve the footer's full height, including QA tools, outside the scroll view.
+    private var actionFooter: some View {
+        actionButtons
+            .padding(.horizontal, 58.w)
+            .padding(.top, 16.h)
+            .padding(.bottom, 20.h)
+            .fixedSize(horizontal: false, vertical: true)
+            .background(Color(AppColors.white))
     }
 
     private var actionButtons: some View {
@@ -426,7 +427,7 @@ struct PhysicalAttributesScreen: View {
         case email == nil || email!.isEmpty:
             validationMessage = PhysicalAttributesScreenStrings.Validation.missingEmail
 
-        case !isValidEmail(email!):
+        case !EmailAddressValidator.isValid(email!):
             validationMessage = PhysicalAttributesScreenStrings.Validation.invalidEmail
 
         case pin.count != 4 || !pin.allSatisfy({ $0 >= "0" && $0 <= "9" }):
@@ -456,19 +457,6 @@ struct PhysicalAttributesScreen: View {
 
         showValidationAlert = true
         return false
-    }
-    
-    private func isValidEmail(_ email: String) -> Bool {
-
-        let emailRegex =
-        #"^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$"#
-
-        let predicate = NSPredicate(
-            format: "SELF MATCHES[c] %@",
-            emailRegex
-        )
-
-        return predicate.evaluate(with: email)
     }
     
     private func proceedToScan() {
