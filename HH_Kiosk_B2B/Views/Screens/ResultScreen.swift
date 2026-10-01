@@ -89,7 +89,8 @@ public struct ResultScreen: View {
                 mainContentView(isLandscape: isLandscape) // Extracted for reuse in PDF
                     .padding(.bottom, showBottomButtons ? 150.h : 0)
             }
-            .ignoresSafeArea(edges: .top)
+            // Keep the logos below the status bar while extending the header color behind it.
+            .background(Color(AppColors.primary).ignoresSafeArea(edges: .top))
             
             if showBottomButtons {
                 ResultScreenButtons(result: result, onDownloadPDF: {
