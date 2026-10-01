@@ -37,6 +37,9 @@ struct PhysicalAttributesScreen: View {
     // UIKit owns first responder status for our custom fields. SwiftUI FocusState
     // has no native .focused view here and can reset during a text update.
     @State private var focusedInputField: PhysicalAttributesInputField?
+    @StateObject private var keyboardObserver = KeyboardObserver()
+    @State private var actionFooterHeight: CGFloat = 0
+    @State private var bottomSafeArea: CGFloat = 0
     @State private var isSubmittingDebugVitals = false
     private let debugSubmissionService: KioskSubmissionServiceProtocol = KioskSubmissionService()
 
@@ -62,11 +65,15 @@ struct PhysicalAttributesScreen: View {
             ScanProgressView(currentStep: .faceScan)
 
             keyboardAwareContent
+                // Only shorten the form's viewport. The keyboard covers the
+                // footer in place instead of lifting the buttons above it.
+                .padding(.bottom, max(0, keyboardObserver.height - actionFooterHeight - bottomSafeArea))
+                .animation(.easeInOut(duration: 0.25), value: keyboardObserver.height)
             actionFooter
+                .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { actionFooterHeight = $0 }
         }
-        // No input is active when the form first opens or after dismissal.
-        // In those states, don't reserve an old keyboard safe-area inset.
-        .ignoresSafeArea(focusedInputField == nil ? .keyboard : [], edges: .bottom)
+        .onGeometryChange(for: CGFloat.self) { $0.safeAreaInsets.bottom } action: { bottomSafeArea = $0 }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
         .background {
             Color(AppColors.white)
                 .onTapGesture { dismissPhysicalAttributeInputs() }

@@ -24,7 +24,6 @@ private struct PostSessionNextStepOption: Identifiable, Equatable {
 struct PostSessionFlowScreen: View {
     let emailWasSent: Bool
 
-    @State private var isLandscape = false
     @State private var step: PostSessionStep = .nextSteps
     @State private var selectedOptionIDs: Set<Int> = []
     @State private var selectedScore: Int?
@@ -42,9 +41,9 @@ struct PostSessionFlowScreen: View {
         [
             PostSessionNextStepOption(
                 id: 0,
-                displayTitle: ResultScreenStrings.PostSession.NextSteps.annualPhysical,
-                responseTitle: "Schedule an exam with my primary care provider",
-                description: ResultScreenStrings.PostSession.NextSteps.annualPhysical
+                displayTitle: ResultScreenStrings.PostSession.NextSteps.talkToDoctor,
+                responseTitle: ResultScreenStrings.PostSession.NextSteps.talkToDoctor,
+                description: ResultScreenStrings.PostSession.NextSteps.talkToDoctor
             ),
             PostSessionNextStepOption(
                 id: 1,
@@ -84,36 +83,41 @@ struct PostSessionFlowScreen: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            ResultToolbar(isLandscape: isLandscape)
+        GeometryReader { window in
+            VStack(spacing: 0) {
+                ResultToolbar(isLandscape: window.size.width > window.size.height)
 
-            if step == .nextSteps {
-                ScanProgressView(currentStep: .nextSteps)
-            }
-
-            GeometryReader { geometry in
-                ScrollView {
-                    Group {
-                        switch step {
-                        case .nextSteps:
-                            nextStepsContent
-                        case .nps:
-                            npsContent
-                        }
-                    }
-                    .frame(maxWidth: .infinity)
-                    .frame(minHeight: geometry.size.height, alignment: .top)
+                if step == .nextSteps {
+                    ScanProgressView(currentStep: .nextSteps)
                 }
-                .persistentVerticalScrollbar()
+
+                GeometryReader { viewport in
+                    ScrollView {
+                        Group {
+                            switch step {
+                            case .nextSteps:
+                                nextStepsContent
+                            case .nps:
+                                npsContent
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
+                        .frame(minHeight: viewport.size.height, alignment: .top)
+                    }
+                    .frame(width: viewport.size.width, height: viewport.size.height)
+                    .scrollBounceBehavior(.basedOnSize)
+                    .persistentVerticalScrollbar()
+                    .clipped()
+                }
+
+                // Reserve the footer in the same layout pass as the scroll area.
+                // It must not inherit a keyboard inset left over during rotation.
+                footer
+                    .fixedSize(horizontal: false, vertical: true)
             }
+            .frame(width: window.size.width, height: window.size.height, alignment: .top)
         }
-        .onGeometryChange(for: Bool.self) { geometry in
-            geometry.size.width > geometry.size.height
-        } action: { isLandscape = $0 }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            footer
-                .fixedSize(horizontal: false, vertical: true)
-        }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
         .background(Color(AppColors.systemBackground))
         .onAppear {
             SensitiveScreenPrivacy.beginProtecting(owner: "post-session")

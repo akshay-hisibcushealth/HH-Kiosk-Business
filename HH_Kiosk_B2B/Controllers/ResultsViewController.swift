@@ -27,7 +27,7 @@ class ResultsViewController: UIViewController {
     private var readyEmailMeasurementID: String?
     private var emailToast: UIView?
     private var emailToastDismissal: DispatchWorkItem?
-    private var pendingEmailOutcome: AutomaticReportEmail.Outcome?
+    private var isResultsScreenVisible = false
     private var inactivityTimer: Timer?
     private var inactivityCountdownTimer: Timer?
     private let inactivityLimit: TimeInterval = 300
@@ -86,14 +86,15 @@ class ResultsViewController: UIViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        isResultsScreenVisible = true
         SensitiveScreenPrivacy.beginProtecting(owner: "results")
         startInactivityTimer()
         sendReportEmailIfReady()
-        showPendingEmailToast()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        isResultsScreenVisible = false
         SensitiveScreenPrivacy.endProtecting(owner: "results")
         stopInactivityTimer()
         emailToastDismissal?.cancel()
@@ -533,8 +534,7 @@ class ResultsViewController: UIViewController {
         guard viewIfLoaded?.window != nil,
               let measurementID = readyEmailMeasurementID else { return }
         guard let user = LocalUserStorage.loadUser(), let pin = user.pin else {
-            pendingEmailOutcome = .failed
-            showPendingEmailToast()
+            showEmailToast(for: .failed)
             return
         }
 
@@ -550,14 +550,13 @@ class ResultsViewController: UIViewController {
             }
             guard outcome != .alreadyAttempted,
                   readyEmailMeasurementID == measurementID else { return }
-            pendingEmailOutcome = outcome
-            showPendingEmailToast()
+            showEmailToast(for: outcome)
         }
     }
 
-    private func showPendingEmailToast() {
-        guard viewIfLoaded?.window != nil, let outcome = pendingEmailOutcome else { return }
-        pendingEmailOutcome = nil
+    private func showEmailToast(for outcome: AutomaticReportEmail.Outcome) {
+        // Offscreen completions are discarded so returning never replays an old toast.
+        guard isResultsScreenVisible, viewIfLoaded?.window != nil else { return }
         emailToastDismissal?.cancel()
         emailToast?.removeFromSuperview()
 

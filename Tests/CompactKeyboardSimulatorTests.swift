@@ -27,6 +27,7 @@ struct TestForm: View {
 // Exercise the actual profile sections, including their validation-driven view updates.
 struct ProfileRegressionForm: View {
     var testsScrolling = false
+    var onFieldLayout: (String, CGRect) -> Void = { _, _ in }
     @State private var focus: PhysicalAttributesInputField?
     @State private var email: String?
     @State private var pin = ""
@@ -39,9 +40,21 @@ struct ProfileRegressionForm: View {
             VStack(spacing: 20) {
                 if testsScrolling { Color.clear.frame(height: 400) }
                 ProfileEmailSection(email: $email, focusedField: $focus)
+                    .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: {
+                        onFieldLayout(PhysicalAttributesScreenStrings.Form.emailLabel, $0)
+                    }
                 ProfilePINSection(pin: $pin, focusedField: $focus)
+                    .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: {
+                        onFieldLayout(PhysicalAttributesScreenStrings.Form.pinLabel, $0)
+                    }
                 ProfileWeightSection(selectedWeight: $weight, selectedWeightInPounds: $pounds, focusedField: $focus)
+                    .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: {
+                        onFieldLayout(PhysicalAttributesScreenStrings.Form.weightLabel, $0)
+                    }
                 ProfileAgeSection(selectedAge: $age, focusedField: $focus)
+                    .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: {
+                        onFieldLayout(PhysicalAttributesScreenStrings.Form.ageLabel, $0)
+                    }
                 if testsScrolling { Color.clear.frame(height: 400) }
             }.padding(30)
         }
@@ -71,6 +84,7 @@ struct ScrollSizingForm: View {
 
 @main final class PreviewDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
+    var profileFieldFrames: [String: CGRect] = [:]
     var keyboardHideCount = 0
     var keyboardHideObserver: NSObjectProtocol?
     let model = TestModel()
@@ -167,7 +181,7 @@ struct ScrollSizingForm: View {
     func runProfileRegression() async {
         for orientation: UIInterfaceOrientationMask in [.portrait, .landscapeLeft] {
             window?.windowScene?.requestGeometryUpdate(.iOS(interfaceOrientations: orientation))
-            window?.rootViewController = UIHostingController(rootView: ProfileRegressionForm())
+            window?.rootViewController = UIHostingController(rootView: ProfileRegressionForm(onFieldLayout: { self.profileFieldFrames[$0] = $1 }))
             try? await Task.sleep(for: .seconds(1))
             for (title, keys) in [
                 (PhysicalAttributesScreenStrings.Form.emailLabel, ["a", "b", "@", "c", ".com"]),
@@ -197,8 +211,11 @@ struct ScrollSizingForm: View {
                 // Let the opening keyboard finish its layout before measuring handoff.
                 try? await Task.sleep(for: .milliseconds(500))
                 let offsetBeforeHandoff = scroll.contentOffset.y
-                let visibleRect = scroll.bounds.inset(by: scroll.adjustedContentInset)
-                let nextFieldAlreadyVisible = nextInput.map { visibleRect.contains($0.convert($0.bounds, to: scroll)) } ?? false
+                let visibleRect = scroll.convert(scroll.bounds.inset(by: scroll.adjustedContentInset), to: window)
+                    .insetBy(dx: 0, dy: 16.h)
+                precondition(visibleRect.insetBy(dx: -2, dy: -2).contains(profileFieldFrames[title]!), "The entire focused field, including label and border, must be visible")
+                let nextFieldAlreadyVisible = nextInput.flatMap { profileFieldFrames[$0.accessibilityLabel ?? ""] }
+                    .map { visibleRect.contains($0) } ?? false
                 let hidesBeforeDone = keyboardHideCount
                 let keyboardWindow = keyboard.window
                 let keyboardSuperview = keyboard.superview
@@ -251,7 +268,7 @@ struct ScrollSizingForm: View {
     func runScrollRegression() async {
         for orientation: UIInterfaceOrientationMask in [.portrait, .landscapeLeft] {
             window?.windowScene?.requestGeometryUpdate(.iOS(interfaceOrientations: orientation))
-            window?.rootViewController = UIHostingController(rootView: ProfileRegressionForm(testsScrolling: true))
+            window?.rootViewController = UIHostingController(rootView: ProfileRegressionForm(testsScrolling: true, onFieldLayout: { self.profileFieldFrames[$0] = $1 }))
             try? await Task.sleep(for: .seconds(1))
             let scroll = descendants(window!).compactMap { $0 as? UIScrollView }.first!
             for baseline: CGFloat in [0, 120] {
@@ -260,10 +277,12 @@ struct ScrollSizingForm: View {
                 let originalOffset = scroll.contentOffset.y + scroll.adjustedContentInset.top
                 let age = field(PhysicalAttributesScreenStrings.Form.ageLabel)
                 age.becomeFirstResponder()
-                try? await Task.sleep(for: .seconds(1))
-                let visibleRect = scroll.bounds.inset(by: scroll.adjustedContentInset)
-                let ageRect = age.convert(age.bounds, to: scroll)
-                precondition(visibleRect.insetBy(dx: -1, dy: -1).contains(ageRect), "Age must be visible above the keyboard: \(ageRect) in \(visibleRect)")
+                // Allow keyboard resizing and the post-caret correction to settle.
+                try? await Task.sleep(for: .milliseconds(1300))
+                let visibleRect = scroll.convert(scroll.bounds.inset(by: scroll.adjustedContentInset), to: window)
+                    .insetBy(dx: 0, dy: 16.h)
+                let ageRect = profileFieldFrames[PhysicalAttributesScreenStrings.Form.ageLabel]!
+                precondition(visibleRect.insetBy(dx: -2, dy: -2).contains(ageRect), "The whole Age section must clear the keyboard: \(ageRect) in \(visibleRect)")
                 if baseline == 0 {
                     (age.inputView as! CompactKeyboardView).onDone?()
                 } else {

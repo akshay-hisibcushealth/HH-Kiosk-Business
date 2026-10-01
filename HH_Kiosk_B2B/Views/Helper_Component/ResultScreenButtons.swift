@@ -85,6 +85,9 @@ func navigateToPostSessionFlow(animated: Bool = true, emailWasSent: Bool = false
     guard let topViewController = UIApplication.topViewController() else { return }
 
     let hostingController = UIHostingController(rootView: PostSessionFlowScreen(emailWasSent: emailWasSent))
+    // This flow has no text input. Keyboard safe areas from the preceding form
+    // must not move its footer, including while the device is rotating.
+    hostingController.safeAreaRegions = .container
     hostingController.modalPresentationStyle = .fullScreen
     hostingController.modalTransitionStyle = .crossDissolve
     presentedPostSessionFlowController = hostingController
