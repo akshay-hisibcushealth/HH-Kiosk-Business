@@ -237,20 +237,20 @@ private final class AdaptiveMeasurementBanner {
     }
 
     private enum Copy {
-        static let initialPrompt = "Center Your Face"
-        static let holdStill = "Hold Still"
-        static let moveCloser = "Move Closer"
-        static let moveFurther = "Move Further"
-        static let faceCamera = "Please look ahead"
-        static let timeline: [TimelineEntry] = [
-            TimelineEntry(offset: 0, message: "Breathe Naturally and Stay Still"),
-            TimelineEntry(offset: 5, message: "Reading Your Pulse from Facial Blood Flow"),
-            TimelineEntry(offset: 10, message: "Detecting Cardiovascular Patterns..."),
-            TimelineEntry(offset: 16, message: "Halfway - Eyes on the Camera"),
-            TimelineEntry(offset: 21, message: "Capturing Your Final Readings..."),
-            TimelineEntry(offset: 25, message: "Almost There, Don't Move"),
-            TimelineEntry(offset: 28, message: "Last Few Seconds...")
-        ]
+        static var initialPrompt: String { AppLocalization.string("app.AnuraMeasurementStrings.Banner.Center_Your_Face", defaultValue: "Center Your Face") }
+        static var holdStill: String { AppLocalization.string("app.AnuraMeasurementStrings.Banner.Hold_Still", defaultValue: "Hold Still") }
+        static var moveCloser: String { AppLocalization.string("app.AnuraMeasurementStrings.Banner.Move_Closer", defaultValue: "Move Closer") }
+        static var moveFurther: String { AppLocalization.string("app.AnuraMeasurementStrings.Banner.Move_Further", defaultValue: "Move Further") }
+        static var faceCamera: String { AppLocalization.string("app.current.Please_look_ahead", defaultValue: "Please look ahead") }
+        static var timeline: [TimelineEntry] { [
+            TimelineEntry(offset: 0, message: AppLocalization.string("app.AnuraMeasurementStrings.Banner.Breathe_Naturally_and_Stay_Still", defaultValue: "Breathe Naturally and Stay Still")),
+            TimelineEntry(offset: 5, message: AppLocalization.string("app.AnuraMeasurementStrings.Banner.Reading_Your_Pulse_from_Facial_Blood_Flow", defaultValue: "Reading Your Pulse from Facial Blood Flow")),
+            TimelineEntry(offset: 10, message: AppLocalization.string("app.AnuraMeasurementStrings.Banner.Detecting_Cardiovascular_Patterns", defaultValue: "Detecting Cardiovascular Patterns...")),
+            TimelineEntry(offset: 16, message: AppLocalization.string("app.AnuraMeasurementStrings.Banner.Halfway_Eyes_on_the_Camera", defaultValue: "Halfway - Eyes on the Camera")),
+            TimelineEntry(offset: 21, message: AppLocalization.string("app.AnuraMeasurementStrings.Banner.Capturing_Your_Final_Readings", defaultValue: "Capturing Your Final Readings...")),
+            TimelineEntry(offset: 25, message: AppLocalization.string("app.AnuraMeasurementStrings.Banner.Almost_There_Don_t_Move", defaultValue: "Almost There, Don't Move")),
+            TimelineEntry(offset: 28, message: AppLocalization.string("app.AnuraMeasurementStrings.Banner.Last_Few_Seconds", defaultValue: "Last Few Seconds..."))
+        ] }
     }
     
     private weak var hostViewController: UIViewController?

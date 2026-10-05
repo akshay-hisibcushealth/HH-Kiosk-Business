@@ -378,31 +378,31 @@ class FaceScanManager: ObservableObject{
         case .sdkConfigFailed:
             sdkConfigurationFileError()
         case .credentialsFailed:
-            showAlert(title: "Credentials Error",
-                      message: "There was an error retrieving the Anura credentials. Please try again.")
+            showAlert(title: AppLocalization.string("app.current.Credentials_Error", defaultValue: "Credentials Error"),
+                      message: AppLocalization.string("app.current.There_was_an_error_retrieving_the_Anura_credentials_Please_try_again", defaultValue: "There was an error retrieving the Anura credentials. Please try again."))
         case .none:
             print("There was an error in starting up Anura Core: \(error.localizedDescription)")
         }
     }
     
     private func tokenError() {
-        showAlert(title: "Token Error",
-                  message: "There was an error in verifying your DeepAffex token. Please check the error log or contact support.")
+        showAlert(title: AppLocalization.string("app.AnuraMeasurementStrings.Alert.Token_Error", defaultValue: "Token Error"),
+                  message: AppLocalization.string("app.AnuraMeasurementStrings.Alert.There_was_an_error_in_verifying_your_DeepAffex_token_Please", defaultValue: "There was an error in verifying your DeepAffex token. Please check the error log or contact support."))
     }
     
     private func registerLicenseError() {
-        showAlert(title: "License Error",
-                  message: "There was an error registering your DeepAffex license key. Please check the error log or contact support.")
+        showAlert(title: AppLocalization.string("app.AnuraMeasurementStrings.Alert.License_Error", defaultValue: "License Error"),
+                  message: AppLocalization.string("app.AnuraMeasurementStrings.Alert.There_was_an_error_registering_your_DeepAffex_license_key_Pl", defaultValue: "There was an error registering your DeepAffex license key. Please check the error log or contact support."))
     }
     
     private func sdkConfigurationFileError() {
-        showAlert(title: "SDK Configuration File Error",
-                  message: "There was an error retreiving the SDK configuration file. Please check the error log or contact support.")
+        showAlert(title: AppLocalization.string("app.AnuraMeasurementStrings.Alert.SDK_Configuration_File_Error", defaultValue: "SDK Configuration File Error"),
+                  message: AppLocalization.string("app.AnuraMeasurementStrings.Alert.There_was_an_error_retreiving_the_SDK_configuration_file_Ple", defaultValue: "There was an error retreiving the SDK configuration file. Please check the error log or contact support."))
     }
     
     private func handleCameraPermissionError() {
-        showAlert(title: "No Camera Permission",
-                  message: "Please grant the app access to the camera before starting a measurement")
+        showAlert(title: AppLocalization.string("app.AnuraMeasurementStrings.Alert.No_Camera_Permission", defaultValue: "No Camera Permission"),
+                  message: AppLocalization.string("app.AnuraMeasurementStrings.Alert.Please_grant_the_app_access_to_the_camera_before_starting_a", defaultValue: "Please grant the app access to the camera before starting a measurement"))
     }
     
     private func showAlert(title: String, message: String, activateMeasurementButton: Bool = true) {

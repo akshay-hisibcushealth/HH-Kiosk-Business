@@ -6,13 +6,9 @@ protocol WeatherServiceProtocol {
 
 struct WeatherService: WeatherServiceProtocol {
     private let client: AppURLSessionClientProtocol
-    private let hourFormatter: DateFormatter
 
     init(client: AppURLSessionClientProtocol = AppURLSessionClient()) {
         self.client = client
-        let formatter = DateFormatter()
-        formatter.dateFormat = "ha"
-        self.hourFormatter = formatter
     }
 
     func fetchWeather(lat: Double, lon: Double) async throws -> WeatherSnapshot {
@@ -20,6 +16,7 @@ struct WeatherService: WeatherServiceProtocol {
             KioskWeatherResponse.self,
             from: AppAPIEndpoints.kioskWeather(lat: lat, lon: lon)
         )
+        let hourFormatter = AppLocalization.dateFormatter(format: "ha")
         hourFormatter.timeZone = TimeZone(secondsFromGMT: response.timezoneOffset)
 
         let forecastItems = response.hourly.map { item in

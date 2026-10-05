@@ -117,10 +117,11 @@ public struct ResultScreen: View {
                 .padding(.trailing, 28.w)
                 .padding(.bottom, showBottomButtons ? 130.h : 28.h)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
-                .accessibilityHint("Submits mock scan data and reloads the results")
+                .accessibilityHint(AppLocalization.string("app.current.Submits_mock_scan_data_and_reloads_the_results", defaultValue: "Submits mock scan data and reloads the results"))
             }
             #endif
         }
+        .appLanguageEnvironment()
         .onGeometryChange(for: Bool.self) { geometry in
             geometry.size.width > geometry.size.height
         } action: { newValue in

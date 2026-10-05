@@ -119,6 +119,7 @@ struct PostSessionFlowScreen: View {
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .background(Color(AppColors.systemBackground))
+        .appLanguageEnvironment()
         .onAppear {
             SensitiveScreenPrivacy.beginProtecting(owner: "post-session")
         }

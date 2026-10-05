@@ -3,7 +3,7 @@ import SwiftUI
 // ----------------------
 // Tagged interpretation JSON
 // ----------------------
-let interpretationJSON = ResultScreenStrings.Metrics.interpretations
+var interpretationJSON: [String: [String: String]] { ResultScreenStrings.Metrics.interpretations }
 
 // ----------------------
 // UI: ResultsList & ResultRow
@@ -197,7 +197,7 @@ struct ResultRow: View {
                         }
                     } label: {
                         HStack(spacing: 14.w) {
-                            Text(isShowingDetails ? "Show less" : "Read more details")
+                            Text(isShowingDetails ? AppLocalization.string("app.current.Show_less", defaultValue: "Show less") : AppLocalization.string("app.current.Read_more_details", defaultValue: "Read more details"))
                                 .font(.system(size: 26.sp, weight: .bold))
                                 .foregroundColor(Color(AppColors.primary))
 
@@ -210,7 +210,7 @@ struct ResultRow: View {
                         .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel(isShowingDetails ? "Hide details" : "Read more details")
+                    .accessibilityLabel(isShowingDetails ? AppLocalization.string("app.current.Hide_details", defaultValue: "Hide details") : AppLocalization.string("app.current.Read_more_details", defaultValue: "Read more details"))
                     .accessibilityValue(title)
                 }
             }
@@ -361,47 +361,46 @@ fileprivate func riskBucket(for key: String, value: Double) -> String {
 }
 
 fileprivate func getTaggedMessage(metricKey: String, value: Double) -> String {
-    let title = displayTitle(for: metricKey)
     let bucket = riskBucket(for: metricKey, value: value)
-    return interpretationJSON[title]?[bucket] ?? interpretationJSON[title]?["low"] ?? ""
+    return interpretationJSON[metricKey]?[bucket] ?? interpretationJSON[metricKey]?["low"] ?? ""
 }
 
 fileprivate func displayRiskLabel(for key: String, value: Double) -> String {
     switch key {
     case "BP_CVD":
-        if value < 5 { return "Very Low Risk" }
-        if value < 7.25 { return "Low Risk" }
-        if value < 10 { return "Medium Risk" }
-        if value < 20 { return "Elevated Risk" }
-        return "Greatly Elevated Risk"
+        if value < 5 { return AppLocalization.string("app.current.Very_Low_Risk", defaultValue: "Very Low Risk") }
+        if value < 7.25 { return AppLocalization.string("app.current.Low_Risk", defaultValue: "Low Risk") }
+        if value < 10 { return AppLocalization.string("app.current.Medium_Risk", defaultValue: "Medium Risk") }
+        if value < 20 { return AppLocalization.string("app.current.Elevated_Risk", defaultValue: "Elevated Risk") }
+        return AppLocalization.string("app.current.Greatly_Elevated_Risk", defaultValue: "Greatly Elevated Risk")
 
     case "HBA1C_RISK_PROB", "HDLTC_RISK_PROB", "TG_RISK_PROB":
-        if value < 25 { return "Very Low Risk" }
-        if value < 45 { return "Low Risk" }
-        if value < 55 { return "Medium Risk" }
-        if value < 77.5 { return "Elevated Risk" }
-        return "Greatly Elevated Risk"
+        if value < 25 { return AppLocalization.string("app.current.Very_Low_Risk", defaultValue: "Very Low Risk") }
+        if value < 45 { return AppLocalization.string("app.current.Low_Risk", defaultValue: "Low Risk") }
+        if value < 55 { return AppLocalization.string("app.current.Medium_Risk", defaultValue: "Medium Risk") }
+        if value < 77.5 { return AppLocalization.string("app.current.Elevated_Risk", defaultValue: "Elevated Risk") }
+        return AppLocalization.string("app.current.Greatly_Elevated_Risk", defaultValue: "Greatly Elevated Risk")
 
     case "BP_SYSTOLIC":
-        if value < 90 { return "Below Expected Range" }
-        if value < 120 { return "Within Expected Range" }
-        if value < 130 { return "Mildly Above Expected Range" }
-        if value < 140 { return "Above Expected Range" }
-        return "Greatly Above Expected Range"
+        if value < 90 { return AppLocalization.string("app.current.Below_Expected_Range", defaultValue: "Below Expected Range") }
+        if value < 120 { return AppLocalization.string("app.current.Within_Expected_Range", defaultValue: "Within Expected Range") }
+        if value < 130 { return AppLocalization.string("app.current.Mildly_Above_Expected_Range", defaultValue: "Mildly Above Expected Range") }
+        if value < 140 { return AppLocalization.string("app.current.Above_Expected_Range", defaultValue: "Above Expected Range") }
+        return AppLocalization.string("app.current.Greatly_Above_Expected_Range", defaultValue: "Greatly Above Expected Range")
 
     case "BP_DIASTOLIC":
-        if value < 60 { return "Below Expected Range" }
-        if value < 80 { return "Within Expected Range" }
-        if value < 90 { return "Above Expected Range" }
-        return "Greatly Above Expected Range"
+        if value < 60 { return AppLocalization.string("app.current.Below_Expected_Range", defaultValue: "Below Expected Range") }
+        if value < 80 { return AppLocalization.string("app.current.Within_Expected_Range", defaultValue: "Within Expected Range") }
+        if value < 90 { return AppLocalization.string("app.current.Above_Expected_Range", defaultValue: "Above Expected Range") }
+        return AppLocalization.string("app.current.Greatly_Above_Expected_Range", defaultValue: "Greatly Above Expected Range")
 
     case "HR_BPM":
-        if value < 60 { return "Lower Than Expected Range" }
-        if value < 100 { return "Within Expected Range" }
-        return "Above Expected Range"
+        if value < 60 { return AppLocalization.string("app.current.Lower_Than_Expected_Range", defaultValue: "Lower Than Expected Range") }
+        if value < 100 { return AppLocalization.string("app.current.Within_Expected_Range", defaultValue: "Within Expected Range") }
+        return AppLocalization.string("app.current.Above_Expected_Range", defaultValue: "Above Expected Range")
 
     default:
-        return "Low Risk"
+        return AppLocalization.string("app.current.Low_Risk", defaultValue: "Low Risk")
     }
 }
 

@@ -4,6 +4,7 @@ import SwiftUI
 @main
 struct MyApp: App {
     init() {
+          AppLocalization.activateBundleLanguageOverride()
           Screen.startMonitoring()
       }
 
@@ -41,6 +42,7 @@ struct RootView: View {
             }
         }
         .environmentObject(orientation)
+        .appLanguageEnvironment()
         .onGeometryChange(for: CGSize.self) { geometry in
             geometry.size
         } action: { size in

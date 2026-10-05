@@ -23,6 +23,8 @@ xcrun swiftc -sdk "$(xcrun --sdk iphonesimulator --show-sdk-path)" \
   HH_Kiosk_B2B/Views/Helper_Component/physical_attribute_components/PhysicalAttributesScrollView.swift \
   HH_Kiosk_B2B/Views/Helper_Component/KeyboardObserver.swift \
   HH_Kiosk_B2B/Resources/Strings.swift \
+  HH_Kiosk_B2B/Resources/AppLocalization.swift \
+  HH_Kiosk_B2B/Utils/Config.swift \
   HH_Kiosk_B2B/Utils/KioskTextInput.swift \
   HH_Kiosk_B2B/Utils/EmailAddressValidator.swift \
   HH_Kiosk_B2B/Utils/PhysicalAttributesInputField.swift \

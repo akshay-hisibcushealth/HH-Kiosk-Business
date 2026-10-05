@@ -34,7 +34,7 @@ struct ProfileGenderSection: View {
                         .foregroundColor(Color(AppColors.white))
                 }
 
-                Text(gender)
+                Text(PhysicalAttributesScreenStrings.Form.genderTitle(for: gender))
                     .font(.system(size: 28.sp, weight: .bold))
                     .foregroundColor(isSelected ? Color(AppColors.white) : Color(AppColors.physicalAttributeText))
             }

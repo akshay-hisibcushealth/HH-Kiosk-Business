@@ -30,6 +30,9 @@ xcrun swiftc -sdk "$(xcrun --sdk iphonesimulator --show-sdk-path)" \
   HH_Kiosk_B2B/Views/Helper_Component/text_helper.swift \
   HH_Kiosk_B2B/App/OrientationManager.swift \
   HH_Kiosk_B2B/Resources/Strings.swift \
+  HH_Kiosk_B2B/Resources/AppLocalization.swift \
+  HH_Kiosk_B2B/Views/Helper_Component/AppLanguageEnvironment.swift \
+  HH_Kiosk_B2B/Utils/Config.swift \
   HH_Kiosk_B2B/Resources/AppColors.swift \
   HH_Kiosk_B2B/Resources/AppIconNames.swift \
   HH_Kiosk_B2B/Utils/Screen.swift \

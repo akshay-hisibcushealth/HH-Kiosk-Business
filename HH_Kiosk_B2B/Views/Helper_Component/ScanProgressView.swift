@@ -9,9 +9,9 @@ enum ScanProgressStep: Int, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .faceScan: return "Face Scan"
-        case .report: return "Report"
-        case .nextSteps: return "Next Steps"
+        case .faceScan: return AppLocalization.string("app.current.Face_Scan", defaultValue: "Face Scan")
+        case .report: return AppLocalization.string("app.current.Report", defaultValue: "Report")
+        case .nextSteps: return AppLocalization.string("app.current.Next_Steps", defaultValue: "Next Steps")
         }
     }
 }
@@ -35,7 +35,7 @@ struct ScanProgressView: View {
         .frame(height: 72)
         .background(Color(AppColors.white))
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Step \(currentStep.rawValue) of \(ScanProgressStep.allCases.count): \(currentStep.title)")
+        .accessibilityLabel(AppLocalization.format("app.current.Step_d_of_d", defaultValue: "Step %d of %d: %@", currentStep.rawValue, ScanProgressStep.allCases.count, currentStep.title))
     }
 
     private func stepItem(_ step: ScanProgressStep, scale: CGFloat) -> some View {

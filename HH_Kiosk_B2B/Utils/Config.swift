@@ -16,6 +16,9 @@ import Foundation
 
 enum AppConfig {
 
+    // Used until a language is explicitly selected through AppLocalization.setLanguage.
+    static let defaultLanguage: AppLanguage = .english
+
     // Set to true for QA TestFlight builds and false for client builds.
     // This controls all Physical Attributes QA buttons and their actions.
     static let qaToolsEnabled = true

@@ -178,14 +178,25 @@ class ResultsViewController: UIViewController {
     }
 
     private func updateInactivityWarning() {
-        let unit = inactivitySecondsRemaining == 1 ? "second" : "seconds"
         inactivityCountdownLabel.text = "\(inactivitySecondsRemaining)s"
-        inactivityWarningView.accessibilityLabel = "You’ve been inactive. You’ll be returned to the Home Screen in \(inactivitySecondsRemaining) \(unit)."
+        if inactivitySecondsRemaining == 1 {
+            inactivityWarningView.accessibilityLabel = AppLocalization.format(
+                "app.current.You_ve_been_inactive_You_ll_be_returned_to_the_Home_Screen_in_d_second",
+                defaultValue: "You’ve been inactive. You’ll be returned to the Home Screen in %d second.",
+                inactivitySecondsRemaining
+            )
+        } else {
+            inactivityWarningView.accessibilityLabel = AppLocalization.format(
+                "app.current.You_ve_been_inactive_You_ll_be_returned_to_the_Home_Screen_in_d_seconds",
+                defaultValue: "You’ve been inactive. You’ll be returned to the Home Screen in %d seconds.",
+                inactivitySecondsRemaining
+            )
+        }
     }
 
     @objc private func stayOnPage() {
         startInactivityTimer()
-        UIAccessibility.post(notification: .announcement, argument: "Staying on this page")
+        UIAccessibility.post(notification: .announcement, argument: AppLocalization.string("app.current.Staying_on_this_page", defaultValue: "Staying on this page"))
     }
 
     private func setupInactivityWarning() {
@@ -210,7 +221,7 @@ class ResultsViewController: UIViewController {
         inactivityWarningIcon.contentMode = .scaleAspectFit
 
         inactivityWarningTitleLabel.translatesAutoresizingMaskIntoConstraints = false
-        inactivityWarningTitleLabel.text = "You’ve been inactive"
+        inactivityWarningTitleLabel.text = AppLocalization.string("app.current.You_ve_been_inactive", defaultValue: "You’ve been inactive")
         inactivityWarningTitleLabel.font = .systemFont(ofSize: 24, weight: .bold)
         inactivityWarningTitleLabel.textColor = AppColors.primary
         inactivityWarningTitleLabel.adjustsFontForContentSizeCategory = true
@@ -219,7 +230,7 @@ class ResultsViewController: UIViewController {
         inactivityWarningTitleLabel.minimumScaleFactor = 0.85
 
         inactivityWarningLabel.translatesAutoresizingMaskIntoConstraints = false
-        inactivityWarningLabel.text = "Returning to the Home Screen in"
+        inactivityWarningLabel.text = AppLocalization.string("app.current.Returning_to_the_Home_Screen_in", defaultValue: "Returning to the Home Screen in")
         inactivityWarningLabel.font = .systemFont(ofSize: 19, weight: .medium)
         inactivityWarningLabel.textColor = AppColors.textSecondary
         inactivityWarningLabel.adjustsFontForContentSizeCategory = true
@@ -236,7 +247,7 @@ class ResultsViewController: UIViewController {
         inactivityCountdownLabel.clipsToBounds = true
 
         inactivityStayButton.translatesAutoresizingMaskIntoConstraints = false
-        inactivityStayButton.setTitle("Stay on this page", for: .normal)
+        inactivityStayButton.setTitle(AppLocalization.string("app.current.Stay_on_this_page", defaultValue: "Stay on this page"), for: .normal)
         inactivityStayButton.setTitleColor(AppColors.black, for: .normal)
         inactivityStayButton.titleLabel?.font = .systemFont(ofSize: 20, weight: .semibold)
         inactivityStayButton.backgroundColor = AppColors.ctaGreen
@@ -327,7 +338,7 @@ class ResultsViewController: UIViewController {
             Self.printMockScanResults(mockScanResults)
             guard let backendResults = await self.prepareTestDataForAPI(mockScanResults) else {
                 await MainActor.run {
-                    self.errorLabel.text = "Unable to load results. Please try again."
+                    self.errorLabel.text = AppLocalization.string("app.ResultScreenStrings.Status.Unable_to_load_results_Please_try_again", defaultValue: "Unable to load results. Please try again.")
                     self.updateUI(for: .failure)
                 }
                 return
@@ -456,7 +467,7 @@ class ResultsViewController: UIViewController {
         view.addSubview(activityIndicator)
 
         errorLabel = UILabel()
-        errorLabel.text = "Measurement failed"
+        errorLabel.text = AppLocalization.string("app.ResultScreenStrings.Status.Measurement_failed", defaultValue: "Measurement failed")
         errorLabel.textColor = AppColors.error
         errorLabel.font = .boldSystemFont(ofSize: 18)
         errorLabel.textAlignment = .center
@@ -465,7 +476,7 @@ class ResultsViewController: UIViewController {
         view.addSubview(errorLabel)
 
         exitButton = UIButton(type: .system)
-        exitButton.setTitle("Exit", for: .normal)
+        exitButton.setTitle(AppLocalization.string("app.ResultScreenStrings.Status.Exit", defaultValue: "Exit"), for: .normal)
         exitButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
         exitButton.setTitleColor(.white, for: .normal)
         exitButton.backgroundColor = UIColor(red: 1.0, green: 0.63, blue: 0.58, alpha: 1.0)
@@ -639,7 +650,7 @@ class ResultsViewController: UIViewController {
             Task {
                 guard let backendResults = await self.prepareDataForAPI(self.results) else {
                     await MainActor.run {
-                        self.errorLabel.text = "Unable to load results. Please try again."
+                        self.errorLabel.text = AppLocalization.string("app.ResultScreenStrings.Status.Unable_to_load_results_Please_try_again", defaultValue: "Unable to load results. Please try again.")
                         self.updateUI(for: .failure)
                     }
                     return

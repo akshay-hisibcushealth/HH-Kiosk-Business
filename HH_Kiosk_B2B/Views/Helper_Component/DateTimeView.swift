@@ -46,20 +46,17 @@ struct DateTimeView: View {
     }
 
     var timeString: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "h:mm a"
+        let formatter = AppLocalization.dateFormatter(format: "h:mm a")
         return formatter.string(from: currentDate)
     }
 
     var dayName: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "EEEE"
+        let formatter = AppLocalization.dateFormatter(format: "EEEE")
         return formatter.string(from: currentDate)
     }
 
     var dateString: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MMM d"
+        let formatter = AppLocalization.dateFormatter(format: "MMM d")
         return formatter.string(from: currentDate)
     }
 
