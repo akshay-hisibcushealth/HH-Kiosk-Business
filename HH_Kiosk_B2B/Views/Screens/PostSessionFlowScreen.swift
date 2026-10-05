@@ -41,9 +41,9 @@ struct PostSessionFlowScreen: View {
         [
             PostSessionNextStepOption(
                 id: 0,
-                displayTitle: ResultScreenStrings.PostSession.NextSteps.talkToDoctor,
-                responseTitle: ResultScreenStrings.PostSession.NextSteps.talkToDoctor,
-                description: ResultScreenStrings.PostSession.NextSteps.talkToDoctor
+                displayTitle: ResultScreenStrings.PostSession.NextSteps.annualPhysical,
+                responseTitle: "Schedule an exam with my primary care provider",
+                description: ResultScreenStrings.PostSession.NextSteps.annualPhysical
             ),
             PostSessionNextStepOption(
                 id: 1,
