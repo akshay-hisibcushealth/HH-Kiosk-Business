@@ -3,14 +3,25 @@ import ObjectiveC.runtime
 
 enum AppLanguage: String, CaseIterable, Identifiable {
     case english = "en"
+    case chinese = "zh-Hans"
     case spanish = "es"
+    case vietnamese = "vi"
+    case filipino = "fil"
+    case hindi = "hi"
+    case arabic = "ar"
 
     var id: String { rawValue }
     var locale: Locale { Locale(identifier: rawValue) }
+    var isRightToLeft: Bool { self == .arabic }
     var backendDisplayName: String {
         switch self {
         case .english: return "English"
+        case .chinese: return "Chinese"
         case .spanish: return "Spanish"
+        case .vietnamese: return "Vietnamese"
+        case .filipino: return "Filipino"
+        case .hindi: return "Hindi"
+        case .arabic: return "Arabic"
         }
     }
 }

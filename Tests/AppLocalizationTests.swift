@@ -67,7 +67,33 @@ struct AppLocalizationTests {
             let progress = AppLocalization.format("app.current.Step_d_of_d", defaultValue: "Step %d of %d: %@", 2, 3, "Report")
             precondition(progress == (language == .english ? "Step 2 of 3: Report" : "Paso 2 de 3: Report"))
         }
-        print("PASS: English/Spanish resources, live lookups, persisted selection, SDK bundle override, fallbacks, stable gender/metric values, formatting, and dates.")
+        let supportedLanguages: [(AppLanguage, String, String)] = [
+            (.english, "en", "English"),
+            (.chinese, "zh-Hans", "Chinese"),
+            (.spanish, "es", "Spanish"),
+            (.vietnamese, "vi", "Vietnamese"),
+            (.filipino, "fil", "Filipino"),
+            (.hindi, "hi", "Hindi"),
+            (.arabic, "ar", "Arabic")
+        ]
+        precondition(Set(AppLanguage.allCases) == Set(supportedLanguages.map { $0.0 }))
+        for (language, code, backendName) in supportedLanguages {
+            AppLocalization.setLanguage(language)
+            precondition(language.rawValue == code)
+            precondition(AppLocalization.currentLanguage == language)
+            precondition(defaults.string(forKey: AppLocalization.selectedLanguageCodeKey) == code)
+            precondition(defaults.stringArray(forKey: "AppleLanguages") == [code])
+            precondition(language.backendDisplayName == backendName)
+            precondition(language.isRightToLeft == (language == .arabic))
+            precondition(AppLocalization.dateFormatter(format: "EEEE").locale.identifier == code)
+            let translated = try strings(for: language)
+            for (key, englishValue) in english {
+                let expected = translated[key] ?? englishValue
+                precondition(AppLocalization.string(key, defaultValue: "MISSING") == expected, "Fallback failed: \(code) \(key)")
+                precondition(Bundle.main.localizedString(forKey: key, value: "MISSING", table: nil) == expected, "SDK fallback failed: \(code) \(key)")
+            }
+        }
+        print("PASS: all seven languages, persisted selection, SDK lookups, English fallback for untranslated keys, Arabic direction, formatting, and existing translations.")
     }
 
     static func strings(for language: AppLanguage) throws -> [String: String] {

@@ -5,7 +5,7 @@ test_dir="$(mktemp -d /tmp/hh-localization-tests.XXXXXX)"
 trap 'rm -rf "$test_dir"' EXIT
 app_dir="$test_dir/LocalizationTests.app/Contents"
 mkdir -p "$app_dir/MacOS" "$app_dir/Resources"
-cp -R HH_Kiosk_B2B/Resources/en.lproj HH_Kiosk_B2B/Resources/es.lproj "$app_dir/Resources/"
+cp -R HH_Kiosk_B2B/Resources/*.lproj "$app_dir/Resources/"
 python3 - "$app_dir" <<'PY'
 import plistlib, sys
 from pathlib import Path

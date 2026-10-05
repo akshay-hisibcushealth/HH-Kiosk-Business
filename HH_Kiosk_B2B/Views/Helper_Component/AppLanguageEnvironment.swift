@@ -4,11 +4,16 @@ private struct AppLanguageEnvironment: ViewModifier {
     @AppStorage(AppLocalization.selectedLanguageCodeKey)
     private var languageCode = AppConfig.defaultLanguage.rawValue
 
+    private var language: AppLanguage {
+        AppLanguage(rawValue: languageCode) ?? AppConfig.defaultLanguage
+    }
+
     func body(content: Content) -> some View {
         // Rebuild rendered strings when the language is selected before a session.
         content
             .id(languageCode)
-            .environment(\.locale, (AppLanguage(rawValue: languageCode) ?? AppConfig.defaultLanguage).locale)
+            .environment(\.locale, language.locale)
+            .environment(\.layoutDirection, language.isRightToLeft ? .rightToLeft : .leftToRight)
     }
 }
 
