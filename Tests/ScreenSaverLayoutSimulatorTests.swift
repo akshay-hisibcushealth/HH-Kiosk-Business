@@ -82,6 +82,22 @@ private struct WelcomeFixture: View {
             await pause(500)
             verifyPortrait(baseline, in: window, context: "keyboard dismissed")
             saveScreenshot(window, name: "portrait-after")
+            // The shared portrait button wording is longer: keep it within the
+            // landscape text column without overlapping the avatar or clipping.
+            for orientation: UIInterfaceOrientationMask in [.landscapeLeft, .landscapeRight] {
+                window.windowScene?.requestGeometryUpdate(.iOS(interfaceOrientations: orientation))
+                await pause(900)
+                precondition(window.bounds.width > window.bounds.height)
+                precondition(ScreenSaverLayoutProbe.displayedLayout == "landscape")
+                let button = ScreenSaverLayoutProbe.frames["landscapeButton"]!
+                let avatar = ScreenSaverLayoutProbe.frames["landscapeAvatar"]!
+                precondition(button.minX >= avatar.maxX, "Landscape button overlaps the avatar")
+                precondition(button.maxX <= window.bounds.maxX && button.maxY <= window.bounds.maxY,
+                             "Landscape button is clipped: \(button), window=\(window.bounds)")
+            }
+            saveScreenshot(window, name: "landscape-after")
+            window.windowScene?.requestGeometryUpdate(.iOS(interfaceOrientations: .portrait))
+            await pause(900)
             try! "PASS: Welcome screen returns to its original portrait geometry after 48 rotation requests, with and without keyboard insets.\n".write(
                 to: documents.appendingPathComponent("result.txt"), atomically: true, encoding: .utf8
             )

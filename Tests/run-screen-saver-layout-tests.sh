@@ -20,6 +20,8 @@ probes = {
     '.minimumScaleFactor(0.78)': 'subtitle',
     '.frame(width: 630.w, height: 670.h)': 'avatar',
     'ScreenSaverFaceScanButton(text: actionButtonText, action: onStartFaceScan)': 'button',
+    'ScreenSaverFaceScanButton(text: actionButtonText, action: onStartFaceScan, fitsAvailableWidth: true)': 'landscapeButton',
+    '.frame(width: size.width * 0.38, height: size.height * 0.64)': 'landscapeAvatar',
 }
 for anchor, key in probes.items():
     assert anchor in s, f'Update geometry instrumentation for {key}'

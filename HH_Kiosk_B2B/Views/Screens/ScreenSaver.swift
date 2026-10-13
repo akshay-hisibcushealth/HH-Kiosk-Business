@@ -124,7 +124,7 @@ struct ScreenSaver: View {
 
                 Spacer()
 
-                Text(ScreenSaverStrings.landscapeCompanyLogo)
+                Text(SharedViewStrings.Toolbar.companyLogoPlaceholder)
                     .font(.system(size: 24.sp, weight: .semibold))
                     .foregroundStyle(.white)
                     .multilineTextAlignment(.center)
@@ -141,19 +141,19 @@ struct ScreenSaver: View {
                     .frame(width: size.width * 0.38, height: size.height * 0.64)
 
                 VStack(spacing: 0) {
-                    buildSemiBoldText(ScreenSaverStrings.landscapeTitle, 42.sp, color: .white)
+                    buildSemiBoldText(welcomeText, 42.sp, color: .white)
                         .multilineTextAlignment(.center)
                         .lineLimit(2)
                         .minimumScaleFactor(0.8)
 
-                    Text(ScreenSaverStrings.landscapeSubtitle)
+                    Text(subtitle)
                         .font(.system(size: 32.sp, weight: .regular))
                         .foregroundColor(Color(red: 0.76, green: 0.89, blue: 0.97))
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(.top, size.height * 0.055)
 
-                    ScreenSaverFaceScanButton(text: ScreenSaverStrings.landscapeActionButton, action: onStartFaceScan)
+                    ScreenSaverFaceScanButton(text: actionButtonText, action: onStartFaceScan, fitsAvailableWidth: true)
                         .padding(.top, size.height * 0.10)
                 }
                 .frame(maxWidth: .infinity)
@@ -183,6 +183,7 @@ struct ScreenSaver: View {
 private struct ScreenSaverFaceScanButton: View {
     let text: String
     let action: () -> Void
+    var fitsAvailableWidth = false
 
     var body: some View {
         Button(action: action) {
@@ -208,7 +209,7 @@ private struct ScreenSaverFaceScanButton: View {
             .padding(.leading, 70.w)
             .padding(.trailing, 32.w)
             .frame(minWidth: 600.w, minHeight: 130.h)
-            .fixedSize(horizontal: true, vertical: false)
+            .fixedSize(horizontal: !fitsAvailableWidth, vertical: false)
             .background(
                 LinearGradient(
                     colors: [
