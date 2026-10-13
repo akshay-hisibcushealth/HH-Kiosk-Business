@@ -267,12 +267,12 @@ enum ResultScreenStrings {
         static func description(for key: String) -> String {
             switch key {
             case "BP_CVD": return "This is our estimation of how likely you are to experience a heart attack or stroke within the next 10 years. This is based on signals from your face scan."
-            case "BP_SYSTOLIC": return "This is the pressure your heart creates when it pumps blood out. Too high over time and it puts extra strain on your blood vessels. A normal reading is usually around 90–120 mmHg."
-            case "BP_DIASTOLIC": return "This is the pressure in your blood vessels when your heart is resting between beats. A normal reading is usually around 60–80 mmHg."
+            case "BP_SYSTOLIC": return "This is the pressure your heart creates when it pumps blood out. Too high over time and it puts extra strain on your blood vessels. A normal reading is usually between 90 and 120 mmHg."
+            case "BP_DIASTOLIC": return "This is the pressure in your blood vessels when your heart is resting between beats. A normal reading is usually between 60–80 mmHg."
             case "HBA1C_RISK_PROB": return "This is our estimation of your long term blood sugar patterns over the past three months based on signals from your face scan. High blood sugar over time is linked to pre-diabetes and type 2 diabetes."
             case "HDLTC_RISK_PROB": return "This is our estimation of how likely you are to have high cholesterol levels based on signals from your face scan. Too much cholesterol in your blood can clog your blood vessels over time."
             case "TG_RISK_PROB": return "This is our estimation of how likely you are to have high triglyceride levels based on signals from your face scan. Triglycerides are the most common type of fat in your body. Having too much of them can increase your risk of heart disease and stroke."
-            case "HR_BPM": return "This is how many times your heart beats per minute during your scan. Most healthy adults are between 60 and 100 beats per minute (BPM) when resting. If this is too high or too low consistently, it is something to discuss with your doctor."
+            case "HR_BPM": return "This is how many times your heart beats per minute during your scan. Most healthy adults have a resting heart rate between 60 and 100 BPM. If this is too high or too low consistently, it is something to discuss with your doctor."
             default: return ""
             }
         }
