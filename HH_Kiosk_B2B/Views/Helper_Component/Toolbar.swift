@@ -2,7 +2,8 @@ import SwiftUI
 
 struct Toolbar: View {
     @EnvironmentObject private var orientation: OrientationManager
-    private var contentScale: CGFloat { orientation.isLandscape ? 0.8 : 1 }
+    var isLandscape: Bool? = nil
+    private var contentScale: CGFloat { (isLandscape ?? orientation.isLandscape) ? 0.8 : 1 }
     // For updating time in the toolbar
     @State private var currentTime: String = HomeScreen.getCurrentTime()
     private let timer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()

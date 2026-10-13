@@ -2,7 +2,6 @@ import SwiftUI
 
 struct ScreenSaver: View {
     @EnvironmentObject private var appState: AppState
-    @EnvironmentObject private var orientation: OrientationManager
     @State private var refreshTrigger = false
     @State private var showResponseReceivedToast = false
     let onStartFaceScan: () -> Void
@@ -21,8 +20,11 @@ struct ScreenSaver: View {
 
     var body: some View {
         GeometryReader { geometry in
+            // Choose the layout from the same size used to draw it. The shared
+            // orientation can lag behind geometry during rapid rotations.
+            let isLandscape = geometry.size.width > geometry.size.height
             Group {
-                if orientation.isLandscape {
+                if isLandscape {
                     landscapeContent(size: geometry.size)
                 } else {
                     portraitContent
@@ -32,7 +34,7 @@ struct ScreenSaver: View {
             .background {
                 Color(AppColors.primary)
                     .overlay {
-                        if orientation.isLandscape {
+                        if isLandscape {
                             ScreenSaverCircuitBackground()
                         } else {
                             Image(AppIconNames.Asset.screensaverBackground)
@@ -47,6 +49,9 @@ struct ScreenSaver: View {
                 refreshTrigger.toggle()
             }
         }
+        // This screen has no text input. A keyboard inset left over during
+        // navigation or rotation must not compress its portrait layout.
+        .ignoresSafeArea(.keyboard)
         .task {
             if appState.screenSaverData == nil {
                 await appState.warmScreenSaverData()
@@ -67,7 +72,7 @@ struct ScreenSaver: View {
 
     private var portraitContent: some View {
             VStack(spacing: 0) {
-                Toolbar()
+                Toolbar(isLandscape: false)
                     .padding(.horizontal, 48.w)
                     .padding(.top, 75.h)
                     .frame(maxWidth: .infinity, alignment: .top)
