@@ -9,7 +9,8 @@ final class TestMeasurementConfiguration {
 class AnuraMeasurementViewController: UIViewController {
     let measurementConfiguration = TestMeasurementConfiguration()
     private(set) var stopCount = 0
-    func stopExtracting() {}
+    private(set) var stopExtractingCount = 0
+    func stopExtracting() { stopExtractingCount += 1 }
     func stop() { stopCount += 1 }
 
     override func viewDidLoad() {
@@ -33,7 +34,7 @@ class AnuraMeasurementViewController: UIViewController {
     private let presenter = UIViewController()
     private var scanner: OrientationAwareAnuraMeasurementViewController?
     private var restartCount = 0
-    private var outsideDismissals = 0
+    private var userDismissals = 0
     private var portraitSize = CGSize.zero
     private let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
 
@@ -93,14 +94,37 @@ class AnuraMeasurementViewController: UIViewController {
             results.dismiss(animated: false)
             await pause(1200)
             verifySettledPopup(landscape: true)
-            scanner!.perform(NSSelectorFromString("dismissFromOutsideTap"))
+            scanner!.perform(NSSelectorFromString("dismissScan"))
             await pause(600)
             let afterDismissal = restartCount
             window.windowScene?.requestGeometryUpdate(.iOS(interfaceOrientations: .portrait))
             await pause(900)
-            precondition(outsideDismissals == 1 && presenter.presentedViewController == nil)
+            precondition(userDismissals == 1 && presenter.presentedViewController == nil)
             precondition(restartCount == afterDismissal, "Dismissed scan must not reopen")
-            try! "PASS: stale presentation, rapid interface rotations, portrait/landscape sizing, results and outside dismissal.\n".write(
+
+            for orientation: UIInterfaceOrientationMask in [.portrait, .landscapeRight] {
+                requestOrientation(orientation)
+                await pause(900)
+                presentScanner()
+                await pause(700)
+                verifySettledPopup(landscape: orientation != .portrait)
+                let closingScanner = scanner!
+                let beforeClose = userDismissals
+                let button = verifyCloseButton(in: closingScanner)
+                button.sendActions(for: .touchUpInside)
+                await pause(600)
+                precondition(presenter.presentedViewController == nil, "X must close the scan popup")
+                precondition(closingScanner.stopCount == 1 && closingScanner.stopExtractingCount == 1,
+                             "X must stop capture and extraction")
+                precondition(userDismissals == beforeClose + 1, "X must run measurement cleanup once")
+                precondition(closingScanner.restartAfterOrientationChange == nil)
+                let beforeRotation = restartCount
+                requestOrientation(orientation == .portrait ? .landscapeLeft : .portrait)
+                await pause(900)
+                precondition(presenter.presentedViewController == nil && restartCount == beforeRotation,
+                             "Closing with X must not reopen the scan after rotation")
+            }
+            try! "PASS: stale presentation, rapid interface rotations, portrait/landscape sizing, results, outside dismissal and X button cleanup in both orientations.\n".write(
                 to: documents.appendingPathComponent("result.txt"), atomically: true, encoding: .utf8
             )
             exit(0)
@@ -124,7 +148,7 @@ class AnuraMeasurementViewController: UIViewController {
             restartCount += 1
             presentScanner()
         }
-        controller.onOutsideDismissal = { [weak self] in self?.outsideDismissals += 1 }
+        controller.onUserDismissal = { [weak self] in self?.userDismissals += 1 }
         scanner = controller
         presenter.present(controller, animated: true)
     }
@@ -139,6 +163,7 @@ class AnuraMeasurementViewController: UIViewController {
                      "Interface rotation did not settle: \(window.bounds), requested landscape=\(landscape)")
         precondition(scanner.startedInLandscape == landscape, "Stale scan layout survived rotation")
         precondition(scanner.modalPresentationStyle == (landscape ? .custom : .formSheet))
+        verifyCloseButton(in: scanner)
         let frame = scanner.view.convert(scanner.view.bounds, to: window)
         precondition(frame.minX >= -1 && frame.maxX <= window.bounds.maxX + 1)
         precondition(frame.minY >= -1 && frame.maxY <= window.bounds.maxY + 1)
@@ -146,6 +171,22 @@ class AnuraMeasurementViewController: UIViewController {
             precondition(abs(frame.height - portraitSize.height) < 2 && abs(frame.width - portraitSize.width) < 2,
                          "Portrait popup differs from its original size: \(frame), expected \(portraitSize)")
         }
+    }
+
+    @discardableResult
+    private func verifyCloseButton(in controller: UIViewController) -> UIButton {
+        guard let button = controller.view.subviews.compactMap({ $0 as? UIButton })
+            .first(where: { $0.accessibilityIdentifier == "faceScan.closeButton" }) else {
+            preconditionFailure("Missing scan close button")
+        }
+        let safe = controller.view.safeAreaLayoutGuide.layoutFrame
+        precondition(button.bounds.width >= 44 && button.bounds.height >= 44)
+        precondition(abs(button.frame.maxX - (safe.maxX - 16)) < 1
+                     && abs(button.frame.minY - (safe.minY + 16)) < 1,
+                     "X must remain at the popup's top-right corner")
+        precondition(controller.view.hitTest(button.center, with: nil) === button,
+                     "The SDK overlay must not cover the close button")
+        return button
     }
 
     private func pause(_ milliseconds: Int) async { try? await Task.sleep(for: .milliseconds(milliseconds)) }

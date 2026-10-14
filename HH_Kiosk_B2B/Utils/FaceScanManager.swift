@@ -20,10 +20,20 @@ private final class OrientationAwareAnuraMeasurementViewController: AnuraMeasure
     var startedInLandscape = false
     var requiredContentSize: CGSize?
     var restartAfterOrientationChange: (() -> Void)?
-    var onOutsideDismissal: (() -> Void)?
+    var onUserDismissal: (() -> Void)?
     var measurementBrightness: MeasurementBrightnessSession?
+    private lazy var closeButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(systemName: "xmark", withConfiguration:
+            UIImage.SymbolConfiguration(pointSize: 22, weight: .semibold)), for: .normal)
+        button.tintColor = UIColor(white: 0.25, alpha: 1)
+        button.accessibilityLabel = "Close face scan"
+        button.accessibilityIdentifier = "faceScan.closeButton"
+        button.addTarget(self, action: #selector(dismissScan), for: .touchUpInside)
+        return button
+    }()
     private lazy var outsideTapGesture: UITapGestureRecognizer = {
-        let gesture = UITapGestureRecognizer(target: self, action: #selector(dismissFromOutsideTap))
+        let gesture = UITapGestureRecognizer(target: self, action: #selector(dismissScan))
         gesture.delegate = self
         return gesture
     }()
@@ -79,7 +89,16 @@ private final class OrientationAwareAnuraMeasurementViewController: AnuraMeasure
         super.viewDidLoad()
         overrideUserInterfaceStyle = .unspecified
         view.backgroundColor = .white
-        
+
+        closeButton.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(closeButton)
+        NSLayoutConstraint.activate([
+            closeButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
+            closeButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
+            closeButton.widthAnchor.constraint(equalToConstant: 44),
+            closeButton.heightAnchor.constraint(equalToConstant: 44)
+        ])
+
         applyRequiredContentSize()
         normalizeDialogAppearance()
         NotificationCenter.default.addObserver(
@@ -134,12 +153,13 @@ private final class OrientationAwareAnuraMeasurementViewController: AnuraMeasure
         return !view.bounds.contains(touch.location(in: view))
     }
 
-    @objc private func dismissFromOutsideTap() {
+    @objc private func dismissScan() {
         guard presentedViewController == nil, !isBeingDismissed else { return }
+        closeButton.isEnabled = false
         restartAfterOrientationChange = nil
         stopExtracting()
         stop()
-        onOutsideDismissal?()
+        onUserDismissal?()
         dismiss(animated: true)
     }
 
@@ -199,6 +219,8 @@ private final class OrientationAwareAnuraMeasurementViewController: AnuraMeasure
         MeasurementScreenLightAppearance.useStandardWhite(
             in: view.layer, screenLightURL: screenLightURL
         )
+        // The SDK adds and relays out its own views during scanning and rotation.
+        view.bringSubviewToFront(closeButton)
     }
 
     /// Anura uses more than one near-white backing view. Those views become
@@ -445,7 +467,7 @@ class FaceScanManager: ObservableObject{
         
         viewController.delegate = measurementDelegate
         measurementDelegate.user = user
-        viewController.onOutsideDismissal = { [weak self] in
+        viewController.onUserDismissal = { [weak self] in
             guard let self else { return }
             self.measurementDelegate.resetMeasurementID()
             self.isPresentingMeasurementView = false
