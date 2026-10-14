@@ -9,6 +9,15 @@ final class LandscapeScanPresentationController: UIPresentationController {
         guard let containerView else { return .zero }
         let available = containerView.bounds.inset(by: containerView.safeAreaInsets)
             .insetBy(dx: 12, dy: 8)
+        // This controller can briefly survive a landscape-to-portrait rotation
+        // while the scan is being replaced. Never stretch that card full height.
+        if containerView.bounds.width <= containerView.bounds.height {
+            let width = min(presentedViewController.preferredContentSize.width,
+                            available.width, containerView.bounds.width * 0.8)
+            let height = min(presentedViewController.preferredContentSize.height, available.height)
+            return CGRect(x: available.midX - width / 2, y: available.midY - height / 2,
+                          width: width, height: height)
+        }
         let width = min(presentedViewController.preferredContentSize.width, available.width)
         return CGRect(x: available.midX - width / 2, y: available.minY,
                       width: width, height: available.height)
