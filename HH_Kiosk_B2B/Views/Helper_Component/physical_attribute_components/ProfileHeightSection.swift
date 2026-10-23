@@ -4,15 +4,10 @@ import UIKit
 struct ProfileHeightSection: View {
     @Binding var selectedHeight: Int?
     var focusedField: Binding<PhysicalAttributesInputField?>
+    @Binding var showPicker: Bool
 
     @State private var committedFeet: Int? = nil
     @State private var committedInches: Int? = nil
-    @State private var tempFeet: Int = 5
-    @State private var tempInches: Int = 6
-    @State private var showPicker: Bool = false
-
-    private let feetRange = Array(4...7)
-    private let inchRange = Array(0...11)
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -21,7 +16,6 @@ struct ProfileHeightSection: View {
                 .foregroundColor(Color(AppColors.black))
 
             Button {
-                preparePickerValues()
                 openPickerAfterDismissingKeyboard()
             } label: {
                 HStack {
@@ -46,52 +40,12 @@ struct ProfileHeightSection: View {
                 )
             }
             .buttonStyle(.plain)
-            .popover(isPresented: $showPicker) {
-                VStack(spacing: 24.h) {
-                    Text(PhysicalAttributesScreenStrings.Form.heightSheetTitle)
-                        .font(.system(size: 64.sp, weight: .bold))
-                        .foregroundColor(Color(AppColors.black))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.82)
-
-                    HStack(spacing: 32.w) {
-                        WheelSelector(
-                            items: feetRange,
-                            selection: $tempFeet,
-                            label: PhysicalAttributesScreenStrings.Form.feetUnit
-                        )
-
-                        WheelSelector(
-                            items: inchRange,
-                            selection: $tempInches,
-                            label: PhysicalAttributesScreenStrings.Form.inchesUnit
-                        )
-                    }
-
-                    Button {
-                        commitHeight()
-                    } label: {
-                        Text("CONFIRM")
-                            .font(.system(size: 56.sp, weight: .heavy))
-                            .foregroundColor(Color(red: 0.0, green: 0.42, blue: 0.18))
-                            .frame(minHeight: 88.h)
-                    }
-                    .buttonStyle(.plain)
-                }
-                .padding(.top, 40.h)
-                .padding(.bottom, 40.h)
-                .padding(.horizontal, 40.w)
-                .frame(width: 720.w, height: 680.h)
-                .background(Color(AppColors.white))
-                .presentationBackground(Color(AppColors.white))
-            }
         }
         .onAppear {
             syncCommittedHeight()
         }
         .onChange(of: focusedField.wrappedValue) { _, field in
             if field == .height {
-                preparePickerValues()
                 openPickerAfterDismissingKeyboard()
             }
         }
@@ -103,20 +57,6 @@ struct ProfileHeightSection: View {
         }
     }
 
-    private func preparePickerValues() {
-        if let feet = committedFeet, let inches = committedInches {
-            tempFeet = feet
-            tempInches = inches
-        } else if let cm = selectedHeight {
-            let totalInches = Int(round(Double(cm) / 2.54))
-            tempFeet = totalInches / 12
-            tempInches = totalInches % 12
-        } else {
-            tempFeet = 5
-            tempInches = 6
-        }
-    }
-
     private func openPickerAfterDismissingKeyboard() {
         focusedField.wrappedValue = nil
         NotificationCenter.default.post(name: .physicalAttributesDismissInputFocus, object: nil)
@@ -125,18 +65,6 @@ struct ProfileHeightSection: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.08) {
             showPicker = true
         }
-    }
-
-    private func commitHeight() {
-        committedFeet = tempFeet
-        committedInches = tempInches
-
-        let totalInches = tempFeet * 12 + tempInches
-        selectedHeight = Int(Double(totalInches) * 2.54)
-
-        showPicker = false
-        focusedField.wrappedValue = .age
-        UIDevice.current.playInputClick()
     }
 
     private func syncCommittedHeight() {
@@ -155,6 +83,119 @@ struct ProfileHeightSection: View {
         committedFeet == nil || committedInches == nil
             ? Color(AppColors.physicalAttributeFieldBackground)
             : Color(AppColors.white)
+    }
+}
+
+struct HeightPickerPresentation: ViewModifier {
+    @Binding var isPresented: Bool
+    @Binding var selectedHeight: Int?
+    var focusedField: Binding<PhysicalAttributesInputField?>
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    private var animation: Animation { .easeInOut(duration: 0.22) }
+
+    func body(content: Content) -> some View {
+        content
+            .blur(radius: isPresented ? 8 : 0)
+            .allowsHitTesting(!isPresented)
+            .accessibilityHidden(isPresented)
+            .overlay {
+                GeometryReader { geometry in
+                    ZStack {
+                        if isPresented {
+                            Button { dismiss() } label: {
+                                Color.black.opacity(0.18)
+                                    .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Cancel height selection")
+                            .transition(.opacity)
+
+                            HeightPickerPopup(selectedHeight: selectedHeight) { height in
+                                selectedHeight = height
+                                dismiss(focusAge: true)
+                                UIDevice.current.playInputClick()
+                            }
+                            .frame(width: min(720.w, geometry.size.width - 32),
+                                   height: min(680.h, geometry.size.height - 32))
+                            .background(Color(AppColors.white))
+                            .clipShape(RoundedRectangle(cornerRadius: 28.r, style: .continuous))
+                            .shadow(color: .black.opacity(0.16), radius: 24, y: 8)
+                            .accessibilityAddTraits(.isModal)
+                            .accessibilityAction(.escape) { dismiss() }
+                            .transition(.opacity.combined(with: .scale(scale: reduceMotion ? 1 : 0.96)))
+                        }
+                    }
+                    .frame(width: geometry.size.width, height: geometry.size.height)
+                }
+                .ignoresSafeArea()
+            }
+            // One transaction keeps the popup, dimming, and blur in sync.
+            .animation(animation, value: isPresented)
+    }
+
+    private func dismiss(focusAge: Bool = false) {
+        guard isPresented else { return }
+        withAnimation(animation, completionCriteria: .removed) {
+            isPresented = false
+        } completion: {
+            // Opening the keyboard during dismissal makes the backdrop jump.
+            if focusAge, !isPresented, focusedField.wrappedValue == nil {
+                focusedField.wrappedValue = .age
+            }
+        }
+    }
+}
+
+private struct HeightPickerPopup: View {
+    @State private var tempFeet: Int
+    @State private var tempInches: Int
+    let onConfirm: (Int) -> Void
+
+    init(selectedHeight: Int?, onConfirm: @escaping (Int) -> Void) {
+        let totalInches = selectedHeight.map { Int(round(Double($0) / 2.54)) } ?? 66
+        _tempFeet = State(initialValue: totalInches / 12)
+        _tempInches = State(initialValue: totalInches % 12)
+        self.onConfirm = onConfirm
+    }
+
+    var body: some View {
+        VStack(spacing: 24.h) {
+            Text(PhysicalAttributesScreenStrings.Form.heightSheetTitle)
+                .font(.system(size: 64.sp, weight: .bold))
+                .foregroundColor(Color(AppColors.black))
+                .lineLimit(1)
+                .minimumScaleFactor(0.82)
+
+            HStack(spacing: 32.w) {
+                WheelSelector(
+                    items: Array(4...7),
+                    selection: $tempFeet,
+                    label: PhysicalAttributesScreenStrings.Form.feetUnit
+                )
+
+                WheelSelector(
+                    items: Array(0...11),
+                    selection: $tempInches,
+                    label: PhysicalAttributesScreenStrings.Form.inchesUnit
+                )
+            }
+
+            Button {
+                onConfirm(Int(Double(tempFeet * 12 + tempInches) * 2.54))
+            } label: {
+                Text("CONFIRM")
+                    .font(.system(size: 44.sp, weight: .semibold))
+                    .foregroundColor(Color(AppColors.black))
+                    .frame(maxWidth: .infinity, minHeight: 104.h)
+                    .background(Color(AppColors.ctaGreen))
+                    .clipShape(RoundedRectangle(cornerRadius: 10.r, style: .continuous))
+            }
+            .buttonStyle(.plain)
+            .padding(.horizontal, 64.w)
+        }
+        .padding(.vertical, 40.h)
+        .padding(.horizontal, 40.w)
     }
 }
 

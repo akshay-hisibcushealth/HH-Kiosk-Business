@@ -32,6 +32,7 @@ struct PhysicalAttributesScreen: View {
     @State private var email: String? = nil
     @State private var pin: String = ""
     @State private var showSettings = false
+    @State private var showHeightPicker = false
     @State private var showPrivacyBanner = true
     @State private var refreshTrigger = false
     // UIKit owns first responder status for our custom fields. SwiftUI FocusState
@@ -91,6 +92,11 @@ struct PhysicalAttributesScreen: View {
                 if showPrivacyBanner { showPrivacyBanner = false }
             }
         )
+        .modifier(HeightPickerPresentation(
+            isPresented: $showHeightPicker,
+            selectedHeight: $height,
+            focusedField: $focusedInputField
+        ))
         .onChange(of: focusedInputField) { _, field in
             // UIKit text fields can take focus without a SwiftUI tap gesture.
             if field != nil { showPrivacyBanner = false }
@@ -291,7 +297,11 @@ struct PhysicalAttributesScreen: View {
                     selectedWeightInPounds: $weightInPounds,
                     focusedField: $focusedInputField
                 )
-                ProfileHeightSection(selectedHeight: $height, focusedField: $focusedInputField)
+                ProfileHeightSection(
+                    selectedHeight: $height,
+                    focusedField: $focusedInputField,
+                    showPicker: $showHeightPicker
+                )
             }
             GridRow {
                 ProfileAgeSection(selectedAge: $age, focusedField: $focusedInputField)
