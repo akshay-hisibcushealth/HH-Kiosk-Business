@@ -127,7 +127,7 @@ class MeasurementDelegate : AnuraMeasurementDelegate {
     // Called when the measurement is complete
     func anuraMeasurementControllerDidFinishMeasuring(_ controller: AnuraMeasurementViewController) {
         print("***** anuraMeasurementControllerDidFinishMeasuring")
-        measurementBanner.clear()
+        measurementBanner.handleMeasurementFinish()
         
         // Blood Flow Extraction is complete - Present results view controller
 
@@ -242,14 +242,16 @@ private final class AdaptiveMeasurementBanner {
         static let moveCloser = "Move Closer"
         static let moveFurther = "Move Further"
         static let faceCamera = "Please look ahead"
+        static let completed = "Here Come Your Results"
         static let timeline: [TimelineEntry] = [
-            TimelineEntry(offset: 0, message: "Breathe Naturally and Stay Still"),
-            TimelineEntry(offset: 5, message: "Reading Your Pulse from Facial Blood Flow"),
-            TimelineEntry(offset: 10, message: "Detecting Cardiovascular Patterns..."),
-            TimelineEntry(offset: 16, message: "Halfway - Eyes on the Camera"),
-            TimelineEntry(offset: 21, message: "Capturing Your Final Readings..."),
+            TimelineEntry(offset: 0, message: "Breathe Naturally, Stay Still, Eyes Straight Ahead, Don't Talk"),
+            TimelineEntry(offset: 5, message: "Reading Your Facial Blood Flow"),
+            TimelineEntry(offset: 10, message: "Detecting Cardiovascular Patterns"),
+            TimelineEntry(offset: 16, message: "Halfway — Look Straight Ahead"),
+            TimelineEntry(offset: 21, message: "Capturing Your Final Readings"),
             TimelineEntry(offset: 25, message: "Almost There, Don't Move"),
-            TimelineEntry(offset: 28, message: "Last Few Seconds...")
+            TimelineEntry(offset: 28, message: "Last Couple of Seconds"),
+            TimelineEntry(offset: 30, message: completed)
         ]
     }
     
@@ -321,6 +323,15 @@ private final class AdaptiveMeasurementBanner {
         startTimeline()
     }
 
+    func handleMeasurementFinish() {
+        // Completion can arrive before the 30-second work item fires.
+        // Keep the final message visible until the results screen takes over.
+        cancelScheduledMessages()
+        lastWarningAt = nil
+        isMeasurementActive = false
+        updateBaseMessage(Copy.completed)
+    }
+
     func refreshLayout() {
         guard let hostViewController else {
             return
@@ -356,7 +367,9 @@ private final class AdaptiveMeasurementBanner {
             if shouldPreferBaseMessage {
                 showBaseMessageIfNeeded()
             }
-        case .complete, .failure, .off:
+        case .complete:
+            handleMeasurementFinish()
+        case .failure, .off:
             clear()
         default:
             break
