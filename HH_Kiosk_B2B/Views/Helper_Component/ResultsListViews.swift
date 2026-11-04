@@ -61,6 +61,15 @@ struct ResultRow: View {
         displayRiskLabel(for: metricKey, value: value)
     }
 
+    private var showsMeterValue: Bool {
+        ![
+            "HBA1C_RISK_PROB",
+            "HDLTC_RISK_PROB",
+            "TG_RISK_PROB",
+            "BP_CVD"
+        ].contains(metricKey)
+    }
+
     // Match the reference result screen's metric-specific band patterns.
     private var gaugeColors: [Color] {
         switch metricKey {
@@ -109,7 +118,7 @@ struct ResultRow: View {
                     HStack(alignment: .center, spacing: 40.w) {
                         meter
                             .frame(width: geometry.size.width * 0.62, height: 120.h)
-                            // Align the title with the colored band, below the value.
+                            // Align the title with the colored band, below the optional value.
                             .alignmentGuide(VerticalAlignment.center) { _ in 84.h }
 
                         riskTitle
@@ -230,7 +239,7 @@ struct ResultRow: View {
         MeterBar(
             metricKey: metricKey,
             value: value,
-            valueText: formattedValue(value, for: metricKey),
+            valueText: showsMeterValue ? formattedValue(value, for: metricKey) : nil,
             colors: gaugeColors
         )
     }
@@ -266,7 +275,7 @@ private struct FullMessageHeightKey: PreferenceKey {
 struct MeterBar: View {
     let metricKey: String
     let value: Double
-    let valueText: String
+    let valueText: String?
     let colors: [Color]
     
     // Scale stops exactly matching Web (getResultsToDownload.tsx)
@@ -293,14 +302,16 @@ struct MeterBar: View {
                 }
                 .offset(y: 70.h)
 
-                Text(valueText)
-                    .font(.system(size: 34.sp, weight: .bold))
-                    .foregroundColor(Color(AppColors.black))
-                    .fixedSize()
-                    .position(
-                        x: min(max(thumbX + thumbWidth / 2, 86.w), totalWidth - 86.w),
-                        y: 20.h
-                    )
+                if let valueText {
+                    Text(valueText)
+                        .font(.system(size: 34.sp, weight: .bold))
+                        .foregroundColor(Color(AppColors.black))
+                        .fixedSize()
+                        .position(
+                            x: min(max(thumbX + thumbWidth / 2, 86.w), totalWidth - 86.w),
+                            y: 20.h
+                        )
+                }
                 
                 Rectangle()
                     .fill(Color(AppColors.black))
