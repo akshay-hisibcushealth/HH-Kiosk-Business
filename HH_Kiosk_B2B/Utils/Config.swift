@@ -16,15 +16,17 @@ import Foundation
 
 enum AppConfig {
 
-    // Set to true for QA TestFlight builds and false for client builds.
-    // This controls all Physical Attributes QA buttons and their actions.
+    // Enables QA buttons/actions and the development API.
+    // Set to false for production TestFlight/client builds.
     static let qaToolsEnabled = true
 
     // Set to true to allow screen capture, or false to protect sensitive screens.
     static let screenCaptureEnabled = true
     
     static let deepaffexAPIHostname = "api.deepaffex.ai"
-    static let baseURL = "https://coremobileapidev.hibiscushealth.com"
+    static let baseURL = qaToolsEnabled
+        ? "https://coremobileapidev.hibiscushealth.com"
+        : "https://coremobileapiprod.hibiscushealth.com"
     static let brandCode = "XSEWVGNV"
     static let scanType = "Kiosk"
 
