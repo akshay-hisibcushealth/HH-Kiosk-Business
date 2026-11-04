@@ -4,7 +4,20 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="69d70bab-ae17-4888-9c12-3f3dde572849" name="Changes" comment="Added: Print Functionality" />
+    <list default="true" id="69d70bab-ae17-4888-9c12-3f3dde572849" name="Changes" comment="network functionality">
+      <change afterPath="$PROJECT_DIR$/HH_Kiosk_B2B/Utils/FaceScanNetworkMonitor.swift" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/HH_Kiosk_B2B/Utils/FaceScanNetworkToast.swift" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Tests/FaceScanNetworkMonitorTests.swift" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Tests/FaceScanNetworkSimulatorTests.swift" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Tests/FaceScanNetworkTestReport.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Tests/Support/FaceScanDelegateTestDoubles.swift" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Tests/Support/FaceScanNetworkPathDouble.swift" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Tests/run-face-scan-network-simulator-tests.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Tests/run-face-scan-network-tests.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/HH_Kiosk_B2B.xcodeproj/project.pbxproj" beforeDir="false" afterPath="$PROJECT_DIR$/HH_Kiosk_B2B.xcodeproj/project.pbxproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/HH_Kiosk_B2B/Utils/MeasurementDelegate.swift" beforeDir="false" afterPath="$PROJECT_DIR$/HH_Kiosk_B2B/Utils/MeasurementDelegate.swift" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/HH_Kiosk_B2B/Views/Helper_Component/ResultsListViews.swift" beforeDir="false" afterPath="$PROJECT_DIR$/HH_Kiosk_B2B/Views/Helper_Component/ResultsListViews.swift" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -14,6 +27,11 @@
     <option name="formatViaClangd" value="false" />
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="bigge-crane-rigging-wellness-fair" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
@@ -36,22 +54,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
-    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
-    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;hh-b2b&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/applitesolutions/SwiftProject/HH_Kiosk_B2B&quot;,
-    &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "CidrDebugProfileConversion": "true",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "master",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/Users/applitesolutions/SwiftProject/HH_Kiosk_B2B",
+    "show.migrate.to.gradle.popup": "false"
   }
-}</component>
+}]]></component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="69d70bab-ae17-4888-9c12-3f3dde572849" name="Changes" comment="" />
@@ -62,9 +81,21 @@
     </task>
     <servers />
   </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Added: Print Functionality" />
     <MESSAGE value="Hiby avatar" />
-    <option name="LAST_COMMIT_MESSAGE" value="Hiby avatar" />
+    <MESSAGE value="network functionality" />
+    <option name="LAST_COMMIT_MESSAGE" value="network functionality" />
   </component>
 </project>

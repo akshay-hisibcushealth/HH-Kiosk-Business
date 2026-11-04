@@ -35,7 +35,11 @@ class MeasurementDelegate : AnuraMeasurementDelegate {
     
     var timeoutTimer : Timer?
     private let measurementBanner = AdaptiveMeasurementBanner()
-    
+    private let networkMonitor = FaceScanNetworkMonitor()
+    private let networkToast = FaceScanNetworkToast()
+    private var resultsConnectionRequest: UUID?
+    private var isReceivingResults = false
+
     init(api: DeepAffexMiniAPIProtocol) {
         self.api = api
     }
@@ -68,6 +72,15 @@ class MeasurementDelegate : AnuraMeasurementDelegate {
         measurementBanner.installIfNeeded(in: controller)
         controller.view.layoutIfNeeded()
         measurementBanner.refreshLayout()
+        networkMonitor.start { [weak self, weak controller] event in
+            guard let self, let controller else { return }
+            switch event {
+            case .show(let warning):
+                self.networkToast.show(warning, in: controller)
+            case .clear:
+                self.networkToast.hide()
+            }
+        }
         return
     }
     
@@ -78,6 +91,8 @@ class MeasurementDelegate : AnuraMeasurementDelegate {
             SensitiveScreenPrivacy.endProtecting(owner: "measurement")
         }
         measurementBanner.teardown()
+        networkMonitor.stop()
+        networkToast.hide()
         setMeasurementScreenSaverSuppressed(false)
         return
     }
@@ -127,8 +142,11 @@ class MeasurementDelegate : AnuraMeasurementDelegate {
     // Called when the measurement is complete
     func anuraMeasurementControllerDidFinishMeasuring(_ controller: AnuraMeasurementViewController) {
         print("***** anuraMeasurementControllerDidFinishMeasuring")
+        measurementBanner.clear()
+        networkMonitor.stop()
+        networkToast.hide()
         measurementBanner.handleMeasurementFinish()
-        
+
         // Blood Flow Extraction is complete - Present results view controller
 
         let resultsController = ResultsViewController(appState: appState)
@@ -178,13 +196,16 @@ class MeasurementDelegate : AnuraMeasurementDelegate {
                                                                 payload: payload.payload)
             
             // Send request to API, along with measurement ID
+            let networkRequest = self.networkMonitor.beginRequest()
             self.api.addData(measurementID: self.measurementID, data: measurementDataRequest) { (result : NetworkResult<ID>) in
                 switch result {
                 case .success(let id):
+                    self.networkMonitor.endRequest(networkRequest)
                     // Continue operations on measurement queue
                     self.measurementQueue?.isSuspended = false
                     print("Added data to measurement (Chunk \(payload.chunkOrder + 1)) and received MeasurementDataID: \(id.id)")
                 case .failure(let error):
+                    self.networkMonitor.endRequest(networkRequest, error: error)
                     controller.cancelMeasurement(reason: .unknown)
                     print("Could not add data to measurement: \(error.localizedDescription)")
                 }
@@ -213,6 +234,7 @@ class MeasurementDelegate : AnuraMeasurementDelegate {
     // for current lighting quality score and pipeline state
     func anuraMeasurementControllerDidUpdate(_ controller: AnuraMeasurementViewController, info: MeasurementPipelineInfo) {
         measurementBanner.handlePipelineUpdate(info)
+        networkToast.bringToFront()
 
         // For debugging, you may print the info contained in MeasurementPipelineInfo
         // Example:
@@ -557,15 +579,28 @@ extension MeasurementDelegate : MeasurementResultsSubscriberDelegate {
     }
     
     func didGetError(_ subscriber: MeasurementResultsSubscriber, error: Error?) {
-        return
+        guard subscriber === measurementResultsSubscriber, isReceivingResults else { return }
+        if let error {
+            let request = networkMonitor.beginRequest()
+            networkMonitor.endRequest(request, error: error)
+        }
+        if resultsConnectionRequest == nil {
+            resultsConnectionRequest = networkMonitor.beginRequest()
+        }
     }
     
     func didConnect(_ subscriber: MeasurementResultsSubscriber) {
-        return
+        guard subscriber === measurementResultsSubscriber else { return }
+        if let request = resultsConnectionRequest {
+            networkMonitor.endRequest(request)
+            resultsConnectionRequest = nil
+        }
     }
     
     func didDisconnect(_ subscriber: MeasurementResultsSubscriber) {
-        return
+        guard subscriber === measurementResultsSubscriber, isReceivingResults,
+              resultsConnectionRequest == nil else { return }
+        resultsConnectionRequest = networkMonitor.beginRequest()
     }
 }
 
@@ -582,20 +617,25 @@ extension MeasurementDelegate {
         measurementQueue?.isSuspended = true
         
         // Connect measurement results subscriber
+        isReceivingResults = true
+        resultsConnectionRequest = networkMonitor.beginRequest()
         measurementResultsSubscriber.connect()
         
+        let networkRequest = networkMonitor.beginRequest()
         api.createMeasurement(studyID: api.studyID,
                               resolution: 0,
                               partnerID: user?.partnerID) { (result : NetworkResult<ID>) in
             defer { self.measurementQueue?.isSuspended = false }
             switch result {
             case .success(let id):
+                self.networkMonitor.endRequest(networkRequest)
                 print("Created new measurement with ID: \(id)")
                 
                 // If succeeded, store measurement ID and subscribe to results
                 self.measurementID = id.id
                 self.measurementResultsSubscriber.subscribeToResults(measurementID: id.id)
             case .failure(let error):
+                self.networkMonitor.endRequest(networkRequest, error: error)
                 self.measurementController?.cancelMeasurement(reason: .fail)
                 print("Could not create new measurement: \(error.localizedDescription)")
             }
@@ -603,6 +643,9 @@ extension MeasurementDelegate {
     }
     
     func resetMeasurementID() {
+        isReceivingResults = false
+        resultsConnectionRequest = nil
+        networkMonitor.cancelPendingRequests()
         measurementID = ""
         measurementQueue?.cancelAllOperations()
         measurementResultsSubscriber.cancelResultsSubscription()

@@ -1,0 +1,1262 @@
+Index: Tests/FaceScanNetworkSimulatorTests.swift
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Tests/FaceScanNetworkSimulatorTests.swift b/Tests/FaceScanNetworkSimulatorTests.swift
+new file mode 100644
+--- /dev/null	(date 1793630024606)
++++ b/Tests/FaceScanNetworkSimulatorTests.swift	(date 1793630024606)
+@@ -0,0 +1,174 @@
++import UIKit
++
++@main final class FaceScanNetworkSimulatorTests: UIResponder, UIApplicationDelegate {
++    var window: UIWindow?
++    private let presenter = UIViewController()
++    private var passed: [String] = []
++    private let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
++
++    func application(_ application: UIApplication, didFinishLaunchingWithOptions options: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
++        try? FileManager.default.removeItem(at: documents.appendingPathComponent("result.txt"))
++        let window = UIWindow(frame: UIScreen.main.bounds)
++        window.rootViewController = presenter
++        presenter.view.backgroundColor = UIColor(white: 0.94, alpha: 1)
++        window.makeKeyAndVisible()
++        self.window = window
++        Task { @MainActor in await runTests() }
++        return true
++    }
++
++    private func runTests() async {
++        window!.windowScene?.requestGeometryUpdate(.iOS(interfaceOrientations: .portrait))
++        await pause(600)
++        let api = TestScanAPI()
++        let delegate = MeasurementDelegate(api: api)
++        let scan = await presentScan(delegate: delegate)
++        let path = NWPathMonitor.instances.last!
++        path.send(.satisfied)
++        check("Healthy preview has no connection toast", toast(in: scan) == nil)
++        path.send(.unsatisfied)
++        check("Going offline shows the correct toast immediately", message(in: scan) == FaceScanNetworkWarning.offline.message)
++        verifyLayout(in: scan)
++        snapshot("network-toast-portrait.png")
++        path.send(.unsatisfied)
++        check("Repeated path updates do not stack toasts", toasts(in: scan).count == 1)
++        path.send(.satisfied)
++        check("Connection recovery removes the toast", toast(in: scan) == nil)
++
++        delegate.anuraMeasurementControllerDidStartMeasuring(scan)
++        await pause(4200)
++        check("Creating measurement stays silent before five seconds", toast(in: scan) == nil)
++        await pause(2000)
++        check("Delayed measurement creation shows slow internet", message(in: scan) == FaceScanNetworkWarning.slow.message)
++        api.creation?(.success(ID(id: "test-measurement")))
++        check("Successful creation clears its delay warning", toast(in: scan) == nil)
++
++        delegate.anuraMeasurementControllerDidGetPayload(scan, MeasurementPayload(chunkOrder: 0, numberOfChunks: 6, payload: Data()))
++        await pause(200)
++        precondition(api.upload != nil, "Upload must actually reach the fake API")
++        await pause(6000)
++        check("Delayed chunk upload shows slow internet", message(in: scan) == FaceScanNetworkWarning.slow.message)
++        api.upload?(.success(ID(id: "test-chunk")))
++        check("Upload success clears the warning", toast(in: scan) == nil)
++
++        let subscriber = delegate.measurementResultsSubscriber!
++        delegate.didDisconnect(subscriber)
++        await pause(6200)
++        check("Delayed results reconnection shows slow internet", message(in: scan) == FaceScanNetworkWarning.slow.message)
++        delegate.didConnect(subscriber)
++        check("Results reconnection clears its warning", toast(in: scan) == nil)
++        let oldSubscriber = MeasurementResultsSubscriber(token: "old-scan")
++        delegate.didGetError(oldSubscriber, error: URLError(.notConnectedToInternet))
++        check("Events from an old results subscriber are ignored", toast(in: scan) == nil)
++
++        delegate.didGetError(subscriber, error: URLError(.timedOut))
++        check("Socket timeout shows the slow warning immediately", message(in: scan) == FaceScanNetworkWarning.slow.message)
++        await pause(1200)
++        path.send(.unsatisfied)
++        check("Offline replaces slow with one toast", message(in: scan) == FaceScanNetworkWarning.offline.message && toasts(in: scan).count == 1)
++        await pause(4100)
++        check("The old toast timer does not dismiss its replacement", message(in: scan) == FaceScanNetworkWarning.offline.message)
++        await pause(1200)
++        check("Toast auto-dismisses after five seconds", toast(in: scan) == nil)
++        path.send(.satisfied)
++        delegate.resetMeasurementID()
++        check("Cancelling measurement clears pending slow warnings", toast(in: scan) == nil)
++
++        // Reuse the same delegate across the scan replacement used for rotation.
++        presenter.dismiss(animated: false)
++        await pause(250)
++        check("Closing scan cancels its path monitor and removes its toast", path.isCancelled && toast(in: scan) == nil)
++        window!.windowScene?.requestGeometryUpdate(.iOS(interfaceOrientations: .landscapeRight))
++        await pause(700)
++        check("Simulator reached landscape", window!.bounds.width > window!.bounds.height)
++        let landscapeScan = await presentScan(delegate: delegate)
++        let landscapePath = NWPathMonitor.instances.last!
++        path.send(.unsatisfied)
++        check("Delayed path event from the old scan cannot warn in the new scan", toast(in: landscapeScan) == nil)
++        landscapePath.send(.unsatisfied)
++        check("A new scan starting offline still warns", message(in: landscapeScan) == FaceScanNetworkWarning.offline.message)
++        verifyLayout(in: landscapeScan)
++        snapshot("network-toast-landscape.png")
++
++        landscapePath.send(.satisfied)
++        delegate.createNewMeasurement()
++        api.creation?(.failure(URLError(.timedOut)))
++        check("Measurement creation timeout shows a slow warning", message(in: landscapeScan) == FaceScanNetworkWarning.slow.message)
++        delegate.createNewMeasurement()
++        api.creation?(.success(ID(id: "retry-measurement")))
++        api.upload = nil
++        delegate.anuraMeasurementControllerDidGetPayload(landscapeScan, MeasurementPayload(chunkOrder: 0, numberOfChunks: 6, payload: Data()))
++        await pause(200)
++        precondition(api.upload != nil)
++        api.upload?(.failure(URLError(.networkConnectionLost)))
++        check("Upload connection-loss error shows an offline warning", message(in: landscapeScan) == FaceScanNetworkWarning.offline.message)
++
++        // SDK layout updates can add views; the toast must remain visible.
++        let sdkOverlay = UIView(frame: landscapeScan.view.bounds)
++        landscapeScan.view.addSubview(sdkOverlay)
++        delegate.anuraMeasurementControllerDidUpdate(landscapeScan, info: MeasurementPipelineInfo(state: .measuring))
++        check("Pipeline updates keep the toast above SDK views", landscapeScan.view.subviews.last === toast(in: landscapeScan))
++        sdkOverlay.removeFromSuperview()
++        delegate.anuraMeasurementControllerDidFinishMeasuring(landscapeScan)
++        check("Finishing scan immediately removes the toast and stops monitoring", toast(in: landscapeScan) == nil && landscapePath.isCancelled)
++        // Allow the full-screen results presentation to finish before cleanup.
++        await pause(1200)
++        delegate.resetMeasurementID()
++        // The test app exits below. Avoid collapsing both custom/full-screen
++        // presentations at once merely to tear down this fixture.
++
++        let hiddenController = UIViewController()
++        let standaloneToast = FaceScanNetworkToast()
++        standaloneToast.show(.offline, in: hiddenController)
++        check("Offscreen controller cannot display a toast", hiddenController.viewIfLoaded == nil)
++
++        let report = passed.map { "PASS: \($0)" }.joined(separator: "\n")
++            + "\nRESULT: \(passed.count) simulator integration/UI test cases passed\n"
++        try! report.write(to: documents.appendingPathComponent("result.txt"), atomically: true, encoding: .utf8)
++        print(report)
++        fflush(stdout)
++        exit(0)
++    }
++
++    private func presentScan(delegate: MeasurementDelegate) async -> AnuraMeasurementViewController {
++        let scan = AnuraMeasurementViewController()
++        scan.delegate = delegate
++        let bounds = window!.bounds
++        let landscape = bounds.width > bounds.height
++        scan.preferredContentSize = CGSize(width: min(bounds.width, bounds.height) * (landscape ? 0.9 : 0.8), height: max(bounds.width, bounds.height) * 0.7)
++        scan.modalPresentationStyle = landscape ? .custom : .formSheet
++        if landscape { scan.transitioningDelegate = scan }
++        presenter.present(scan, animated: false)
++        await pause(350)
++        return scan
++    }
++
++    private func verifyLayout(in scan: AnuraMeasurementViewController) {
++        scan.view.layoutIfNeeded()
++        let toast = toast(in: scan)!
++        let label = toast.subviews.compactMap { $0 as? UILabel }.first!
++        check("Toast fits popup \(Int(scan.view.bounds.width))x\(Int(scan.view.bounds.height))", scan.view.bounds.contains(toast.frame) && !toast.hasAmbiguousLayout)
++        let required = label.sizeThatFits(CGSize(width: label.bounds.width, height: .greatestFiniteMagnitude))
++        check("Warning text is fully visible and does not intercept touches", label.bounds.height >= required.height - 1 && !toast.isUserInteractionEnabled)
++        check("Close button remains unobstructed", !toast.frame.intersects(scan.closeButton.frame))
++    }
++    private func check(_ name: String, _ condition: @autoclosure () -> Bool) {
++        precondition(condition(), name)
++        passed.append(name)
++        print("PASS \(passed.count): \(name)")
++        fflush(stdout)
++    }
++    private func toasts(in controller: UIViewController) -> [UIView] {
++        controller.view.subviews.filter { $0.accessibilityIdentifier == "faceScan.networkToast" }
++    }
++    private func toast(in controller: UIViewController) -> UIView? { toasts(in: controller).first }
++    private func message(in controller: UIViewController) -> String? {
++        toast(in: controller)?.subviews.compactMap { $0 as? UILabel }.first?.text
++    }
++    private func pause(_ milliseconds: Int) async { try? await Task.sleep(for: .milliseconds(milliseconds)) }
++    private func snapshot(_ name: String) {
++        let renderer = UIGraphicsImageRenderer(bounds: window!.bounds)
++        let image = renderer.image { _ in window!.drawHierarchy(in: window!.bounds, afterScreenUpdates: true) }
++        try! image.pngData()!.write(to: documents.appendingPathComponent(name))
++    }
++}
+Index: Tests/run-face-scan-network-simulator-tests.sh
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Tests/run-face-scan-network-simulator-tests.sh b/Tests/run-face-scan-network-simulator-tests.sh
+new file mode 100755
+--- /dev/null	(date 1793629933811)
++++ b/Tests/run-face-scan-network-simulator-tests.sh	(date 1793629933811)
+@@ -0,0 +1,35 @@
++#!/bin/bash
++set -euo pipefail
++cd "$(dirname "$0")/.."
++device_id="${1:?Pass a booted iPad simulator UDID}"
++output_dir="${2:-/tmp/hh-face-scan-network-results}"
++mkdir -p "$output_dir"
++test_dir="$(mktemp -d /tmp/hh-network-ui-tests.XXXXXX)"
++trap 'rm -rf "$test_dir"' EXIT
++app_dir="$test_dir/FaceScanNetworkTests.app"
++mkdir -p "$app_dir"
++python3 - "$app_dir/Info.plist" <<'PY'
++import plistlib, sys
++with open(sys.argv[1], 'wb') as f:
++    plistlib.dump({'CFBundleIdentifier':'local.codex.FaceScanNetworkTests','CFBundleExecutable':'FaceScanNetworkTests','CFBundleName':'FaceScanNetworkTests','CFBundlePackageType':'APPL','MinimumOSVersion':'18.0','UIDeviceFamily':[2],'UIRequiresFullScreen':True,'UILaunchScreen':{},'UISupportedInterfaceOrientations':['UIInterfaceOrientationPortrait','UIInterfaceOrientationLandscapeLeft','UIInterfaceOrientationLandscapeRight']}, f)
++PY
++# Stand-ins replace only external boundaries. Do not rewrite production logic.
++sed '/^import Network$/d' HH_Kiosk_B2B/Utils/FaceScanNetworkMonitor.swift > "$test_dir/FaceScanNetworkMonitor.swift"
++sed '/^import AnuraCore$/d' HH_Kiosk_B2B/Utils/MeasurementDelegate.swift > "$test_dir/MeasurementDelegate.swift"
++xcrun --sdk iphonesimulator swiftc -sdk "$(xcrun --sdk iphonesimulator --show-sdk-path)" \
++  -target arm64-apple-ios18.0-simulator -module-cache-path "$test_dir/module-cache" \
++  Tests/Support/FaceScanNetworkPathDouble.swift \
++  Tests/Support/FaceScanDelegateTestDoubles.swift \
++  Tests/FaceScanNetworkSimulatorTests.swift \
++  "$test_dir/FaceScanNetworkMonitor.swift" "$test_dir/MeasurementDelegate.swift" \
++  HH_Kiosk_B2B/Utils/FaceScanNetworkToast.swift \
++  HH_Kiosk_B2B/Utils/LandscapeScanPresentationController.swift \
++  -o "$app_dir/FaceScanNetworkTests"
++xcrun simctl install "$device_id" "$app_dir"
++xcrun simctl launch --terminate-running-process --console "$device_id" local.codex.FaceScanNetworkTests
++container="$(xcrun simctl get_app_container "$device_id" local.codex.FaceScanNetworkTests data)"
++cp "$container/Documents/result.txt" "$output_dir/result.txt"
++cp "$container/Documents/network-toast-portrait.png" "$output_dir/"
++cp "$container/Documents/network-toast-landscape.png" "$output_dir/"
++cat "$output_dir/result.txt"
++printf 'Screenshots and results: %s\n' "$output_dir"
+Index: HH_Kiosk_B2B.xcodeproj/project.pbxproj
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>// !$*UTF8*$!\n{\n\tarchiveVersion = 1;\n\tclasses = {\n\t};\n\tobjectVersion = 77;\n\tobjects = {\n\n/* Begin PBXBuildFile section */\n\t\t960016092F6AD75300C7F9CA /* CONTRIBUTING.md in Resources */ = {isa = PBXBuildFile; fileRef = 960016082F6AD75300C7F9CA /* CONTRIBUTING.md */; };\n\t\t96550BBB2FE5D242001C7296 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 96550BBA2FE5D242001C7296 /* Lottie */; };\n\t\t96B73FD62EA016F70004A505 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96B73FD52EA016F70004A505 /* Accelerate.framework */; };\n\t\t96B73FD82EA017110004A505 /* AnuraCore.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96B73FD72EA017110004A505 /* AnuraCore.xcframework */; };\n\t\t96B73FD92EA017110004A505 /* AnuraCore.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 96B73FD72EA017110004A505 /* AnuraCore.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };\n\t\t96B73FDC2EA0171F0004A505 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96B73FDB2EA0171F0004A505 /* AVFoundation.framework */; };\n\t\t96B73FDF2EA017360004A505 /* FaceMesh.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96B73FDD2EA017360004A505 /* FaceMesh.xcframework */; };\n\t\t96B73FE02EA017360004A505 /* FaceMesh.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 96B73FDD2EA017360004A505 /* FaceMesh.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };\n\t\t96B73FE12EA017360004A505 /* libdfx.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96B73FDE2EA017360004A505 /* libdfx.xcframework */; };\n\t\t96B73FE22EA017360004A505 /* libdfx.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 96B73FDE2EA017360004A505 /* libdfx.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };\n\t\t96B740092EA01D510004A505 /* Starscream in Frameworks */ = {isa = PBXBuildFile; productRef = 96B740082EA01D510004A505 /* Starscream */; };\n/* End PBXBuildFile section */\n\n/* Begin PBXCopyFilesBuildPhase section */\n\t\t96B73FDA2EA017110004A505 /* Embed Frameworks */ = {\n\t\t\tisa = PBXCopyFilesBuildPhase;\n\t\t\tbuildActionMask = 2147483647;\n\t\t\tdstPath = \"\";\n\t\t\tdstSubfolderSpec = 10;\n\t\t\tfiles = (\n\t\t\t\t96B73FD92EA017110004A505 /* AnuraCore.xcframework in Embed Frameworks */,\n\t\t\t\t96B73FE22EA017360004A505 /* libdfx.xcframework in Embed Frameworks */,\n\t\t\t\t96B73FE02EA017360004A505 /* FaceMesh.xcframework in Embed Frameworks */,\n\t\t\t);\n\t\t\tname = \"Embed Frameworks\";\n\t\t\trunOnlyForDeploymentPostprocessing = 0;\n\t\t};\n/* End PBXCopyFilesBuildPhase section */\n\n/* Begin PBXFileReference section */\n\t\t960016082F6AD75300C7F9CA /* CONTRIBUTING.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CONTRIBUTING.md; sourceTree = \"<group>\"; };\n\t\t96B73F8F2EA014890004A505 /* HH_Kiosk_B2B.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HH_Kiosk_B2B.app; sourceTree = BUILT_PRODUCTS_DIR; };\n\t\t96B73FD52EA016F70004A505 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };\n\t\t96B73FD72EA017110004A505 /* AnuraCore.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = AnuraCore.xcframework; path = Frameworks/AnuraCore.xcframework; sourceTree = \"<group>\"; };\n\t\t96B73FDB2EA0171F0004A505 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };\n\t\t96B73FDD2EA017360004A505 /* FaceMesh.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = FaceMesh.xcframework; path = Frameworks/FaceMesh.xcframework; sourceTree = \"<group>\"; };\n\t\t96B73FDE2EA017360004A505 /* libdfx.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = libdfx.xcframework; path = Frameworks/libdfx.xcframework; sourceTree = \"<group>\"; };\n/* End PBXFileReference section */\n\n/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */\n\t\t9639FE472EB254CA00C42E96 /* Exceptions for \"HH_Kiosk_B2B\" folder in \"HH_Kiosk_B2B\" target */ = {\n\t\t\tisa = PBXFileSystemSynchronizedBuildFileExceptionSet;\n\t\t\tmembershipExceptions = (\n\t\t\t\tServices/Networking/Untitled.swift,\n\t\t\t);\n\t\t\ttarget = 96B73F8E2EA014890004A505 /* HH_Kiosk_B2B */;\n\t\t};\n/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */\n\n/* Begin PBXFileSystemSynchronizedRootGroup section */\n\t\t96B73F912EA014890004A505 /* HH_Kiosk_B2B */ = {\n\t\t\tisa = PBXFileSystemSynchronizedRootGroup;\n\t\t\texceptions = (\n\t\t\t\t9639FE472EB254CA00C42E96 /* Exceptions for \"HH_Kiosk_B2B\" folder in \"HH_Kiosk_B2B\" target */,\n\t\t\t);\n\t\t\tpath = HH_Kiosk_B2B;\n\t\t\tsourceTree = \"<group>\";\n\t\t};\n/* End PBXFileSystemSynchronizedRootGroup section */\n\n/* Begin PBXFrameworksBuildPhase section */\n\t\t96B73F8C2EA014890004A505 /* Frameworks */ = {\n\t\t\tisa = PBXFrameworksBuildPhase;\n\t\t\tbuildActionMask = 2147483647;\n\t\t\tfiles = (\n\t\t\t\t96B73FD82EA017110004A505 /* AnuraCore.xcframework in Frameworks */,\n\t\t\t\t96550BBB2FE5D242001C7296 /* Lottie in Frameworks */,\n\t\t\t\t96B73FE12EA017360004A505 /* libdfx.xcframework in Frameworks */,\n\t\t\t\t96B73FD62EA016F70004A505 /* Accelerate.framework in Frameworks */,\n\t\t\t\t96B73FDC2EA0171F0004A505 /* AVFoundation.framework in Frameworks */,\n\t\t\t\t96B73FDF2EA017360004A505 /* FaceMesh.xcframework in Frameworks */,\n\t\t\t\t96B740092EA01D510004A505 /* Starscream in Frameworks */,\n\t\t\t);\n\t\t\trunOnlyForDeploymentPostprocessing = 0;\n\t\t};\n/* End PBXFrameworksBuildPhase section */\n\n/* Begin PBXGroup section */\n\t\t96B73F862EA014890004A505 = {\n\t\t\tisa = PBXGroup;\n\t\t\tchildren = (\n\t\t\t\t96B73F912EA014890004A505 /* HH_Kiosk_B2B */,\n\t\t\t\t96B73FD42EA016F70004A505 /* Frameworks */,\n\t\t\t\t96B73F902EA014890004A505 /* Products */,\n\t\t\t\t960016082F6AD75300C7F9CA /* CONTRIBUTING.md */,\n\t\t\t);\n\t\t\tsourceTree = \"<group>\";\n\t\t};\n\t\t96B73F902EA014890004A505 /* Products */ = {\n\t\t\tisa = PBXGroup;\n\t\t\tchildren = (\n\t\t\t\t96B73F8F2EA014890004A505 /* HH_Kiosk_B2B.app */,\n\t\t\t);\n\t\t\tname = Products;\n\t\t\tsourceTree = \"<group>\";\n\t\t};\n\t\t96B73FD42EA016F70004A505 /* Frameworks */ = {\n\t\t\tisa = PBXGroup;\n\t\t\tchildren = (\n\t\t\t\t96B73FDD2EA017360004A505 /* FaceMesh.xcframework */,\n\t\t\t\t96B73FDE2EA017360004A505 /* libdfx.xcframework */,\n\t\t\t\t96B73FDB2EA0171F0004A505 /* AVFoundation.framework */,\n\t\t\t\t96B73FD72EA017110004A505 /* AnuraCore.xcframework */,\n\t\t\t\t96B73FD52EA016F70004A505 /* Accelerate.framework */,\n\t\t\t);\n\t\t\tname = Frameworks;\n\t\t\tsourceTree = \"<group>\";\n\t\t};\n/* End PBXGroup section */\n\n/* Begin PBXNativeTarget section */\n\t\t96B73F8E2EA014890004A505 /* HH_Kiosk_B2B */ = {\n\t\t\tisa = PBXNativeTarget;\n\t\t\tbuildConfigurationList = 96B73FB32EA0148A0004A505 /* Build configuration list for PBXNativeTarget \"HH_Kiosk_B2B\" */;\n\t\t\tbuildPhases = (\n\t\t\t\t96B73F8B2EA014890004A505 /* Sources */,\n\t\t\t\t96B73F8C2EA014890004A505 /* Frameworks */,\n\t\t\t\t96B73F8D2EA014890004A505 /* Resources */,\n\t\t\t\t96B73FDA2EA017110004A505 /* Embed Frameworks */,\n\t\t\t);\n\t\t\tbuildRules = (\n\t\t\t);\n\t\t\tdependencies = (\n\t\t\t);\n\t\t\tfileSystemSynchronizedGroups = (\n\t\t\t\t96B73F912EA014890004A505 /* HH_Kiosk_B2B */,\n\t\t\t);\n\t\t\tname = HH_Kiosk_B2B;\n\t\t\tpackageProductDependencies = (\n\t\t\t\t96B740082EA01D510004A505 /* Starscream */,\n\t\t\t\t96550BBA2FE5D242001C7296 /* Lottie */,\n\t\t\t);\n\t\t\tproductName = HH_Kiosk_B2B;\n\t\t\tproductReference = 96B73F8F2EA014890004A505 /* HH_Kiosk_B2B.app */;\n\t\t\tproductType = \"com.apple.product-type.application\";\n\t\t};\n/* End PBXNativeTarget section */\n\n/* Begin PBXProject section */\n\t\t96B73F872EA014890004A505 /* Project object */ = {\n\t\t\tisa = PBXProject;\n\t\t\tattributes = {\n\t\t\t\tBuildIndependentTargetsInParallel = 1;\n\t\t\t\tLastSwiftUpdateCheck = 1600;\n\t\t\t\tLastUpgradeCheck = 1600;\n\t\t\t\tTargetAttributes = {\n\t\t\t\t\t96B73F8E2EA014890004A505 = {\n\t\t\t\t\t\tCreatedOnToolsVersion = 16.0;\n\t\t\t\t\t};\n\t\t\t\t};\n\t\t\t};\n\t\t\tbuildConfigurationList = 96B73F8A2EA014890004A505 /* Build configuration list for PBXProject \"HH_Kiosk_B2B\" */;\n\t\t\tdevelopmentRegion = en;\n\t\t\thasScannedForEncodings = 0;\n\t\t\tknownRegions = (\n\t\t\t\ten,\n\t\t\t\tBase,\n\t\t\t\t\"zh-Hans\",\n\t\t\t);\n\t\t\tmainGroup = 96B73F862EA014890004A505;\n\t\t\tminimizedProjectReferenceProxies = 1;\n\t\t\tpackageReferences = (\n\t\t\t\t96B740072EA01D510004A505 /* XCRemoteSwiftPackageReference \"Starscream\" */,\n\t\t\t\t96550BB92FE5D242001C7296 /* XCRemoteSwiftPackageReference \"lottie-ios\" */,\n\t\t\t);\n\t\t\tpreferredProjectObjectVersion = 77;\n\t\t\tproductRefGroup = 96B73F902EA014890004A505 /* Products */;\n\t\t\tprojectDirPath = \"\";\n\t\t\tprojectRoot = \"\";\n\t\t\ttargets = (\n\t\t\t\t96B73F8E2EA014890004A505 /* HH_Kiosk_B2B */,\n\t\t\t);\n\t\t};\n/* End PBXProject section */\n\n/* Begin PBXResourcesBuildPhase section */\n\t\t96B73F8D2EA014890004A505 /* Resources */ = {\n\t\t\tisa = PBXResourcesBuildPhase;\n\t\t\tbuildActionMask = 2147483647;\n\t\t\tfiles = (\n\t\t\t\t960016092F6AD75300C7F9CA /* CONTRIBUTING.md in Resources */,\n\t\t\t);\n\t\t\trunOnlyForDeploymentPostprocessing = 0;\n\t\t};\n/* End PBXResourcesBuildPhase section */\n\n/* Begin PBXSourcesBuildPhase section */\n\t\t96B73F8B2EA014890004A505 /* Sources */ = {\n\t\t\tisa = PBXSourcesBuildPhase;\n\t\t\tbuildActionMask = 2147483647;\n\t\t\tfiles = (\n\t\t\t);\n\t\t\trunOnlyForDeploymentPostprocessing = 0;\n\t\t};\n/* End PBXSourcesBuildPhase section */\n\n/* Begin XCBuildConfiguration section */\n\t\t96B73FB12EA0148A0004A505 /* Debug */ = {\n\t\t\tisa = XCBuildConfiguration;\n\t\t\tbuildSettings = {\n\t\t\t\tALWAYS_SEARCH_USER_PATHS = NO;\n\t\t\t\tASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;\n\t\t\t\tCLANG_ANALYZER_NONNULL = YES;\n\t\t\t\tCLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;\n\t\t\t\tCLANG_CXX_LANGUAGE_STANDARD = \"gnu++20\";\n\t\t\t\tCLANG_ENABLE_MODULES = YES;\n\t\t\t\tCLANG_ENABLE_OBJC_ARC = YES;\n\t\t\t\tCLANG_ENABLE_OBJC_WEAK = YES;\n\t\t\t\tCLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;\n\t\t\t\tCLANG_WARN_BOOL_CONVERSION = YES;\n\t\t\t\tCLANG_WARN_COMMA = YES;\n\t\t\t\tCLANG_WARN_CONSTANT_CONVERSION = YES;\n\t\t\t\tCLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;\n\t\t\t\tCLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;\n\t\t\t\tCLANG_WARN_DOCUMENTATION_COMMENTS = YES;\n\t\t\t\tCLANG_WARN_EMPTY_BODY = YES;\n\t\t\t\tCLANG_WARN_ENUM_CONVERSION = YES;\n\t\t\t\tCLANG_WARN_INFINITE_RECURSION = YES;\n\t\t\t\tCLANG_WARN_INT_CONVERSION = YES;\n\t\t\t\tCLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;\n\t\t\t\tCLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;\n\t\t\t\tCLANG_WARN_OBJC_LITERAL_CONVERSION = YES;\n\t\t\t\tCLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;\n\t\t\t\tCLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;\n\t\t\t\tCLANG_WARN_RANGE_LOOP_ANALYSIS = YES;\n\t\t\t\tCLANG_WARN_STRICT_PROTOTYPES = YES;\n\t\t\t\tCLANG_WARN_SUSPICIOUS_MOVE = YES;\n\t\t\t\tCLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;\n\t\t\t\tCLANG_WARN_UNREACHABLE_CODE = YES;\n\t\t\t\tCLANG_WARN__DUPLICATE_METHOD_MATCH = YES;\n\t\t\t\tCOPY_PHASE_STRIP = NO;\n\t\t\t\tDEBUG_INFORMATION_FORMAT = dwarf;\n\t\t\t\tENABLE_STRICT_OBJC_MSGSEND = YES;\n\t\t\t\tENABLE_TESTABILITY = YES;\n\t\t\t\tENABLE_USER_SCRIPT_SANDBOXING = YES;\n\t\t\t\tGCC_C_LANGUAGE_STANDARD = gnu17;\n\t\t\t\tGCC_DYNAMIC_NO_PIC = NO;\n\t\t\t\tGCC_NO_COMMON_BLOCKS = YES;\n\t\t\t\tGCC_OPTIMIZATION_LEVEL = 0;\n\t\t\t\tGCC_PREPROCESSOR_DEFINITIONS = (\n\t\t\t\t\t\"DEBUG=1\",\n\t\t\t\t\t\"$(inherited)\",\n\t\t\t\t);\n\t\t\t\tGCC_WARN_64_TO_32_BIT_CONVERSION = YES;\n\t\t\t\tGCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;\n\t\t\t\tGCC_WARN_UNDECLARED_SELECTOR = YES;\n\t\t\t\tGCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;\n\t\t\t\tGCC_WARN_UNUSED_FUNCTION = YES;\n\t\t\t\tGCC_WARN_UNUSED_VARIABLE = YES;\n\t\t\t\tIPHONEOS_DEPLOYMENT_TARGET = 18.0;\n\t\t\t\tLOCALIZATION_PREFERS_STRING_CATALOGS = YES;\n\t\t\t\tMTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;\n\t\t\t\tMTL_FAST_MATH = YES;\n\t\t\t\tONLY_ACTIVE_ARCH = YES;\n\t\t\t\tSDKROOT = iphoneos;\n\t\t\t\tSWIFT_ACTIVE_COMPILATION_CONDITIONS = \"DEBUG $(inherited)\";\n\t\t\t\tSWIFT_OPTIMIZATION_LEVEL = \"-Onone\";\n\t\t\t};\n\t\t\tname = Debug;\n\t\t};\n\t\t96B73FB22EA0148A0004A505 /* Release */ = {\n\t\t\tisa = XCBuildConfiguration;\n\t\t\tbuildSettings = {\n\t\t\t\tALWAYS_SEARCH_USER_PATHS = NO;\n\t\t\t\tASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;\n\t\t\t\tCLANG_ANALYZER_NONNULL = YES;\n\t\t\t\tCLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;\n\t\t\t\tCLANG_CXX_LANGUAGE_STANDARD = \"gnu++20\";\n\t\t\t\tCLANG_ENABLE_MODULES = YES;\n\t\t\t\tCLANG_ENABLE_OBJC_ARC = YES;\n\t\t\t\tCLANG_ENABLE_OBJC_WEAK = YES;\n\t\t\t\tCLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;\n\t\t\t\tCLANG_WARN_BOOL_CONVERSION = YES;\n\t\t\t\tCLANG_WARN_COMMA = YES;\n\t\t\t\tCLANG_WARN_CONSTANT_CONVERSION = YES;\n\t\t\t\tCLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;\n\t\t\t\tCLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;\n\t\t\t\tCLANG_WARN_DOCUMENTATION_COMMENTS = YES;\n\t\t\t\tCLANG_WARN_EMPTY_BODY = YES;\n\t\t\t\tCLANG_WARN_ENUM_CONVERSION = YES;\n\t\t\t\tCLANG_WARN_INFINITE_RECURSION = YES;\n\t\t\t\tCLANG_WARN_INT_CONVERSION = YES;\n\t\t\t\tCLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;\n\t\t\t\tCLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;\n\t\t\t\tCLANG_WARN_OBJC_LITERAL_CONVERSION = YES;\n\t\t\t\tCLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;\n\t\t\t\tCLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;\n\t\t\t\tCLANG_WARN_RANGE_LOOP_ANALYSIS = YES;\n\t\t\t\tCLANG_WARN_STRICT_PROTOTYPES = YES;\n\t\t\t\tCLANG_WARN_SUSPICIOUS_MOVE = YES;\n\t\t\t\tCLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;\n\t\t\t\tCLANG_WARN_UNREACHABLE_CODE = YES;\n\t\t\t\tCLANG_WARN__DUPLICATE_METHOD_MATCH = YES;\n\t\t\t\tCOPY_PHASE_STRIP = NO;\n\t\t\t\tDEBUG_INFORMATION_FORMAT = \"dwarf-with-dsym\";\n\t\t\t\tENABLE_NS_ASSERTIONS = NO;\n\t\t\t\tENABLE_STRICT_OBJC_MSGSEND = YES;\n\t\t\t\tENABLE_USER_SCRIPT_SANDBOXING = YES;\n\t\t\t\tGCC_C_LANGUAGE_STANDARD = gnu17;\n\t\t\t\tGCC_NO_COMMON_BLOCKS = YES;\n\t\t\t\tGCC_WARN_64_TO_32_BIT_CONVERSION = YES;\n\t\t\t\tGCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;\n\t\t\t\tGCC_WARN_UNDECLARED_SELECTOR = YES;\n\t\t\t\tGCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;\n\t\t\t\tGCC_WARN_UNUSED_FUNCTION = YES;\n\t\t\t\tGCC_WARN_UNUSED_VARIABLE = YES;\n\t\t\t\tIPHONEOS_DEPLOYMENT_TARGET = 18.0;\n\t\t\t\tLOCALIZATION_PREFERS_STRING_CATALOGS = YES;\n\t\t\t\tMTL_ENABLE_DEBUG_INFO = NO;\n\t\t\t\tMTL_FAST_MATH = YES;\n\t\t\t\tSDKROOT = iphoneos;\n\t\t\t\tSWIFT_COMPILATION_MODE = wholemodule;\n\t\t\t\tVALIDATE_PRODUCT = YES;\n\t\t\t};\n\t\t\tname = Release;\n\t\t};\n\t\t96B73FB42EA0148A0004A505 /* Debug */ = {\n\t\t\tisa = XCBuildConfiguration;\n\t\t\tbuildSettings = {\n\t\t\t\tASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;\n\t\t\t\tASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;\n\t\t\t\tCODE_SIGN_STYLE = Automatic;\n\t\t\t\tCURRENT_PROJECT_VERSION = 114;\n\t\t\t\tDEVELOPMENT_TEAM = 7P2GHHGYQX;\n\t\t\t\tENABLE_PREVIEWS = YES;\n\t\t\t\tGENERATE_INFOPLIST_FILE = YES;\n\t\t\t\tINFOPLIST_FILE = \"HH-Kiosk-B2B-Info.plist\";\n\t\t\t\tINFOPLIST_KEY_CFBundleDisplayName = \"HH Kiosk\";\n\t\t\t\tINFOPLIST_KEY_LSApplicationCategoryType = \"public.app-category.healthcare-fitness\";\n\t\t\t\tINFOPLIST_KEY_NSCameraUsageDescription = \"The camera will be used to take your measurements.\";\n\t\t\t\tINFOPLIST_KEY_NSHumanReadableCopyright = \"\";\n\t\t\t\tINFOPLIST_KEY_NSLocationWhenInUseUsageDescription = \"This app needs your location to show current weather info..\";\n\t\t\t\tINFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;\n\t\t\t\tINFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;\n\t\t\t\tINFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;\n\t\t\t\tINFOPLIST_KEY_UIRequiredDeviceCapabilities = armv7;\n\t\t\t\tINFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;\n\t\t\t\tINFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = \"UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown\";\n\t\t\t\tINFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = \"UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight\";\n\t\t\t\tLD_RUNPATH_SEARCH_PATHS = (\n\t\t\t\t\t\"$(inherited)\",\n\t\t\t\t\t\"@executable_path/Frameworks\",\n\t\t\t\t);\n\t\t\t\tMARKETING_VERSION = 2.1.06;\n\t\t\t\tPRODUCT_BUNDLE_IDENTIFIER = \"com.nutritionApp.hibiscushealth.HH-Kiosk-B2B\";\n\t\t\t\tPRODUCT_NAME = \"$(TARGET_NAME)\";\n\t\t\t\tSWIFT_EMIT_LOC_STRINGS = YES;\n\t\t\t\tSWIFT_VERSION = 5.0;\n\t\t\t\tTARGETED_DEVICE_FAMILY = \"1,2\";\n\t\t\t\tVERSIONING_SYSTEM = \"\";\n\t\t\t};\n\t\t\tname = Debug;\n\t\t};\n\t\t96B73FB52EA0148A0004A505 /* Release */ = {\n\t\t\tisa = XCBuildConfiguration;\n\t\t\tbuildSettings = {\n\t\t\t\tASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;\n\t\t\t\tASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;\n\t\t\t\tCODE_SIGN_STYLE = Automatic;\n\t\t\t\tCURRENT_PROJECT_VERSION = 114;\n\t\t\t\tDEVELOPMENT_TEAM = 7P2GHHGYQX;\n\t\t\t\tENABLE_PREVIEWS = YES;\n\t\t\t\tGENERATE_INFOPLIST_FILE = YES;\n\t\t\t\tINFOPLIST_FILE = \"HH-Kiosk-B2B-Info.plist\";\n\t\t\t\tINFOPLIST_KEY_CFBundleDisplayName = \"HH Kiosk\";\n\t\t\t\tINFOPLIST_KEY_LSApplicationCategoryType = \"public.app-category.healthcare-fitness\";\n\t\t\t\tINFOPLIST_KEY_NSCameraUsageDescription = \"The camera will be used to take your measurements.\";\n\t\t\t\tINFOPLIST_KEY_NSHumanReadableCopyright = \"\";\n\t\t\t\tINFOPLIST_KEY_NSLocationWhenInUseUsageDescription = \"This app needs your location to show current weather info..\";\n\t\t\t\tINFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;\n\t\t\t\tINFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;\n\t\t\t\tINFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;\n\t\t\t\tINFOPLIST_KEY_UIRequiredDeviceCapabilities = armv7;\n\t\t\t\tINFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;\n\t\t\t\tINFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = \"UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown\";\n\t\t\t\tINFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = \"UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight\";\n\t\t\t\tLD_RUNPATH_SEARCH_PATHS = (\n\t\t\t\t\t\"$(inherited)\",\n\t\t\t\t\t\"@executable_path/Frameworks\",\n\t\t\t\t);\n\t\t\t\tMARKETING_VERSION = 2.1.06;\n\t\t\t\tPRODUCT_BUNDLE_IDENTIFIER = \"com.nutritionApp.hibiscushealth.HH-Kiosk-B2B\";\n\t\t\t\tPRODUCT_NAME = \"$(TARGET_NAME)\";\n\t\t\t\tSWIFT_EMIT_LOC_STRINGS = YES;\n\t\t\t\tSWIFT_VERSION = 5.0;\n\t\t\t\tTARGETED_DEVICE_FAMILY = \"1,2\";\n\t\t\t\tVERSIONING_SYSTEM = \"\";\n\t\t\t};\n\t\t\tname = Release;\n\t\t};\n/* End XCBuildConfiguration section */\n\n/* Begin XCConfigurationList section */\n\t\t96B73F8A2EA014890004A505 /* Build configuration list for PBXProject \"HH_Kiosk_B2B\" */ = {\n\t\t\tisa = XCConfigurationList;\n\t\t\tbuildConfigurations = (\n\t\t\t\t96B73FB12EA0148A0004A505 /* Debug */,\n\t\t\t\t96B73FB22EA0148A0004A505 /* Release */,\n\t\t\t);\n\t\t\tdefaultConfigurationIsVisible = 0;\n\t\t\tdefaultConfigurationName = Release;\n\t\t};\n\t\t96B73FB32EA0148A0004A505 /* Build configuration list for PBXNativeTarget \"HH_Kiosk_B2B\" */ = {\n\t\t\tisa = XCConfigurationList;\n\t\t\tbuildConfigurations = (\n\t\t\t\t96B73FB42EA0148A0004A505 /* Debug */,\n\t\t\t\t96B73FB52EA0148A0004A505 /* Release */,\n\t\t\t);\n\t\t\tdefaultConfigurationIsVisible = 0;\n\t\t\tdefaultConfigurationName = Release;\n\t\t};\n/* End XCConfigurationList section */\n\n/* Begin XCRemoteSwiftPackageReference section */\n\t\t96550BB92FE5D242001C7296 /* XCRemoteSwiftPackageReference \"lottie-ios\" */ = {\n\t\t\tisa = XCRemoteSwiftPackageReference;\n\t\t\trepositoryURL = \"https://github.com/airbnb/lottie-ios\";\n\t\t\trequirement = {\n\t\t\t\tkind = upToNextMajorVersion;\n\t\t\t\tminimumVersion = 4.6.1;\n\t\t\t};\n\t\t};\n\t\t96B740072EA01D510004A505 /* XCRemoteSwiftPackageReference \"Starscream\" */ = {\n\t\t\tisa = XCRemoteSwiftPackageReference;\n\t\t\trepositoryURL = \"https://github.com/daltoniam/Starscream.git\";\n\t\t\trequirement = {\n\t\t\t\tkind = upToNextMajorVersion;\n\t\t\t\tminimumVersion = 4.0.8;\n\t\t\t};\n\t\t};\n/* End XCRemoteSwiftPackageReference section */\n\n/* Begin XCSwiftPackageProductDependency section */\n\t\t96550BBA2FE5D242001C7296 /* Lottie */ = {\n\t\t\tisa = XCSwiftPackageProductDependency;\n\t\t\tpackage = 96550BB92FE5D242001C7296 /* XCRemoteSwiftPackageReference \"lottie-ios\" */;\n\t\t\tproductName = Lottie;\n\t\t};\n\t\t96B740082EA01D510004A505 /* Starscream */ = {\n\t\t\tisa = XCSwiftPackageProductDependency;\n\t\t\tpackage = 96B740072EA01D510004A505 /* XCRemoteSwiftPackageReference \"Starscream\" */;\n\t\t\tproductName = Starscream;\n\t\t};\n/* End XCSwiftPackageProductDependency section */\n\t};\n\trootObject = 96B73F872EA014890004A505 /* Project object */;\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/HH_Kiosk_B2B.xcodeproj/project.pbxproj b/HH_Kiosk_B2B.xcodeproj/project.pbxproj
+--- a/HH_Kiosk_B2B.xcodeproj/project.pbxproj	(revision 5ceeadc777f629780aa91a73e0b8fec943b4b48d)
++++ b/HH_Kiosk_B2B.xcodeproj/project.pbxproj	(date 1793797452209)
+@@ -329,7 +329,7 @@
+ 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+ 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+ 				CODE_SIGN_STYLE = Automatic;
+-				CURRENT_PROJECT_VERSION = 114;
++				CURRENT_PROJECT_VERSION = 115;
+ 				DEVELOPMENT_TEAM = 7P2GHHGYQX;
+ 				ENABLE_PREVIEWS = YES;
+ 				GENERATE_INFOPLIST_FILE = YES;
+@@ -350,7 +350,7 @@
+ 					"$(inherited)",
+ 					"@executable_path/Frameworks",
+ 				);
+-				MARKETING_VERSION = 2.1.06;
++				MARKETING_VERSION = 2.1.07;
+ 				PRODUCT_BUNDLE_IDENTIFIER = "com.nutritionApp.hibiscushealth.HH-Kiosk-B2B";
+ 				PRODUCT_NAME = "$(TARGET_NAME)";
+ 				SWIFT_EMIT_LOC_STRINGS = YES;
+@@ -366,7 +366,7 @@
+ 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+ 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+ 				CODE_SIGN_STYLE = Automatic;
+-				CURRENT_PROJECT_VERSION = 114;
++				CURRENT_PROJECT_VERSION = 115;
+ 				DEVELOPMENT_TEAM = 7P2GHHGYQX;
+ 				ENABLE_PREVIEWS = YES;
+ 				GENERATE_INFOPLIST_FILE = YES;
+@@ -387,7 +387,7 @@
+ 					"$(inherited)",
+ 					"@executable_path/Frameworks",
+ 				);
+-				MARKETING_VERSION = 2.1.06;
++				MARKETING_VERSION = 2.1.07;
+ 				PRODUCT_BUNDLE_IDENTIFIER = "com.nutritionApp.hibiscushealth.HH-Kiosk-B2B";
+ 				PRODUCT_NAME = "$(TARGET_NAME)";
+ 				SWIFT_EMIT_LOC_STRINGS = YES;
+Index: Tests/FaceScanNetworkTestReport.md
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Tests/FaceScanNetworkTestReport.md b/Tests/FaceScanNetworkTestReport.md
+new file mode 100644
+--- /dev/null	(date 1793630127615)
++++ b/Tests/FaceScanNetworkTestReport.md	(date 1793630127615)
+@@ -0,0 +1,86 @@
++# Face-scan network warnings: test cases and execution report
++
++Executed on **2 November 2026** using Xcode 27.0 (27A266a) and an **iPad Pro 13-inch (M5), iOS 26.2 simulator**.
++
++**Result: 61 automated checks passed — 29 monitor/state cases and 32 simulator integration/UI cases.**
++
++## Scope
++
++The tests compile the production `FaceScanNetworkMonitor`, `FaceScanNetworkToast`, and, in the simulator suite, `MeasurementDelegate` and `LandscapeScanPresentationController`. Only the Network framework path source and external SDK/API/socket boundaries are replaced by test doubles. Production warning logic is not rewritten. The one-second polling timer, five-second request threshold, toast dismissal, main-queue delivery, and UIKit layout run normally.
++
++No real scan data is collected or submitted. The screenshots show a simulated camera view. Physical network switching, live backend behavior, and Anura's actual camera/overlay lifecycle are not covered by these automated results.
++
++## Monitor and state cases
++
++| Cases | Setup/action | Expected result | Result |
++|---|---|---|---|
++| M01–M02 | Idle preview; request completes before 5 seconds | No warning | Pass |
++| M03 | Leave a request unfinished at 4.999 and 5.000 seconds | Silent before the threshold; slow warning at the threshold | Pass |
++| M04 | Repeated checks while request stays slow | No duplicate before 15 seconds; reminder at 15 seconds | Pass |
++| M05 | Lose connectivity while slow warning is active | Offline warning replaces slow immediately | Pass |
++| M06 | Remain offline and complete pending requests | Offline warning persists; reminders remain throttled | Pass |
++| M07–M08 | Restore connectivity, with and without a stalled request | Clear once if healthy; retain slow warning if request remains stalled | Pass |
++| M09 | Complete a fast request while another request is stalled | Stalled request still produces a warning | Pass |
++| M10–M12 | Inject not-connected, connection-lost, and data-not-allowed errors | Offline warning; transient error expires after 5 seconds | Pass |
++| M13–M14 | Inject a timeout, including while path is offline | Slow warning immediately; known offline path takes priority | Pass |
++| M15–M18 | Inject HTTP-domain errors, cancellation, bad URL, and authentication errors | No false connectivity warning | Pass |
++| M19 | Begin a fresh scan | No inherited warning/cooldown; immediate warning if offline | Pass |
++| M20–M21 | Emit satisfied, unsatisfied, duplicate, and requires-connection path updates | Correct warning/recovery events without duplicates | Pass |
++| M22 | Restart monitor, then deliver old path/request callbacks | Old monitor cancelled; stale callbacks ignored | Pass |
++| M23–M24 | Complete unknown/cancelled requests or requests after stop | No warning appears | Pass |
++| M25 | Complete an upload on a background queue | UI event arrives on the main thread | Pass |
++| M26–M28 | Leave a request pending using the real timer, then complete it | Silent before 5 seconds; warning on a later tick; clear on success | Pass |
++| M29 | Release the monitor | Monitor deallocates and underlying path source is cancelled | Pass |
++
++## Simulator integration and UI cases
++
++| Cases | Setup/action | Expected result | Result |
++|---|---|---|---|
++| U01–U02 | Open healthy scan, then emit offline path | No initial toast; correct offline text appears immediately | Pass |
++| U03–U05 | Inspect portrait popup | Toast fits; text is visible; touches pass through; close button remains clear | Pass |
++| U06–U07 | Repeat offline update, then restore path | One toast only; recovery removes it | Pass |
++| U08–U10 | Delay measurement creation, then return success | No early warning; slow toast after threshold; success clears it | Pass |
++| U11–U12 | Delay actual delegate chunk-upload callback, then succeed | Slow toast appears and clears | Pass |
++| U13–U14 | Disconnect/reconnect live-results subscriber | Delayed reconnection warns; successful connection clears | Pass |
++| U15 | Send an error from an old results subscriber | Event is ignored | Pass |
++| U16–U17 | Inject socket timeout, then lose connectivity | Slow warning appears immediately, then one offline toast replaces it | Pass |
++| U18–U19 | Wait through the original and replacement dismissal deadlines | Old timer cannot dismiss replacement; replacement dismisses after 5 seconds | Pass |
++| U20–U21 | Reset measurement and close scan | Pending warnings clear; path monitoring stops; toast is removed | Pass |
++| U22–U24 | Rotate to landscape, replace scan, and deliver old/new path events | Landscape reached; old event ignored; new offline scan warns | Pass |
++| U25–U27 | Inspect landscape popup | Toast fits; text is visible; touches pass through; close button remains clear | Pass |
++| U28 | Fail measurement creation with a timeout | Slow toast appears immediately | Pass |
++| U29 | Fail upload with connection-lost error | Offline toast appears immediately | Pass |
++| U30 | Add an SDK-like overlay and send a pipeline update | Toast is brought above the overlay | Pass |
++| U31 | Finish scan while warning is visible | Toast removed and monitoring stopped before results presentation | Pass |
++| U32 | Attempt to show a toast in an offscreen controller | No view/toast is created | Pass |
++
++Portrait and landscape screenshots were also visually inspected. Automated layout checks cover bounds, ambiguous layout, full text height, touch handling, and close-button overlap.
++
++## Run again
++
++Run from the repository root:
++
++```bash
++bash Tests/run-face-scan-network-tests.sh
++bash Tests/run-face-scan-network-simulator-tests.sh <booted-iPad-simulator-UDID> /tmp/hh-face-scan-network-results
++```
++
++Each case prints `PASS`; a failed assertion terminates the runner. The simulator runner exports `result.txt` and screenshots to the supplied output directory. Simulator timings allow for the monitor's one-second polling interval: an operation first becomes eligible at five seconds and is reported on the next tick.
++
++## Physical-device checks still to perform
++
++| Scenario | Steps | Expected result | Status |
++|---|---|---|---|
++| Actual offline transition | Start a real face scan; disable Wi-Fi/mobile data; restore it | Offline warning appears; recovery clears it | Not run |
++| Wi-Fi without upstream internet | Keep Wi-Fi connected but disconnect the router's internet during a scan | Pending scan requests warn as slow; transport errors may identify offline state | Not run |
++| Throttled or lossy network | Apply controlled latency/packet loss and start a real scan | Warning when an operation exceeds 5 seconds; no claim to measure signal strength/Mbps | Not run |
++| Real SDK lifecycle | Repeat scan close/retry, rotation, and background/foreground while warnings are visible | No stale toast on a new scan or results screen; actual SDK overlays remain usable | Not run |
++
++A slow server can trigger the same slow warning as a slow network; the implementation measures request responsiveness.
++
++## Saved execution evidence
++
++- [Monitor test log](/Users/applitesolutions/.codex/visualizations/2026/11/02/01a19c9d-c6d2-74f1-8b64-38e791f9421d/face-scan-network-tests/hh-face-scan-network-tests.log)
++- [Simulator test log](/Users/applitesolutions/.codex/visualizations/2026/11/02/01a19c9d-c6d2-74f1-8b64-38e791f9421d/face-scan-network-tests/hh-face-scan-network-simulator-tests.log)
++- [Portrait screenshot](/Users/applitesolutions/.codex/visualizations/2026/11/02/01a19c9d-c6d2-74f1-8b64-38e791f9421d/face-scan-network-tests/network-toast-portrait.png)
++- [Landscape screenshot](/Users/applitesolutions/.codex/visualizations/2026/11/02/01a19c9d-c6d2-74f1-8b64-38e791f9421d/face-scan-network-tests/network-toast-landscape.png)
+Index: HH_Kiosk_B2B/Utils/MeasurementDelegate.swift
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>//\n//  Copyright (c) 2016-2023, Nuralogix Corp.\n//  All Rights reserved\n//  THIS SOFTWARE IS LICENSED BY AND IS THE CONFIDENTIAL AND\n//  PROPRIETARY PROPERTY OF NURALOGIX CORP. IT IS\n//  PROTECTED UNDER THE COPYRIGHT LAWS OF THE USA, CANADA\n//  AND OTHER FOREIGN COUNTRIES. THIS SOFTWARE OR ANY\n//  PART THEREOF, SHALL NOT, WITHOUT THE PRIOR WRITTEN CONSENT\n//  OF NURALOGIX CORP, BE USED, COPIED, DISCLOSED,\n//  DECOMPILED, DISASSEMBLED, MODIFIED OR OTHERWISE TRANSFERRED\n//  EXCEPT IN ACCORDANCE WITH THE TERMS AND CONDITIONS OF A\n//  NURALOGIX CORP SOFTWARE LICENSE AGREEMENT.\n//\n\nimport AnuraCore\nimport UIKit\n\n// MeasurementDelegate implements the AnuraMeasurementDelegate protocol methods\n// to respond to various events from Anura. It communitcates with DeepAffex API\n// to send measurement payloads received from DeepAffex SDK. It also subscribes\n// to results coming from DeepAffex API as the measurement is being taken.\n\nclass MeasurementDelegate : AnuraMeasurementDelegate {\n    \n    var api : DeepAffexMiniAPIProtocol\n    var measurementResultsSubscriber : MeasurementResultsSubscriber!\n    weak var appState: AppState?\n    \n    weak var measurementController : AnuraMeasurementViewController?\n    weak var resultsController : ResultsViewController?\n    \n    var measurementID : String = \"\"\n    var measurementQueue : OperationQueue?\n    var user : AnuraUser?\n    \n    var timeoutTimer : Timer?\n    private let measurementBanner = AdaptiveMeasurementBanner()\n    \n    init(api: DeepAffexMiniAPIProtocol) {\n        self.api = api\n    }\n    \n    // Called when the Anura Measurement view controller has finished loading\n    func anuraMeasurementControllerDidLoad(_ controller: AnuraMeasurementViewController) {\n        print(\"***** anuraMeasurementControllerDidLoad\")\n                \n        // Create a MeasurementResultsSubscriber object to receive live results during a measurement\n        self.measurementResultsSubscriber = MeasurementResultsSubscriber(token: api.token)\n        self.measurementResultsSubscriber.delegate = self\n\n        // Store weak reference to AnuraMeasurementViewController to use it to decode measurement results\n        self.measurementController = controller\n        measurementBanner.installIfNeeded(in: controller)\n        \n        // This is where constraints can be configured\n        // Example:\n        //\n        // controller.enableConstraint(\"checkBackLight\")\n        // controller.setConstraint(key: \"maxMovement_mm\", value: \"6\")\n    }\n    \n    // Called when the measurement controller appears on the screen\n    func anuraMeasurementControllerDidAppear(_ controller: AnuraMeasurementViewController) {\n        print(\"***** anuraMeasurementControllerDidAppear\")\n        Task { @MainActor in\n            SensitiveScreenPrivacy.beginProtecting(owner: \"measurement\")\n        }\n        measurementBanner.installIfNeeded(in: controller)\n        controller.view.layoutIfNeeded()\n        measurementBanner.refreshLayout()\n        return\n    }\n    \n    // Called when the measurement controller disappears from the screen\n    func anuraMeasurementControllerDidDisappear(_ controller: AnuraMeasurementViewController) {\n        print(\"***** anuraMeasurementControllerDidDisappear\")\n        Task { @MainActor in\n            SensitiveScreenPrivacy.endProtecting(owner: \"measurement\")\n        }\n        measurementBanner.teardown()\n        setMeasurementScreenSaverSuppressed(false)\n        return\n    }\n    \n    // Called when the camera starts\n    func anuraMeasurementControllerDidStartCamera(_ controller: AnuraMeasurementViewController) {\n        print(\"***** anuraMeasurementControllerDidStartCamera\")\n        return\n    }\n    \n    // Called when the camera stops\n    func anuraMeasurementControllerDidStopCamera(_ controller: AnuraMeasurementViewController) {\n        print(\"***** anuraMeasurementControllerDidStopCamera\")\n        return\n    }\n    \n    // Called when the camera is calibrated and ready to measure\n    func anuraMeasurementControllerIsReadyToMeasure(_ controller: AnuraMeasurementViewController) {\n        print(\"***** anuraMeasurementControllerIsReadyToMeasure\")\n        \n        // Here is where you can set measurement properties\n        // Such as setting user demographics\n        // Example:\n        //\n        // controller.setMeasurementProperties(properties: [\"height\": \"175\",\n        //                                                  \"weight\": \"75\",\n        //                                                  \"age\": \"35\",\n        //                                                  \"gender\": \"male\"])\n        \n        controller.setMeasurementProperties(properties: user?.measurementProperties ?? [:])\n        measurementBanner.showInitialPrompt()\n        \n        // Start measurement countdown\n        // Can also call controller.startMeasurement() to start measurement immediately\n        controller.startMeasurementCountdown()\n    }\n    \n    // Called when countdown has finished and Anura is about to start the measurement\n    func anuraMeasurementControllerDidStartMeasuring(_ controller: AnuraMeasurementViewController) {\n        print(\"***** anuraMeasurementControllerDidStartMeasuring\")\n        measurementBanner.handleMeasurementStart()\n        \n        // Send a request to DeepAffex API to create a new measurement\n        createNewMeasurement()\n    }\n    \n    // Called when the measurement is complete\n    func anuraMeasurementControllerDidFinishMeasuring(_ controller: AnuraMeasurementViewController) {\n        print(\"***** anuraMeasurementControllerDidFinishMeasuring\")\n        measurementBanner.clear()\n        \n        // Blood Flow Extraction is complete - Present results view controller\n\n        let resultsController = ResultsViewController(appState: appState)\n        resultsController.dismissBlock = resetMeasurementID\n        let navigationController = UINavigationController(rootViewController: resultsController)\n        navigationController.modalPresentationStyle = .fullScreen\n        \n        controller.present(navigationController, animated: true) { }\n    \n        // Keep a weak reference to results view controller so we can update it\n        // when we receive results for the final chunk from DeepAffex API\n        \n        self.resultsController = resultsController\n        \n        DispatchQueue.main.async { [weak self] in\n            self?.timeoutTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: false, block: { _ in\n                controller.cancelMeasurement(reason: .network)\n            })\n        }\n    }\n    \n    // Called when a measurement payload is ready\n    func anuraMeasurementControllerDidGetPayload(_ controller: AnuraMeasurementViewController, _ payload: MeasurementPayload) {\n        print(\"+++++ anuraMeasurementControllerDidGetPayload: Chunk \\(payload.chunkOrder + 1) out of \\(payload.numberOfChunks)\")\n        \n        measurementQueue?.addOperation { [weak self] in\n            \n            guard let self = self else {\n                return\n            }\n    \n            // Suspend further operations on measurement queue until we get back the MeasurementDataID of the previous chunk\n            self.measurementQueue?.isSuspended = true\n            \n            // Determine measurement action from chunk order\n            let action : MeasurementDataRequest.Action\n            if payload.chunkOrder == 0 {\n                action = .firstProcess\n            } else if payload.chunkOrder == payload.numberOfChunks - 1 {\n                action = .lastProcess\n            } else {\n                action = .chunkProcess\n            }\n            \n            // Create Measurement Data Request\n            let measurementDataRequest = MeasurementDataRequest(action: action,\n                                                                payload: payload.payload)\n            \n            // Send request to API, along with measurement ID\n            self.api.addData(measurementID: self.measurementID, data: measurementDataRequest) { (result : NetworkResult<ID>) in\n                switch result {\n                case .success(let id):\n                    // Continue operations on measurement queue\n                    self.measurementQueue?.isSuspended = false\n                    print(\"Added data to measurement (Chunk \\(payload.chunkOrder + 1)) and received MeasurementDataID: \\(id.id)\")\n                case .failure(let error):\n                    controller.cancelMeasurement(reason: .unknown)\n                    print(\"Could not add data to measurement: \\(error.localizedDescription)\")\n                }\n            }\n        }\n    }\n    \n    // Called when receiving a constraint warning from Anura. Check the `status` variable for information about the warning.\n    func anuraMeasurementControllerDidGetConstraintsWarning(_ controller: AnuraMeasurementViewController, status: FaceConstraintsStatus) {\n        measurementBanner.handleWarning(status)\n    }\n    \n    // Called when a measurement is canclled due to a constraint failure. Check the `status` variable for information about the failure.\n    func anuraMeasurementControllerDidCancelMeasurement(_ controller: AnuraMeasurementViewController, status: FaceConstraintsStatus) {\n        print(\"***** anuraMeasurementControllerDidCancelMeasurement: \\(status.identifier)\")\n        measurementBanner.clear()\n        setMeasurementScreenSaverSuppressed(false)\n        \n        resultsController?.measurementDidCancel()\n        \n        // Cancel current measurement\n        resetMeasurementID()\n    }\n    \n    // Called on every frame update - Here you can inspect MeasurementPipelineInfo\n    // for current lighting quality score and pipeline state\n    func anuraMeasurementControllerDidUpdate(_ controller: AnuraMeasurementViewController, info: MeasurementPipelineInfo) {\n        measurementBanner.handlePipelineUpdate(info)\n\n        // For debugging, you may print the info contained in MeasurementPipelineInfo\n        // Example:\n        // print(info.currentLightingQuality)\n        // print(info.state)\n    }\n\n    private func setMeasurementScreenSaverSuppressed(_ suppressed: Bool) {\n        DispatchQueue.main.async { [weak self] in\n            self?.appState?.setScreenSaverSuppressed(\n                suppressed,\n                reason: ScreenSaverSuppressionReason.faceMeasurement\n            )\n        }\n    }\n}\n\nprivate final class AdaptiveMeasurementBanner {\n    private struct TimelineEntry {\n        let offset: TimeInterval\n        let message: String\n    }\n\n    private enum Copy {\n        static let initialPrompt = \"Center Your Face\"\n        static let holdStill = \"Hold Still\"\n        static let moveCloser = \"Move Closer\"\n        static let moveFurther = \"Move Further\"\n        static let faceCamera = \"Please look ahead\"\n        static let timeline: [TimelineEntry] = [\n            TimelineEntry(offset: 0, message: \"Breathe Naturally and Stay Still\"),\n            TimelineEntry(offset: 5, message: \"Reading Your Pulse from Facial Blood Flow\"),\n            TimelineEntry(offset: 10, message: \"Detecting Cardiovascular Patterns...\"),\n            TimelineEntry(offset: 16, message: \"Halfway - Eyes on the Camera\"),\n            TimelineEntry(offset: 21, message: \"Capturing Your Final Readings...\"),\n            TimelineEntry(offset: 25, message: \"Almost There, Don't Move\"),\n            TimelineEntry(offset: 28, message: \"Last Few Seconds...\")\n        ]\n    }\n    \n    private weak var hostViewController: UIViewController?\n    private let containerView = UIView()\n    private let messageLabel = UILabel()\n    private var installed = false\n    private var verticalConstraint: NSLayoutConstraint?\n    private var lastMessage: String?\n    private var lastWarningAt: Date?\n    private var scheduledWorkItems: [DispatchWorkItem] = []\n    private var baseMessage: String?\n    private var isMeasurementActive = false\n    \n    func installIfNeeded(in viewController: UIViewController) {\n        guard installed == false || hostViewController !== viewController else {\n            return\n        }\n        \n        teardown()\n        hostViewController = viewController\n        installed = true\n        \n        containerView.translatesAutoresizingMaskIntoConstraints = false\n        containerView.backgroundColor = UIColor(white: 0.20, alpha: 0.92)\n        containerView.layer.cornerRadius = 10\n        containerView.layer.masksToBounds = true\n        containerView.alpha = 0\n        containerView.isUserInteractionEnabled = false\n        \n        messageLabel.translatesAutoresizingMaskIntoConstraints = false\n        messageLabel.textColor = .white\n        messageLabel.font = .systemFont(ofSize: 30.sp, weight: .semibold)\n        messageLabel.numberOfLines = 2\n        messageLabel.textAlignment = .center\n        messageLabel.adjustsFontSizeToFitWidth = true\n        messageLabel.minimumScaleFactor = 0.75\n        \n        containerView.addSubview(messageLabel)\n        viewController.view.addSubview(containerView)\n        \n        verticalConstraint = containerView.centerYAnchor.constraint(\n            equalTo: viewController.view.centerYAnchor,\n            constant: -max(110, viewController.view.bounds.height * 0.23)\n        )\n        \n        NSLayoutConstraint.activate([\n            messageLabel.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 8),\n            messageLabel.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -8),\n            messageLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 14),\n            messageLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -14),\n            \n            verticalConstraint!,\n            containerView.centerXAnchor.constraint(equalTo: viewController.view.centerXAnchor),\n            containerView.widthAnchor.constraint(lessThanOrEqualTo: viewController.view.widthAnchor, multiplier: 0.7),\n            containerView.widthAnchor.constraint(greaterThanOrEqualToConstant: 220)\n        ])\n\n        updateMessagePosition(in: viewController)\n    }\n    \n    func showInitialPrompt() {\n        isMeasurementActive = false\n        updateBaseMessage(Copy.initialPrompt)\n    }\n    \n    func handleMeasurementStart() {\n        isMeasurementActive = true\n        startTimeline()\n    }\n\n    func refreshLayout() {\n        guard let hostViewController else {\n            return\n        }\n\n        updateMessagePosition(in: hostViewController)\n    }\n\n    func handleWarning(_ status: FaceConstraintsStatus) {\n        lastWarningAt = Date()\n        print(\"***** constraint warning: \\(status.identifier) | \\(status.warningMessage)\")\n        show(message: mappedMessage(for: status))\n    }\n\n    func handlePipelineUpdate(_ info: MeasurementPipelineInfo) {\n        refreshLayout()\n        switch info.state {\n        case .readyToMeasure:\n            if isMeasurementActive == false {\n                // Before the measurement actually starts, keep the guidance focused on\n                // getting the subject positioned correctly unless the SDK emits a real warning.\n                if shouldPreferBaseMessage {\n                    showBaseMessageIfNeeded()\n                }\n            } else if shouldPreferBaseMessage {\n                showBaseMessageIfNeeded()\n            }\n        case .hold:\n            if isMeasurementActive, shouldPreferBaseMessage {\n                showBaseMessageIfNeeded()\n            }\n        case .measuring, .extracting:\n            if shouldPreferBaseMessage {\n                showBaseMessageIfNeeded()\n            }\n        case .complete, .failure, .off:\n            clear()\n        default:\n            break\n        }\n    }\n    \n    func clear() {\n        cancelScheduledMessages()\n        lastWarningAt = nil\n        lastMessage = nil\n        baseMessage = nil\n        isMeasurementActive = false\n        hideMessage()\n    }\n    \n    func teardown() {\n        cancelScheduledMessages()\n        hideMessage()\n        containerView.removeFromSuperview()\n        messageLabel.removeFromSuperview()\n        installed = false\n        verticalConstraint = nil\n        hostViewController = nil\n        lastMessage = nil\n        lastWarningAt = nil\n        baseMessage = nil\n        isMeasurementActive = false\n    }\n    \n    private func show(message: String) {\n        guard installed else {\n            return\n        }\n        guard lastMessage != message else {\n            return\n        }\n        \n        lastMessage = message\n        messageLabel.text = message\n        \n        UIView.animate(withDuration: 0.2) {\n            self.containerView.alpha = 1\n        }\n    }\n\n    private func updateBaseMessage(_ message: String) {\n        baseMessage = message\n        if shouldPreferBaseMessage {\n            show(message: message)\n        }\n    }\n\n    private func showBaseMessageIfNeeded() {\n        guard let baseMessage else {\n            return\n        }\n\n        show(message: baseMessage)\n    }\n\n    private func hideMessage() {\n        UIView.animate(withDuration: 0.2) {\n            self.containerView.alpha = 0\n        }\n    }\n\n    private func startTimeline() {\n        cancelScheduledMessages()\n\n        Copy.timeline.forEach { entry in\n            let workItem = DispatchWorkItem { [weak self] in\n                self?.updateBaseMessage(entry.message)\n            }\n            scheduledWorkItems.append(workItem)\n            DispatchQueue.main.asyncAfter(deadline: .now() + entry.offset, execute: workItem)\n        }\n    }\n\n    private func cancelScheduledMessages() {\n        scheduledWorkItems.forEach { $0.cancel() }\n        scheduledWorkItems.removeAll()\n    }\n\n    private var shouldPreferBaseMessage: Bool {\n        guard let lastWarningAt else {\n            return true\n        }\n\n        return Date().timeIntervalSince(lastWarningAt) >= 0.8\n    }\n\n    private func mappedMessage(for status: FaceConstraintsStatus) -> String {\n        print(\"\uD83D\uDCF8 FaceConstraintsStatus -> identifier: \\(status.identifier), warning: \\(status.warningMessage)\")\n\n        let identifier = status.identifier.lowercased()\n        let warning = status.warningMessage.lowercased()\n        let combined = \"\\(identifier) \\(warning)\"\n\n        if identifier.contains(\"facetoofar\") {\n            return Copy.moveCloser\n        }\n\n        if identifier.contains(\"facetooclose\") {\n            return Copy.moveFurther\n        }\n\n        if identifier.contains(\"facedirection\") {\n            return Copy.faceCamera\n        }\n\n        if identifier.contains(\"exposure\") {\n            return Copy.holdStill\n        }\n\n        if containsAny(in: combined, terms: [\"too far\", \"move closer\", \"closer\", \"small face\", \"face too small\"]) {\n            return Copy.moveCloser\n        }\n\n        if containsAny(in: combined, terms: [\"too close\", \"move further\", \"farther\", \"further\", \"large face\", \"face too large\"]) {\n            return Copy.moveFurther\n        }\n\n        if containsAny(in: combined, terms: [\"look directly\", \"face is poor\", \"direction\"]) {\n            return Copy.faceCamera\n        }\n\n        if containsAny(in: combined, terms: [\"calibrating\", \"movement\", \"moving\", \"still\", \"steady\", \"hold\"]) {\n            return Copy.holdStill\n        }\n\n        return isMeasurementActive ? Copy.holdStill : Copy.initialPrompt\n    }\n\n    private func containsAny(in source: String, terms: [String]) -> Bool {\n        terms.contains { source.contains($0) }\n    }\n\n    private func updateMessagePosition(in viewController: UIViewController) {\n        let foreheadOffset: CGFloat\n        if let preview = (viewController as? MeasurementPreviewLayoutProviding)?.measurementPreviewFrame {\n            foreheadOffset = preview.minY + preview.height * 0.12 - viewController.view.bounds.midY\n        } else {\n            foreheadOffset = -max(155, viewController.view.bounds.height * 0.30)\n        }\n        guard verticalConstraint?.constant != foreheadOffset else { return }\n        verticalConstraint?.constant = foreheadOffset\n        viewController.view.layoutIfNeeded()\n    }\n}\n\nextension MeasurementDelegate : MeasurementResultsSubscriberDelegate {\n    func didGetResults(_ subscriber: MeasurementResultsSubscriber, data: Data) {\n        \n        // Use the SDK to decode the results data received from DeepAffex\n        // and ensure that the decoded results belong to the current measurement ID\n        guard let controller = measurementController,\n              let results = controller.decodeMeasurementResult(data: data),\n              results.measurementID == measurementID else {\n            return\n        }\n        \n        // Print all the properties and data of the decoded results\n        print(results.allResults)\n        \n        // Check if the measurement should be cancelled\n        \n        if controller.shouldCancelMeasurement(snr: results.snr,\n                                              chunkOrder: results.chunkOrder) {\n            controller.cancelMeasurement(reason: .snr)\n            return\n        }\n        \n        // If heart rate is available, pass the measured heart rate value\n        // and change the colours of the historgrams to red\n        if results.heartRate.isNaN == false {\n            controller.setHeartRate(results.heartRate)\n        }\n        \n        // Check if results are for the last chunk, and update the results view controller\n        if results.chunkOrder == controller.measurementConfiguration.numChunks - 1 {\n            resultsController?.measurementID = results.measurementID\n            resultsController?.results = results.allResults\n            resetMeasurementID()\n        }\n    }\n    \n    func didGetError(_ subscriber: MeasurementResultsSubscriber, error: Error?) {\n        return\n    }\n    \n    func didConnect(_ subscriber: MeasurementResultsSubscriber) {\n        return\n    }\n    \n    func didDisconnect(_ subscriber: MeasurementResultsSubscriber) {\n        return\n    }\n}\n\n// Helpers\n\nextension MeasurementDelegate {\n    func createNewMeasurement() {\n        // Create New Measurement with Study ID\n        resetMeasurementID()\n        \n        // Setup measurement operation queue, and wait until we get back a measurement ID\n        measurementQueue = OperationQueue()\n        measurementQueue?.maxConcurrentOperationCount = 1\n        measurementQueue?.isSuspended = true\n        \n        // Connect measurement results subscriber\n        measurementResultsSubscriber.connect()\n        \n        api.createMeasurement(studyID: api.studyID,\n                              resolution: 0,\n                              partnerID: user?.partnerID) { (result : NetworkResult<ID>) in\n            defer { self.measurementQueue?.isSuspended = false }\n            switch result {\n            case .success(let id):\n                print(\"Created new measurement with ID: \\(id)\")\n                \n                // If succeeded, store measurement ID and subscribe to results\n                self.measurementID = id.id\n                self.measurementResultsSubscriber.subscribeToResults(measurementID: id.id)\n            case .failure(let error):\n                self.measurementController?.cancelMeasurement(reason: .fail)\n                print(\"Could not create new measurement: \\(error.localizedDescription)\")\n            }\n        }\n    }\n    \n    func resetMeasurementID() {\n        measurementID = \"\"\n        measurementQueue?.cancelAllOperations()\n        measurementResultsSubscriber.cancelResultsSubscription()\n        timeoutTimer?.invalidate()\n    }\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/HH_Kiosk_B2B/Utils/MeasurementDelegate.swift b/HH_Kiosk_B2B/Utils/MeasurementDelegate.swift
+--- a/HH_Kiosk_B2B/Utils/MeasurementDelegate.swift	(revision 5ceeadc777f629780aa91a73e0b8fec943b4b48d)
++++ b/HH_Kiosk_B2B/Utils/MeasurementDelegate.swift	(date 1793629200076)
+@@ -35,6 +35,10 @@
+     
+     var timeoutTimer : Timer?
+     private let measurementBanner = AdaptiveMeasurementBanner()
++    private let networkMonitor = FaceScanNetworkMonitor()
++    private let networkToast = FaceScanNetworkToast()
++    private var resultsConnectionRequest: UUID?
++    private var isReceivingResults = false
+     
+     init(api: DeepAffexMiniAPIProtocol) {
+         self.api = api
+@@ -68,6 +72,15 @@
+         measurementBanner.installIfNeeded(in: controller)
+         controller.view.layoutIfNeeded()
+         measurementBanner.refreshLayout()
++        networkMonitor.start { [weak self, weak controller] event in
++            guard let self, let controller else { return }
++            switch event {
++            case .show(let warning):
++                self.networkToast.show(warning, in: controller)
++            case .clear:
++                self.networkToast.hide()
++            }
++        }
+         return
+     }
+     
+@@ -78,6 +91,8 @@
+             SensitiveScreenPrivacy.endProtecting(owner: "measurement")
+         }
+         measurementBanner.teardown()
++        networkMonitor.stop()
++        networkToast.hide()
+         setMeasurementScreenSaverSuppressed(false)
+         return
+     }
+@@ -128,6 +143,8 @@
+     func anuraMeasurementControllerDidFinishMeasuring(_ controller: AnuraMeasurementViewController) {
+         print("***** anuraMeasurementControllerDidFinishMeasuring")
+         measurementBanner.clear()
++        networkMonitor.stop()
++        networkToast.hide()
+         
+         // Blood Flow Extraction is complete - Present results view controller
+ 
+@@ -178,13 +195,16 @@
+                                                                 payload: payload.payload)
+             
+             // Send request to API, along with measurement ID
++            let networkRequest = self.networkMonitor.beginRequest()
+             self.api.addData(measurementID: self.measurementID, data: measurementDataRequest) { (result : NetworkResult<ID>) in
+                 switch result {
+                 case .success(let id):
++                    self.networkMonitor.endRequest(networkRequest)
+                     // Continue operations on measurement queue
+                     self.measurementQueue?.isSuspended = false
+                     print("Added data to measurement (Chunk \(payload.chunkOrder + 1)) and received MeasurementDataID: \(id.id)")
+                 case .failure(let error):
++                    self.networkMonitor.endRequest(networkRequest, error: error)
+                     controller.cancelMeasurement(reason: .unknown)
+                     print("Could not add data to measurement: \(error.localizedDescription)")
+                 }
+@@ -213,6 +233,7 @@
+     // for current lighting quality score and pipeline state
+     func anuraMeasurementControllerDidUpdate(_ controller: AnuraMeasurementViewController, info: MeasurementPipelineInfo) {
+         measurementBanner.handlePipelineUpdate(info)
++        networkToast.bringToFront()
+ 
+         // For debugging, you may print the info contained in MeasurementPipelineInfo
+         // Example:
+@@ -544,15 +565,28 @@
+     }
+     
+     func didGetError(_ subscriber: MeasurementResultsSubscriber, error: Error?) {
+-        return
++        guard subscriber === measurementResultsSubscriber, isReceivingResults else { return }
++        if let error {
++            let request = networkMonitor.beginRequest()
++            networkMonitor.endRequest(request, error: error)
++        }
++        if resultsConnectionRequest == nil {
++            resultsConnectionRequest = networkMonitor.beginRequest()
++        }
+     }
+     
+     func didConnect(_ subscriber: MeasurementResultsSubscriber) {
+-        return
++        guard subscriber === measurementResultsSubscriber else { return }
++        if let request = resultsConnectionRequest {
++            networkMonitor.endRequest(request)
++            resultsConnectionRequest = nil
++        }
+     }
+     
+     func didDisconnect(_ subscriber: MeasurementResultsSubscriber) {
+-        return
++        guard subscriber === measurementResultsSubscriber, isReceivingResults,
++              resultsConnectionRequest == nil else { return }
++        resultsConnectionRequest = networkMonitor.beginRequest()
+     }
+ }
+ 
+@@ -569,20 +603,25 @@
+         measurementQueue?.isSuspended = true
+         
+         // Connect measurement results subscriber
++        isReceivingResults = true
++        resultsConnectionRequest = networkMonitor.beginRequest()
+         measurementResultsSubscriber.connect()
+         
++        let networkRequest = networkMonitor.beginRequest()
+         api.createMeasurement(studyID: api.studyID,
+                               resolution: 0,
+                               partnerID: user?.partnerID) { (result : NetworkResult<ID>) in
+             defer { self.measurementQueue?.isSuspended = false }
+             switch result {
+             case .success(let id):
++                self.networkMonitor.endRequest(networkRequest)
+                 print("Created new measurement with ID: \(id)")
+                 
+                 // If succeeded, store measurement ID and subscribe to results
+                 self.measurementID = id.id
+                 self.measurementResultsSubscriber.subscribeToResults(measurementID: id.id)
+             case .failure(let error):
++                self.networkMonitor.endRequest(networkRequest, error: error)
+                 self.measurementController?.cancelMeasurement(reason: .fail)
+                 print("Could not create new measurement: \(error.localizedDescription)")
+             }
+@@ -590,6 +629,9 @@
+     }
+     
+     func resetMeasurementID() {
++        isReceivingResults = false
++        resultsConnectionRequest = nil
++        networkMonitor.cancelPendingRequests()
+         measurementID = ""
+         measurementQueue?.cancelAllOperations()
+         measurementResultsSubscriber.cancelResultsSubscription()
+Index: Tests/FaceScanNetworkMonitorTests.swift
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Tests/FaceScanNetworkMonitorTests.swift b/Tests/FaceScanNetworkMonitorTests.swift
+new file mode 100644
+--- /dev/null	(date 1793629933767)
++++ b/Tests/FaceScanNetworkMonitorTests.swift	(date 1793629933767)
+@@ -0,0 +1,219 @@
++import Foundation
++
++private final class WeakMonitorReference {
++    weak var value: FaceScanNetworkMonitor?
++    init(_ value: FaceScanNetworkMonitor?) { self.value = value }
++}
++
++@main
++struct FaceScanNetworkMonitorTests {
++    @MainActor static var passed = 0
++
++    @MainActor static func test(_ name: String, _ body: () -> Void) {
++        body()
++        passed += 1
++        print("PASS \(passed): \(name)")
++    }
++
++    @MainActor static func main() async {
++        test("Idle preview never reports slowness") {
++            var state = FaceScanNetworkState()
++            precondition(state.nextEvent(at: 10_000) == nil)
++        }
++        test("Requests completing before five seconds stay silent") {
++            var state = FaceScanNetworkState()
++            let id = UUID()
++            state.pendingRequests[id] = 100
++            precondition(state.nextEvent(at: 104.999) == nil)
++            state.pendingRequests.removeValue(forKey: id)
++            precondition(state.nextEvent(at: 105) == nil)
++        }
++        test("Slow warning starts at the five-second boundary") {
++            var state = FaceScanNetworkState()
++            state.pendingRequests[UUID()] = 100
++            precondition(state.nextEvent(at: 104.999) == nil)
++            precondition(state.nextEvent(at: 105) == .show(.slow))
++        }
++        test("Unchanged slow warning repeats only after fifteen seconds") {
++            var state = FaceScanNetworkState()
++            state.pendingRequests[UUID()] = 100
++            precondition(state.nextEvent(at: 105) == .show(.slow))
++            for time in stride(from: 105.1, through: 119.9, by: 0.1) {
++                precondition(state.nextEvent(at: time) == nil)
++            }
++            precondition(state.nextEvent(at: 120) == .show(.slow))
++        }
++        test("Offline warning is immediate and overrides a slow warning") {
++            var state = FaceScanNetworkState()
++            state.pendingRequests[UUID()] = 0
++            precondition(state.nextEvent(at: 5) == .show(.slow))
++            state.isOffline = true
++            precondition(state.nextEvent(at: 5.1) == .show(.offline))
++        }
++        test("Offline repeats are throttled, including request completions") {
++            var state = FaceScanNetworkState()
++            state.isOffline = true
++            precondition(state.nextEvent(at: 0) == .show(.offline))
++            state.pendingRequests.removeAll()
++            precondition(state.nextEvent(at: 14.999) == nil)
++            precondition(state.nextEvent(at: 15) == .show(.offline))
++        }
++        test("Restored connection clears the warning once") {
++            var state = FaceScanNetworkState()
++            state.isOffline = true
++            precondition(state.nextEvent(at: 0) == .show(.offline))
++            state.isOffline = false
++            precondition(state.nextEvent(at: 1) == .clear)
++            precondition(state.nextEvent(at: 2) == nil)
++        }
++        test("Restored path still warns if a request remains stalled") {
++            var state = FaceScanNetworkState()
++            state.pendingRequests[UUID()] = 0
++            state.isOffline = true
++            precondition(state.nextEvent(at: 5) == .show(.offline))
++            state.isOffline = false
++            precondition(state.nextEvent(at: 6) == .show(.slow))
++        }
++        test("A fast concurrent request does not hide a stalled request") {
++            var state = FaceScanNetworkState()
++            let fast = UUID()
++            state.pendingRequests[UUID()] = 0
++            state.pendingRequests[fast] = 4
++            state.pendingRequests.removeValue(forKey: fast)
++            precondition(state.nextEvent(at: 5) == .show(.slow))
++            state.pendingRequests.removeAll()
++            precondition(state.nextEvent(at: 6) == .clear)
++        }
++        for code: URLError.Code in [.notConnectedToInternet, .networkConnectionLost, .dataNotAllowed] {
++            test("Transport error \(code.rawValue) reports offline even with an available path") {
++                var state = FaceScanNetworkState()
++                state.recordFailure(URLError(code), at: 100)
++                precondition(state.nextEvent(at: 100) == .show(.offline))
++                precondition(state.nextEvent(at: 104.999) == nil)
++                precondition(state.nextEvent(at: 105) == .clear)
++            }
++        }
++        test("URL timeout reports slow immediately") {
++            var state = FaceScanNetworkState()
++            state.recordFailure(URLError(.timedOut), at: 100)
++            precondition(state.nextEvent(at: 100) == .show(.slow))
++            precondition(state.nextEvent(at: 105) == .clear)
++        }
++        test("A timeout cannot override a known offline path") {
++            var state = FaceScanNetworkState()
++            state.isOffline = true
++            state.recordFailure(URLError(.timedOut), at: 100)
++            precondition(state.nextEvent(at: 100) == .show(.offline))
++        }
++        test("HTTP/server errors with matching numeric codes are ignored") {
++            var state = FaceScanNetworkState()
++            state.recordFailure(NSError(domain: "HTTP", code: NSURLErrorNotConnectedToInternet), at: 0)
++            precondition(state.nextEvent(at: 0) == nil)
++        }
++        for code: URLError.Code in [.cancelled, .badURL, .userAuthenticationRequired] {
++            test("Non-connectivity error \(code.rawValue) does not report weak internet") {
++                var state = FaceScanNetworkState()
++                state.recordFailure(URLError(code), at: 0)
++                precondition(state.nextEvent(at: 0) == nil)
++            }
++        }
++        test("A new scan has no inherited requests, errors, or cooldown") {
++            var state = FaceScanNetworkState()
++            precondition(state.nextEvent(at: 100) == nil)
++            state.isOffline = true
++            precondition(state.nextEvent(at: 100) == .show(.offline))
++        }
++
++        var events: [FaceScanNetworkState.Event] = []
++        let monitor = FaceScanNetworkMonitor()
++        monitor.start { event in
++            precondition(Thread.isMainThread, "UI callback must always run on the main thread")
++            events.append(event)
++        }
++        let firstPath = NWPathMonitor.instances.last!
++        test("Path adapter delivers offline and recovery to the production monitor") {
++            firstPath.send(.satisfied)
++            precondition(events.isEmpty)
++            firstPath.send(.unsatisfied)
++            precondition(events == [.show(.offline)])
++            firstPath.send(.unsatisfied)
++            precondition(events.count == 1)
++            firstPath.send(.satisfied)
++            precondition(events == [.show(.offline), .clear])
++        }
++        test("A path requiring a connection reports unavailable connectivity") {
++            events.removeAll()
++            firstPath.send(.requiresConnection)
++            precondition(events == [.show(.offline)])
++            firstPath.send(.satisfied)
++        }
++        let oldRequest = monitor.beginRequest()
++        let latePathCallback = firstPath.pathUpdateHandler!
++        test("Restart cancels the old path and ignores its delayed callbacks") {
++            monitor.start { events.append($0) }
++            events.removeAll()
++            precondition(firstPath.isCancelled)
++            latePathCallback(NWPath(.unsatisfied))
++            monitor.endRequest(oldRequest, error: URLError(.timedOut))
++            precondition(events.isEmpty)
++        }
++        test("Unknown and cancelled requests cannot show a late warning") {
++            monitor.endRequest(UUID(), error: URLError(.timedOut))
++            let cancelled = monitor.beginRequest()
++            monitor.cancelPendingRequests()
++            monitor.endRequest(cancelled, error: URLError(.notConnectedToInternet))
++            precondition(events.isEmpty)
++        }
++        test("Stopping monitoring ignores subsequent request completions") {
++            let id = monitor.beginRequest()
++            monitor.stop()
++            monitor.endRequest(id, error: URLError(.timedOut))
++            let offscreenID = monitor.beginRequest()
++            monitor.start { events.append($0) }
++            monitor.endRequest(offscreenID, error: URLError(.timedOut))
++            precondition(events.isEmpty)
++        }
++        monitor.stop()
++        monitor.start { event in
++            precondition(Thread.isMainThread)
++            events.append(event)
++        }
++        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
++            let work = DispatchWorkItem {
++                let id = monitor.beginRequest()
++                monitor.endRequest(id, error: URLError(.timedOut))
++                DispatchQueue.main.async { continuation.resume() }
++            }
++            DispatchQueue.global().async(execute: work)
++        }
++        test("Background upload completion reaches the UI on the main thread") {
++            precondition(events == [.show(.slow)])
++        }
++        monitor.stop()
++        events.removeAll()
++        monitor.start { events.append($0) }
++        let stalled = monitor.beginRequest()
++        try? await Task.sleep(for: .milliseconds(4200))
++        test("Real watchdog timer stays silent before five seconds") {
++            precondition(events.isEmpty)
++        }
++        try? await Task.sleep(for: .milliseconds(2000))
++        test("Real watchdog timer warns for an unfinished request") {
++            precondition(events == [.show(.slow)])
++        }
++        test("Completing the timed request clears the visible warning") {
++            monitor.endRequest(stalled)
++            precondition(events == [.show(.slow), .clear])
++        }
++        monitor.stop()
++        test("Releasing a monitor cancels its underlying path source") {
++            var disposable: FaceScanNetworkMonitor? = FaceScanNetworkMonitor()
++            let reference = WeakMonitorReference(disposable)
++            disposable?.start { _ in }
++            let path = NWPathMonitor.instances.last!
++            disposable = nil
++            precondition(reference.value == nil && path.isCancelled)
++        }
++        print("RESULT: \(passed) monitor/state test cases passed")
++    }
++}
+Index: Tests/run-face-scan-network-tests.sh
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Tests/run-face-scan-network-tests.sh b/Tests/run-face-scan-network-tests.sh
+new file mode 100755
+--- /dev/null	(date 1793629675794)
++++ b/Tests/run-face-scan-network-tests.sh	(date 1793629675794)
+@@ -0,0 +1,13 @@
++#!/bin/bash
++set -euo pipefail
++cd "$(dirname "$0")/.."
++test_dir="$(mktemp -d /tmp/hh-network-tests.XXXXXX)"
++trap 'rm -rf "$test_dir"' EXIT
++# Substitute only the OS path source; keep production timing and logic intact.
++sed '/^import Network$/d' HH_Kiosk_B2B/Utils/FaceScanNetworkMonitor.swift > "$test_dir/FaceScanNetworkMonitor.swift"
++xcrun swiftc -module-cache-path "$test_dir/module-cache" \
++  Tests/Support/FaceScanNetworkPathDouble.swift \
++  Tests/FaceScanNetworkMonitorTests.swift \
++  "$test_dir/FaceScanNetworkMonitor.swift" \
++  -o "$test_dir/FaceScanNetworkMonitorTests"
++"$test_dir/FaceScanNetworkMonitorTests"
+Index: Tests/Support/FaceScanNetworkPathDouble.swift
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Tests/Support/FaceScanNetworkPathDouble.swift b/Tests/Support/FaceScanNetworkPathDouble.swift
+new file mode 100644
+--- /dev/null	(date 1793629675743)
++++ b/Tests/Support/FaceScanNetworkPathDouble.swift	(date 1793629675743)
+@@ -0,0 +1,26 @@
++import Foundation
++
++// Replaces only Apple's path source in the standalone runners. The production
++// monitor, its real timer, and main-queue dispatch run unchanged.
++final class NWPath {
++    enum Status { case satisfied, unsatisfied, requiresConnection }
++    let status: Status
++    init(_ status: Status) { self.status = status }
++}
++
++final class NWPathMonitor {
++    static var instances: [NWPathMonitor] = []
++    var pathUpdateHandler: ((NWPath) -> Void)?
++    private(set) var isCancelled = false
++    private(set) var queue: DispatchQueue?
++
++    init() { Self.instances.append(self) }
++    func start(queue: DispatchQueue) { self.queue = queue }
++    func cancel() { isCancelled = true }
++
++    func send(_ status: NWPath.Status) {
++        precondition(Thread.isMainThread)
++        precondition(queue === DispatchQueue.main, "Production path callbacks must use the main queue")
++        pathUpdateHandler?(NWPath(status))
++    }
++}
+Index: HH_Kiosk_B2B/Utils/FaceScanNetworkMonitor.swift
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/HH_Kiosk_B2B/Utils/FaceScanNetworkMonitor.swift b/HH_Kiosk_B2B/Utils/FaceScanNetworkMonitor.swift
+new file mode 100644
+--- /dev/null	(date 1793629118137)
++++ b/HH_Kiosk_B2B/Utils/FaceScanNetworkMonitor.swift	(date 1793629118137)
+@@ -0,0 +1,154 @@
++import Foundation
++import Network
++
++enum FaceScanNetworkWarning: Equatable {
++    case offline
++    case slow
++
++    var message: String {
++        switch self {
++        case .offline:
++            return "No internet connection. Please check your connection."
++        case .slow:
++            return "Slow internet connection. Your face scan may take longer."
++        }
++    }
++}
++
++/// Uses elapsed scan requests, not Wi-Fi type or Low Data Mode, to detect delays.
++struct FaceScanNetworkState {
++    static let slowRequestInterval: TimeInterval = 5
++    static let reminderInterval: TimeInterval = 15
++
++    var isOffline = false
++    var pendingRequests: [UUID: TimeInterval] = [:]
++    private var failure: (warning: FaceScanNetworkWarning, time: TimeInterval)?
++    private var lastWarning: FaceScanNetworkWarning?
++    private var lastWarningTime: TimeInterval = -.infinity
++
++    enum Event: Equatable {
++        case show(FaceScanNetworkWarning)
++        case clear
++    }
++
++    mutating func recordFailure(_ error: Error, at time: TimeInterval) {
++        let error = error as NSError
++        guard error.domain == NSURLErrorDomain else { return }
++        switch error.code {
++        case NSURLErrorNotConnectedToInternet, NSURLErrorNetworkConnectionLost, NSURLErrorDataNotAllowed:
++            failure = (.offline, time)
++        case NSURLErrorTimedOut:
++            failure = (.slow, time)
++        default:
++            break
++        }
++    }
++
++    mutating func nextEvent(at time: TimeInterval) -> Event? {
++        let warning: FaceScanNetworkWarning?
++        if isOffline {
++            warning = .offline
++        } else if let failure, time - failure.time < Self.slowRequestInterval {
++            warning = failure.warning
++        } else if pendingRequests.values.contains(where: { time - $0 >= Self.slowRequestInterval }) {
++            warning = .slow
++        } else {
++            warning = nil
++        }
++
++        guard let warning else {
++            guard lastWarning != nil else { return nil }
++            lastWarning = nil
++            return .clear
++        }
++        guard warning != lastWarning || time - lastWarningTime >= Self.reminderInterval else { return nil }
++        lastWarning = warning
++        lastWarningTime = time
++        return .show(warning)
++    }
++}
++
++/// All state is serialized on the main queue, including upload callbacks.
++final class FaceScanNetworkMonitor {
++    private var pathMonitor: NWPathMonitor?
++    private var timer: Timer?
++    private var state = FaceScanNetworkState()
++    private var onEvent: ((FaceScanNetworkState.Event) -> Void)?
++
++    func start(onEvent: @escaping (FaceScanNetworkState.Event) -> Void) {
++        onMain { [self] in
++            stop()
++            self.onEvent = onEvent
++            let monitor = NWPathMonitor()
++            pathMonitor = monitor
++            monitor.pathUpdateHandler = { [weak self, weak monitor] path in
++                guard let self, let monitor, self.pathMonitor === monitor else { return }
++                self.state.isOffline = path.status != .satisfied
++                self.evaluate()
++            }
++            monitor.start(queue: .main)
++            let timer = Timer(timeInterval: 1, repeats: true) { [weak self] _ in
++                self?.evaluate()
++            }
++            self.timer = timer
++            RunLoop.main.add(timer, forMode: .common)
++        }
++    }
++
++    func stop() {
++        onMain { [self] in
++            pathMonitor?.cancel()
++            pathMonitor = nil
++            timer?.invalidate()
++            timer = nil
++            onEvent = nil
++            state = FaceScanNetworkState()
++        }
++    }
++
++    @discardableResult
++    func beginRequest() -> UUID {
++        let id = UUID()
++        onMain { [self] in
++            guard onEvent != nil else { return }
++            state.pendingRequests[id] = ProcessInfo.processInfo.systemUptime
++        }
++        return id
++    }
++
++    func endRequest(_ id: UUID, error: Error? = nil) {
++        onMain { [self] in
++            // Completions from a closed, cancelled, or rotated scan are ignored.
++            guard state.pendingRequests.removeValue(forKey: id) != nil else { return }
++            if let error {
++                state.recordFailure(error, at: ProcessInfo.processInfo.systemUptime)
++            }
++            evaluate()
++        }
++    }
++
++    func cancelPendingRequests() {
++        onMain { [self] in
++            state.pendingRequests.removeAll()
++            evaluate()
++        }
++    }
++
++    private func evaluate() {
++        guard let event = state.nextEvent(at: ProcessInfo.processInfo.systemUptime) else { return }
++        onEvent?(event)
++    }
++
++    private func onMain(_ work: @escaping () -> Void) {
++        if Thread.isMainThread {
++            work()
++        } else {
++            DispatchQueue.main.async(execute: work)
++        }
++    }
++
++    deinit {
++        pathMonitor?.cancel()
++        timer?.invalidate()
++    }
++}
+Index: HH_Kiosk_B2B/Utils/FaceScanNetworkToast.swift
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/HH_Kiosk_B2B/Utils/FaceScanNetworkToast.swift b/HH_Kiosk_B2B/Utils/FaceScanNetworkToast.swift
+new file mode 100644
+--- /dev/null	(date 1793629319983)
++++ b/HH_Kiosk_B2B/Utils/FaceScanNetworkToast.swift	(date 1793629319983)
+@@ -0,0 +1,62 @@
++import UIKit
++
++final class FaceScanNetworkToast {
++    private var toast: UIView?
++    private var dismissal: DispatchWorkItem?
++
++    func show(_ warning: FaceScanNetworkWarning, in controller: UIViewController) {
++        guard controller.viewIfLoaded?.window != nil,
++              !controller.isBeingDismissed else { return }
++        hide()
++
++        let toast = UIView()
++        toast.translatesAutoresizingMaskIntoConstraints = false
++        toast.backgroundColor = UIColor(red: 1, green: 0.87, blue: 0.57, alpha: 1)
++        toast.layer.cornerRadius = 14
++        toast.isUserInteractionEnabled = false
++        toast.accessibilityIdentifier = "faceScan.networkToast"
++
++        let label = UILabel()
++        label.translatesAutoresizingMaskIntoConstraints = false
++        label.text = warning.message
++        label.textColor = UIColor(white: 0.15, alpha: 1)
++        label.font = .systemFont(ofSize: 20, weight: .semibold)
++        label.textAlignment = .center
++        label.numberOfLines = 0
++        toast.addSubview(label)
++        controller.view.addSubview(toast)
++
++        // Keep the close button available while a warning is visible.
++        NSLayoutConstraint.activate([
++            toast.topAnchor.constraint(equalTo: controller.view.safeAreaLayoutGuide.topAnchor, constant: 68),
++            toast.centerXAnchor.constraint(equalTo: controller.view.centerXAnchor),
++            toast.widthAnchor.constraint(lessThanOrEqualTo: controller.view.widthAnchor, multiplier: 0.9),
++            label.leadingAnchor.constraint(equalTo: toast.leadingAnchor, constant: 20),
++            label.trailingAnchor.constraint(equalTo: toast.trailingAnchor, constant: -20),
++            label.topAnchor.constraint(equalTo: toast.topAnchor, constant: 14),
++            label.bottomAnchor.constraint(equalTo: toast.bottomAnchor, constant: -14)
++        ])
++        self.toast = toast
++        UIAccessibility.post(notification: .announcement, argument: warning.message)
++
++        let dismissal = DispatchWorkItem { [weak self] in self?.hide() }
++        self.dismissal = dismissal
++        DispatchQueue.main.asyncAfter(deadline: .now() + 5, execute: dismissal)
++    }
++
++    func bringToFront() {
++        guard let toast else { return }
++        toast.superview?.bringSubviewToFront(toast)
++    }
++
++    func hide() {
++        dismissal?.cancel()
++        dismissal = nil
++        toast?.removeFromSuperview()
++        toast = nil
++    }
++
++    deinit {
++        dismissal?.cancel()
++    }
++}
+Index: HH_Kiosk_B2B/Views/Helper_Component/ResultsListViews.swift
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import SwiftUI\n\n// ----------------------\n// Tagged interpretation JSON\n// ----------------------\nlet interpretationJSON = ResultScreenStrings.Metrics.interpretations\n\n// ----------------------\n// UI: ResultsList & ResultRow\n// ----------------------\nstruct ResultsList: View {\n    @ObservedObject var model: ResultsModel\n    var isLandscape = false\n\n    var body: some View {\n        LazyVStack(spacing: 22.h) {\n            ForEach(model.resultsArray, id: \\.key) { pair in\n                ResultRow(\n                    metricKey: pair.key,\n                    title: displayTitle(for: pair.key),\n                    subtitle: descriptionText(for: pair.key),\n                    value: pair.value.value,\n                    isLandscape: isLandscape\n                )\n            }\n        }\n        .padding(.horizontal, 34.w)\n        .padding(.top, 8.h)\n        .padding(.bottom, 30.h)\n    }\n}\n\nstruct ResultRow: View {\n    let metricKey: String\n    let title: String\n    let subtitle: String\n    let value: Double\n    var isLandscape = false\n\n    @State private var isShowingDetails = false\n    @State private var collapsedMessageHeight: CGFloat = 0\n    @State private var fullMessageHeight: CGFloat = 0\n\n    private var message: String {\n        getTaggedMessage(metricKey: metricKey, value: value)\n            .components(separatedBy: .whitespacesAndNewlines)\n            .filter { !$0.isEmpty }\n            .joined(separator: \" \")\n            .replacingOccurrences(of: \",like\", with: \", like\")\n    }\n\n    private var isMessageTruncated: Bool {\n        fullMessageHeight > collapsedMessageHeight + 1\n    }\n\n    private var indicatorColor: Color {\n        meterBandColor(for: metricKey, value: value, colors: gaugeColors)\n    }\n\n    private var riskLabel: String {\n        displayRiskLabel(for: metricKey, value: value)\n    }\n\n    private var showsMeterValue: Bool {\n        ![\n            \"HBA1C_RISK_PROB\",\n            \"HDLTC_RISK_PROB\",\n            \"TG_RISK_PROB\",\n            \"BP_CVD\"\n        ].contains(metricKey)\n    }\n\n    // Match the reference result screen's metric-specific band patterns.\n    private var gaugeColors: [Color] {\n        switch metricKey {\n        case \"BP_SYSTOLIC\", \"BP_DIASTOLIC\":\n            return [\n                Color(AppColors.dialBandYellow),\n                Color(AppColors.dialBandGreen),\n                Color(AppColors.dialBandLightGreen),\n                Color(AppColors.dialBandYellow),\n                Color(AppColors.dialBandRed)\n            ]\n\n        case \"HR_BPM\":\n            return [\n                Color(AppColors.dialBandYellow),\n                Color(AppColors.dialBandGreen),\n                Color(AppColors.dialBandYellow)\n            ]\n\n        default:\n            return [\n                Color(AppColors.dialBandGreen),\n                Color(AppColors.dialBandLightGreen),\n                Color(AppColors.dialBandYellow),\n                Color(AppColors.dialBandLightRed),\n                Color(AppColors.dialBandRed)\n            ]\n        }\n    }\n\n    var body: some View {\n        VStack(alignment: .leading, spacing: 0) {\n            Text(title)\n                .font(.system(size: 36.sp, weight: .bold))\n                .foregroundColor(Color(AppColors.black))\n\n            Text(subtitle)\n                .font(.system(size: 28.sp, weight: .regular))\n                .foregroundColor(Color(AppColors.bodyText))\n                .lineSpacing(8.h)\n                .multilineTextAlignment(.leading)\n                .padding(.top, 10.h)\n\n            if isLandscape {\n                GeometryReader { geometry in\n                    HStack(alignment: .center, spacing: 40.w) {\n                        meter\n                            .frame(width: geometry.size.width * 0.62, height: 120.h)\n                            // Align the title with the colored band, below the optional value.\n                            .alignmentGuide(VerticalAlignment.center) { _ in 84.h }\n\n                        riskTitle\n                            .frame(maxWidth: .infinity, alignment: .center)\n                    }\n                }\n                .frame(height: 120.h)\n                .padding(.top, 24.h)\n            } else {\n                meter\n                    .frame(width: Screen.width * 0.52)\n                    .frame(height: 120.h)\n                    .frame(maxWidth: .infinity)\n                    .padding(.top, 24.h)\n\n                riskTitle\n                    .frame(maxWidth: .infinity, alignment: .center)\n                    .padding(.top, 22.h)\n            }\n\n            VStack(spacing: 22.h) {\n                HStack(alignment: .top, spacing: 30.w) {\n                    Image(\"vitalFlag\")\n                        .renderingMode(.template)\n                        .resizable()\n                        .scaledToFit()\n                        .foregroundStyle(indicatorColor)\n                        .frame(width: 32.w, height: 35.h)\n                        .accessibilityHidden(true)\n\n                    Text(message)\n                        .font(.system(size: 26.sp, weight: .regular))\n                        .foregroundColor(Color(AppColors.bodyText))\n                        .lineSpacing(7.h)\n                        .multilineTextAlignment(.leading)\n                        .lineLimit(isShowingDetails ? nil : 2)\n                        .fixedSize(horizontal: false, vertical: true)\n                        .frame(maxWidth: .infinity, alignment: .leading)\n                        .background {\n                            Text(message)\n                                .font(.system(size: 26.sp, weight: .regular))\n                                .lineSpacing(7.h)\n                                .lineLimit(2)\n                                .fixedSize(horizontal: false, vertical: true)\n                                .hidden()\n                                .background {\n                                    GeometryReader { geometry in\n                                        Color.clear.preference(\n                                            key: CollapsedMessageHeightKey.self,\n                                            value: geometry.size.height\n                                        )\n                                    }\n                                }\n                        }\n                        .background {\n                            Text(message)\n                                .font(.system(size: 26.sp, weight: .regular))\n                                .lineSpacing(7.h)\n                                .fixedSize(horizontal: false, vertical: true)\n                                .hidden()\n                                .background {\n                                    GeometryReader { geometry in\n                                        Color.clear.preference(\n                                            key: FullMessageHeightKey.self,\n                                            value: geometry.size.height\n                                        )\n                                    }\n                                }\n                        }\n                }\n\n                if isMessageTruncated {\n                    Button {\n                        withAnimation(.easeInOut(duration: 0.2)) {\n                            isShowingDetails.toggle()\n                        }\n                    } label: {\n                        HStack(spacing: 14.w) {\n                            Text(isShowingDetails ? \"Show less\" : \"Read more details\")\n                                .font(.system(size: 26.sp, weight: .bold))\n                                .foregroundColor(Color(AppColors.primary))\n\n                            Image(systemName: \"chevron.down\")\n                                .font(.system(size: 22.sp, weight: .bold))\n                                .foregroundColor(.primary)\n                                .rotationEffect(.degrees(isShowingDetails ? 180 : 0))\n                        }\n                        .foregroundColor(Color(AppColors.primary))\n                        .frame(maxWidth: .infinity)\n                    }\n                    .buttonStyle(.plain)\n                    .accessibilityLabel(isShowingDetails ? \"Hide details\" : \"Read more details\")\n                    .accessibilityValue(title)\n                }\n            }\n            .onPreferenceChange(CollapsedMessageHeightKey.self) { collapsedMessageHeight = $0 }\n            .onPreferenceChange(FullMessageHeightKey.self) { fullMessageHeight = $0 }\n            .padding(.horizontal, 46.w)\n            .padding(.vertical, 34.h)\n            .frame(maxWidth: .infinity, alignment: .leading)\n            .background(Color(uiColor: .secondarySystemBackground))\n            .clipShape(RoundedRectangle(cornerRadius: 20.r, style: .continuous))\n            .padding(.horizontal, 12.w)\n            .padding(.top, 34.h)\n        }\n        .padding(.horizontal, 42.w)\n        .padding(.vertical, 40.h)\n        .frame(maxWidth: .infinity, alignment: .leading)\n        .background(Color(AppColors.white))\n        .overlay(\n            RoundedRectangle(cornerRadius: 24.r, style: .continuous)\n                .stroke(Color(AppColors.formBorder), lineWidth: 1.25)\n        )\n        .clipShape(RoundedRectangle(cornerRadius: 24.r, style: .continuous))\n    }\n\n    private var meter: some View {\n        MeterBar(\n            metricKey: metricKey,\n            value: value,\n            valueText: showsMeterValue ? formattedValue(value, for: metricKey) : nil,\n            colors: gaugeColors\n        )\n    }\n\n    private var riskTitle: some View {\n        Text(riskLabel)\n            .font(.system(size: 34.sp, weight: .bold))\n            .foregroundColor(Color(AppColors.black))\n            .multilineTextAlignment(.center)\n    }\n\n}\n\nprivate struct CollapsedMessageHeightKey: PreferenceKey {\n    static var defaultValue: CGFloat = 0\n\n    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {\n        value = max(value, nextValue())\n    }\n}\n\nprivate struct FullMessageHeightKey: PreferenceKey {\n    static var defaultValue: CGFloat = 0\n\n    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {\n        value = max(value, nextValue())\n    }\n}\n\n// ----------------------\n// MeterBar with Sync'd Scaling\n// ----------------------\nstruct MeterBar: View {\n    let metricKey: String\n    let value: Double\n    let valueText: String?\n    let colors: [Color]\n    \n    // Scale stops exactly matching Web (getResultsToDownload.tsx)\n    private var fraction: Double {\n        meterFraction(for: metricKey, value: value)\n    }\n    \n    var body: some View {\n        GeometryReader { geo in\n            let totalWidth = geo.size.width\n            let thumbWidth: CGFloat = 16.w\n            let usableWidth = max(0, totalWidth - thumbWidth)\n            let thumbX = CGFloat(fraction) * usableWidth\n            let segmentSpacing: CGFloat = 4.w\n            let segmentWidth = max(0, (totalWidth - segmentSpacing * CGFloat(max(colors.count - 1, 0))) / CGFloat(max(colors.count, 1)))\n            \n            ZStack(alignment: .topLeading) {\n                HStack(spacing: segmentSpacing) {\n                    ForEach(Array(colors.enumerated()), id: \\.offset) { _, color in\n                        RoundedRectangle(cornerRadius: 4.r, style: .continuous)\n                            .fill(color)\n                            .frame(width: segmentWidth, height: 28.h)\n                    }\n                }\n                .offset(y: 70.h)\n\n                if let valueText {\n                    Text(valueText)\n                        .font(.system(size: 34.sp, weight: .bold))\n                        .foregroundColor(Color(AppColors.black))\n                        .fixedSize()\n                        .position(\n                            x: min(max(thumbX + thumbWidth / 2, 86.w), totalWidth - 86.w),\n                            y: 20.h\n                        )\n                }\n                \n                Rectangle()\n                    .fill(Color(AppColors.black))\n                    .frame(width: thumbWidth, height: 72.h)\n                    .offset(x: thumbX)\n                    .offset(y: 48.h)\n            }\n        }\n    }\n}\n\n// ----------------------\n// Helpers\n// ----------------------\nfileprivate func riskBucket(for key: String, value: Double) -> String {\n    switch key {\n    case \"BP_CVD\":\n        if value < 5 { return \"very_low\" }\n        if value < 7.25 { return \"low\" }\n        if value < 10 { return \"moderate_low\" }\n        if value < 20 { return \"moderate\" }\n        return \"high\"\n    case \"HR_BPM\":\n        if value < 60 { return \"low\" }\n        if value < 100 { return \"normal\" }\n        return \"high\"\n    case \"BP_SYSTOLIC\":\n        if value < 90 { return \"low\" }\n        if value < 120 { return \"healthy\" }\n        if value < 130 { return \"slightly_high\" }\n        if value < 140 { return \"high\" }\n        return \"very_high\"\n    case \"BP_DIASTOLIC\":\n        if value < 60 { return \"low\" }\n        if value < 80 { return \"healthy\" }\n        if value < 90 { return \"high\" }\n        return \"very_high\"\n    case \"HBA1C_RISK_PROB\", \"HDLTC_RISK_PROB\", \"TG_RISK_PROB\":\n        if value < 25 { return \"very_low\" }\n        if value < 45 { return \"low\" }\n        if value < 55 { return \"moderate\" }\n        if value < 77.5 { return \"high\" }\n        return \"very_high\"\n    default:\n        return \"low\"\n    }\n}\n\nfileprivate func getTaggedMessage(metricKey: String, value: Double) -> String {\n    let title = displayTitle(for: metricKey)\n    let bucket = riskBucket(for: metricKey, value: value)\n    return interpretationJSON[title]?[bucket] ?? interpretationJSON[title]?[\"low\"] ?? \"\"\n}\n\nfileprivate func displayRiskLabel(for key: String, value: Double) -> String {\n    switch key {\n    case \"BP_CVD\":\n        if value < 5 { return \"Very Low Risk\" }\n        if value < 7.25 { return \"Low Risk\" }\n        if value < 10 { return \"Medium Risk\" }\n        if value < 20 { return \"Elevated Risk\" }\n        return \"Greatly Elevated Risk\"\n\n    case \"HBA1C_RISK_PROB\", \"HDLTC_RISK_PROB\", \"TG_RISK_PROB\":\n        if value < 25 { return \"Very Low Risk\" }\n        if value < 45 { return \"Low Risk\" }\n        if value < 55 { return \"Medium Risk\" }\n        if value < 77.5 { return \"Elevated Risk\" }\n        return \"Greatly Elevated Risk\"\n\n    case \"BP_SYSTOLIC\":\n        if value < 90 { return \"Below Expected Range\" }\n        if value < 120 { return \"Within Expected Range\" }\n        if value < 130 { return \"Mildly Above Expected Range\" }\n        if value < 140 { return \"Above Expected Range\" }\n        return \"Greatly Above Expected Range\"\n\n    case \"BP_DIASTOLIC\":\n        if value < 60 { return \"Below Expected Range\" }\n        if value < 80 { return \"Within Expected Range\" }\n        if value < 90 { return \"Above Expected Range\" }\n        return \"Greatly Above Expected Range\"\n\n    case \"HR_BPM\":\n        if value < 60 { return \"Lower Than Expected Range\" }\n        if value < 100 { return \"Within Expected Range\" }\n        return \"Above Expected Range\"\n\n    default:\n        return \"Low Risk\"\n    }\n}\n\nfileprivate func formattedValue(_ value: Double, for metricKey: String) -> String {\n    switch metricKey {\n    case \"BP_CVD\", \"HBA1C_RISK_PROB\", \"HDLTC_RISK_PROB\", \"TG_RISK_PROB\":\n        return String(format: \"%.2f%%\", value)\n    case \"BP_SYSTOLIC\", \"BP_DIASTOLIC\":\n        return String(format: \"%.0f mmHg\", value)\n    case \"HR_BPM\":\n        return String(format: \"%.0f bpm\", value.rounded())\n    default:\n        return String(format: \"%.2f\", value)\n    }\n}\n\nfileprivate func displayTitle(for key: String) -> String {\n    ResultScreenStrings.Metrics.displayTitle(for: key)\n}\n\nfileprivate func descriptionText(for key: String) -> String {\n    ResultScreenStrings.Metrics.description(for: key)\n}\n\nfileprivate func meterFraction(for key: String, value: Double) -> Double {\n    scaleValueToRange(value, meterStops(for: key))\n}\n\nfileprivate func meterStops(for key: String) -> [Double] {\n    switch key {\n    case \"BP_CVD\": return [0, 5, 7.25, 10, 20, 100]\n    case \"BP_HEART_ATTACK\": return [0, 1.65, 2.39, 3.3, 6.6, 33]\n    case \"BP_STROKE\": return [0, 3.3, 4.79, 6.6, 13.2, 66]\n    case \"HR_BPM\": return [0, 60, 100, 140]\n    case \"BR_BPM\": return [0, 12, 16, 21, 25, 35]\n    case \"BP_SYSTOLIC\": return [0, 90, 120, 130, 140, 180]\n    case \"BP_DIASTOLIC\": return [0, 60, 70, 80, 90, 120]\n    case \"HRV_SDNN\": return [0, 10.8, 16.4, 35.5, 49.9, 80]\n    case \"BP_RPP\": return [0, 3.8, 3.9, 4.08, 4.18, 4.28]\n    case \"BP_TAU\": return [0, 0.79, 1.12, 1.78, 2.11, 3]\n    case \"BMI_CALC\": return [0, 18.5, 25, 30, 35, 60]\n    case \"WAIST_TO_HEIGHT\": return [0, 43, 53, 58, 63, 75]\n    default: return [0, 25, 45, 55, 77.5, 100]\n    }\n}\n\nfileprivate func color(for bucket: String) -> Color {\n    switch bucket {\n    case \"healthy\", \"low\", \"very_low\", \"normal\", \"moderate\":\n        return Color(AppColors.riskLow)\n    case \"warning\", \"medium\", \"moderate_low\", \"slightly_high\":\n        return Color(AppColors.riskWarning)\n    case \"critical\", \"high\":\n        return Color(AppColors.riskHigh)\n    case \"very_high\":\n        return Color(AppColors.riskHigh)\n    default:\n        return Color(AppColors.riskLow)\n    }\n}\n\nfileprivate func meterColor(for key: String, value: Double, colors: [Color]) -> Color {\n    guard !colors.isEmpty else { return Color(AppColors.riskLow) }\n    if colors.count == 1 { return colors[0] }\n\n    let fraction = min(max(meterFraction(for: key, value: value), 0), 1)\n    let scaled = fraction * Double(colors.count - 1)\n    let lowerIndex = Int(floor(scaled))\n    let upperIndex = min(lowerIndex + 1, colors.count - 1)\n    let localFraction = CGFloat(scaled - Double(lowerIndex))\n\n    return interpolateColor(from: colors[lowerIndex], to: colors[upperIndex], fraction: localFraction)\n}\n\nfileprivate func meterBandColor(for key: String, value: Double, colors: [Color]) -> Color {\n    guard !colors.isEmpty else { return Color(AppColors.riskLow) }\n    if colors.count == 1 { return colors[0] }\n\n    if key == \"HR_BPM\", colors.count >= 3 {\n        if value < 60 { return colors[0] }\n        if value < 100 { return colors[1] }\n        return colors[2]\n    }\n\n    if key == \"BP_CVD\", colors.count >= 5 {\n        if value < 5 { return colors[0] }\n        if value < 7.25 { return colors[1] }\n        if value < 10 { return colors[2] }\n        if value < 20 { return colors[3] }\n        return colors[4]\n    }\n\n    if key == \"HBA1C_RISK_PROB\" || key == \"HDLTC_RISK_PROB\" || key == \"TG_RISK_PROB\", colors.count >= 5 {\n        if value < 25 { return colors[0] }\n        if value < 45 { return colors[1] }\n        if value < 55 { return colors[2] }\n        if value < 77.5 { return colors[3] }\n        return colors[4]\n    }\n\n    if key == \"BP_SYSTOLIC\", colors.count >= 5 {\n        if value < 90 { return colors[0] }\n        if value < 120 { return colors[1] }\n        if value < 130 { return colors[2] }\n        if value < 140 { return colors[3] }\n        return colors[4]\n    }\n\n    if key == \"BP_DIASTOLIC\", colors.count >= 5 {\n        if value < 60 { return colors[0] }\n        if value < 70 { return colors[1] }\n        if value < 80 { return colors[2] }\n        if value < 90 { return colors[3] }\n        return colors[4]\n    }\n    \n    let stops = meterStops(for: key)\n    guard stops.count >= 2 else { return colors[0] }\n\n    if value <= stops[0] { return colors[0] }\n\n    let segmentCount = stops.count - 1\n    for index in 0..<segmentCount {\n        if value > stops[index] && value <= stops[index + 1] {\n            return colors[min(index, colors.count - 1)]\n        }\n    }\n\n    return colors[min(segmentCount - 1, colors.count - 1)]\n}\n\nfileprivate func interpolateColor(from start: Color, to end: Color, fraction: CGFloat) -> Color {\n    let startColor = UIColor(start)\n    let endColor = UIColor(end)\n\n    var startRed: CGFloat = 0\n    var startGreen: CGFloat = 0\n    var startBlue: CGFloat = 0\n    var startAlpha: CGFloat = 0\n    var endRed: CGFloat = 0\n    var endGreen: CGFloat = 0\n    var endBlue: CGFloat = 0\n    var endAlpha: CGFloat = 0\n\n    guard startColor.getRed(&startRed, green: &startGreen, blue: &startBlue, alpha: &startAlpha),\n          endColor.getRed(&endRed, green: &endGreen, blue: &endBlue, alpha: &endAlpha) else {\n        return start\n    }\n\n    let red = startRed + (endRed - startRed) * fraction\n    let green = startGreen + (endGreen - startGreen) * fraction\n    let blue = startBlue + (endBlue - startBlue) * fraction\n    let alpha = startAlpha + (endAlpha - startAlpha) * fraction\n\n    return Color(uiColor: UIColor(red: red, green: green, blue: blue, alpha: alpha))\n}\n\nfunc scaleValueToRange(_ value: Double, _ stops: [Double]) -> Double {\n    guard stops.count >= 2 else { return 0 }\n    let v = min(max(value, stops.first!), stops.last!)\n    let segmentCount = stops.count - 1\n    let segmentWidth = 1.0 / Double(segmentCount)\n    for i in 0..<segmentCount {\n        if v >= stops[i] && v <= stops[i+1] {\n            let local = (v - stops[i]) / (stops[i+1] - stops[i])\n            return (Double(i) * segmentWidth) + (local * segmentWidth)\n        }\n    }\n    return 1.0\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/HH_Kiosk_B2B/Views/Helper_Component/ResultsListViews.swift b/HH_Kiosk_B2B/Views/Helper_Component/ResultsListViews.swift
+--- a/HH_Kiosk_B2B/Views/Helper_Component/ResultsListViews.swift	(revision 5ceeadc777f629780aa91a73e0b8fec943b4b48d)
++++ b/HH_Kiosk_B2B/Views/Helper_Component/ResultsListViews.swift	(date 1793211051055)
+@@ -61,15 +61,6 @@
+         displayRiskLabel(for: metricKey, value: value)
+     }
+ 
+-    private var showsMeterValue: Bool {
+-        ![
+-            "HBA1C_RISK_PROB",
+-            "HDLTC_RISK_PROB",
+-            "TG_RISK_PROB",
+-            "BP_CVD"
+-        ].contains(metricKey)
+-    }
+-
+     // Match the reference result screen's metric-specific band patterns.
+     private var gaugeColors: [Color] {
+         switch metricKey {
+@@ -118,7 +109,7 @@
+                     HStack(alignment: .center, spacing: 40.w) {
+                         meter
+                             .frame(width: geometry.size.width * 0.62, height: 120.h)
+-                            // Align the title with the colored band, below the optional value.
++                            // Align the title with the colored band, below the value.
+                             .alignmentGuide(VerticalAlignment.center) { _ in 84.h }
+ 
+                         riskTitle
+@@ -239,7 +230,7 @@
+         MeterBar(
+             metricKey: metricKey,
+             value: value,
+-            valueText: showsMeterValue ? formattedValue(value, for: metricKey) : nil,
++            valueText: formattedValue(value, for: metricKey),
+             colors: gaugeColors
+         )
+     }
+@@ -275,7 +266,7 @@
+ struct MeterBar: View {
+     let metricKey: String
+     let value: Double
+-    let valueText: String?
++    let valueText: String
+     let colors: [Color]
+     
+     // Scale stops exactly matching Web (getResultsToDownload.tsx)
+@@ -302,16 +293,14 @@
+                 }
+                 .offset(y: 70.h)
+ 
+-                if let valueText {
+-                    Text(valueText)
+-                        .font(.system(size: 34.sp, weight: .bold))
+-                        .foregroundColor(Color(AppColors.black))
+-                        .fixedSize()
+-                        .position(
+-                            x: min(max(thumbX + thumbWidth / 2, 86.w), totalWidth - 86.w),
+-                            y: 20.h
+-                        )
+-                }
++                Text(valueText)
++                    .font(.system(size: 34.sp, weight: .bold))
++                    .foregroundColor(Color(AppColors.black))
++                    .fixedSize()
++                    .position(
++                        x: min(max(thumbX + thumbWidth / 2, 86.w), totalWidth - 86.w),
++                        y: 20.h
++                    )
+                 
+                 Rectangle()
+                     .fill(Color(AppColors.black))
+Index: Tests/Support/FaceScanDelegateTestDoubles.swift
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Tests/Support/FaceScanDelegateTestDoubles.swift b/Tests/Support/FaceScanDelegateTestDoubles.swift
+new file mode 100644
+--- /dev/null	(date 1793629806811)
++++ b/Tests/Support/FaceScanDelegateTestDoubles.swift	(date 1793629806811)
+@@ -0,0 +1,131 @@
++import UIKit
++
++// External SDK, backend, results socket, and unrelated app services are stand-ins.
++// The runner compiles the production MeasurementDelegate and warning components.
++protocol AnuraMeasurementDelegate {}
++struct AnuraUser { var measurementProperties: [String: String] = [:]; var partnerID: String? }
++struct MeasurementPayload { let chunkOrder: Int; let numberOfChunks: Int; let payload: Data }
++struct FaceConstraintsStatus { let identifier: String; let warningMessage: String }
++struct MeasurementPipelineInfo {
++    enum State { case readyToMeasure, hold, measuring, extracting, complete, failure, off, other }
++    let state: State
++}
++struct TestMeasurementResult {
++    let measurementID: String
++    let allResults: [String: Double]
++    let snr: Double
++    let chunkOrder: Int
++    let heartRate: Double
++}
++protocol MeasurementPreviewLayoutProviding { var measurementPreviewFrame: CGRect? { get } }
++extension Int { var sp: CGFloat { CGFloat(self) } }
++final class AppState { func setScreenSaverSuppressed(_ suppressed: Bool, reason: String) {} }
++enum ScreenSaverSuppressionReason { static let faceMeasurement = "measurement" }
++enum SensitiveScreenPrivacy {
++    static func beginProtecting(owner: String) {}
++    static func endProtecting(owner: String) {}
++}
++final class ResultsViewController: UIViewController {
++    var dismissBlock: (() -> Void)?
++    var measurementID = ""
++    var results: [String: Double] = [:]
++    init(appState: AppState?) { super.init(nibName: nil, bundle: nil) }
++    required init?(coder: NSCoder) { fatalError() }
++    func measurementDidCancel() {}
++}
++
++final class AnuraMeasurementViewController: UIViewController, UIViewControllerTransitioningDelegate {
++    weak var delegate: MeasurementDelegate?
++    struct Configuration { let numChunks = 6 }
++    enum CancelReason { case network, unknown, snr, fail }
++    let measurementConfiguration = Configuration()
++    let closeButton = UIButton(type: .system)
++
++    override func viewDidLoad() {
++        super.viewDidLoad()
++        view.backgroundColor = .white
++        let preview = UIView()
++        preview.backgroundColor = UIColor(white: 0.85, alpha: 1)
++        preview.layer.cornerRadius = 150
++        preview.translatesAutoresizingMaskIntoConstraints = false
++        view.addSubview(preview)
++        let caption = UILabel()
++        caption.text = "Simulated camera preview"
++        caption.textColor = .darkGray
++        caption.textAlignment = .center
++        caption.translatesAutoresizingMaskIntoConstraints = false
++        preview.addSubview(caption)
++        closeButton.setImage(UIImage(systemName: "xmark"), for: .normal)
++        closeButton.translatesAutoresizingMaskIntoConstraints = false
++        view.addSubview(closeButton)
++        NSLayoutConstraint.activate([
++            preview.widthAnchor.constraint(equalToConstant: 300),
++            preview.heightAnchor.constraint(equalTo: preview.widthAnchor),
++            preview.centerXAnchor.constraint(equalTo: view.centerXAnchor),
++            preview.centerYAnchor.constraint(equalTo: view.centerYAnchor),
++            caption.centerXAnchor.constraint(equalTo: preview.centerXAnchor),
++            caption.centerYAnchor.constraint(equalTo: preview.centerYAnchor),
++            closeButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
++            closeButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
++            closeButton.widthAnchor.constraint(equalToConstant: 44),
++            closeButton.heightAnchor.constraint(equalToConstant: 44)
++        ])
++        delegate?.anuraMeasurementControllerDidLoad(self)
++    }
++    override func viewDidAppear(_ animated: Bool) {
++        super.viewDidAppear(animated)
++        delegate?.anuraMeasurementControllerDidAppear(self)
++    }
++    override func viewDidDisappear(_ animated: Bool) {
++        super.viewDidDisappear(animated)
++        delegate?.anuraMeasurementControllerDidDisappear(self)
++    }
++    func presentationController(forPresented presented: UIViewController, presenting: UIViewController?, source: UIViewController) -> UIPresentationController? {
++        LandscapeScanPresentationController(presentedViewController: presented, presenting: presenting)
++    }
++    func setMeasurementProperties(properties: [String: String]) {}
++    func startMeasurementCountdown() {}
++    func cancelMeasurement(reason: CancelReason) {}
++    func decodeMeasurementResult(data: Data) -> TestMeasurementResult? { nil }
++    func shouldCancelMeasurement(snr: Double, chunkOrder: Int) -> Bool { false }
++    func setHeartRate(_ rate: Double) {}
++}
++
++typealias NetworkResult<T> = Result<T, Error>
++struct ID { let id: String }
++struct MeasurementDataRequest {
++    enum Action { case firstProcess, lastProcess, chunkProcess }
++    let action: Action
++    let payload: Data
++}
++protocol DeepAffexMiniAPIProtocol {
++    var token: String { get }
++    var studyID: String { get }
++    func createMeasurement(studyID: String, resolution: Int, partnerID: String?, _ completion: @escaping (NetworkResult<ID>) -> Void)
++    func addData(measurementID: String, data: MeasurementDataRequest, _ completion: @escaping (NetworkResult<ID>) -> Void)
++}
++final class TestScanAPI: DeepAffexMiniAPIProtocol {
++    let token = "test-only"
++    let studyID = "test-only"
++    var creation: ((NetworkResult<ID>) -> Void)?
++    var upload: ((NetworkResult<ID>) -> Void)?
++    func createMeasurement(studyID: String, resolution: Int, partnerID: String?, _ completion: @escaping (NetworkResult<ID>) -> Void) {
++        creation = completion
++    }
++    func addData(measurementID: String, data: MeasurementDataRequest, _ completion: @escaping (NetworkResult<ID>) -> Void) {
++        DispatchQueue.main.async { self.upload = completion }
++    }
++}
++protocol MeasurementResultsSubscriberDelegate: AnyObject {
++    func didGetResults(_ subscriber: MeasurementResultsSubscriber, data: Data)
++    func didGetError(_ subscriber: MeasurementResultsSubscriber, error: Error?)
++    func didConnect(_ subscriber: MeasurementResultsSubscriber)
++    func didDisconnect(_ subscriber: MeasurementResultsSubscriber)
++}
++final class MeasurementResultsSubscriber {
++    weak var delegate: MeasurementResultsSubscriberDelegate?
++    init(token: String) {}
++    func connect() { delegate?.didConnect(self) }
++    func subscribeToResults(measurementID: String) {}
++    func cancelResultsSubscription() { delegate?.didDisconnect(self) }
++}
