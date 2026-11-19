@@ -23,10 +23,7 @@ class ResultsViewController: UIViewController {
     private var errorLabel: UILabel!
     private var exitButton: UIButton!
     private let submissionService: KioskSubmissionServiceProtocol = KioskSubmissionService()
-    private let automaticReportEmail = AutomaticReportEmail()
-    private var readyEmailMeasurementID: String?
-    private var emailToast: UIView?
-    private var emailToastDismissal: DispatchWorkItem?
+    private let saveToast = ScanSaveToast()
     private var isResultsScreenVisible = false
     private var inactivityTimer: Timer?
     private var inactivityCountdownTimer: Timer?
@@ -89,7 +86,6 @@ class ResultsViewController: UIViewController {
         isResultsScreenVisible = true
         SensitiveScreenPrivacy.beginProtecting(owner: "results")
         startInactivityTimer()
-        sendReportEmailIfReady()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -97,15 +93,12 @@ class ResultsViewController: UIViewController {
         isResultsScreenVisible = false
         SensitiveScreenPrivacy.endProtecting(owner: "results")
         stopInactivityTimer()
-        emailToastDismissal?.cancel()
-        emailToast?.removeFromSuperview()
-        emailToast = nil
+        saveToast.cancel()
     }
 
     deinit {
         inactivityTimer?.invalidate()
         inactivityCountdownTimer?.invalidate()
-        emailToastDismissal?.cancel()
     }
 
     // MARK: - Inactivity Timer
@@ -348,8 +341,8 @@ class ResultsViewController: UIViewController {
                         self?.printResults()
                     }
                 )
-                self.readyEmailMeasurementID = ScanSessionStorage.measurementID
                 self.updateUI(for: .success)
+                self.scheduleSaveConfirmation()
                 print("✅ Mock scan results submitted and backend results displayed successfully.")
             }
         }
@@ -506,7 +499,7 @@ class ResultsViewController: UIViewController {
     private func updateUI(for state: UIState) {
         switch state {
         case .loading:
-            readyEmailMeasurementID = nil
+            saveToast.cancel()
             activityIndicator.startAnimating()
             errorLabel.isHidden = true
             exitButton.isHidden = true
@@ -519,9 +512,9 @@ class ResultsViewController: UIViewController {
             exitButton.isHidden = true
             resultButtonsHost.view.isHidden = false
             resultScreenHost.view.isHidden = false
-            sendReportEmailIfReady()
 
         case .failure:
+            saveToast.cancel()
             activityIndicator.stopAnimating()
             errorLabel.isHidden = false
             exitButton.isHidden = false
@@ -530,70 +523,10 @@ class ResultsViewController: UIViewController {
         }
     }
 
-    private func sendReportEmailIfReady() {
-        guard viewIfLoaded?.window != nil,
-              let measurementID = readyEmailMeasurementID else { return }
-        guard let user = LocalUserStorage.loadUser(), let pin = user.pin else {
-            showEmailToast(for: .failed)
-            return
+    private func scheduleSaveConfirmation() {
+        saveToast.schedule(in: view) { [weak self] in
+            self?.isResultsScreenVisible == true
         }
-
-        let service = submissionService
-        Task { [weak self] in
-            guard let self else { return }
-            let outcome = await automaticReportEmail.sendOnce(
-                measurementID: measurementID,
-                email: user.email,
-                pin: pin
-            ) { email, pin, measurementID in
-                try await service.sendEmailResults(email: email, pin: pin, measurementID: measurementID)
-            }
-            guard outcome != .alreadyAttempted,
-                  readyEmailMeasurementID == measurementID else { return }
-            showEmailToast(for: outcome)
-        }
-    }
-
-    private func showEmailToast(for outcome: AutomaticReportEmail.Outcome) {
-        // Offscreen completions are discarded so returning never replays an old toast.
-        guard isResultsScreenVisible, viewIfLoaded?.window != nil else { return }
-        emailToastDismissal?.cancel()
-        emailToast?.removeFromSuperview()
-
-        let succeeded = outcome == .sent
-        let message = succeeded ? ResultScreenStrings.EmailDelivery.success : ResultScreenStrings.EmailDelivery.failure
-        let toast = UIView()
-        toast.translatesAutoresizingMaskIntoConstraints = false
-        toast.backgroundColor = succeeded ? UIColor(red: 0.39, green: 0.76, blue: 0, alpha: 1) : AppColors.error
-        toast.layer.cornerRadius = 14
-        toast.isUserInteractionEnabled = false
-
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = message
-        label.textColor = AppColors.white
-        label.font = .systemFont(ofSize: 22, weight: .semibold)
-        label.textAlignment = .center
-        label.numberOfLines = 0
-        toast.addSubview(label)
-        view.addSubview(toast)
-        NSLayoutConstraint.activate([
-            toast.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            toast.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
-            toast.widthAnchor.constraint(lessThanOrEqualTo: view.widthAnchor, multiplier: 0.9),
-            label.leadingAnchor.constraint(equalTo: toast.leadingAnchor, constant: 24),
-            label.trailingAnchor.constraint(equalTo: toast.trailingAnchor, constant: -24),
-            label.topAnchor.constraint(equalTo: toast.topAnchor, constant: 18),
-            label.bottomAnchor.constraint(equalTo: toast.bottomAnchor, constant: -18)
-        ])
-        emailToast = toast
-        UIAccessibility.post(notification: .announcement, argument: message)
-        let dismissal = DispatchWorkItem { [weak self, weak toast] in
-            toast?.removeFromSuperview()
-            self?.emailToast = nil
-        }
-        emailToastDismissal = dismissal
-        DispatchQueue.main.asyncAfter(deadline: .now() + 4, execute: dismissal)
     }
 
     // MARK: - Public Methods (required by MeasurementDelegate)
@@ -656,8 +589,8 @@ class ResultsViewController: UIViewController {
                             self?.printResults()
                         }
                     )
-                    self.readyEmailMeasurementID = ScanSessionStorage.measurementID
                     self.updateUI(for: .success)
+                    self.scheduleSaveConfirmation()
                     print("✅ Backend results displayed successfully.")
                 }
             }

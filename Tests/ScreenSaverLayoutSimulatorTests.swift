@@ -7,25 +7,13 @@ import UIKit
     static var displayedLayout = ""
 }
 
-@MainActor final class AppState: ObservableObject {
-    @Published var screenSaverData: ScreenSaverData? = ScreenSaverData(
-        welcomeText: ScreenSaverStrings.title,
-        subtitle: ScreenSaverStrings.subtitle,
-        actionButtonText: ScreenSaverStrings.actionButton,
-        carouselImages: []
-    )
-    func warmScreenSaverData() async {}
-}
-
 enum HomeScreen { static func getCurrentTime() -> String { "12:00 PM" } }
 
 private struct WelcomeFixture: View {
-    @StateObject private var appState = AppState()
     @StateObject private var orientation = OrientationManager()
 
     var body: some View {
         ScreenSaver {}
-            .environmentObject(appState)
             .environmentObject(orientation)
             .onGeometryChange(for: CGSize.self) { $0.size } action: { orientation.update(for: $0) }
     }

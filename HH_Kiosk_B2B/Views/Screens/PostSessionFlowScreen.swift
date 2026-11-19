@@ -22,8 +22,6 @@ private struct PostSessionNextStepOption: Identifiable, Equatable {
 }
 
 struct PostSessionFlowScreen: View {
-    let emailWasSent: Bool
-
     @State private var step: PostSessionStep = .nextSteps
     @State private var selectedOptionIDs: Set<Int> = []
     @State private var selectedScore: Int?
@@ -32,10 +30,6 @@ struct PostSessionFlowScreen: View {
     @State private var showSubmitError = false
 
     private let submissionService: KioskSubmissionServiceProtocol = KioskSubmissionService()
-
-    init(emailWasSent: Bool = false) {
-        self.emailWasSent = emailWasSent
-    }
 
     private var options: [PostSessionNextStepOption] {
         [

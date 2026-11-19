@@ -24,10 +24,8 @@ enum AppConfig {
     static let screenCaptureEnabled = true
     
     static let deepaffexAPIHostname = "api.deepaffex.ai"
-    static let baseURL = qaToolsEnabled
-        ? "https://coremobileapidev.hibiscushealth.com"
-        : "https://coremobileapiprod.hibiscushealth.com"
-    static let brandCode = "XSEWVGNV"
+    static let baseURL = "https://coremobileapistaging.hibiscushealth.com"
+    static let brandCode = "V5IJF1WT"
     static let scanType = "Kiosk"
 
 }

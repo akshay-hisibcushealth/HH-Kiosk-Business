@@ -1,0 +1,10 @@
+# Local credentials and generated build products must never be committed.
+.local-secrets/
+**/PayloadCredentials.plist
+**/xcuserdata/
+.build/
+DerivedData/
+build/
+*.xcarchive/
+*.ipa
+.DS_Store

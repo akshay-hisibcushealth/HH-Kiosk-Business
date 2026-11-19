@@ -2,7 +2,6 @@ import Foundation
 import AnuraCore
 
 protocol KioskSubmissionServiceProtocol {
-    func sendEmailResults(email: String, pin: String, measurementID: String) async throws
     func sendUserResponse(email: String, nextSteps: [KioskNextStepResponse], npsScore: Int?) async throws -> KioskUserResponseResult
     func saveUserVitals(results: [String: MeasurementResults.SignalResult]?) async throws -> ResultsMap
     func saveUserVitals(testResults: ResultsMap?) async throws -> ResultsMap
@@ -53,20 +52,6 @@ struct KioskSubmissionService: KioskSubmissionServiceProtocol {
 
     init(client: AppURLSessionClientProtocol = AppURLSessionClient()) {
         self.client = client
-    }
-
-    func sendEmailResults(email: String, pin: String, measurementID: String) async throws {
-        guard !measurementID.isEmpty else {
-            throw AppAPIError.missingMeasurementID
-        }
-
-        let payload = EmailResultPayload(
-            email: email,
-            measurementID: measurementID,
-            pin: pin
-        )
-
-        _ = try await client.sendAndReturnData(payload, to: AppAPIEndpoints.emailResults, method: "POST")
     }
 
     func sendUserResponse(email: String, nextSteps: [KioskNextStepResponse], npsScore: Int?) async throws -> KioskUserResponseResult {

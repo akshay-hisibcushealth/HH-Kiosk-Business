@@ -1,22 +1,13 @@
 import SwiftUI
 
 struct ScreenSaver: View {
-    @EnvironmentObject private var appState: AppState
     @State private var refreshTrigger = false
     @State private var showResponseReceivedToast = false
     let onStartFaceScan: () -> Void
 
-    private var welcomeText: String {
-        appState.screenSaverData?.welcomeText ?? ScreenSaverStrings.title
-    }
-
-    private var subtitle: String {
-        appState.screenSaverData?.subtitle ?? ScreenSaverStrings.subtitle
-    }
-
-    private var actionButtonText: String {
-        appState.screenSaverData?.actionButtonText ?? ScreenSaverStrings.actionButton
-    }
+    private let welcomeText = ScreenSaverStrings.title
+    private let subtitle = ScreenSaverStrings.subtitle
+    private let actionButtonText = ScreenSaverStrings.actionButton
 
     var body: some View {
         GeometryReader { geometry in
@@ -52,11 +43,6 @@ struct ScreenSaver: View {
         // This screen has no text input. A keyboard inset left over during
         // navigation or rotation must not compress its portrait layout.
         .ignoresSafeArea(.keyboard)
-        .task {
-            if appState.screenSaverData == nil {
-                await appState.warmScreenSaverData()
-            }
-        }
         .overlay(alignment: .top) {
             if showResponseReceivedToast {
                 ScreenSaverResponseReceivedToast()

@@ -15,29 +15,12 @@ enum ArticleScreenStrings {
 enum HomeScreenStrings {
     static let responseReceivedToast = "Response Received"
 
-    enum Weather {
-        static let loading = "Loading Weather..."
-        static let errorTitle = "Error:"
-        static let fetchingLocation = "Fetching location..."
-        static let welcomePrefix = "Welcome to the"
-        static let companyName = "[ABC Company]"
-        static let kioskSuffix = "Kiosk"
-    }
-
     enum Promo {
         static let title = "Curious About Your Health?"
         static let subtitle = "Start with a 30 seconds Face Scan"
         static let demoButtonTitle = "Watch Quick Demo"
         static let tryFaceScan = "Try Face Scan"
         static let demoURL = "https://drive.google.com/file/d/1dPJs1A6aptEh3yTCVxR5BUlRfyLWa3rL/view?usp=sharing"
-    }
-
-    enum ReadSection {
-        static let loading = "Loading..."
-        static let unavailableTitle = "Content Temporarily Unavailable"
-        static let todaysReadTitle = "Today's Read"
-        static let articleBadge = "Article"
-        static let hrDeskTitle = "From HR Desk"
     }
 
     enum Schedule {
@@ -163,9 +146,8 @@ enum ResultScreenStrings {
         static let viewNextSteps = "View Next Steps"
     }
 
-    enum EmailDelivery {
-        static let success = "Your results have been sent to your email!"
-        static let failure = "Unable to email your results. Please contact kiosk support."
+    enum ScanSave {
+        static let success = "Your scan results have been saved."
     }
 
     enum PostSession {

@@ -77,14 +77,14 @@ func navigateToHome(animated: Bool = true, showResponseToast: Bool = false) {
 
 private weak var presentedPostSessionFlowController: UIViewController?
 
-func navigateToPostSessionFlow(animated: Bool = true, emailWasSent: Bool = false) {
+func navigateToPostSessionFlow(animated: Bool = true) {
     if presentedPostSessionFlowController != nil {
         return
     }
 
     guard let topViewController = UIApplication.topViewController() else { return }
 
-    let hostingController = UIHostingController(rootView: PostSessionFlowScreen(emailWasSent: emailWasSent))
+    let hostingController = UIHostingController(rootView: PostSessionFlowScreen())
     // This flow has no text input. Keyboard safe areas from the preceding form
     // must not move its footer, including while the device is rotating.
     hostingController.safeAreaRegions = .container

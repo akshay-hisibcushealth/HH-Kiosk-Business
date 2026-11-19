@@ -63,43 +63,6 @@ actor ImageCacheStore {
     }
 }
 
-enum CachedImagePrefetcher {
-    static func preload(urls: [URL]) async {
-        await withTaskGroup(of: Void.self) { group in
-            for url in urls {
-                group.addTask {
-                    await preload(url: url)
-                }
-            }
-        }
-    }
-
-    static func preload(url: URL) async {
-        let request = URLRequest(url: url)
-
-        if let cachedResponse = URLCache.shared.cachedResponse(for: request),
-           UIImage(data: cachedResponse.data) != nil {
-            await ImageCacheStore.shared.store(cachedResponse.data, for: url)
-            return
-        }
-
-        if await ImageCacheStore.shared.image(for: url) != nil {
-            return
-        }
-
-        do {
-            let (data, response) = try await URLSession.shared.data(for: request)
-            guard UIImage(data: data) != nil else { return }
-
-            let cachedResponse = CachedURLResponse(response: response, data: data)
-            URLCache.shared.storeCachedResponse(cachedResponse, for: request)
-            await ImageCacheStore.shared.store(data, for: url)
-        } catch {
-            print("Failed to preload image from \(url):", error)
-        }
-    }
-}
-
 struct CachedAsyncImage<Content: View>: View {
     private let url: URL?
     private let content: (Image) -> Content
