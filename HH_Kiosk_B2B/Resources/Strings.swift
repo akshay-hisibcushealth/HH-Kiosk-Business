@@ -147,7 +147,7 @@ enum ResultScreenStrings {
     }
 
     enum ScanSave {
-        static let success = "Your scan results have been saved."
+        static let success = "Your results have been sent to your email!"
     }
 
     enum PostSession {

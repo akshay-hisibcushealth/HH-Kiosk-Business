@@ -26,7 +26,7 @@ final class ScanSaveToastSimulatorTests: UIResponder, UIApplicationDelegate {
             precondition(delay >= 2 && delay < 3, "Unexpected toast delay: \(delay)")
             let banner = confirmation(in: view)!
             let label = banner.subviews.compactMap { $0 as? UILabel }.first!
-            precondition(label.text == "Your scan results have been saved.")
+            precondition(label.text == "Your results have been sent to your email!")
             view.layoutIfNeeded()
             precondition(banner.frame.minX >= 0 && banner.frame.maxX <= view.bounds.maxX)
             precondition(banner.frame.minY >= view.safeAreaInsets.top)
