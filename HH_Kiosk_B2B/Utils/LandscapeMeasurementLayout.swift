@@ -1,7 +1,7 @@
 import UIKit
 
 /// Adapts the bundled Anura nib without changing its camera bounds or countdown.
-/// The SDK owns the labels' text and visibility; we only own their layout.
+/// Portrait keeps its SDK layout except for the shared heart icon placement.
 @MainActor
 final class LandscapeMeasurementLayout {
     private weak var measurementView: UIView?
@@ -9,13 +9,15 @@ final class LandscapeMeasurementLayout {
     private weak var startingLabel: UILabel?
     private weak var countdownLabel: UILabel?
     private weak var heartRateImage: UIImageView?
+    // Keep the SDK's weak outlet alive after removing the numeric overlay.
+    private var heartRateValue: UILabel?
     private let heartRateHost = UIView()
     private let footer = UIView()
     private var footerHeight: NSLayoutConstraint?
 
     private(set) var previewFrame: CGRect = .zero
 
-    func installIfNeeded(in host: UIView) {
+    func installIfNeeded(in host: UIView, isLandscape: Bool = true) {
         guard measurementView == nil,
               let sdkView = findMeasurementView(in: host),
               let video = outlet("videoView", in: sdkView) as? UIView,
@@ -29,6 +31,7 @@ final class LandscapeMeasurementLayout {
         startingLabel = starting
         countdownLabel = countdown
         installHeartRate(in: host, sdkView: sdkView)
+        guard isLandscape else { return }
 
         footer.translatesAutoresizingMaskIntoConstraints = false
         footer.backgroundColor = .clear
@@ -75,13 +78,19 @@ final class LandscapeMeasurementLayout {
         }
     }
 
-    func update(in host: UIView) {
-        installIfNeeded(in: host)
+    func update(in host: UIView, isLandscape: Bool = true) {
+        installIfNeeded(in: host, isLandscape: isLandscape)
         guard let sdkView = measurementView, let video = videoView,
               let starting = startingLabel, let countdown = countdownLabel else { return }
 
         let safe = host.bounds.inset(by: host.safeAreaInsets)
         guard safe.width > 40, safe.height > 0, video.bounds.width > 0 else { return }
+
+        guard isLandscape else {
+            previewFrame = video.convert(video.bounds, to: host)
+            positionHeartRateAbovePreview(in: host, scale: 1)
+            return
+        }
 
         // Reserve both lines even while the SDK hides them during calibration.
         let textWidth = safe.width - 40
@@ -95,7 +104,7 @@ final class LandscapeMeasurementLayout {
         }
 
         // Keep the circle at 70% of the dialog width and lift it by 15% of the
-        // available height. Leave a top inset so smaller popups cannot crop it.
+        // available height. Reserve room above it for the heart icon.
         // The footer remains outside this transform.
         let native = video.frame
         let desiredDiameter = safe.width * 0.70
@@ -104,7 +113,11 @@ final class LandscapeMeasurementLayout {
         let nativeCenter = CGPoint(x: native.midX, y: native.midY)
         let previewSize = CGSize(width: native.width * scale, height: native.height * scale)
         let previewTop = nativeCenter.y + sdkOrigin.y - previewSize.height / 2
-        let upwardOffset = min(safe.height * 0.15, max(0, previewTop - safe.minY - 16))
+        let heartHeight = heartRateImage?.systemLayoutSizeFitting(
+            UIView.layoutFittingCompressedSize
+        ).height ?? 0
+        let topInset = heartHeight > 0 ? heartHeight * scale + 32 : 16
+        let upwardOffset = min(safe.height * 0.15, max(0, previewTop - safe.minY - topInset))
 
         var transform = CATransform3DMakeScale(scale, scale, 1)
         transform.m41 = nativeCenter.x - sdkOrigin.x - nativeCenter.x * scale
@@ -121,7 +134,7 @@ final class LandscapeMeasurementLayout {
             height: previewSize.height
         ).offsetBy(dx: sdkOrigin.x, dy: sdkOrigin.y - upwardOffset)
 
-        positionHeartRateBelowPreview(scale: scale)
+        positionHeartRateAbovePreview(in: host, scale: scale)
     }
 
     private func installHeartRate(in host: UIView, sdkView: UIView) {
@@ -130,6 +143,12 @@ final class LandscapeMeasurementLayout {
               image.isDescendant(of: heart) else { return }
 
         heartRateImage = image
+        if let value = outlet("labelHeartRateValue", in: sdkView) as? UILabel {
+            heartRateValue = value
+            value.isHidden = true
+            value.isAccessibilityElement = false
+            value.removeFromSuperview()
+        }
         heartRateHost.isUserInteractionEnabled = false
         heartRateHost.backgroundColor = .clear
         host.addSubview(heartRateHost)
@@ -149,19 +168,23 @@ final class LandscapeMeasurementLayout {
             image.topAnchor.constraint(equalTo: heart.topAnchor),
             image.bottomAnchor.constraint(equalTo: heart.bottomAnchor)
         ])
-        // Keep the SDK outlet references, visibility, value updates and animation
-        // transforms untouched. Only our wrapper owns the screen position.
+        // Keep SDK outlets, heart visibility and animation transforms intact.
+        // The detached value label can still receive SDK updates.
     }
 
-    private func positionHeartRateBelowPreview(scale: CGFloat) {
+    private func positionHeartRateAbovePreview(in host: UIView, scale: CGFloat) {
         guard let image = heartRateImage else { return }
         let size = image.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
         guard size.width > 0, size.height > 0 else { return }
+        // Portrait has a smaller header. Fit the icon between the safe-area
+        // top and circle while keeping a 16 pt gap on either side.
+        let availableHeight = max(0, previewFrame.minY - host.bounds.minY - host.safeAreaInsets.top - 32)
+        let iconScale = min(scale, availableHeight / size.height)
         heartRateHost.bounds = CGRect(origin: .zero, size: size)
-        heartRateHost.transform = CGAffineTransform(scaleX: scale, y: scale)
+        heartRateHost.transform = CGAffineTransform(scaleX: iconScale, y: iconScale)
         heartRateHost.center = CGPoint(
             x: previewFrame.midX,
-            y: previewFrame.maxY + 16 + size.height * scale / 2
+            y: previewFrame.minY - 16 - size.height * iconScale / 2
         )
     }
 

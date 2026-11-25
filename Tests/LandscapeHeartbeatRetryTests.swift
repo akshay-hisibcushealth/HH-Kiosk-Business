@@ -9,12 +9,18 @@ private final class MeasurementNibOwner: UIViewController, UIGestureRecognizerDe
 @main
 struct LandscapeHeartbeatRetryTests {
     @MainActor static func main() {
+        checkLayout(isLandscape: true, size: CGSize(width: 738, height: 750))
+        checkLayout(isLandscape: false, size: CGSize(width: 656, height: 826))
+        print("PASS: actual Anura nib, portrait and landscape, 100 retries each, heart animation, hidden HR and popup resize")
+    }
+
+    @MainActor private static func checkLayout(isLandscape: Bool, size: CGSize) {
         let owner = MeasurementNibOwner()
         _ = UINib(nibName: "GenericMeasurementViewController",
                   bundle: Bundle(for: AnuraMeasurementViewController.self))
             .instantiate(withOwner: owner)
         let sdk = owner.view!
-        let host = UIView(frame: CGRect(x: 0, y: 0, width: 738, height: 750))
+        let host = UIView(frame: CGRect(origin: .zero, size: size))
         sdk.frame = host.bounds
         host.addSubview(sdk)
         let layout = LandscapeMeasurementLayout()
@@ -29,17 +35,17 @@ struct LandscapeHeartbeatRetryTests {
                 host.setNeedsLayout()
                 sdk.setNeedsLayout()
                 host.layoutIfNeeded()
-                layout.update(in: host)
+                layout.update(in: host, isLandscape: isLandscape)
                 host.layoutIfNeeded()
             }
         }
         func checkPosition() {
             let imageFrame = image.convert(image.bounds, to: host)
-            let bpmFrame = bpm.convert(bpm.bounds, to: host)
-            precondition(abs(imageFrame.minY - layout.previewFrame.maxY - 16) < 0.1)
+            precondition(abs(layout.previewFrame.minY - imageFrame.maxY - 16) < 0.1)
             precondition(abs(imageFrame.midX - layout.previewFrame.midX) < 0.1)
-            precondition(abs(imageFrame.minY - bpmFrame.minY) < 0.1)
-            precondition(imageFrame.height > 0 && imageFrame.maxY < host.bounds.maxY)
+            precondition(bpm.superview == nil && bpm.isHidden && !bpm.isAccessibilityElement)
+            precondition(imageFrame.height > 0 && imageFrame.minY >= host.safeAreaInsets.top,
+                         "Heart must stay inside the popup: \(imageFrame), preview: \(layout.previewFrame), landscape: \(isLandscape)")
             precondition(heart.transform == .identity)
         }
 
@@ -68,10 +74,9 @@ struct LandscapeHeartbeatRetryTests {
             precondition((sdk.value(forKey: "labelHeartRateValue") as! UILabel) === bpm)
         }
 
-        host.bounds.size = CGSize(width: 700, height: 720)
+        host.bounds.size = CGSize(width: size.width - 38, height: size.height - 30)
         sdk.frame = host.bounds
         settle()
         checkPosition()
-        print("PASS: actual Anura nib, 100 retry layouts, heartbeat animations, BPM updates and popup resize")
     }
 }

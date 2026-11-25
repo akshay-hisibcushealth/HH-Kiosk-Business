@@ -272,12 +272,12 @@ private final class OrientationAwareAnuraMeasurementViewController: AnuraMeasure
 
         if startedInLandscape {
             view.layer.sublayerTransform = CATransform3DIdentity
-            landscapeLayout.update(in: view)
         } else {
             // Keep Anura's portrait controls inside the sheet during rotation.
             let contentScale: CGFloat = orientation.isLandscape ? 0.82 : 1
             view.layer.sublayerTransform = CATransform3DMakeScale(contentScale, contentScale, 1)
         }
+        landscapeLayout.update(in: view, isLandscape: startedInLandscape)
 
         // Both layouts must preserve the SDK's external-camera orientation.
         cameraPreviewOrientation.update(
