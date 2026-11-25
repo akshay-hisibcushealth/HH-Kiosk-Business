@@ -1,19 +1,20 @@
 import UIKit
 
-/// A save confirmation belongs to the current results screen and is discarded
+/// The save response's email status belongs to the current results screen and is discarded
 /// when that screen starts loading again or is dismissed.
 @MainActor
 final class ScanSaveToast {
     private var presentationTask: Task<Void, Never>?
     private weak var toast: UIView?
 
-    func schedule(in view: UIView, shouldPresent: @escaping @MainActor () -> Bool) {
+    func schedule(in view: UIView, delivery: ReportEmailDelivery, shouldPresent: @escaping @MainActor () -> Bool) {
         cancel()
+        guard !delivery.message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
         presentationTask = Task { [weak self, weak view] in
             do {
                 try await Task.sleep(for: .seconds(2))
                 guard let view, view.window != nil, shouldPresent() else { return }
-                self?.present(in: view)
+                self?.present(in: view, delivery: delivery)
                 try await Task.sleep(for: .seconds(4))
                 self?.cancel()
             } catch {
@@ -33,12 +34,14 @@ final class ScanSaveToast {
         presentationTask?.cancel()
     }
 
-    private func present(in view: UIView) {
-        let message = ResultScreenStrings.ScanSave.success
+    private func present(in view: UIView, delivery: ReportEmailDelivery) {
+        let message = delivery.message
         let toast = UIView()
         toast.accessibilityIdentifier = "results.saveConfirmationToast"
         toast.translatesAutoresizingMaskIntoConstraints = false
-        toast.backgroundColor = UIColor(red: 0.39, green: 0.76, blue: 0, alpha: 1)
+        toast.backgroundColor = delivery.sent
+            ? UIColor(red: 0.39, green: 0.76, blue: 0, alpha: 1)
+            : .systemRed
         toast.layer.cornerRadius = 14
         toast.isUserInteractionEnabled = false
 

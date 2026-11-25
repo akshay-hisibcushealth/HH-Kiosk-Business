@@ -326,7 +326,7 @@ class ResultsViewController: UIViewController {
                 return
             }
 
-            let displayResults = backendResults.reduce(into: ResultsMap()) { results, entry in
+            let displayResults = backendResults.results.reduce(into: ResultsMap()) { results, entry in
                 results[entry.key] = mockScanResults[entry.key] ?? entry.value
             }
 
@@ -342,7 +342,7 @@ class ResultsViewController: UIViewController {
                     }
                 )
                 self.updateUI(for: .success)
-                self.scheduleSaveConfirmation()
+                self.scheduleSaveConfirmation(delivery: backendResults.emailDelivery)
                 print("✅ Mock scan results submitted and backend results displayed successfully.")
             }
         }
@@ -523,8 +523,9 @@ class ResultsViewController: UIViewController {
         }
     }
 
-    private func scheduleSaveConfirmation() {
-        saveToast.schedule(in: view) { [weak self] in
+    private func scheduleSaveConfirmation(delivery: ReportEmailDelivery?) {
+        guard let delivery else { return }
+        saveToast.schedule(in: view, delivery: delivery) { [weak self] in
             self?.isResultsScreenVisible == true
         }
     }
@@ -579,7 +580,7 @@ class ResultsViewController: UIViewController {
                 }
 
                 await MainActor.run {
-                    self.resultsModel.update(with: backendResults)
+                    self.resultsModel.update(with: backendResults.results)
                     self.resultButtonsHost.rootView = ResultScreenButtons(
                         result: self.results,
                         onDownloadPDF: { [weak self] in
@@ -590,7 +591,7 @@ class ResultsViewController: UIViewController {
                         }
                     )
                     self.updateUI(for: .success)
-                    self.scheduleSaveConfirmation()
+                    self.scheduleSaveConfirmation(delivery: backendResults.emailDelivery)
                     print("✅ Backend results displayed successfully.")
                 }
             }
@@ -879,31 +880,35 @@ class ResultsViewController: UIViewController {
         }
     }
     
-    private func prepareDataForAPI(_ results: [String: MeasurementResults.SignalResult]?) async -> ResultsMap? {
+    private func prepareDataForAPI(_ results: [String: MeasurementResults.SignalResult]?) async -> KioskVitalsSaveResult? {
         UserDefaults.standard.removeObject(forKey: "measurement_results")
         return await saveUserAndResultData(results: results)
     }
     
     
-    func saveUserAndResultData(results: [String: MeasurementResults.SignalResult]?) async -> ResultsMap? {
+    func saveUserAndResultData(results: [String: MeasurementResults.SignalResult]?) async -> KioskVitalsSaveResult? {
         do {
             let backendResults = try await submissionService.saveUserVitals(results: results)
             print("✅ Saved user vitals and received backend results.")
-            let visibleResults = filterVisibleResults(backendResults)
-            return visibleResults.isEmpty ? nil : visibleResults
+            let visibleResults = filterVisibleResults(backendResults.results)
+            return visibleResults.isEmpty ? nil : KioskVitalsSaveResult(
+                results: visibleResults, emailDelivery: backendResults.emailDelivery
+            )
         } catch {
             print("❌ Network error:", error.localizedDescription)
             return nil
         }
     }
 
-    private func prepareTestDataForAPI(_ results: ResultsMap?) async -> ResultsMap? {
+    private func prepareTestDataForAPI(_ results: ResultsMap?) async -> KioskVitalsSaveResult? {
         UserDefaults.standard.removeObject(forKey: "measurement_results")
         do {
             let backendResults = try await submissionService.saveUserVitals(testResults: results)
             print("✅ Saved mock user vitals and received backend results.")
-            let visibleResults = filterVisibleResults(backendResults)
-            return visibleResults.isEmpty ? nil : visibleResults
+            let visibleResults = filterVisibleResults(backendResults.results)
+            return visibleResults.isEmpty ? nil : KioskVitalsSaveResult(
+                results: visibleResults, emailDelivery: backendResults.emailDelivery
+            )
         } catch {
             print("❌ Network error:", error.localizedDescription)
             return nil

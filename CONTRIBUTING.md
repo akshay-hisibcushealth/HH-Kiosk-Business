@@ -35,8 +35,11 @@ once, with a fresh ephemeral key and nonce.
 The current B2B app saves demographics and scan results through
 `/custom-facescan/save/`, using `X-Public-Client-Key` and `X-Encrypt-Inner: 1`.
 It no longer sends a separate report-email request. Two seconds after a
-successful save, the visible results screen shows a save-confirmation toast
-for four seconds. Leaving the screen or loading another result cancels it.
+successful save, the visible results screen shows the top-level API `message`
+for four seconds: green when the top-level `report_email_sent` is true, red
+when false. Email fields inside `final_results` do not control this toast.
+Missing or invalid email metadata suppresses the toast without hiding valid
+scan results. Leaving the screen or loading another result cancels it.
 Dedicated kiosk save/email routes use a separately
 provisioned `X-Kiosk-Key`. Do not substitute one credential for the other. NPS
 (`/custom-kiosk-user-response/`) sends ordinary JSON with `X-Kiosk-Key`.
@@ -85,7 +88,11 @@ storage protects the local source workflow and runtime storage, but does not
 make a shared key in a distributed app unextractable. Stronger device identity
 would require backend-issued credentials or managed device provisioning.
 User-script sandboxing is disabled for the app target so the provisioning phase
-can access macOS Keychain. API logging omits bodies, headers and query strings.
+can access macOS Keychain. General API logging omits bodies, headers and query
+strings. For save-response debugging, Debug builds print the complete decrypted
+`/custom-facescan/save/` success body before mapping its fields. This diagnostic
+includes any personal or health data returned by that endpoint and is excluded
+from Release builds.
 No custom TLS pin was invented; URLSession retains system certificate validation.
 
 `AppConfig.baseURL` selects the environment and must currently be a literal HTTPS

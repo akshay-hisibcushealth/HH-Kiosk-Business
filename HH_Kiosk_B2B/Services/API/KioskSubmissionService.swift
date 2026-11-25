@@ -3,8 +3,13 @@ import AnuraCore
 
 protocol KioskSubmissionServiceProtocol {
     func sendUserResponse(email: String, nextSteps: [KioskNextStepResponse], npsScore: Int?) async throws -> KioskUserResponseResult
-    func saveUserVitals(results: [String: MeasurementResults.SignalResult]?) async throws -> ResultsMap
-    func saveUserVitals(testResults: ResultsMap?) async throws -> ResultsMap
+    func saveUserVitals(results: [String: MeasurementResults.SignalResult]?) async throws -> KioskVitalsSaveResult
+    func saveUserVitals(testResults: ResultsMap?) async throws -> KioskVitalsSaveResult
+}
+
+struct KioskVitalsSaveResult {
+    let results: ResultsMap
+    let emailDelivery: ReportEmailDelivery?
 }
 
 struct KioskUserResponseResult: Decodable {
@@ -71,15 +76,15 @@ struct KioskSubmissionService: KioskSubmissionServiceProtocol {
         return result
     }
 
-    func saveUserVitals(results: [String: MeasurementResults.SignalResult]?) async throws -> ResultsMap {
+    func saveUserVitals(results: [String: MeasurementResults.SignalResult]?) async throws -> KioskVitalsSaveResult {
         try await saveUserVitalsPayload(data: mapResults(results ?? [:]))
     }
 
-    func saveUserVitals(testResults: ResultsMap?) async throws -> ResultsMap {
+    func saveUserVitals(testResults: ResultsMap?) async throws -> KioskVitalsSaveResult {
         try await saveUserVitalsPayload(data: mapResults(testResults ?? [:]))
     }
 
-    private func saveUserVitalsPayload(data: [String: ResultEntry]) async throws -> ResultsMap {
+    private func saveUserVitalsPayload(data: [String: ResultEntry]) async throws -> KioskVitalsSaveResult {
         guard let user = LocalUserStorage.loadUser() else {
             throw AppAPIError.missingSavedUser
         }
@@ -98,8 +103,24 @@ struct KioskSubmissionService: KioskSubmissionServiceProtocol {
         )
 
         let responseData = try await client.sendAndReturnData(payload, to: AppAPIEndpoints.saveKioskHealth, method: "POST")
+        #if DEBUG
+        // Log after decryption and before mapping so every response field is visible.
+        let responseBody: String
+        if let json = try? JSONSerialization.jsonObject(with: responseData, options: .fragmentsAllowed),
+           let formatted = try? JSONSerialization.data(withJSONObject: json, options: [.prettyPrinted, .sortedKeys, .fragmentsAllowed]),
+           let text = String(data: formatted, encoding: .utf8) {
+            responseBody = text
+        } else {
+            responseBody = String(decoding: responseData, as: UTF8.self)
+        }
+        print("📥 /custom-facescan/save/ full decrypted response:\n\(responseBody)")
+        #endif
         ScanSessionStorage.saveMeasurementID(extractMeasurementID(from: responseData))
-        return try mapBackendResults(from: responseData)
+        return KioskVitalsSaveResult(
+            results: try mapBackendResults(from: responseData),
+            // Missing email metadata must not hide valid scan results or imply delivery.
+            emailDelivery: try? JSONDecoder().decode(ReportEmailDelivery.self, from: responseData)
+        )
     }
 
     private func mapResults(_ results: [String: MeasurementResults.SignalResult]) -> [String: ResultEntry] {

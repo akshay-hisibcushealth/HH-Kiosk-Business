@@ -146,10 +146,6 @@ enum ResultScreenStrings {
         static let viewNextSteps = "View Next Steps"
     }
 
-    enum ScanSave {
-        static let success = "Your results have been sent to your email!"
-    }
-
     enum PostSession {
         static let nextStepsHeading = "Your next step"
         static let nextStepsSubtitle = "What will you do based on your results? (select all that apply)"
